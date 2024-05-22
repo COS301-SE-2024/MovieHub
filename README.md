@@ -16,21 +16,18 @@ https://youtu.be/uN64m3bUY6M?si=4wRHIuM3h0ZwLsB5
 
 ### Steps to Get Started
 
- **Clone the repository from Frontend Branch:**
-   ```bash
-   git clone 
-   cd Moviehub
+### Clone the frontend repo
 
    - Run Project using npm start 
     - if using iphone scan QR code and it will take you to the app 
     - else press w and it will open in web
    - You may have to download dependencies 
 
-Folder/file meaning
+### Folder/file meaning
 
- __test__ folder is for all our fontend unit tests
- assets folder is for images and fonts 
- scr folder - has components (headers, footer) and screens (which are our pages)
- APP.js will be used for navigation
- Backend Folder - for backend code 
+ 1. __test__ folder is for all our fontend unit tests
+ 2. assets folder is for images and fonts 
+ 3. scr folder - has components (headers, footer) and screens (which are our pages)
+ 4. APP.js will be used for navigation
+ 5. Backend Folder - for backend code 
 
