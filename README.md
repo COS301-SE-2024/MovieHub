@@ -1,45 +1,36 @@
-# MovieHub
+# Moviehub
 
+## Setup Instructions
 
+### Prerequisites
+### Make sure you have node installed 
+- Node.js and npm: [Install Node.js](https://nodejs.org/)
+### Install expo 
+- Expo CLI: Install via `npm install -g expo-cli`
+### if you have an iphone - please download the expo app 
+### else you'll have to download the android emulator: 
 
-## MovieHub - Project Decription
-MovieHub aims to address the need for movie enthusiasts to explore, discuss and review films on a social platform that is usable and interactive. With it providing users with a one-stop destination for all their movie related needs. A priority of this project is to surpass existing platforms, by offering a superior user experience and unparalleled depth of content.
+https://youtu.be/uN64m3bUY6M?si=4wRHIuM3h0ZwLsB5
 
+### or you can run it on the web
 
+### Steps to Get Started
 
+ **Clone the repository from Frontend Branch:**
+   ```bash
+   git clone 
+   cd Moviehub
 
+   - Run Project using npm start 
+    - if using iphone scan QR code and it will take you to the app 
+    - else press w and it will open in web
+   - You may have to download dependencies 
 
-## Video Demo Recordings 
+Folder/file meaning
 
-Insert gif or link to demo
-
-
-## Documentation
-
-[Documentation](https://linktodocumentation)
-
-
-## Project Mangement
-
-[Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
-
-## Branching Strategy
-We will use GtiFlow as our branching strategy, as such we will have main, development and feature branches.
-![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/cd25443f-1e72-4d25-a7d6-37e84984c0e4)
-
-Once develop has acquired enough features for a release (or a predetermined release date is approaching), you fork a release branch off of develop. Creating this branch starts the next release cycle, so no new features can be added after this point—only bug fixes, documentation generation, and other release-oriented tasks should go in this branch. Once it's ready to ship, the release branch gets merged into main and tagged with a version number. In addition, it should be merged back into develop, which may have progressed since the release was initiated.
-![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/a64330e9-8fd3-48f3-8dce-7a3c93a8fe36)
-
-Maintenance or “hotfix” branches are used to quickly patch production releases. Hotfix branches are a lot like release branches and feature branches except they're based on main instead of develop. This is the only branch that should fork directly off of main. As soon as the fix is complete, it should be merged into both main and develop (or the current release branch), and main should be tagged with an updated version number.
-![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/062066e4-5dcd-48cc-ad5c-a620619435e8)
-
-## Branch Naming Convention
-To make sure everyone knows exactly where each branch is located we will follow this naming convention:
-main
-development
-All feature branches must be named as follows:
-dev/feature/subfeature
-For example:
-dev/auth/login
-This implies that there is an authentication branch that was branched from development and furthermore a login branch was then branched from there.
+ __test__ folder is for all our fontend unit tests
+ assets folder is for images and fonts 
+ scr folder - has components (headers, footer) and screens (which are our pages)
+ APP.js will be used for navigation
+ Backend Folder - for backend code 
 
