@@ -18,8 +18,8 @@ exports.getUserProfile = async (userId) => {
             return null;
         }
         return result.records[0].get('u').properties;
-    } catch (error) {
-        throw error;
+    // } catch (error) {
+    //     throw error;
     } finally {
         await session.close();
     }

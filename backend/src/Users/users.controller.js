@@ -1,18 +1,37 @@
 // backend/users/users.controller.js
 const userService = require('./users.services');
 
+// exports.getUserProfile = async (req, res) => {
+//     const userId = req.params.userId;
+//     try {
+//         const user = await userService.getUserProfile(userId);
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+//         res.json(user);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Error retrieving user profile', error });
+//     }
+// };
+
 exports.getUserProfile = async (req, res) => {
-    const userId = req.params.userId;
+    console.log('getUserProfile called');
     try {
-        const user = await userService.getUserProfile(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        const userId = req.params.id;
+        console.log(`Fetching user profile for ID: ${userId}`);
+        const userProfile = await userService.getUserProfile(userId);
+
+        if (userProfile) {
+            res.status(200).json(userProfile);
+        } else {
+            res.status(404).json({ message: 'User not found' });
         }
-        res.json(user);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving user profile', error });
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
 
 exports.updateUserProfile = async (req, res) => {
     const userId = req.params.userId;
