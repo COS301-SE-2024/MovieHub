@@ -35,11 +35,13 @@ Maintenance or “hotfix” branches are used to quickly patch production releas
 
 ## Branch Naming Convention
 To make sure everyone knows exactly where each branch is located we will follow this naming convention:
-main
-development
-All feature branches must be named as follows:
-dev/feature/subfeature
-For example:
-dev/auth/login
-This implies that there is an authentication branch that was branched from development and furthermore a login branch was then branched from there.
+main\
+development\
+dev/backend\
+dev/frontend\
+All feature branches must be named as follows:\
+dev/environment/feature/subfeature\
+For example:\
+dev/back/auth/login\
+This implies that there is an authentication branch that was branched from backend and furthermore a login branch was then branched from there.\
 
