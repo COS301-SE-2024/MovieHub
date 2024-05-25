@@ -5,8 +5,17 @@
 ## MovieHub - Project Decription
 MovieHub aims to address the need for movie enthusiasts to explore, discuss and review films on a social platform that is usable and interactive. With it providing users with a one-stop destination for all their movie related needs. A priority of this project is to surpass existing platforms, by offering a superior user experience and unparalleled depth of content.
 
+## Team Breakdown
+#### Tlhalefo Dikolomela (Team Lead)
 
 
+## 🚀 About Me
+I am a final year Computer Science student, who enjoys learning and challenging myself. I have good planning, mangement and leadership skills. I am most profecient in Java, C++, JavaScript and Python. 
+
+
+#### 🔗 Links
+[![github](https://img.shields.io/badge/github-000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tlh26 )
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/tlhalefo-dikolomela-222608202 )
 
 
 ## Video Demo Recordings 
@@ -44,4 +53,12 @@ dev/environment/feature/subfeature\
 For example:\
 dev/back/auth/login\
 This implies that there is an authentication branch that was branched from backend and furthermore a login branch was then branched from there.\
+
+
+
+## Stakeholders
+
+![Logo](https://drive.google.com/uc?export=view&id=1MH_xi0pqxdvUpEHHQt90HbKpOWwae9Ss)
+
+
 
