@@ -1,24 +1,36 @@
-# GGC - MovieHub - Discover, Share, and Engage with Films Like Never Before!
+<p align="center">
 
-## Project Description
-MovieHub aims to address the need for movie enthusiasts to explore, discuss and review films on a social platform that is usable and interactive. With it providing users with a one-stop destination for all their movie related needs. A priority of this project is to surpass existing platforms, by offering a superior user experience and unparalleled depth of content.
+  <h1 align="center">🎞️MovieHub🎞️</h1>
+  <h2 align="center">Discover, Share, and Engage with Films Like Never Before!</h2>
 
-# 🍿Badges: #
+<div align="center">
+<h3 align="center">MovieHub aims to address the need for movie enthusiasts to explore, discuss and review films on a social platform that is usable and interactive. With it providing users with a one-stop destination for all their movie related needs. A priority of this project is to surpass existing platforms, by offering a superior user experience and unparalleled depth of content.
+</h3>
+<div align="center">
 
-## Video Demo Recordings 
+  # 🍿Badges #
+![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2024/MovieHub)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/COS301-SE-2024/MovieHub)
+![GitHub pull requests](https://img.shields.io/github/languages/count/COS301-SE-2024/MovieHub)
+![GitHub pull requests](https://img.shields.io/github/last-commit/COS301-SE-2024/MovieHub)
+![GitHub pull requests](https://img.shields.io/github/repo-size/COS301-SE-2024/MovieHub)
+  
+</div>
+
+
+# Video Demo Recordings # 
 
 Insert gif or link to demo
 
 
-## Documentation
+# Documentation #
 
 [Documentation](https://linktodocumentation)
 
-## Team Members
+# Team Members #
 Professional profiles of team members, including links to LinkedIn and GitHub profiles
 
 <table>
-
 <tr>
   <td> </td>
   <td> Member Name </td>
@@ -30,7 +42,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 <tr>
   <td></td>
   <td> Tlhalefo Dikolomela </td>
-  <td> Project Manager </td>
+  <td> Project Manager, Database Administrator </td>
   <td> I am a final year Computer Science student, who enjoys learning and challenging myself. I have good planning, management and leadership skills. I am most proficient in Java, C++, JavaScript and Python. 
   <td>
         <a href="https://github.com/tlh26">
@@ -45,10 +57,10 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 <tr>
   <td></td>
   <td> Asakundwi Siphuma </td>
-  <td> UI/UX designer and Front-end developer </td>
+  <td> UI/UX Designer, Frontend Developer </td>
   <td></td>
   <td>
-        <a href="https://github.com/tlh26/">
+        <a href="">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
         </a><br>
         <a href="https://www.linkedin.com/in/asa-siphuma-07397b262/">
@@ -56,8 +68,6 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
         </a><br>
   </td>
 </tr>
-
-
 
 <tr>
   <td></td>
@@ -77,7 +87,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 <tr>
   <td></td>
   <td> Zandile Modise </td>
-  <td> Quality Assurer/ Front-end developer</td>
+  <td> Quality Assurance Engineer, Frontend Developer</td>
   <td></td>
   <td>
         <a href="https://github.com/ZandileModise">
@@ -92,7 +102,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 <tr>
   <td></td>
   <td> Charlize Hanekom </td>
-  <td> DevOps/ Back-end Developer</td>
+  <td> DevOps Engineer, Backend Developer</td>
   <td></td>
   <td>
         <a href="">
@@ -107,7 +117,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 <tr>
   <td></td>
   <td> Itumeleng Moshokoa </td>
-  <td> Front-End Developer</td>
+  <td> Frontend Developer</td>
   <td></td>
   <td>
         <a href="">
@@ -121,11 +131,11 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 
 </table>
 
-## Project Management
+# Project Management #
 
 [Project Board] (https://github.com/orgs/COS301-SE-2024/projects/72)
 
-## Branching Strategy
+# Branching Strategy #
 We will use GitFlow as our branching strategy, as such we will have main, development and feature branches.
 ![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/cd25443f-1e72-4d25-a7d6-37e84984c0e4)
 
@@ -135,7 +145,7 @@ Once develop has acquired enough features for a release (or a predetermined rele
 Maintenance or “hotfix” branches are used to quickly patch production releases. Hotfix branches are a lot like release branches and feature branches except they're based on main instead of the develop branch. This is the only branch that should fork directly off of main. As soon as the fix is complete, it should be merged into both main and develop (or the current release branch), and main should be tagged with an updated version number.
 ![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/062066e4-5dcd-48cc-ad5c-a620619435e8)
 
-## Branch Naming Convention
+# Branch Naming Convention #
 To make sure everyone knows exactly where each branch is located, we will follow this naming convention:
 main\
 development\
