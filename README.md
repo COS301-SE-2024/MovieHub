@@ -1,19 +1,26 @@
 <p align="center">
-
-  <h1 align="center">🎞️MovieHub🎞️</h1>
-  <h2 align="center">Discover, Share, and Engage with Films Like Never Before!</h2>
-
+  <div align="center">
+  <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/1e1ca1d9-4474-48ce-833b-07e82e5f29db" style="height: 7%;">
+    <br>
+    <br>
+  <h2 align="center">Engage with Films Like Never Before!</h2>
+  </div>
 <div align="center">
 <h3 align="center">MovieHub aims to address the need for movie enthusiasts to explore, discuss and review films on a social platform that is usable and interactive. With it providing users with a one-stop destination for all their movie related needs. A priority of this project is to surpass existing platforms, by offering a superior user experience and unparalleled depth of content.
 </h3>
 <div align="center">
 
-  # 🍿Badges #
+  # Badges #
 ![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2024/MovieHub)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/COS301-SE-2024/MovieHub)
 ![GitHub pull requests](https://img.shields.io/github/languages/count/COS301-SE-2024/MovieHub)
 ![GitHub pull requests](https://img.shields.io/github/last-commit/COS301-SE-2024/MovieHub)
 ![GitHub pull requests](https://img.shields.io/github/repo-size/COS301-SE-2024/MovieHub)
+
+<img src="https://img.shields.io/badge/-JavaScript-grey?logo=javascript" style="height: 7%;">
+  <img src="https://img.shields.io/badge/-React_Native-grey?logo=react" style="height: 7%;">
+  <img src="https://img.shields.io/badge/-Neo4j-grey?logo=neo4j" style="height: 7%;">
+  <img src="https://img.shields.io/badge/-Firebase-grey?logo=firebase" style="height: 7%;">
   
 </div>
 
