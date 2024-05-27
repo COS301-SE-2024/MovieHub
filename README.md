@@ -43,7 +43,10 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td></td>
   <td> Tlhalefo Dikolomela </td>
   <td> Project Manager, Database Administrator </td>
-  <td> I am a final year Computer Science student, who enjoys learning and challenging myself. I have good planning, management and leadership skills. I am most proficient in Java, C++, JavaScript and Python. 
+  <td> Final year Computer Science student,
+    who enjoys learning and challenging myself.
+    I have good planning, management and leadership skills.
+    I am most proficient in Java, C++, JavaScript and Python. 
   <td>
         <a href="https://github.com/tlh26">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
