@@ -1,6 +1,7 @@
+import firebase from "../Firebase/firebaseConnection";
 
 function signUp(email, password) {
-    createUserWithEmailAndPassword(auth, email, password)
+    firebase.auth.createUserWithEmailAndPassword( email, password)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
@@ -14,7 +15,7 @@ function signUp(email, password) {
   }
   
   function logIn(email, password) {
-    signInWithEmailAndPassword(auth, email, password)
+    firebase.auth.signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
@@ -29,7 +30,7 @@ function signUp(email, password) {
 
 
   function logOut() {
-    signOut(auth).then(() => {
+    firebase.auth.signOut().then(() => {
       // Sign-out successful.
       console.log('User logged out');
     }).catch((error) => {
