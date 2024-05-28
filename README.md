@@ -50,7 +50,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td></td>
   <td> Tlhalefo Dikolomela </td>
   <td> Project Manager, Database Administrator </td>
-  <td> Final year Computer Science student,
+  <td> I am a final year Computer Science student,
     who enjoys learning and challenging myself.
     I have good planning, management and leadership skills.
     I am most proficient in Java, C++, JavaScript and Python. 
@@ -65,12 +65,16 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 </tr>
 
 <tr>
-  <td></td>
+  <td>
+     <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/b2cf22dd-a9bd-4ee7-b7fe-ece9a81286fb" >
+  </td>
   <td> Asakundwi Siphuma </td>
   <td> UI/UX Designer, Frontend Developer </td>
-  <td></td>
   <td>
-        <a href="">
+    I am a computer science student from the University of Pretoria. I excel in building modern web applications that deliver seamless user experience. I'm always looking for opportunities to expand my knowledge in full stack development. Fun fact: I nearly traded in my keyboard for a paintbrush and pursued a degree in fine arts. Glad I stuck with coding – less mess, more debugging!
+  </td>
+  <td>
+        <a href="https://github.com/asa-siphuma">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
         </a><br>
         <a href="https://www.linkedin.com/in/asa-siphuma-07397b262/">
@@ -98,7 +102,9 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td></td>
   <td> Zandile Modise </td>
   <td> Quality Assurance Engineer, Frontend Developer</td>
-  <td></td>
+  <td>
+    I am a final-year computer science student with a solid foundation in programming and a knack for building robust, user-friendly applications. My web development experience ensures interactive, visually appealing interfaces, and my UI/UX background helps me design intuitive and beautiful user experiences. I thrive on challenges and constantly seek to enhance my problem-solving skills.
+  </td>
   <td>
         <a href="https://github.com/ZandileModise">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
@@ -110,18 +116,21 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 </tr>
 
 <tr>
-  <td></td>
+  <td>
+    <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/827628dc-3159-463a-895e-4eeee0cb19a5">
+  </td>
   <td> Charlize Hanekom </td>
   <td> DevOps Engineer, Backend Developer</td>
-  <td></td>
+  <td>I am a BSc Information and Knowledge Systems student. In my studies I have gained experience in  Java, C++, HTML, PHP, JavaScript, CSS, SQL and Python. I have worked on both frontend and backend and thereby become comfortable working on most aspects of a program.</td>
   <td>
-        <a href="">
+        <a href="https://github.com/CharlizeHanekom">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
         </a><br>
-        <a href="">
+        <a href="www.linkedin.com/in/charlize-hanekom-6770a918a">
           <img src="https://img.shields.io/badge/LinkedIn-Profile-blue?style=flat-square&logo=linkedin" alt="LinkedIn">
         </a><br>
   </td>
+
 </tr>
 
 <tr>
