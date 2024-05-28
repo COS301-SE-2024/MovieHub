@@ -1,11 +1,12 @@
 import firebase from "../Firebase/firebaseConnection";
 
-function signUp(email, password) {
+exports.signUp = async(email, password) =>{
     firebase.auth.createUserWithEmailAndPassword( email, password)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
         console.log('User signed up:', user);
+        return user;
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -14,12 +15,13 @@ function signUp(email, password) {
       });
   }
   
-  function logIn(email, password) {
+  exports.logIn = async (email, password)  =>{
     firebase.auth.signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
         console.log('User logged in:', user);
+        return user;
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -29,10 +31,11 @@ function signUp(email, password) {
   }
 
 
-  function logOut() {
-    firebase.auth.signOut().then(() => {
+  exports.logOut = async ()  =>{
+    firebase.auth.signOut().then((logoutStatus) => {
       // Sign-out successful.
       console.log('User logged out');
+      return logoutStatus;
     }).catch((error) => {
       console.error('Error logging out:', error);
     });
