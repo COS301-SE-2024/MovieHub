@@ -106,45 +106,45 @@ describe('PATCH /users/:userId', () => {  // Change PUT to PATCH
     });
 });
 
-// describe('DELETE /users/:id', () => {
-//     beforeEach(() => {
-//         jest.clearAllMocks();
-//     });
+describe('DELETE /users/:id', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-//     it('should delete user profile for a valid user ID', async () => {
-//         const userId = 'user1';
+    it('should delete user profile for a valid user ID', async () => {
+        const userId = 'temp_user';
 
-//         userService.deleteUserProfile.mockResolvedValueOnce(true);
+        userService.deleteUserProfile.mockResolvedValueOnce(true);
 
-//         const res = await request(app)
-//             .delete(`/users/${userId}`);
+        const res = await request(app)
+            .delete(`/users/${userId}`);
 
-//         expect(res.status).toBe(200);
-//         expect(res.body).toEqual({ message: 'User deleted successfully' });
-//     });
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ message: 'User deleted successfully' });
+    });
 
-//     it('should return 404 for an invalid user ID', async () => {
-//         const userId = 'invalidUser';
+    it('should return 404 for an invalid user ID', async () => {
+        const userId = 'invalidUser';
 
-//         userService.deleteUserProfile.mockResolvedValueOnce(false);
+        userService.deleteUserProfile.mockResolvedValueOnce(false);
 
-//         const res = await request(app)
-//             .delete(`/users/${userId}`);
+        const res = await request(app)
+            .delete(`/users/${userId}`);
 
-//         expect(res.status).toBe(404);
-//         expect(res.body).toEqual({ message: 'User not found' });
-//     });
+        expect(res.status).toBe(404);
+        expect(res.body).toEqual({ message: 'User not found' });
+    });
 
-//     it('should return 500 for an internal server error', async () => {
-//         const userId = 'user1';
-//         const errorMessage = 'Internal server error';
+    it('should return 500 for an internal server error', async () => {
+        const userId = 'user1';
+        const errorMessage = 'Internal server error';
 
-//         userService.deleteUserProfile.mockRejectedValueOnce(new Error(errorMessage));
+        userService.deleteUserProfile.mockRejectedValueOnce(new Error(errorMessage));
 
-//         const res = await request(app)
-//             .delete(`/users/${userId}`);
+        const res = await request(app)
+            .delete(`/users/${userId}`);
 
-//         expect(res.status).toBe(500);
-//         expect(res.body).toEqual({ message: 'Error deleting user profile', error: errorMessage });
-//     });
-// });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Error deleting user profile', error: errorMessage });
+    });
+});
