@@ -1,4 +1,3 @@
-// frontend/src/Screens/HomePage.js
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView} from 'react-native';
 import MovieCard from "../Components/MovieCard"
@@ -19,9 +18,7 @@ import movie13 from '../../../assets/centa;.jpg'
 import movie14 from '../../../assets/brothers.jpg'
 import movie15 from '../../../assets/friday.jpg'
 
-
 const HomePage = () => {
-
     return (
         <ScrollView>
 
@@ -121,7 +118,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fffff'
     },
     justforyou: {
-        paddingTop: 30,
+        paddingTop: 3,
         textAlign: 'center',
         fontFamily: 'Roboto',
         color: '#000000',
@@ -132,7 +129,7 @@ const styles = StyleSheet.create({
 
     trending :{
         paddingLeft:10,
-        paddingTop: 15,
+        paddingTop: 20,
         fontFamily: 'Roboto',
         color: '#000000',
         fontSize: 20,

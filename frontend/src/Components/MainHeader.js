@@ -1,4 +1,3 @@
-// frontend/src/Components/MainHeader.js
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -16,9 +15,9 @@ export default function MainHeader() {
 
 const styles = StyleSheet.create({
     header: { 
-        height: 100,
+        height: 90,
         paddingTop: 38,
-        backgroundColor: '#fffff',
+        backgroundColor: '#fff',
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
