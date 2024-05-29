@@ -18,8 +18,8 @@ exports.getUserProfile = async (userId) => {
             return null;
         }
         return result.records[0].get('u').properties;
-    } catch (error) {
-        throw error;
+    // } catch (error) {
+    //     throw error;
     } finally {
         await session.close();
     }
@@ -47,15 +47,13 @@ exports.updateUserProfile = async (userId, updates) => {
 
 exports.deleteUserProfile = async (userId) => {
     const session = driver.session();
-    const query = `
-    MATCH (u:User {userId: $userId})
-    DETACH DELETE u
-  `;
     try {
-        await session.run(query, { userId });
-        return { message: 'User deleted successfully' };
-    } catch (error) {
-        throw error;
+        const result = await session.run(
+            'MATCH (u:User {id: $userId}) DETACH DELETE u RETURN u',
+            { userId: userId }
+        );
+
+        return result.summary.counters.updates().nodesDeleted > 0;
     } finally {
         await session.close();
     }

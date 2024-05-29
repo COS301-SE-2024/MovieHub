@@ -5,8 +5,8 @@ const userController = require('./users.controller');
 const router = express.Router();
 
 //Thinking of making it take in username as parameter 
-router.get('/:userId', userController.getUserProfile);
-router.put('/:userId', userController.updateUserProfile);
-router.delete('/:userId', userController.deleteUserProfile);
+router.get('/:id', userController.getUserProfile);
+router.patch('/:id', userController.updateUserProfile);  // Change PUT to PATCH
+router.delete('/:id', userController.deleteUserProfile);
 
 module.exports = router;
