@@ -3,7 +3,7 @@
   <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/1e1ca1d9-4474-48ce-833b-07e82e5f29db" style="height: 7%;">
     <br>
     <br>
-  <h2 align="center">Engage with Films Like Never Before!</h2>
+  <h1 align="center">Engage with Films Like Never Before!</h1>
   </div>
 <div align="center">
 <h3 align="center">MovieHub aims to address the need for movie enthusiasts to explore, discuss and review films on a social platform that is usable and interactive. With it providing users with a one-stop destination for all their movie related needs. A priority of this project is to surpass existing platforms, by offering a superior user experience and unparalleled depth of content.
@@ -27,14 +27,14 @@
 
 # Video Demo Recordings # 
 
-Insert gif or link to demo
+[Demo Recording](https://linktorecording)
 
 
 # Documentation #
 
 [Documentation](https://linktodocumentation)
 
-# Team Members #
+# Meet the team #
 Professional profiles of team members, including links to LinkedIn and GitHub profiles
 
 <table>
@@ -47,7 +47,9 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 </tr>
 
 <tr>
-  <td></td>
+  <td>
+    <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/7b14a76f-df35-4f01-ab9c-ae82e22d76aa">
+  </td>
   <td> Tlhalefo Dikolomela </td>
   <td> Project Manager, Database Administrator </td>
   <td> I am a final year Computer Science student,
@@ -66,7 +68,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 
 <tr>
   <td>
-     <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/b2cf22dd-a9bd-4ee7-b7fe-ece9a81286fb" >
+     <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/b2cf22dd-a9bd-4ee7-b7fe-ece9a81286fb"  >
   </td>
   <td> Asakundwi Siphuma </td>
   <td> UI/UX Designer, Frontend Developer </td>
@@ -84,22 +86,28 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 </tr>
 
 <tr>
-  <td></td>
+  <td>
+    <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/eadaec62-fc9d-4e46-8fc9-e8e0716bdcae">
+  </td>
   <td> Jayson </td>
   <td> Back-end developer</td>
-  <td></td>
+  <td>I am a 3rd year Information and Knowledge Systems student at the University of Pretoria, specializing in Genetics. I have experience working with Java, C++, HTML, Javascript and I am eager to learn more. I am always up for a challenge and like to solve problems.</td>
   <td>
-        <a href="">
+        <a href="https://github.com/Jayson22571532">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
         </a><br>
-        <a href="">
+        <a href="https://www.linkedin.com/in/jayson-du-toit-8667962ba">
           <img src="https://img.shields.io/badge/LinkedIn-Profile-blue?style=flat-square&logo=linkedin" alt="LinkedIn">
         </a><br>
   </td>
 </tr>
 
 <tr>
-  <td></td>
+  <td>
+    <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/0b2f2bb7-4b14-4a67-992f-091b5a5dad1c">
+
+
+  </td>
   <td> Zandile Modise </td>
   <td> Quality Assurance Engineer, Frontend Developer</td>
   <td>
@@ -117,7 +125,8 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 
 <tr>
   <td>
-    <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/827628dc-3159-463a-895e-4eeee0cb19a5">
+    <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/8422a933-c031-45d3-beb6-71cb11d05ad7">
+
   </td>
   <td> Charlize Hanekom </td>
   <td> DevOps Engineer, Backend Developer</td>
@@ -134,12 +143,14 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 </tr>
 
 <tr>
-  <td></td>
+  <td>
+    <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/08549395-d44d-454b-92ed-d3875ad506f6">
+</td>
   <td> Itumeleng Moshokoa </td>
   <td> Frontend Developer</td>
-  <td></td>
+  <td>I'm a curious and driven individual with a passion for data science and computer science. I embrace challenges as opportunities for growth and learning, and I'm always seeking to expand my knowledge and skills. I believe that technology can be a powerful force for good, and I'm eager to contribute to innovative solutions that make a difference. I'm a lifelong learner, always looking for new experiences and perspectives to broaden my understanding of the world and how computer science can help shape a better future .</td>
   <td>
-        <a href="">
+        <a href="https://github.com/melengmoshokoa">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
         </a><br>
         <a href="https://www.linkedin.com/in/itumeleng-moshokoa-835622287/">
