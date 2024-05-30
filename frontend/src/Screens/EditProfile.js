@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Modal, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, Pressable } from "react-native";
+import { View, Text, Modal, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
 export function EditProfile() {
@@ -9,21 +9,21 @@ export function EditProfile() {
         fullName: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: "", tempValue: "" },
         pronouns: { isVisible: false, newValue: "", tempValue: "", options: ["He/Him", "She/Her", "They/Them"] },
-        favoriteGenres: { isVisible: false, newValue: [], tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] }
+        favoriteGenres: { isVisible: false, newValue: [], tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
     });
     const [avatar, setAvatar] = useState("https://i.pravatar.cc/300"); // Replace with profile picture from DB
 
     const applyChanges = (field) => {
         switch (field) {
-            case 'username':
-            case 'fullName':
-            case 'bio':
+            case "username":
+            case "fullName":
+            case "bio":
                 setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
                 break;
-            case 'pronouns':
+            case "pronouns":
                 setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
                 break;
-            case 'favoriteGenres':
+            case "favoriteGenres":
                 setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue.slice(0, 3) } });
                 break;
             default:
@@ -33,7 +33,7 @@ export function EditProfile() {
 
     const handleCancelChanges = () => {
         const updatedContent = {};
-        Object.keys(modalContent).forEach(field => {
+        Object.keys(modalContent).forEach((field) => {
             updatedContent[field] = { ...modalContent[field], tempValue: modalContent[field].newValue, isVisible: false };
         });
         setModalContent(updatedContent);
@@ -45,6 +45,7 @@ export function EditProfile() {
 
     const handleInputChange = (field, value) => {
         setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: value } });
+        // add value to DB
     };
 
     const handleOptionPress = (field, option) => {
@@ -80,40 +81,42 @@ export function EditProfile() {
         if (pickerResult.canceled === true) {
             return;
         }
-
-        setAvatar(pickerResult.uri);
+        setAvatar(pickerResult.assets[0].uri);
+        // add image to DB
     };
-    
 
     return (
-        <View style={styles.container}>
-            <Text style={{ color: '#7b7b7b', marginBottom: 10 }}>The information you enter here will be visible to other users.</Text>
+        <ScrollView style={styles.container}>
+            <Text style={{ color: "#7b7b7b", marginBottom: 10 }}>The information you enter here will be visible to other users.</Text>
             <View style={styles.avatarContainer}>
                 <Image source={{ uri: avatar }} style={styles.avatar} />
-                <Text style={styles.buttonText} onPress={selectImage}>Change Profile Picture</Text>  
+                <Text style={styles.buttonText} onPress={selectImage}>
+                    Change Profile Picture
+                </Text>
             </View>
 
             {Object.keys(modalContent).map((field, index) => (
                 <View>
-                <TouchableOpacity key={index} onPress={() => handleFieldPress(field)}>
-                    <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                        {field === "favoriteGenres" ? (
-                            <ScrollView horizontal={true} contentContainerStyle={{ flexDirection: 'row' }}>
-                                {modalContent[field].newValue.map((option, index) => (
-                                    <Text key={index} style={styles.chip}>{option}</Text>
-                                ))}
-                            </ScrollView>
-                        ) : (
-                            <Text style={styles.sectionValue}>{modalContent[field].newValue}</Text>
-                        )}
-                    </View>
-                </TouchableOpacity>
-                <View style={styles.line} />
+                    <TouchableOpacity key={index} onPress={() => handleFieldPress(field)}>
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                            {field === "favoriteGenres" ? (
+                                <ScrollView horizontal={true} contentContainerStyle={{ flexDirection: "row" }}>
+                                    {modalContent[field].newValue.map((option, index) => (
+                                        <Text key={index} style={styles.chip}>
+                                            {option}
+                                        </Text>
+                                    ))}
+                                </ScrollView>
+                            ) : (
+                                <Text style={styles.sectionValue}>{modalContent[field].newValue}</Text>
+                            )}
+                        </View>
+                    </TouchableOpacity>
+                    <View style={styles.line} />
                 </View>
             ))}
-            
-            
+
             {/* Modals */}
             {Object.keys(modalContent).map((field, index) => (
                 <Modal key={index} animationType="fade" transparent={true} visible={modalContent[field].isVisible} onRequestClose={() => setIsModalVisible(false)}>
@@ -122,7 +125,7 @@ export function EditProfile() {
                             <Text style={styles.modalTitle}>Change {field === "favoriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
                             {field === "favoriteGenres" ? (
                                 <View>
-                                    <ScrollView >
+                                    <ScrollView style={{ maxHeight: 200 }}>
                                         {modalContent[field].options.map((option, index) => (
                                             <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
                                                 <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
@@ -130,8 +133,12 @@ export function EditProfile() {
                                         ))}
                                     </ScrollView>
                                     <View style={styles.buttonContainer}>
-                                        <Text style={styles.buttonText} onPress={handleCancelChanges}>Cancel</Text>
-                                        <Text style={styles.buttonText} onPress={() => applyChanges(field)}>Apply Changes</Text>
+                                        <Text style={styles.buttonText} onPress={handleCancelChanges}>
+                                            Cancel
+                                        </Text>
+                                        <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
+                                            Apply Changes
+                                        </Text>
                                     </View>
                                 </View>
                             ) : field === "pronouns" ? (
@@ -142,17 +149,22 @@ export function EditProfile() {
                                         </TouchableOpacity>
                                     ))}
                                 </ScrollView>
-                                
                             ) : (
                                 <View>
-                                    {field === "bio" ? (
+                                    {field === "bio" ? <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} /> 
+                                    : 
+                                    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+                                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                                         <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
-                                    ) : (
-                                        <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
-                                    )}
+                                        </TouchableWithoutFeedback>
+                                    </KeyboardAvoidingView>}
                                     <View style={styles.buttonContainer}>
-                                        <Button title="Cancel" onPress={handleCancelChanges} />
-                                        <Button title="Apply Changes" onPress={() => applyChanges(field)} />
+                                        <Text style={styles.buttonText} onPress={handleCancelChanges}>
+                                            Cancel
+                                        </Text>
+                                        <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
+                                            Apply Changes
+                                        </Text>
                                     </View>
                                 </View>
                             )}
@@ -160,7 +172,7 @@ export function EditProfile() {
                     </View>
                 </Modal>
             ))}
-        </View>
+        </ScrollView>
     );
 }
 
@@ -176,8 +188,8 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     avatar: {
-        width: 100,
-        height: 100,
+        width: 80,
+        height: 80,
         borderRadius: 50,
         marginBottom: 10,
     },
@@ -253,4 +265,3 @@ const styles = StyleSheet.create({
         color: "#fff",
     },
 });
-

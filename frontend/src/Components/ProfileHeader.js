@@ -1,13 +1,14 @@
 import React from "react";
 import { StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import CustomDrawer from "./ProfileDrawer";
 
-export default function ProfileHeader() {
+export default function ProfileHeader({ toggleDrawer, navigation }) {
     return (
         <View style={styles.profileHeader}>
             <Icon name='arrow-back' size={24}></Icon>
             <View>
-                <Icon name='menu'size={30}></Icon>
+                <Icon name='menu'size={24} onPress={toggleDrawer}></Icon>
             </View>
         </View> 
     );
@@ -15,7 +16,7 @@ export default function ProfileHeader() {
 
 const styles = StyleSheet.create({
     profileHeader: {
-        height: 80,
+        height: 70,
         paddingTop: 20,
         paddingHorizontal: 15,
         backgroundColor: '#fff',
