@@ -1,5 +1,26 @@
 {
   "dependencies": {
     "firebase": "^10.12.2"
+  },
+  "devDependencies": {
+    "@firebase/testing": "^0.20.11",
+    "jest": "^29.7.0"
+  },
+
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^27.0.0",
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.5",
+    "babel-jest": "^27.0.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
   }
 }
