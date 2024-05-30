@@ -4,6 +4,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomePage from "./frontend/src/Screens/HomePage";
+import SignupPage from "./frontend/src/Screens/SignupPage";
 import MainHeader from "./frontend/src/Components/MainHeader";
 import BottomHeader from "./frontend/src/Components/BottomHeader"
 
@@ -14,15 +15,12 @@ export default function App() {
   return (
 
     <NavigationContainer>
-      <Nav.Navigator initialRouteName="HomePage">
+      <Nav.Navigator initialRouteName="SignupPage">
         <Nav.Screen
-          name="HomePage"
-          component={HomePage}
-          options={{ header: () => <MainHeader /> }}
+          name="SignupPage"
+          component={SignupPage}
         />
       </Nav.Navigator>
-      <BottomHeader/>
-      <StatusBar style="auto" />
     </NavigationContainer>
 
   );
