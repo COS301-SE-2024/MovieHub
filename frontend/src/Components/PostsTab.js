@@ -5,12 +5,12 @@ import { useState } from "react";
 import Post from "./Post";
 
 export default function PostsTab() {
-    const username = "Rick Sanchez";
-    const userHandle = "@rickestrick";
+    const username = "Lily Smith";
+    const userHandle = "@a_lily";
     const posts = [
         {
             postTitle: "Is Ms. Marvel worth the watch?",
-            image: "https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/9681C7C3404BEDE1305C98BD6A300BAB911BF870EF239C1817C11E88A6357467/scale?width=1200&amp;aspectRatio=1.78&amp;format=webp",
+            image: "https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/9681C7C3404BEDE1305C98BD6A300BAB911BF870EF239C1817C11E88A6357467/scale?",
             preview: "When I first saw the trailer for the movie I wasn't hyped up tbh. It's been getting a bit of a popu...",
             likes: 100,
             comments: 23,
