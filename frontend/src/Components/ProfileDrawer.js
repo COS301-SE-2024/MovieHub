@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
         width: Dimensions.get("window").width,
         flex: 1,
         backgroundColor: "#fff",
-        paddingTop: 20,
-        paddingBottom: 15,
+        paddingTop: 38,
+        paddingBottom: 15, 
         shadowColor: "#000",
         shadowOffset: {
             width: 0,

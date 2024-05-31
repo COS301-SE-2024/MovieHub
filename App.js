@@ -13,6 +13,7 @@ const Nav = createNativeStackNavigator();
 
 export default function App() {
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const [navigationState, setNavigationState] = useState(null);
 
     const toggleDrawer = () => {
         setDrawerVisible(!drawerVisible);
@@ -23,7 +24,14 @@ export default function App() {
     };
     return (
         <NavigationContainer>
-            <Nav.Navigator initialRouteName="ProfilePage">
+            <Nav.Navigator initialRouteName="ProfilePage"
+                screenOptions={({ navigation }) => {
+                    if (!navigationState) {
+                        setNavigationState(navigation);
+                    }
+
+                    return {};
+                }}>
                 <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
@@ -54,7 +62,7 @@ export default function App() {
                     })}
                 />
             </Nav.Navigator>
-            {drawerVisible && <CustomDrawer navigation={navigation} closeDrawer={closeDrawer} />}
+            {drawerVisible && <CustomDrawer navigation={navigationState} closeDrawer={closeDrawer} />}
         </NavigationContainer>
     );
 }

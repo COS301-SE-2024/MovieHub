@@ -45,7 +45,7 @@ function renderScene({ route }) {
                 </View>
             );
     }
-}
+} 
 
 export default function ProfilePage() {
     const layout = useWindowDimensions();
