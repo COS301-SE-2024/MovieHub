@@ -8,7 +8,10 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 );
 
 // Mock expo-image-picker
-jest.mock('expo-image-picker');
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn(),
+  requestMediaLibraryPermissionsAsync: jest.fn(),
+}))
 
 // Mock native animated helper
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
