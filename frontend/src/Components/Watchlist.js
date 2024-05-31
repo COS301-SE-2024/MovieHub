@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
+import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const watchlists = [
@@ -15,7 +15,7 @@ const WatchlistTab = () => {
     const openOptionsMenu = (watchlist) => {
         setSelectedWatchlist(watchlist);
         setModalVisible(true);
-    };
+    }; 
 
     const closeModal = () => {
         setModalVisible(false);
@@ -42,16 +42,21 @@ const WatchlistTab = () => {
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <MaterialIcons name="add" size={24} color="black" />
             </TouchableOpacity>
-            <FlatList
-                data={watchlists}
-                renderItem={renderWatchlistItem}
-                keyExtractor={(item) => item.id}
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>Your watchlist is currently empty. Browse movies and add the ones you want to watch here!</Text>
+            <ScrollView>
+                {watchlists.map((watchlist) => (
+                    <View key={watchlist.id} style={styles.watchlistItem}>
+                        <Image source={watchlist.image} style={styles.watchlistImage} />
+                        <View style={styles.watchlistInfo}>
+                            <Text style={styles.watchlistName}>{watchlist.name}</Text>
+                            <Text style={styles.watchlistPrivacy}>{watchlist.privacy}</Text>
+                            <Text style={styles.watchlistMovies}>{watchlist.movies} movies</Text>
+                        </View>
+                        <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
+                            <MaterialIcons name="more-vert" size={24} color="black" />
+                        </TouchableOpacity>
                     </View>
-                }
-            />
+                ))}
+            </ScrollView>
             <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={closeModal}>
                 <TouchableOpacity style={styles.modalOverlay} onPress={closeModal}>
                     <View style={styles.modalContainer}>
