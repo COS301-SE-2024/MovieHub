@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         right: 0,
-        width: Dimensions.get("window").width,
+        width: '100%',
         flex: 1,
         backgroundColor: "#fff",
         paddingTop: 38,

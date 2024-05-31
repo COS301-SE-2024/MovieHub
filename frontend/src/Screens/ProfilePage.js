@@ -5,32 +5,16 @@ import { Pressable } from "react-native";
 import { Image } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { EditProfile } from "./EditProfile";
+import LikesTab from "../Components/LikesTab";
+import PostsTab from "../Components/PostsTab";
 
-function LikesRoute() {
-    <View style={[styles.scene, {}]}>
-        <Text>First Screen</Text>
-    </View>;
-}
-
-function PostsRoute() {
-    <View style={[styles.scene, {}]}>
-        <Text>Second Screen</Text>
-    </View>;
-}
-
-function WatchlistRoute() {
-    <View style={[styles.scene, {}]}>
-        <Text>Third Screen</Text>
-    </View>;
-}
 
 function renderScene({ route }) {
     switch (route.key) {
         case "posts":
             return (
-                <View style={styles.scene}>
-                    <Text>First Screen</Text>
-                </View>
+                // <Text>First Screen</Text>
+                <PostsTab />
             );
         case "likes":
             return (
@@ -133,7 +117,7 @@ const styles = StyleSheet.create({
     },
     userHandle: {
         fontSize: 16,
-        fontWeight: "bold",
+        fontWeight: "600",
         color: "#7b7b7b",
     },
     followInfo: {
@@ -157,7 +141,7 @@ const styles = StyleSheet.create({
     },
     tabContainer: {
         color: "#7b7b7b",
-        marginTop: 30,
+        marginTop: 25,
     },
     tabBar: {
         backgroundColor: "#fff",
