@@ -1,44 +1,45 @@
-import firebase from "../Firebase/firebaseConnection";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import firebaseApp from "../Firebase/firebaseConnection";
 
-exports.signUp = async(email, password) =>{
-    firebase.auth.createUserWithEmailAndPassword( email, password)
-      .then((userCredential) => {
-        // Signed in 
-        const user = userCredential.user;
-        console.log('User signed up:', user);
-        return user;
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error('Error signing up:', errorCode, errorMessage);
-      });
+const auth = getAuth(firebaseApp);
+
+exports.registerUser = async (email, password) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    throw error;
   }
-  
-  exports.logIn = async (email, password)  =>{
-    firebase.auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log('User logged in:', user);
-        return user;
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error('Error logging in:', errorCode, errorMessage);
-      });
-  }
+}
 
 
-  exports.logOut = async ()  =>{
-    firebase.auth.signOut().then((logoutStatus) => {
-      // Sign-out successful.
-      console.log('User logged out');
-      return logoutStatus;
-    }).catch((error) => {
-      console.error('Error logging out:', error);
-    });
+exports.loginUser = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    throw error;
   }
-  
-  
+}
+
+// exports.verifyToken = async (token) => {
+//   try {
+//     const decodedToken = await admin.auth().verifyIdToken(token);
+//     return decodedToken;
+//   } catch (error) {
+//     throw new Error(`Error verifying token: ${error.message}`);
+//   }
+// }
+
+
+exports.logoutUser = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+
+
