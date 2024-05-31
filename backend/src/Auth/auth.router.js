@@ -1,12 +1,10 @@
-
-const express = require('express');
-const userController = require('./auth.controller');
+import express from 'express';
+import authController from '../auth.controller';
 
 const router = express.Router();
 
-//Thinking of making it take in username as parameter 
-router.get('/:id', userController.signUp);
-router.patch('/:id', userController.logIn);  
-router.delete('/:id', userController.logOut);
+router.post('/register', authController.register);
+router.post('/login', authController.login);
+router.post('/logout', authController.logout);
 
-module.exports = router;
+export default router;

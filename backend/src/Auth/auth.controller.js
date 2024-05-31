@@ -1,32 +1,32 @@
-const authService = require('./auth.services');
 
-exports.signUp = async (req, res) => {
-    const userEmail = req.params.userEmail;
-    const userPassword = req.params.userPassword;
+import authService from './auth.services';
+import responseHandler from '../utils/responseHandler';
+
+exports.register = async (req, res) => {
+    const { email, password } = req.body;
     try {
-        const user = await authService.signUp(userEmail, userPassword);
-        res.json(user);
+        const user = await authService.registerUser(email, password);
+        responseHandler(res, 201, 'User registered successfully', user);
     } catch (error) {
-        res.status(500).json({ message: 'Error signing up', error });
+        responseHandler(res, 400, error.message);
     }
 };
 
-exports.logIn = async (req, res) => {
-    const userEmail = req.params.userEmail;
-    const userPassword = req.params.userPassword;
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
     try {
-        const user = await authService.logIn(userEmail, userPassword);
-        res.json(user);
+        const user = await authService.loginUser(email, password);
+        responseHandler(res, 200, 'User logged in successfully', user);
     } catch (error) {
-        res.status(500).json({ message: 'Error logging user in', error });
+        responseHandler(res, 400, error.message);
     }
 };
 
-exports.logOut = async (req, res) => {
+exports.logout = async (req, res) => {
     try {
-        const status = await authService.logOut();
-        res.json(status);
+        await authService.logoutUser();
+        responseHandler(res, 200, 'User logged out successfully');
     } catch (error) {
-        res.status(500).json({ message: 'Error logging out', error });
+        responseHandler(res, 400, error.message);
     }
 };
