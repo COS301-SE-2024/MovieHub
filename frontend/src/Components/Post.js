@@ -16,7 +16,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
-                <Image source={{ uri: "https://i.pravatar.cc/300" }} style={styles.avatar} />
+                <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>

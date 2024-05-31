@@ -7,6 +7,7 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { EditProfile } from "./EditProfile";
 import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
+import WatchlistTab from"../Components/Watchlist";
 
 
 function renderScene({ route }) {
@@ -24,9 +25,7 @@ function renderScene({ route }) {
             );
         case "watchlist":
             return (
-                <View style={styles.scene}>
-                    <Text>Third Screen</Text>
-                </View>
+                <WatchlistTab/>
             );
     }
 } 
@@ -49,17 +48,17 @@ export default function ProfilePage() {
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
                 <View style={styles.accountInfo}>
-                    <Image source={{ uri: "https://i.pravatar.cc/300" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>Rick Sanchez</Text>
-                    <Text style={styles.userHandle}>@rickestrick</Text>
+                    <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
+                    <Text style={styles.username}>Lily Smith</Text>
+                    <Text style={styles.userHandle}>@a_lily</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                        <Text style={styles.number}>50</Text>
+                        <Text style={styles.number}>50 </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>10</Text>
+                        <Text style={styles.number}>10 </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
@@ -69,7 +68,7 @@ export default function ProfilePage() {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>He/Him</Text>
+                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>She/Her</Text>
                     <Text>Genius scientist, inventor, and interdimensional traveller. I've seen every possible version of every movie, so trust me, my reviews are out of this world. I drink, I rant, and I have zero tolerance for bad sci-fi.</Text>
                     <Text style={{ marginTop: 5 }}>
                         <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
