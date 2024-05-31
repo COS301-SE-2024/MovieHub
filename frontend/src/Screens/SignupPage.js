@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
-import { StyleSheet, Button, Text, TextInput, View, Image} from 'react-native';
+import { StyleSheet, Button, Text, TextInput, View, Image, TouchableOpacity} from 'react-native';
 import google from '../../../assets/google.png';
 import facebook from '../../../assets/facebook.png';
 import twitter from '../../../assets/twitter.png';
+import { useNavigation } from '@react-navigation/native';
+import LoginPage from './LoginPage';
 
 const SignupPage = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+
+    const navigation = useNavigation();
+
+    const handlealreadyuser = () => {
+        navigation.navigate("LoginPage");
+    };
+
+    const HandleSignup = () => {
+        navigation.navigate("HomePage");
+    };
+
+
 
     return (
         <View style={styles.container}>
@@ -56,6 +70,7 @@ const SignupPage = () => {
                     title='Sign Up'
                     color='#000000'
                     paddingHorizontal='50'
+                    onPress={HandleSignup}
                 />
             </View>
             <View style={styles.or}>
@@ -70,7 +85,9 @@ const SignupPage = () => {
             </View>
             <View style={styles.signupLink}>
                 <Text style={{fontSize:17}}>Already have an account? </Text>
+                <TouchableOpacity onPress={handlealreadyuser} >
                 <Text style={styles.link}>Login</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import movie2 from '../../../assets/Assassin_movie.jpg'
 
@@ -10,7 +10,9 @@ export default function MainHeader() {
                 <Icon name='home' size={30} paddingLeft={10} style={styles.icon} />
                 <Icon name='notifications' size={30} style={styles.icon} />
                 <Icon name='chat' size={30} style={styles.icon} />
+                <TouchableOpacity >
                 <Image source={movie2} size={30} style={styles.Image} />
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -18,7 +20,7 @@ export default function MainHeader() {
 
 const styles = StyleSheet.create({
     header: {
-        height: 75,
+        height: 65,
         paddingBottom: 10,
         backgroundColor: '#fff',
         justifyContent: 'center',

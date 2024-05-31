@@ -1,12 +1,24 @@
 import React, { useState } from 'react';
-import { StyleSheet, Button, Text, TextInput, View, Image} from 'react-native';
+import { StyleSheet, Button, Text, TextInput, View, Image, TouchableOpacity} from 'react-native';
 import google from '../../../assets/google.png';
 import facebook from '../../../assets/facebook.png';
 import twitter from '../../../assets/twitter.png';
+import { useNavigation } from '@react-navigation/native';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const navigation = useNavigation();
+
+    const handleNewUser = () => {
+        navigation.navigate("SignupPage");
+    };
+
+    const HandleLogin = () => {
+        navigation.navigate("HomePage");
+    };
+
     
     return (
         <View style={styles.container}>
@@ -36,6 +48,7 @@ const LoginPage = () => {
                 <Button
                     title='Login'
                     color='#000000'
+                    onPress={HandleLogin}
                 />
             </View>
             <View style={styles.or}>
@@ -50,7 +63,9 @@ const LoginPage = () => {
             </View>
             <View style={styles.signupLink}>
                 <Text style={{fontSize:17}}>Dont have an account? </Text>
+                <TouchableOpacity onPress={handleNewUser}>
                 <Text style={styles.link}>Sign Up</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )
