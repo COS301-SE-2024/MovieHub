@@ -22,6 +22,7 @@ exports.getUserProfile = async (req, res) => {
         const userProfile = await userService.getUserProfile(userId);
 
         if (userProfile) {
+            console.log('User profile username ' + userProfile.username);
             res.status(200).json(userProfile);
         } else {
             res.status(404).json({ message: 'User not found' });

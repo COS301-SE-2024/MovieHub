@@ -92,7 +92,7 @@ describe('PATCH /users/:userId', () => {  // Change PUT to PATCH
 
     it('should return 500 for an internal server error', async () => {
         const userId = 'user1';
-        const userUpdate = { name: 'Jane Doe' };
+        const userUpdate = { name: 'Jackie' };
         const errorMessage = 'Internal server error';
 
         userService.updateUserProfile.mockRejectedValueOnce(new Error(errorMessage));
