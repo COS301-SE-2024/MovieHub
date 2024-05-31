@@ -19,9 +19,7 @@ function renderScene({ route }) {
             );
         case "likes":
             return (
-                <View style={styles.scene}>
-                    <Text>Second Screen</Text>
-                </View>
+                <LikesTab />
             );
         case "watchlist":
             return (

@@ -4,8 +4,9 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-web";
 
-export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview }) {
+export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted }) {
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
 
@@ -16,7 +17,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
-                <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar} />
+                <Image source={userAvatar} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>
@@ -27,10 +28,10 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <View style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
+                <TouchableOpacity style={styles.stats}>
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} onPress={toggleLike} />
                     <Text>{likes}</Text>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.stats}>
                     <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     <Text>{comments}</Text>
