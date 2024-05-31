@@ -51,11 +51,13 @@ const SignupPage = () => {
                     secureTextEntry={true}
                 />
             </View>
-            <Button
-                title='Sign Up'
-                color='#000000'
-                paddingHorizontal='50'
-            />
+            <View style={styles.btn}>
+                <Button
+                    title='Sign Up'
+                    color='#000000'
+                    paddingHorizontal='50'
+                />
+            </View>
             <View style={styles.or}>
                 <View style={styles.line}/>
                 <Text style={{fontSize:17}}>Or</Text>
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     inputText: {
-        height: 30,
+        height: 40,
         width: 250,
         borderColor: '#000',
         borderWidth: 1,
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     line: {
-        marginHorizontal: 10,
+        marginHorizontal: 15,
         height: 1,
         width: '25%',
         backgroundColor: '#000',
@@ -133,9 +135,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         paddingBottom:2
     },
-    button: {
-        marginTop: 50,
-        paddingHorizontal: 20,
+    btn: {
+        width: 250,
+        marginTop: 10
     }
 });
 
