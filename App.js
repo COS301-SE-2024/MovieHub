@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import ProfilePage from "./frontend/src/Screens/ProfilePage";
-import { EditProfile } from "./frontend/src/Screens/EditProfile";
+import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomDrawer from "./frontend/src/Components/ProfileDrawer";
 

@@ -40,7 +40,7 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
             <View style={{ flex: 1 }} />
 
             <Text style={styles.drawerItem}>Log out</Text>
-            <Text style={styles.drawerItem}>Delete Account</Text>
+            
         </View>
     );
 };
@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
         paddingTop: 20,
+        paddingBottom: 15,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
-export function EditProfile() {
+export default function EditProfile() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalContent, setModalContent] = useState({
         username: { isVisible: false, newValue: "", tempValue: "" },

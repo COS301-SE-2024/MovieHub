@@ -46,7 +46,7 @@ export default function ProfilePage() {
 
     const navigation = useNavigation();
     const handleEditProfile = () => {
-        navigation.navigate(EditProfile);
+        navigation.navigate('EditProfile');
     }
 
     return (
