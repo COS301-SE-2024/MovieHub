@@ -53,16 +53,16 @@ export default function ProfilePage() {
         <ScrollView style={styles.container}>
             <View style={styles.accountInfo}>
                 <Image source={{ uri: "https://i.pravatar.cc/300" }} style={styles.avatar}></Image>
-                <Text style={styles.username}>Rick Sanchez</Text> {/* Replace with username */}
-                <Text style={styles.userHandle}>@rickestrick</Text> {/* Replace with user handle */}
+                <Text style={styles.username}>Rick Sanchez</Text> 
+                <Text style={styles.userHandle}>@rickestrick</Text> 
             </View>
             <View style={styles.followInfo}>
                 <Text>
-                    <Text style={styles.number}>50</Text> {/* Replace with number of followers */}
+                    <Text style={styles.number}>50</Text> 
                     <Text style={styles.label}>Followers</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.number}>10</Text> {/* Replace with number of following */}
+                    <Text style={styles.number}>10</Text> 
                     <Text style={styles.label}>Following</Text>
                 </Text>
             </View>
