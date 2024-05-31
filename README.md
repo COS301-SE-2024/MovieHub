@@ -1,5 +1,6 @@
 <p align="center">
   <div align="center">
+       <h1 align="center">Girls Gone Code </h1> 
   <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/1e1ca1d9-4474-48ce-833b-07e82e5f29db" style="height: 7%;">
     <br>
     <br>
@@ -16,6 +17,8 @@
 ![GitHub pull requests](https://img.shields.io/github/languages/count/COS301-SE-2024/MovieHub)
 ![GitHub pull requests](https://img.shields.io/github/last-commit/COS301-SE-2024/MovieHub)
 ![GitHub pull requests](https://img.shields.io/github/repo-size/COS301-SE-2024/MovieHub)
+[![codecov](https://codecov.io/github/Zandile-Modise/MovieHub/branch/develop/graph/badge.svg?token=MI68R6WWPD)](https://codecov.io/github/Zandile-Modise/MovieHub)
+![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 
 <img src="https://img.shields.io/badge/-JavaScript-grey?logo=javascript" style="height: 7%;">
   <img src="https://img.shields.io/badge/-React_Native-grey?logo=react" style="height: 7%;">
@@ -24,15 +27,29 @@
   
 </div>
 
-
 # Video Demo Recordings # 
 
-[Demo Recording](https://linktorecording)
+[Girls Gone Code - Demo1](https://linktorecording)
 
+# Project Management #
+[Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
 
 # Documentation #
+[System Requirements Specification](https://linktodocumentation)
 
-[Documentation](https://linktodocumentation)
+## Branching Strategy
+We use GitFlow as our branching strategy, with main, development, and feature branches.
+
+## Branch Naming Convention
+**Main Branch**: `main`
+
+**Development Branch**: `development`
+
+**Backend Development Branch**: `dev/backend`
+
+**Frontend Development Branch**: `dev/frontend`
+
+All feature branches must follow this naming convention: `dev/environment/feature/sub-feature`
 
 # Meet the team #
 Professional profiles of team members, including links to LinkedIn and GitHub profiles
@@ -139,7 +156,6 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
           <img src="https://img.shields.io/badge/LinkedIn-Profile-blue?style=flat-square&logo=linkedin" alt="LinkedIn">
         </a><br>
   </td>
-
 </tr>
 
 <tr>
@@ -158,31 +174,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
         </a><br>
   </td>
 </tr>
-
 </table>
 
-# Project Management #
-
-[Project Board] (https://github.com/orgs/COS301-SE-2024/projects/72)
-
-# Branching Strategy #
-We will use GitFlow as our branching strategy, as such we will have main, development and feature branches.
-![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/cd25443f-1e72-4d25-a7d6-37e84984c0e4)
-
-Once develop has acquired enough features for a release (or a predetermined release date is approaching), you fork a release branch off of develop. Creating this branch starts the next release cycle, so no new features can be added after this point—only bug fixes, documentation generation, and other release-oriented tasks should go in this branch. Once it's ready to ship, the release branch gets merged into main and tagged with a version number. In addition, it should be merged back into develop, which may have progressed since the release was initiated.
-![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/a64330e9-8fd3-48f3-8dce-7a3c93a8fe36)
-
-Maintenance or “hotfix” branches are used to quickly patch production releases. Hotfix branches are a lot like release branches and feature branches except they're based on main instead of the develop branch. This is the only branch that should fork directly off of main. As soon as the fix is complete, it should be merged into both main and develop (or the current release branch), and main should be tagged with an updated version number.
-![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/062066e4-5dcd-48cc-ad5c-a620619435e8)
-
-# Branch Naming Convention #
-To make sure everyone knows exactly where each branch is located, we will follow this naming convention:
-main\
-development\
-dev/backend\
-dev/frontend\
-All feature branches must be named as follows:\
-dev/environment/feature/sub-feature\
-For example:\
-dev/back/auth/login\
-This implies that there is an authentication branch that was branched from backend and furthermore a login branch was then branched from there.\
+## Team Contact Details #
+Email: girlsgonecode.capstone@gmail.com
