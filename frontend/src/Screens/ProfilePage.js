@@ -62,7 +62,7 @@ export default function ProfilePage() {
     };
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pravatar.cc/300" }} style={styles.avatar}></Image>
