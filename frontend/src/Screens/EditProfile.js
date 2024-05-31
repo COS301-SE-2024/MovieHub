@@ -151,13 +151,7 @@ export default function EditProfile() {
                                 </ScrollView>
                             ) : (
                                 <View>
-                                    {field === "bio" ? <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} /> 
-                                    : 
-                                    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-                                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                                        <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
-                                        </TouchableWithoutFeedback>
-                                    </KeyboardAvoidingView>}
+                                    <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
                                     <View style={styles.buttonContainer}>
                                         <Text style={styles.buttonText} onPress={handleCancelChanges}>
                                             Cancel
