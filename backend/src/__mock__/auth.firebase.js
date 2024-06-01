@@ -7,7 +7,10 @@ const mockAuth = {
 
 const getAuth = jest.fn(() => mockAuth);
 
-export {
+module.exports = {
   getAuth,
-  mockAuth
+  mockAuth,
+  createUserWithEmailAndPassword: mockAuth.createUserWithEmailAndPassword,
+  signInWithEmailAndPassword: mockAuth.signInWithEmailAndPassword,
+  signOut: mockAuth.signOut
 };
