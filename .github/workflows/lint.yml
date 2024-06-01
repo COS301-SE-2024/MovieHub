@@ -1,0 +1,32 @@
+name: Lint
+
+on:
+  workflow_call:
+  
+jobs:
+  Lint_Frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run linting
+        working-directory: ./frontend
+        run: |
+          output=$(npx eslint .)
+          echo "$output"
+          if echo "$output" | grep - q "error"; then
+            echo "Linting failed"
+            echo "$output"
+            exit 1
+          fi
