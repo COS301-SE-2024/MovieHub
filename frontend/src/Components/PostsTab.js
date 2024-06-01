@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 14,
         textAlign: "center",
-        color: "#2196f3",
+        color: "#0f5bd1",
         fontWeight: "600",
     },
 });

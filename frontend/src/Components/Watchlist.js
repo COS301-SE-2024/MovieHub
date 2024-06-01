@@ -3,9 +3,9 @@ import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Modal, 
 import { MaterialIcons } from "@expo/vector-icons";
 
 const watchlists = [
-    { id: "1", name: "To Be Watched", privacy: "Private", movies: 5, image: require("../Components/movie2.jpg") },
-    { id: "2", name: "Peak Fiction", privacy: "Private", movies: 2, image: require("../Components/movie1.jpg") },
-    { id: "3", name: "Love to hate", privacy: "Public", movies: 3, image: require("../Components/movie3.jpeg") },
+    { id: "1", name: "To Be Watched", privacy: "Private", movies: 5, image: require("../../../assets/movie2.jpg") },
+    { id: "2", name: "Peak Fiction", privacy: "Private", movies: 2, image: require("../../../assets/movie1.jpg") },
+    { id: "3", name: "Love to hate", privacy: "Public", movies: 3, image: require("../../../assets/movie3.jpeg") },
 ];
 
 const WatchlistTab = () => {

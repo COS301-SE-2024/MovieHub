@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Modal, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import BottomHeader from "../Components/BottomHeader"
 
 export default function EditProfile() {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -166,6 +167,7 @@ export default function EditProfile() {
                     </View>
                 </Modal>
             ))}
+            <BottomHeader />
         </ScrollView>
     );
 }
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#7b7b7b",
     },
     buttonText: {
-        color: "#2196f3",
+        color: "#0f5bd1",
         textAlign: "center",
     },
     option: {

@@ -8,6 +8,10 @@ import ProfilePage from "./frontend/src/Screens/ProfilePage";
 import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomDrawer from "./frontend/src/Components/ProfileDrawer";
+import HomePage from "./frontend/src/Screens/HomePage";
+import MainHeader from "./frontend/src/Components/MainHeader";
+import LoginPage from "./frontend/src/Screens/LoginPage";
+import SignupPage from "./frontend/src/Screens/SignupPage";
 
 const Nav = createNativeStackNavigator();
 
@@ -24,7 +28,7 @@ export default function App() {
     };
     return (
         <NavigationContainer>
-            <Nav.Navigator initialRouteName="ProfilePage"
+            <Nav.Navigator initialRouteName="SignupPage"
                 screenOptions={({ navigation }) => {
                     if (!navigationState) {
                         setNavigationState(navigation);
@@ -32,11 +36,24 @@ export default function App() {
 
                     return {};
                 }}>
+                
+                <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
+                <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
+                <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
                 <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
                     options={({ navigation }) => ({
-                        header: () => <ProfileHeader toggleDrawer={toggleDrawer} navigation={navigation} />,
+                        title: "",
+                        headerShadowVisible: false,
+                        headerRight: () => (
+                            <View style={{ marginRight: 10 }}>
+                                {/* Your menu icon component */}
+                                <Text onPress={toggleDrawer}>
+                                    <Icon name="menu" size={24} />
+                                </Text>
+                            </View>
+                        ),
                     })}
                 />
                 <Nav.Screen

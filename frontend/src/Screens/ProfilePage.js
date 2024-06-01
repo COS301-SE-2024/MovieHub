@@ -8,6 +8,7 @@ import { EditProfile } from "./EditProfile";
 import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from"../Components/Watchlist";
+import BottomHeader from "../Components/BottomHeader"
 
 
 function renderScene({ route }) {
@@ -77,6 +78,7 @@ export default function ProfilePage() {
                     <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
                 </View>
             </ScrollView>
+            <BottomHeader />
         </SafeAreaView>
     );
 }
