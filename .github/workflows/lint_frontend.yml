@@ -1,0 +1,48 @@
+name: Lint React/Frontend
+
+on:
+  workflow_call:
+  #push:
+  #  branches:
+  #    - 'main'
+  #    - 'development'
+  #  paths:
+  #    - 'frontend/**'
+  #pull_request:
+  #  branches:
+  #    - 'main'
+  #    - 'development'
+  #  paths:
+  #    - 'frontend/**'
+
+jobs:
+  Lint_Frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if frontend directory is modified
+        id: frontend_modified
+        run: echo "name=modified::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^frontend/')" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run linting
+        working-directory: ./frontend
+        run: |
+          output=$(npx eslint .)
+          echo "$output"
+          if echo "$output" | grep - q "error"; then
+            echo "Linting failed"
+            echo "$output"
+            exit 1
+          fi
