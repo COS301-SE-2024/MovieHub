@@ -16,8 +16,6 @@
 ![GitHub pull requests](https://img.shields.io/github/repo-size/COS301-SE-2024/MovieHub)
   
 </div>
-
-
 # Video Demo Recordings # 
 
 Insert gif or link to demo
