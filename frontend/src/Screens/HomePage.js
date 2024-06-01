@@ -17,11 +17,13 @@ import movie12 from '../../../assets/brides maid.jpg'
 import movie13 from '../../../assets/centa;.jpg'
 import movie14 from '../../../assets/brothers.jpg'
 import movie15 from '../../../assets/friday.jpg'
+import BottomHeader from "../Components/BottomHeader"
 
 const HomePage = () => {
     return (
+        <View style={{flex:1}}>
         <ScrollView>
-
+ 
             <View style={styles.wholecontainer}>
 
             <View style={styles.container}>
@@ -48,8 +50,7 @@ const HomePage = () => {
                     title="Oppenheimer"
                     />
              </ScrollView>
-
-         </View> 
+         </View>   
 
             <View style={styles.viewall}>
              <Text style={styles.trending}>Trending Movies</Text>
@@ -100,8 +101,12 @@ const HomePage = () => {
             </ScrollView>
 
             </View>
-           
+            
         </ScrollView>
+
+        <BottomHeader/>
+
+    </View>
     );
 };
 

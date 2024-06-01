@@ -6,7 +6,7 @@ export default function MovieCard({imageUrl}) {
         <View style={styles.container}>
            
             <Image source={imageUrl} style={styles.image} />
-         
+        
         </View>
     );
 }

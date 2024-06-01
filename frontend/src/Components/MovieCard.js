@@ -1,4 +1,3 @@
-// frontend/src/Components/MainHeader.js
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 
@@ -12,7 +11,7 @@ export default function MovieCard({imageUrl,title}) {
         </View>
     );
 }
-
+ 
 const styles = StyleSheet.create({
 
     container:{

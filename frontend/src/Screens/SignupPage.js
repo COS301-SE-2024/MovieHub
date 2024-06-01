@@ -1,144 +1,367 @@
-import React, { useState } from 'react';
-import { StyleSheet, Button, Text, TextInput, View, Image} from 'react-native';
-import google from '../../../assets/google.png';
-import facebook from '../../../assets/facebook.png';
-import twitter from '../../../assets/twitter.png';
+import React, { useState } from "react";
+import { StyleSheet, Button, Text, TextInput, View, Image, TouchableOpacity, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import google from "../../../assets/googles.png";
+import facebook from "../../../assets/facebook.png";
+import twitter from "../../../assets/apple-logo.png";
+import { useNavigation } from "@react-navigation/native";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
 const SignupPage = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
+
+    const navigation = useNavigation();
+
+    const handleExistingUser = () => {
+        navigation.navigate("LoginPage");
+    };
+
+    const handleSignup = () => {
+        navigation.navigate("HomePage");
+    };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Create Account</Text>
-            <View>
-                <Text style={styles.label}>Username</Text>
-                <TextInput
-                    style={styles.inputText}
-                    onChangeText={setUsername}
-                    value=''
-                    placeholder='Userrname'
-                />
-            </View>
-            <View>
-                <Text style={styles.label}>Email</Text>
-                <TextInput
-                    style={styles.inputText}
-                    onChangeText={setEmail}
-                    value=''
-                    placeholder='Email'
-                />
-            </View>
-            <View>
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                    style={styles.inputText}
-                    onChangeText={setPassword}
-                    value=''
-                    placeholder='Password'
-                    secureTextEntry={true}
-                />
-            </View>
-            <View>
-                <Text style={styles.label}>Confirm Password</Text>
-                <TextInput
-                    style={styles.inputText}
-                    onChangeText={setConfirmPassword}
-                    value=''
-                    placeholder='Confirm Password'
-                    secureTextEntry={true}
-                />
-            </View>
-            <View style={styles.btn}>
-                <Button
-                    title='Sign Up'
-                    color='#000000'
-                    paddingHorizontal='50'
-                />
-            </View>
-            <View style={styles.or}>
-                <View style={styles.line}/>
-                <Text style={{fontSize:17}}>Or</Text>
-                <View style={styles.line}/>
-            </View>
-            <View style={styles.socialContainer}>
-                <Image style={styles.socialLink} source={google}/>
-                <Image style={styles.socialLink} source={facebook}/>
-                <Image style={styles.socialLink} source={twitter}/>
-            </View>
-            <View style={styles.signupLink}>
-                <Text style={{fontSize:17}}>Already have an account? </Text>
-                <Text style={styles.link}>Login</Text>
-            </View>
-        </View>
-    )
+        <KeyboardAvoidingView style={styles.outerContainer} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.container}>
+                    <Text style={styles.title}>Create Account</Text>
+                    <View>
+                        <Text style={styles.label}>Username</Text>
+                        <TextInput style={styles.inputText} onChangeText={setUsername} value={username} placeholder="" />
+                    </View>
+                    <View>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput style={styles.inputText} onChangeText={setEmail} keyboardType="email-address" value={email} placeholder="" />
+                    </View>
+                    <View>
+                        <Text style={styles.label}>Password</Text>
+                        <View style={styles.passwordInputContainer}>
+                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} />
+                            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
+                                <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.label}>Confirm Password</Text>
+                        <View style={styles.passwordInputContainer}>
+                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isPasswordVisible} />
+                            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
+                                <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View style={styles.btn}>
+                        <Pressable style={styles.button} onPress={handleSignup}>
+                            <Text style={styles.buttonText}>Sign Up</Text>
+                        </Pressable>
+                    </View>
+                    <View style={styles.or}>
+                        <View style={styles.line} />
+                        <Text style={{ fontSize: 15, color: "#7b7b7b" }}>Or</Text>
+                        <View style={styles.line} />
+                    </View>
+                    <View style={styles.socialContainer}>
+                        <Image style={styles.socialLink} source={google} />
+                        <Image style={styles.socialLink} source={facebook} />
+                        <Image style={styles.socialLink} source={twitter} />
+                    </View>
+                    <View style={styles.signupLink}>
+                        <Text style={{ fontSize: 16 }}>Already have an account? </Text>
+                        <TouchableOpacity onPress={handleExistingUser}>
+                            <Text style={styles.link}>Login</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+    );
 };
 
 const styles = StyleSheet.create({
+    outerContainer: {
+        flex: 1,
+    },
     title: {
-        textAlign: 'center',
-        fontFamily: 'Roboto',
-        color: '#000000',
+        textAlign: "center",
+        fontFamily: "Roboto",
+        color: "#000000",
         fontSize: 25,
-        fontWeight: 'bold',
+        fontWeight: "bold",
+        paddingBottom: 15,
     },
     inputText: {
         height: 40,
         width: 250,
-        borderColor: '#000',
+        borderColor: "#7b7b7b",
         borderWidth: 1,
         paddingHorizontal: 10,
         fontSize: 16,
-        color: '#000',
-        backgroundColor: '#fff',
+        color: "#000",
+        backgroundColor: "#fff",
         borderRadius: 5,
-    },  
+    },
     socialContainer: {
-        flexDirection: 'row',
+        flexDirection: "row",
     },
     socialLink: {
-        marginHorizontal: 20
+        marginHorizontal: 20,
+        height: 40,
+        width: 40,
     },
     container: {
         flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        backgroundColor: '#ffffff',
-        paddingVertical: 70,
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
+        backgroundColor: "#ffffff",
+        paddingVertical: 100,
     },
-    signupLink: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
+    justforyou: {
+        paddingTop: 3,
+        textAlign: "center",
+        fontFamily: "Roboto",
+        color: "#000000",
+        fontSize: 20,
+        fontWeight: "bold",
     },
-    link: {
-        fontSize:17,
-        textDecorationLine: 'underline'
+
+    trending: {
+        paddingLeft: 10,
+        paddingTop: 20,
+        fontFamily: "Roboto",
+        color: "#000000",
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+
+    viewall: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        paddingRight: 10,
+        backgroundColor: "#fffff",
+    },
+
+    viewalltext: {
+        paddingTop: 25,
+        fontFamily: "Roboto",
     },
     or: {
-        flexDirection: 'row',
+        flexDirection: "row",
+        alignItems: "center",
     },
     line: {
         marginHorizontal: 15,
         height: 1,
-        width: '25%',
-        backgroundColor: '#000',
-        marginVertical: 20
+        width: "25%",
+        backgroundColor: "#7b7b7b",
+        marginVertical: 20,
     },
     label: {
-        fontWeight: 'bold',
-        paddingBottom:2
+        fontWeight: "bold",
+        paddingBottom: 8,
+    },
+    forgot: {
+        alignItems: "flex-start",
     },
     btn: {
         width: 250,
-        marginTop: 10
+    },
+    button: {
+        backgroundColor: "#000",
+        padding: 10,
+        borderRadius: 5,
+        width: 250,
+    },
+    buttonText: {
+        color: "#fff",
+        textAlign: "center",
+        fontWeight: "bold",
+    },
+    link: {
+        fontSize: 15,
+        textDecorationLine: "underline",
+        color: "#0f5bd1",
+    },
+    signupLink: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+    },
+    input: {
+        marginBottom: 10,
+    },
+    passwordInputContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderColor: "#7b7b7b",
+        borderWidth: 1,
+        height: 40,
+        width: 250,
+        borderRadius: 5,
+    },
+    passwordInput: {
+        flex: 1,
+        margin: 10,
+        fontSize: 16,
+    },
+    passwordVisibilityButton: {
+        margin: 10,
     }
+
 });
 
 export default SignupPage;
+
+// import React, { useState } from 'react';
+// import { StyleSheet, Button, Text, TextInput, View, Image} from 'react-native';
+// import google from '../../../assets/google.png';
+// import facebook from '../../../assets/facebook.png';
+// import twitter from '../../../assets/twitter.png';
+
+// const SignupPage = () => {
+//     const [username, setUsername] = useState('');
+//     const [email, setEmail] = useState('');
+//     const [password, setPassword] = useState('');
+//     const [confirmPassword, setConfirmPassword] = useState('');
+
+//     return (
+//         <View style={styles.container}>
+//             <Text style={styles.title}>Create Account</Text>
+//             <View>
+//                 <Text style={styles.label}>Username</Text>
+//                 <TextInput
+//                     style={styles.inputText}
+//                     onChangeText={setUsername}
+//                     value=''
+//                     placeholder='Userrname'
+//                 />
+//             </View>
+//             <View>
+//                 <Text style={styles.label}>Email</Text>
+//                 <TextInput
+//                     style={styles.inputText}
+//                     onChangeText={setEmail}
+//                     value=''
+//                     placeholder='Email'
+//                 />
+//             </View>
+//             <View>
+//                 <Text style={styles.label}>Password</Text>
+//                 <TextInput
+//                     style={styles.inputText}
+//                     onChangeText={setPassword}
+//                     value=''
+//                     placeholder='Password'
+//                     secureTextEntry={true}
+//                 />
+//             </View>
+//             <View>
+//                 <Text style={styles.label}>Confirm Password</Text>
+//                 <TextInput
+//                     style={styles.inputText}
+//                     onChangeText={setConfirmPassword}
+//                     value=''
+//                     placeholder='Confirm Password'
+//                     secureTextEntry={true}
+//                 />
+//             </View>
+//             <Button
+//                 title='Sign Up'
+//                 color='#000000'
+//                 paddingHorizontal='50'
+//             />
+//             <View style={styles.or}>
+//                 <View style={styles.line}/>
+//                 <Text style={{fontSize:17}}>Or</Text>
+//                 <View style={styles.line}/>
+//             </View>
+//             <View style={styles.socialContainer}>
+//                 <Image style={styles.socialLink} source={google}/>
+//                 <Image style={styles.socialLink} source={facebook}/>
+//                 <Image style={styles.socialLink} source={twitter}/>
+//             </View>
+//             <View style={styles.signupLink}>
+//                 <Text style={{fontSize:17}}>Already have an account? </Text>
+//                 <Text style={styles.link}>Login</Text>
+//             </View>
+//         </View>
+//     )
+// };
+
+// const styles = StyleSheet.create({
+//     title: {
+//         textAlign: 'center',
+//         fontFamily: 'Roboto',
+//         color: '#000000',
+//         fontSize: 25,
+//         fontWeight: 'bold',
+//     },
+//     inputText: {
+//         height: 30,
+//         width: 250,
+//         borderColor: '#000',
+//         borderWidth: 1,
+//         paddingHorizontal: 10,
+//         fontSize: 16,
+//         color: '#000',
+//         backgroundColor: '#fff',
+//         borderRadius: 5,
+//     },
+//     socialContainer: {
+//         flexDirection: 'row',
+//     },
+//     socialLink: {
+//         marginHorizontal: 20
+//     },
+//     container: {
+//         flex: 1,
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         width: '100%',
+//         backgroundColor: '#ffffff',
+//         paddingVertical: 70,
+//     },
+//     signupLink: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         width: '100%',
+//         paddingHorizontal: 20,
+//         paddingVertical: 10,
+//     },
+//     link: {
+//         fontSize:17,
+//         textDecorationLine: 'underline'
+//     },
+//     or: {
+//         flexDirection: 'row',
+//     },
+//     line: {
+//         marginHorizontal: 10,
+//         height: 1,
+//         width: '25%',
+//         backgroundColor: '#000',
+//         marginVertical: 20
+//     },
+//     label: {
+//         fontWeight: 'bold',
+//         paddingBottom:2
+//     },
+//     button: {
+//         marginTop: 50,
+//         paddingHorizontal: 20,
+//     }
+// });
+
+// export default SignupPage;
