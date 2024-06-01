@@ -32,7 +32,13 @@ const LandingPage = () => {
                     <Text style={styles.subTitle}>Get Personalised Recommendations</Text>
                     <Text style={styles.text}>Enjoy movie suggestions tailored to your unique tastes and viewing history.</Text>
                 </View>
-                </ScrollView>
+            </ScrollView>
+            <View style={styles.scrollcontainer}>
+                <View style={styles.bubbleActive}/>
+                <View style={styles.bubble}/>
+                <View style={styles.bubble}/>
+                <View style={styles.bubble}/>
+            </View>
             <Pressable style={styles.create}>
                 <Text style={styles.createText}>Create Account</Text>
             </Pressable>
@@ -44,6 +50,27 @@ const LandingPage = () => {
 };
 
 const styles = StyleSheet.create({
+    scrollcontainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: 50
+    },
+    bubble: {
+        height: 10,
+        width: 10,
+        marginHorizontal: 5,
+        borderRadius: 10,
+        backgroundColor: '#888888'
+    },
+    bubbleActive: {
+        height: 10,
+        width: 10,
+        marginHorizontal: 5,
+        borderRadius: 10,
+        backgroundColor: '#000000'
+    },
     subTitle: {
         fontSize: 21,
         fontWeight: 'bold',
@@ -53,13 +80,12 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 16,
         textAlign: 'center',
-        padding: 10,
         width: 350
     },
     imgContainer: {
         width: '200',
         height: '200',
-        padding: 10,
+        paddingHorizontal: 10,
         justifyContent: 'center',
         alignItems: 'center'
     },
