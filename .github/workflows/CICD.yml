@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - "main"
-      # - "development"
+      - "development"
   pull_request:
     branches:
       - "main"
-
+      - "development"
 jobs:
   #test_frontend:
   #  uses: ./.github/workflows/test_frontend.yml
@@ -26,11 +26,10 @@ jobs:
         uses: actions/download-artifact@v2
 
       - name: upload coverage
-        uses: codecov/codecov-action@v4.0.1
+        uses: coverallsapp/github-action@v1.1.2
         with:
-          files: frontend-coverage/coverage/lcov.info, backend-coverage/coverage
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.combined.info
 
   # deploy_vercel:
     # needs: [test_frontend, upload_coverage]
