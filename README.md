@@ -178,3 +178,6 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 
 ## Team Contact Details #
 Email: girlsgonecode.capstone@gmail.com
+
+## Stakeholders #
+![Logo](https://drive.google.com/uc?export=view&id=1MH_xi0pqxdvUpEHHQt90HbKpOWwae9Ss)
