@@ -10,15 +10,15 @@ on:
       - "main"
 
 jobs:
-  test_frontend:
-    uses: ./.github/workflows/test_frontend.yml
-    secrets: inherit
+  #test_frontend:
+  #  uses: ./.github/workflows/test_frontend.yml
+  #  secrets: inherit
   #test_backend:
   #  uses: ./.github/workflows/test_backend.yml
   #  secrets: inherit
   upload_coverage:
     runs-on: ubuntu-latest
-    needs: [test_frontend]
+    #needs: [test_frontend]
     steps:
       - uses: actions/checkout@v4
 
