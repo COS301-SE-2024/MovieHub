@@ -7,15 +7,11 @@
 
 **Backend stack :** 
 
-NodeJS
+[Node.js](https://nodejs.org/en/download/) (version 14 or above)
 
-Express 
+[Yarn](https://yarnpkg.com/getting-started/install) (recommended) or npm
 
-yarn 
-
-babel
-
-
+Running instance of Neo4j database
 ## Installation
 
 
@@ -24,25 +20,18 @@ Install yarn with npm
 ```bash
   npm i -g yarn
 ```
-Initiaise yarn project 
-```bash
-  yarn init -y 
-```
-
-Install babel dependencies
-```bash
-  yarn add -D @babel/core @babel/node @babel/preset-env 
-```
-
-Install Neo4j driver
-```bash
-  yarn add express dotenv neo4j-driver
-```
-
 Create .env file with database credintials and port details
 
-### Setting up DB
-Download Neo4j at https://neo4j.com/download 
+## Setting Up DB remotely
+Neo4j database hosted on Neo4jAura 
+
+Download Neo4j Desktop at https://neo4j.com/download 
+
+Add  new remote connection in your project using Connect Url: 
+`neo4j+s://d16778b5.databases.neo4j.io`
+
+[Connecting to an instance](https://neo4j.com/docs/aura/auradb/getting-started/connect-database/)
+
 
 
 ## Initialise Local Environment Variables
@@ -51,11 +40,11 @@ To run this project, you will need to add the following environment variables to
 
 `PORT = 3000 //temp`
 
-`url = bolt://localhost:7689`
+`NEO4J_URI=neo4j+s://<YOUR_NEO4J_INSTANCE_URI>`
 
-`username = neo4j`
+`NEO4J_USERNAME=<YOUR_NEO4J_USERNAME>`
 
-`password = passNeo4j`
+`pNEO4J_PASSWORD=<YOUR_NEO4J_PASSWORD>`
 
 `database = neo4j`
 ## Run Locally
@@ -81,6 +70,15 @@ Install dependencies
 Start the server
 
 ```bash
-  yarn run start
+  yarn start
+```
+
+
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+  yarn test
 ```
 

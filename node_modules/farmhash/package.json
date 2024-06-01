@@ -1,0 +1,60 @@
+{
+  "name": "farmhash",
+  "version": "3.3.1",
+  "author": "Lovell Fuller <npm@lovell.info>",
+  "contributors": [
+    "Matt Ranney  <mjr@ranney.com>",
+    "Jonas Hermsmeier <jhermsmeier@gmail.com> (https://jhermsmeier.de)"
+  ],
+  "description": "Node.js implementation of FarmHash, Google's family of very fast hash functions",
+  "scripts": {
+    "install": "prebuild-install || node-gyp rebuild",
+    "test": "semistandard && cpplint && node test/unit"
+  },
+  "main": "index.js",
+  "files": [
+    "binding.gyp",
+    "index.d.ts",
+    "src/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lovell/farmhash"
+  },
+  "keywords": [
+    "farmhash",
+    "hash",
+    "cityhash",
+    "murmurhash",
+    "fingerprint"
+  ],
+  "dependencies": {
+    "node-addon-api": "^5.1.0",
+    "prebuild-install": "^7.1.2"
+  },
+  "devDependencies": {
+    "cc": "^3.0.1",
+    "prebuild": "^11.0.4",
+    "semistandard": "^16.0.1"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=10"
+  },
+  "binary": {
+    "napi_versions": [
+      3
+    ]
+  },
+  "config": {
+    "runtime": "napi",
+    "target": 3
+  },
+  "cc": {
+    "linelength": "120",
+    "ignore": [
+      "node_modules",
+      "src/upstream"
+    ]
+  }
+}
