@@ -2,6 +2,7 @@
   "name": "your-project-name",
   "version": "1.0.0",
   "scripts": {
+    "start": "nodemon --exec babel-node src/Users/app.js",
     "test": "jest"
   },
   "jest": {
