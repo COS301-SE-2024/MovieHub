@@ -1,5 +1,9 @@
 // backend/users/users.controller.js
+// const express = require('express');
+// const path = require('path');
 const userService = require('./users.services');
+
+let userProfileData;
 
 // exports.getUserProfile = async (req, res) => {
 //     const userId = req.params.userId;
@@ -22,7 +26,8 @@ exports.getUserProfile = async (req, res) => {
         const userProfile = await userService.getUserProfile(userId);
 
         if (userProfile) {
-            console.log('User profile username ' + userProfile.username);
+            userProfileData = userProfile;
+            console.log('User profile username ' + userProfile.favouriteMovies);
             res.status(200).json(userProfile);
         } else {
             res.status(404).json({ message: 'User not found' });
@@ -33,6 +38,7 @@ exports.getUserProfile = async (req, res) => {
     }
 };
 
+console.log('User profile username ' + userProfileData);
 
 exports.updateUserProfile = async (req, res) => {
     const userId = req.params.id;
