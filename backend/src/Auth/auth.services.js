@@ -1,5 +1,6 @@
+// src/Auth/auth.services.js
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import firebaseApp from "../Firebase/firebaseConnection";
+import firebaseApp from '../Firebase/firebaseConnection';
 
 const auth = getAuth(firebaseApp);
 
@@ -10,8 +11,7 @@ exports.registerUser = async (email, password) => {
   } catch (error) {
     throw error;
   }
-}
-
+};
 
 exports.loginUser = async (email, password) => {
   try {
@@ -20,26 +20,13 @@ exports.loginUser = async (email, password) => {
   } catch (error) {
     throw error;
   }
-}
-
-// exports.verifyToken = async (token) => {
-//   try {
-//     const decodedToken = await admin.auth().verifyIdToken(token);
-//     return decodedToken;
-//   } catch (error) {
-//     throw new Error(`Error verifying token: ${error.message}`);
-//   }
-// }
-
+};
 
 exports.logoutUser = async () => {
   try {
     await signOut(auth);
+    return true;
   } catch (error) {
     throw error;
   }
-}
-
-
-
-
+};
