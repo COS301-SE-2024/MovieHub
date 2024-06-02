@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Button, Text, TextInput, View, Image, TouchableOpacity, Pressable } from "react-native";
+import AuthApiServices from "../Services/AuthApiServices";
 import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
@@ -22,8 +23,13 @@ const LoginPage = () => {
         navigation.navigate("SignupPage");
     };
 
-    const HandleLogin = () => {
-        navigation.navigate("HomePage");
+    const handleLogin = () => {
+        try {
+            AuthApiServices.login(email, password);
+        } catch (e) {
+            console.log(e);
+        }
+        navigation.navigate("Home");
     };
 
     return (
@@ -45,7 +51,7 @@ const LoginPage = () => {
             </View>
 
             <View style={styles.btn}>
-                <Pressable style={styles.button} onPress={HandleLogin}>
+                <Pressable style={styles.button} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Login</Text>
                 </Pressable>
             </View>
@@ -63,7 +69,7 @@ const LoginPage = () => {
                 <Image style={styles.socialLink} source={twitter} />
             </View>
             <View style={styles.signupLink}>
-                <Text style={{ fontSize: 16 }}>Don't have an account? </Text>
+                <Text style={{ fontSize: 16 }}>Don"'"t have an account? </Text>
                 <TouchableOpacity onPress={handleNewUser}>
                     <Text style={styles.link}>Sign Up</Text>
                 </TouchableOpacity>
