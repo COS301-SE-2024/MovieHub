@@ -50,7 +50,7 @@ export default function ProfilePage() {
 
     const fetchData = async () => {// fetching data from api
         try {
-        const userId = 'user1';
+            const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3';
           response = await  getUserProfile(userId); 
           setUserProfile(response);
 

@@ -57,7 +57,7 @@ export default function EditProfile({ userProfile }) {
                     default:
                         break;
                 }
-                const updatedUser = await updateUserProfile('user1', updatedData);
+            const updatedUser = await updateUserProfile('pTjrHHYS2qWczf4mKExik40KgLH3', updatedData);
                 console.log("Update went well", updatedUser);
                 
                 // Update the state with the response from the backend
