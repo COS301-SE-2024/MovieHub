@@ -14,9 +14,14 @@ const SignupPage = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [error, setError] = useState("");
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
     };
 
     const navigation = useNavigation();
@@ -63,9 +68,9 @@ const SignupPage = () => {
                     <View>
                         <Text style={styles.label}>Confirm Password</Text>
                         <View style={styles.passwordInputContainer}>
-                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isPasswordVisible} />
-                            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
-                                <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
+                            <TouchableOpacity onPress={toggleConfirmPasswordVisibility} style={styles.passwordVisibilityButton}>
+                                <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
                             </TouchableOpacity>
                         </View>
                     </View>
