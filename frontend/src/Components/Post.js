@@ -4,7 +4,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
-import { TouchableOpacity } from "react-native-web";
+import { TouchableOpacity } from "react-native";
 
 export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted }) {
     const [liked, setLiked] = useState(false);
