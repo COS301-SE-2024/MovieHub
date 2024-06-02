@@ -14,7 +14,7 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
             const userId = 'TempUser'
             const response = await deleteUserProfile(userId);
             if (response.success) {
-                // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen
+                // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen @asa-siphuma
                 navigation.navigate("LoginScreen");
             } else {
                 // If there was an error deleting the account, display an error message to the user
