@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader"
+import { updateUserProfile } from "../Services/UsersApiService";
 
-export default function EditProfile() {
+
+export default function EditProfile({ userProfile }) {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalContent, setModalContent] = useState({
         username: { isVisible: false, newValue: "", tempValue: "" },
@@ -14,21 +16,34 @@ export default function EditProfile() {
     });
     const [avatar, setAvatar] = useState("https://i.pravatar.cc/300"); // Replace with profile picture from DB
 
-    const applyChanges = (field) => {
-        switch (field) {
-            case "username":
-            case "fullName":
-            case "bio":
-                setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
-                break;
-            case "pronouns":
-                setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
-                break;
-            case "favoriteGenres":
-                setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue.slice(0, 3) } });
-                break;
-            default:
-                break;
+    // Check if userProfile is defined before accessing its properties
+   // const userId = userProfile?.userID || "";
+    const username = userProfile?.username || "";
+    const name = userProfile?.name || "";
+    const bio = userProfile?.bio || "";
+    const pronouns = userProfile?.pronouns || "";
+    const favoriteGenres = userProfile?.favoriteGenres || [];
+
+    
+    const applyChanges = async (field) => {
+        try {
+            switch (field) {
+                case "username":
+                case "fullName":
+                case "bio":
+                case "pronouns":
+                    setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
+                    break;
+                case "favoriteGenres":
+                    setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue.slice(0, 3) } });
+                    break;
+                default:
+                    break;
+            }
+            await updateUserProfile('user1', { [field]: modalContent[field].tempValue });
+            console.log("Update went well")
+        } catch (error) {
+            console.error('Error updating user profile:', error);
         }
     };
 
