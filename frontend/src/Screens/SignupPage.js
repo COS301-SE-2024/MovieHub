@@ -34,7 +34,7 @@ const SignupPage = () => {
             await signUp(email, password, username);
             setError("");
             console.log("User signed up successfully");
-            navigation.navigate("LoginPage");
+            navigation.navigate("HomePage");
         } catch (error) {
             setError(error.message);
         }

@@ -7,14 +7,17 @@ import { collection, doc, updateDoc, getDocs, setDoc, query, where } from "fireb
 // Sign up function
 async function signUp(email, password, username) {
     try {
+        console.log("Email: ",email);
+        console.log("Password: ",password);
+        console.log("Username: ",username);
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         // Add user information to Firestore
-        await setDoc(doc(db, "users", user.uid), {
-            username,
-            email,
-        });
+        // await setDoc(doc(db, "users", user.uid), {
+        //     username,
+        //     email,
+        // });
 
         console.log("User signed up:", user);
         return user;
