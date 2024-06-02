@@ -3,6 +3,9 @@
 // const path = require('path');
 const userService = require('./users.services');
 
+
+
+
 let userProfileData;
 
 // exports.getUserProfile = async (req, res) => {
@@ -27,7 +30,7 @@ exports.getUserProfile = async (req, res) => {
 
         if (userProfile) {
             userProfileData = userProfile;
-            console.log('User profile username ' + userProfile.favouriteMovies);
+            console.log('User profile username ' + userProfile.username);
             res.status(200).json(userProfile);
         } else {
             res.status(404).json({ message: 'User not found' });

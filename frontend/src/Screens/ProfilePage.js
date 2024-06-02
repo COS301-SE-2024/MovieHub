@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
@@ -9,7 +9,7 @@ import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from"../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader"
-
+import { getUserProfile } from "../Services/UsersApiService";
 
 function renderScene({ route }) {
     switch (route.key) {
@@ -43,21 +43,58 @@ export default function ProfilePage() {
         navigation.navigate("EditProfile");
     };
 
+    let [userProfile, setUserProfile] = useState({});
+    let [followers, setfollowers] = useState(0);
+    let [following, setfollowing] = useState(0);
+
+    const fetchData = async () => {// fetching data from api
+        try {
+        const userId = 'user1';
+          response = await  getUserProfile(userId); 
+          setUserProfile(response);
+
+          if (response.followers && response.followers.low !== undefined) {
+            setfollowers(response.followers.low);
+        }
+
+        if (response.following && response.following.low !== undefined) {
+            setfollowing(response.following.low);
+        }
+          console.log("24",following);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+      
+        } finally {
+            console.log("1",userProfile);
+
+        }
+      };
+
+    useEffect(() => {
+        fetchData(); 
+    }, []); 
+
+    useEffect(() => {
+        console.log("User Profile:", userProfile);
+        console.log("Followers:", followers);
+    }, [userProfile, followers, following]); 
+
     return (
+        
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>Lily Smith</Text>
-                    <Text style={styles.userHandle}>@a_lily</Text>
+                    <Text style={styles.username}>{userProfile.name}</Text>
+                    <Text style={styles.userHandle}>{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                        <Text style={styles.number}>50 </Text>
+                    <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>10 </Text>
+                        <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
@@ -67,11 +104,13 @@ export default function ProfilePage() {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>She/Her</Text>
-                    <Text>Genius scientist, inventor, and interdimensional traveller. I've seen every possible version of every movie, so trust me, my reviews are out of this world. I drink, I rant, and I have zero tolerance for bad sci-fi.</Text>
+                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns}</Text>
+                    <Text>{userProfile.bio}</Text>
                     <Text style={{ marginTop: 5 }}>
-                        <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
-                        <Text>Sci-Fi, Dark Comedy, Action</Text>
+                    <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
+                        {userProfile.favouriteGenre && userProfile.favouriteGenre.length >= 3 && (
+                            <Text>{userProfile.favouriteGenre[0]}, {userProfile.favouriteGenre[1]}, {userProfile.favouriteGenre[2]}</Text>
+                        )}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
