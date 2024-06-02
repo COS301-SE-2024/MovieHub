@@ -5,6 +5,7 @@ import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "@expo/vector-icons/MaterialIcons";
+import { signUp } from "../../../backend/src/services/authService";
 
 const SignupPage = () => {
     const [username, setUsername] = useState("");
@@ -12,6 +13,7 @@ const SignupPage = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [error, setError] = useState("");
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
@@ -23,13 +25,22 @@ const SignupPage = () => {
         navigation.navigate("LoginPage");
     };
 
-    const handleSignup = () => {
-        navigation.navigate("HomePage");
+    const handleSignup = async () => {
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+        try {
+            await signUp(email, password, username);
+            setError("");
+            console.log("User signed up successfully");
+            navigation.navigate("LoginPage");
+        } catch (error) {
+            setError(error.message);
+        }
     };
 
     return (
-        <KeyboardAvoidingView style={styles.outerContainer} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.container}>
                     <Text style={styles.title}>Create Account</Text>
                     <View>
@@ -62,6 +73,7 @@ const SignupPage = () => {
                         <Pressable style={styles.button} onPress={handleSignup}>
                             <Text style={styles.buttonText}>Sign Up</Text>
                         </Pressable>
+                        {error ? <Text>{error}</Text> : null}
                     </View>
                     <View style={styles.or}>
                         <View style={styles.line} />
@@ -80,8 +92,6 @@ const SignupPage = () => {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
     );
 };
 
