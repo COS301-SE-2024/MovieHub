@@ -18,8 +18,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      #- name: Run tests with coverage
-       # run: npm test -- --coverage
+      - name: Run tests with coverage
+       run: npm test -- --coverage
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v2
