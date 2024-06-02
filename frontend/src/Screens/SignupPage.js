@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Button, Text, TextInput, View, Image, TouchableOpacity, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import AuthApiServices from "../Services/AuthApiServices";
 import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
@@ -24,6 +25,15 @@ const SignupPage = () => {
     };
 
     const handleSignup = () => {
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+        try{
+            AuthApiServices.signup(username,email, password);
+        } catch (error) {
+            console.error(error);
+        }
         navigation.navigate("HomePage");
     };
 
