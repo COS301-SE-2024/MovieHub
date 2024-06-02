@@ -3,10 +3,29 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Switch } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState } from "react";
+import { deleteUserProfile } from "../Services/UsersApiService";
 
 const CustomDrawer = ({ navigation, closeDrawer }) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+    const handleDeleteAccount = async () => {
+        try {
+            // Call the deleteUserAccount function from UsersApiService
+            const userId = 'TempUser'
+            const response = await deleteUserProfile(userId);
+            if (response.success) {
+                // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen
+                navigation.navigate("LoginScreen");
+            } else {
+                // If there was an error deleting the account, display an error message to the user
+                Alert.alert("Error", response.message);
+            }
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            // Handle any unexpected errors (e.g., network errors)
+            // You can display an error message to the user or handle the error in any other way
+        }
+    };
 
     return (
         <View style={styles.drawer}>
@@ -39,8 +58,9 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
 
             <View style={{ flex: 1 }} />
 
-            <Text style={styles.drawerItem}>Log out</Text>
-            
+            <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
+                <Text style={styles.deleteButtonText}>Delete Account</Text>
+            </TouchableOpacity>
         </View>
     );
 };

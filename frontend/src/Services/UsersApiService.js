@@ -33,7 +33,7 @@ export const updateUserProfile = async (userId, updatedData) => {
 
 
 export const deleteUserProfile = async (userId) => {
-    const response = await fetch(`${API_URL}/users/${userId}`, {
+    const response = await fetch(`http://localhost:3000/users/${userId}`, {
         method: 'DELETE',
     });
     if (!response.ok) {
