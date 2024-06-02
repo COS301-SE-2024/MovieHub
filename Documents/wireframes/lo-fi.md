@@ -1,8 +1,6 @@
 # MovieHub Wireframes
 
 - Here is the link to our wireframes on Figma: https://www.figma.com/design/K7EcOwm1HECN7VjIjhRapr/Wireframes?node-id=214-97
-- Here is the link to our prototype: https://www.figma.com/design/K7EcOwm1HECN7VjIjhRapr/Wireframes?node-id=214-97&t=BqJ6qFHYorQ999Hi-1
-
 
 |![Sign Up](https://github.com/COS301-SE-2024/MovieHub/assets/160736200/d765d793-6d1d-45fe-8e82-c6b1d21bb7af)|![Login](https://github.com/COS301-SE-2024/MovieHub/assets/160736200/87ba57e6-e8cb-4a3f-8289-5053440a0236)|
 |:--:|:--:|
