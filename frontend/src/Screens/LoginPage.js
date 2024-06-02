@@ -69,7 +69,7 @@ const LoginPage = () => {
                 <Image style={styles.socialLink} source={twitter} />
             </View>
             <View style={styles.signupLink}>
-                <Text style={{ fontSize: 16 }}>Don't have an account? </Text>
+                <Text style={{ fontSize: 16 }}>Don"'"t have an account? </Text>
                 <TouchableOpacity onPress={handleNewUser}>
                     <Text style={styles.link}>Sign Up</Text>
                 </TouchableOpacity>
