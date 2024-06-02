@@ -36,8 +36,12 @@ export const deleteUserProfile = async (userId) => {
     const response = await fetch(`http://localhost:3000/users/${userId}`, {
         method: 'DELETE',
     });
-    if (!response.ok) {
-        throw new Error('Failed to delete user profile');
+    if (response.status === 204) {
+      const message = 'Successfully deleted user profile.';
+      console.log(message);
+      return message;
+    } else {
+        throw new Error('Failed to update user profile');
     }
 };
 
