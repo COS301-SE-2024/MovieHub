@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions } from "react-native";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
@@ -46,6 +46,7 @@ export default function ProfilePage() {
     let [userProfile, setUserProfile] = useState({});
     let [followers, setfollowers] = useState(0);
     let [following, setfollowing] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
 
     const fetchData = async () => {// fetching data from api
         try {
@@ -70,6 +71,12 @@ export default function ProfilePage() {
         }
       };
 
+      const handleRefresh = () =>{
+        setRefreshing(true)
+        fetchData()
+        setRefreshing(false)
+      }
+
     useEffect(() => {
         fetchData(); 
     }, []); 
@@ -82,10 +89,10 @@ export default function ProfilePage() {
     return (
         
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>{userProfile.name}</Text>
+                    <Text style={styles.username}>{userProfile.fullName}</Text>
                     <Text style={styles.userHandle}>{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
@@ -109,13 +116,14 @@ export default function ProfilePage() {
                     <Text style={{ marginTop: 5 }}>
                     <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
                         {userProfile.favouriteGenre && userProfile.favouriteGenre.length >= 3 && (
-                            <Text>{userProfile.favouriteGenre[0]}, {userProfile.favouriteGenre[1]}, {userProfile.favouriteGenre[2]}</Text>
+                            <Text>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
                         )}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
                     <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
                 </View>
+               
             </ScrollView>
             <BottomHeader />
         </SafeAreaView>

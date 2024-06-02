@@ -23,29 +23,58 @@ export default function EditProfile({ userProfile }) {
     const bio = userProfile?.bio || "";
     const pronouns = userProfile?.pronouns || "";
     const favoriteGenres = userProfile?.favoriteGenres || [];
-
     
     const applyChanges = async (field) => {
         try {
+
+            let updatedData = {};
             switch (field) {
                 case "username":
                 case "fullName":
                 case "bio":
-                case "pronouns":
-                    setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
-                    break;
-                case "favoriteGenres":
-                    setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue.slice(0, 3) } });
-                    break;
-                default:
-                    break;
+                    case "pronouns":
+                        updatedData[field] = modalContent[field].tempValue;
+                        setModalContent({
+                            ...modalContent,
+                            [field]: {
+                                ...modalContent[field],
+                                isVisible: false,
+                                newValue: modalContent[field].tempValue
+                            }
+                        });
+                        break;
+                    case "favoriteGenres":
+                        updatedData[field] = modalContent[field].tempValue.slice(0, 3);
+                        setModalContent({
+                            ...modalContent,
+                            [field]: {
+                                ...modalContent[field],
+                                isVisible: false,
+                                newValue: modalContent[field].tempValue.slice(0, 3)
+                            }
+                        });
+                        break;
+                    default:
+                        break;
+                }
+                const updatedUser = await updateUserProfile('user1', updatedData);
+                console.log("Update went well", updatedUser);
+                
+                // Update the state with the response from the backend
+                setModalContent((prevState) => {
+                    const newState = { ...prevState };
+                    Object.keys(updatedData).forEach((key) => {
+                        newState[key] = {
+                            ...newState[key],
+                            newValue: updatedUser[key]
+                        };
+                    });
+                    return newState;
+                });
+            } catch (error) {
+                console.error('Error updating user profile:', error);
             }
-            await updateUserProfile('user1', { [field]: modalContent[field].tempValue });
-            console.log("Update went well")
-        } catch (error) {
-            console.error('Error updating user profile:', error);
-        }
-    };
+        };
 
     const handleCancelChanges = () => {
         const updatedContent = {};
