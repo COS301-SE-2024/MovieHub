@@ -32,37 +32,37 @@ export const updateUserProfile = async (userId, updatedData) => {
 };
 
 
-// export const deleteUserProfile = async (userId) => {
-//     const response = await fetch(`http://localhost:3000/users/${userId}`, {
-//         method: 'DELETE',
-//     });
-//     if (!response.ok) {
-//         throw new Error('Failed to delete user profile');
-//     }
-// };
-
 export const deleteUserProfile = async (userId) => {
-    try {
-        const response = await fetch(`http://localhost:3000/users/${userId}`, {
-            method: 'DELETE',
-        });
-
-        if (!response.ok) {
-            let errorMessage = 'Failed to delete user profile';
-
-            // Attempt to extract error message from response body
-            try {
-                const responseBody = await response.json();
-                if (responseBody && responseBody.error) {
-                    errorMessage = responseBody.error;
-                }
-            } catch (error) {
-                // Ignore errors when parsing response body
-            }
-
-            throw new Error(errorMessage);
-        }
-    } catch (error) {
-        throw new Error(error.message);
+    const response = await fetch(`http://localhost:3000/users/${userId}`, {
+        method: 'DELETE',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to delete user profile');
     }
 };
+
+// export const deleteUserProfile = async (userId) => {
+//     try {
+//         const response = await fetch(`http://localhost:3000/users/${userId}`, {
+//             method: 'DELETE',
+//         });
+
+//         if (!response.success) {
+//             let errorMessage = 'Failed to delete user profile';
+
+//             // Attempt to extract error message from response body
+//             try {
+//                 const responseBody = await response.json();
+//                 if (responseBody && responseBody.error) {
+//                     errorMessage = responseBody.error;
+//                 }
+//             } catch (error) {
+//                 // Ignore errors when parsing response body
+//             }
+
+//             throw new Error(errorMessage);
+//         }
+//     } catch (error) {
+//         throw new Error(error.message);
+//     }
+// };
