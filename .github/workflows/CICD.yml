@@ -25,12 +25,11 @@ jobs:
       - name: Download Coverage Artifacts
         uses: actions/download-artifact@v2
 
-      - name: upload coverage
-        uses: coverallsapp/github-action@v1.1.2
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.3.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: coverage.combined.info
-
+          COVERALLS_REPO_TOKEN: PVE088TeMiE2YcwDT0Ymr7s7UBhbB51dF              
+            
   # deploy_vercel:
     # needs: [test_frontend, upload_coverage]
     # uses: ./.github/workflows/deploy_vercel.yml
