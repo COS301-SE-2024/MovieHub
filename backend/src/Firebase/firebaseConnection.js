@@ -7,15 +7,15 @@
 import { initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDz5LiUeuNr_s1y2Ahp0pDih5TvwMRr6Js",
-  authDomain: "moviehub-7c9e7.firebaseapp.com",
-  projectId: "moviehub-7c9e7",
-  storageBucket: "moviehub-7c9e7.appspot.com",
-  messagingSenderId: "454319264682",
-  appId: "1:454319264682:web:b91238b0e00c273dd891d3",
-  measurementId: "G-EK0CTEJDQQ"
+  apiKey: "AIzaSyCR1DdCie3_-NR9L9hl5Yh7qQHAiamkVGg",
+  authDomain: "moviehub-3ebc8.firebaseapp.com",
+  databaseURL: "https://moviehub-3ebc8-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "moviehub-3ebc8",
+  storageBucket: "moviehub-3ebc8.appspot.com",
+  messagingSenderId: "610731676085",
+  appId: "1:610731676085:web:8e670cd6f51f92e17d89fc",
+  measurementId: "G-FNMTL54L6R"
 };
-
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
