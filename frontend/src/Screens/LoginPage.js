@@ -37,7 +37,7 @@ const LoginPage = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>.movieHub</Text>
+            <Text style={styles.title}>movieHub.</Text>
             <Text style={styles.title}>Welcome Back!</Text>
             <View>
                 <Text style={styles.label}>Email</Text>
