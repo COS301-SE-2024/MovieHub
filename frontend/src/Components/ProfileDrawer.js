@@ -11,7 +11,6 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [deletedModalVisible, setDeletedModalVisible] = useState(false);
 
-    const navigation = useNavigation();
 
     const confirmDeleteAccount = () => {
         setModalVisible(true);
