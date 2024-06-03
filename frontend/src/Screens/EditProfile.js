@@ -14,7 +14,7 @@ export default function EditProfile({ userProfile }) {
         pronouns: { isVisible: false, newValue: "", tempValue: "", options: ["He/Him", "She/Her", "They/Them"] },
         favoriteGenres: { isVisible: false, newValue: [], tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
     });
-    const [avatar, setAvatar] = useState("https://i.pravatar.cc/300"); // Replace with profile picture from DB
+    const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg"); // Replace with profile picture from DB
 
     // Check if userProfile is defined before accessing its properties
    // const userId = userProfile?.userID || "";
@@ -132,6 +132,8 @@ export default function EditProfile({ userProfile }) {
 
     return (
         <ScrollView style={styles.container}>
+        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={{ color: "#7b7b7b", marginBottom: 10 }}>The information you enter here will be visible to other users.</Text>
             <View style={styles.avatarContainer}>
                 <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -211,8 +213,15 @@ export default function EditProfile({ userProfile }) {
                     </View>
                 </Modal>
             ))}
-            <BottomHeader />
+            <Text>
+           
+            </Text>
+             
         </ScrollView>
+        
+       </ScrollView>
+       <BottomHeader />
+       </ScrollView>
     );
 }
 

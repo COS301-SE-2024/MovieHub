@@ -88,7 +88,7 @@ export default function ProfilePage() {
 
     return (
         
-        <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
             <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
@@ -126,7 +126,7 @@ export default function ProfilePage() {
                
             </ScrollView>
             <BottomHeader />
-        </SafeAreaView>
+        </View>
     );
 }
 

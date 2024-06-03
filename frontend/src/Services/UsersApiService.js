@@ -3,7 +3,7 @@
 const API_URL = process.env.REACT_APP_API_URL || 'http://10.0.0.109:3000/users/';// enter what url your expo is running on + our port 3000
 
 export const getUserProfile = async (userId) => {
-    const response = await fetch(`http://localhost:3000/users/${userId}`);
+    const response = await fetch(`${API_URL}${userId}`);
     if (!response.ok) {
         throw new Error('Failed to fetch user profile');
     }
@@ -17,7 +17,7 @@ export const getUserProfile = async (userId) => {
     return data;
 };
 export const updateUserProfile = async (userId, updatedData) => {
-    const response = await fetch(`http://localhost:3000/users/${userId}`, {
+    const response = await fetch(`${API_URL}${userId}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
