@@ -19,6 +19,7 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
             // Call the deleteUserAccount function from UsersApiService
             const userId = "tempUserAgain";
             const response = await deleteUserProfile(userId);
+            console.log(response);
             if (response.success) {
                 // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen @asa-siphuma
                 navigation.navigate("LoginScreen");
