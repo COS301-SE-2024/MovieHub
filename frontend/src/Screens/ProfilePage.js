@@ -1,5 +1,5 @@
-import * as React from "react";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
@@ -9,7 +9,7 @@ import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from"../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader"
-
+import { getUserProfile } from "../Services/UsersApiService";
 
 function renderScene({ route }) {
     switch (route.key) {
@@ -43,21 +43,65 @@ export default function ProfilePage() {
         navigation.navigate("EditProfile");
     };
 
+    let [userProfile, setUserProfile] = useState({});
+    let [followers, setfollowers] = useState(0);
+    let [following, setfollowing] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchData = async () => {// fetching data from api
+        try {
+            const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3';
+          response = await  getUserProfile(userId); 
+          setUserProfile(response);
+
+          if (response.followers && response.followers.low !== undefined) {
+            setfollowers(response.followers.low);
+        }
+
+        if (response.following && response.following.low !== undefined) {
+            setfollowing(response.following.low);
+        }
+          console.log("24",following);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+      
+        } finally {
+            console.log("1",userProfile);
+
+        }
+      };
+
+      const handleRefresh = () =>{
+        setRefreshing(true)
+        fetchData()
+        setRefreshing(false)
+      }
+
+    useEffect(() => {
+        fetchData(); 
+    }, []); 
+
+    useEffect(() => {
+        console.log("User Profile:", userProfile);
+        console.log("Followers:", followers);
+    }, [userProfile, followers, following]); 
+
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView style={styles.container}>
+        
+        <View style={{ flex: 1 }}>
+            <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>Lily Smith</Text>
-                    <Text style={styles.userHandle}>@a_lily</Text>
+                    <Text style={styles.username}>{userProfile.fullName ? userProfile.fullName : "Itumeleng Moshokoa"}</Text>
+                    <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                        <Text style={styles.number}>50 </Text>
+                    <Text style={styles.number}>{followers ? followers : "100"} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>10 </Text>
+                        <Text style={styles.number}>{following ? following : "50"} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
@@ -67,19 +111,22 @@ export default function ProfilePage() {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>She/Her</Text>
-                    <Text>Genius scientist, inventor, and interdimensional traveller. I've seen every possible version of every movie, so trust me, my reviews are out of this world. I drink, I rant, and I have zero tolerance for bad sci-fi.</Text>
+                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "she/her"}</Text>
+                    <Text>{userProfile.bio ? userProfile.bio : "I'm also just a girl, standing in front of a boy asking him to love her - Notting Hill"}</Text>
                     <Text style={{ marginTop: 5 }}>
-                        <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
-                        <Text>Sci-Fi, Dark Comedy, Action</Text>
+                    <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
+                        {userProfile.favouriteGenre && userProfile.favouriteGenre.length >= 3 && (
+                            <Text>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
+                        )}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
                     <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
                 </View>
+               
             </ScrollView>
             <BottomHeader />
-        </SafeAreaView>
+        </View>
     );
 }
 

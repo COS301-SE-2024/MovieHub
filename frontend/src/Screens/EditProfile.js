@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, Modal, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import BottomHeader from "../Components/BottomHeader"
+import BottomHeader from "../Components/BottomHeader";
+import { updateUserProfile } from "../Services/UsersApiService";
 
-export default function EditProfile() {
-    const [isModalVisible, setIsModalVisible] = useState(false);
+export default function EditProfile({ userProfile }) {
     const [modalContent, setModalContent] = useState({
         username: { isVisible: false, newValue: "", tempValue: "" },
         fullName: { isVisible: false, newValue: "", tempValue: "" },
@@ -12,23 +12,61 @@ export default function EditProfile() {
         pronouns: { isVisible: false, newValue: "", tempValue: "", options: ["He/Him", "She/Her", "They/Them"] },
         favoriteGenres: { isVisible: false, newValue: [], tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
     });
-    const [avatar, setAvatar] = useState("https://i.pravatar.cc/300"); // Replace with profile picture from DB
+    const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");
 
-    const applyChanges = (field) => {
-        switch (field) {
-            case "username":
-            case "fullName":
-            case "bio":
-                setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
-                break;
-            case "pronouns":
-                setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue } });
-                break;
-            case "favoriteGenres":
-                setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false, newValue: modalContent[field].tempValue.slice(0, 3) } });
-                break;
-            default:
-                break;
+    const username = userProfile?.username || "";
+    const name = userProfile?.name || "";
+    const bio = userProfile?.bio || "";
+    const pronouns = userProfile?.pronouns || "";
+    const favoriteGenres = userProfile?.favoriteGenres || [];
+
+    const applyChanges = async (field) => {
+        try {
+            let updatedData = {};
+            switch (field) {
+                case "username":
+                case "fullName":
+                case "bio":
+                case "pronouns":
+                    updatedData[field] = modalContent[field].tempValue;
+                    setModalContent({
+                        ...modalContent,
+                        [field]: {
+                            ...modalContent[field],
+                            isVisible: false,
+                            newValue: modalContent[field].tempValue,
+                        },
+                    });
+                    break;
+                case "favoriteGenres":
+                    updatedData[field] = modalContent[field].tempValue.slice(0, 3);
+                    setModalContent({
+                        ...modalContent,
+                        [field]: {
+                            ...modalContent[field],
+                            isVisible: false,
+                            newValue: modalContent[field].tempValue.slice(0, 3),
+                        },
+                    });
+                    break;
+                default:
+                    break;
+            }
+            const updatedUser = await updateUserProfile('pTjrHHYS2qWczf4mKExik40KgLH3', updatedData);
+            console.log("Update went well", updatedUser);
+
+            setModalContent((prevState) => {
+                const newState = { ...prevState };
+                Object.keys(updatedData).forEach((key) => {
+                    newState[key] = {
+                        ...newState[key],
+                        newValue: updatedUser[key],
+                    };
+                });
+                return newState;
+            });
+        } catch (error) {
+            console.error('Error updating user profile:', error);
         }
     };
 
@@ -46,7 +84,6 @@ export default function EditProfile() {
 
     const handleInputChange = (field, value) => {
         setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: value } });
-        // add value to DB
     };
 
     const handleOptionPress = (field, option) => {
@@ -83,99 +120,98 @@ export default function EditProfile() {
             return;
         }
         setAvatar(pickerResult.assets[0].uri);
-        // add image to DB
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={{ color: "#7b7b7b", marginBottom: 10 }}>The information you enter here will be visible to other users.</Text>
-            <View style={styles.avatarContainer}>
-                <Image source={{ uri: avatar }} style={styles.avatar} />
-                <Text style={styles.buttonText} onPress={selectImage}>
-                    Change Profile Picture
-                </Text>
-            </View>
-
-            {Object.keys(modalContent).map((field, index) => (
-                <View>
-                    <TouchableOpacity key={index} onPress={() => handleFieldPress(field)}>
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            {field === "favoriteGenres" ? (
-                                <ScrollView horizontal={true} contentContainerStyle={{ flexDirection: "row" }}>
-                                    {modalContent[field].newValue.map((option, index) => (
-                                        <Text key={index} style={styles.chip}>
-                                            {option}
-                                        </Text>
-                                    ))}
-                                </ScrollView>
-                            ) : (
-                                <Text style={styles.sectionValue}>{modalContent[field].newValue}</Text>
-                            )}
-                        </View>
-                    </TouchableOpacity>
-                    <View style={styles.line} />
+        <View style={styles.container}>
+            <ScrollView>
+                <Text style={{ color: "#7b7b7b", marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
+                <View style={styles.avatarContainer}>
+                    <Image source={{ uri: avatar }} style={styles.avatar} />
+                    <Text style={styles.buttonText} onPress={selectImage}>
+                        Change Profile Picture
+                    </Text>
                 </View>
-            ))}
 
-            {/* Modals */}
-            {Object.keys(modalContent).map((field, index) => (
-                <Modal key={index} animationType="fade" transparent={true} visible={modalContent[field].isVisible} onRequestClose={() => setIsModalVisible(false)}>
-                    <View style={styles.modalBackground}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Change {field === "favoriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            {field === "favoriteGenres" ? (
-                                <View>
-                                    <ScrollView style={{ maxHeight: 200 }}>
+                {Object.keys(modalContent).map((field, index) => (
+                    <View key={index}>
+                        <TouchableOpacity onPress={() => handleFieldPress(field)}>
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                                {field === "favoriteGenres" ? (
+                                    <ScrollView horizontal={true} contentContainerStyle={{ flexDirection: "row" }}>
+                                        {modalContent[field].newValue.map((option, index) => (
+                                            <Text key={index} style={styles.chip}>
+                                                {option}
+                                            </Text>
+                                        ))}
+                                    </ScrollView>
+                                ) : (
+                                    <Text style={styles.sectionValue}>{modalContent[field].newValue}</Text>
+                                )}
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.line} />
+                    </View>
+                ))}
+
+                {Object.keys(modalContent).map((field, index) => (
+                    <Modal key={index} animationType="fade" transparent={true} visible={modalContent[field].isVisible} onRequestClose={() => setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false } })}>
+                        <View style={styles.modalBackground}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalTitle}>Change {field === "favoriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                                {field === "favoriteGenres" ? (
+                                    <View>
+                                        <ScrollView style={{ maxHeight: 200 }}>
+                                            {modalContent[field].options.map((option, index) => (
+                                                <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
+                                                    <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </ScrollView>
+                                        <View style={styles.buttonContainer}>
+                                            <Text style={styles.buttonText} onPress={handleCancelChanges}>
+                                                Cancel
+                                            </Text>
+                                            <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
+                                                Apply Changes
+                                            </Text>
+                                        </View>
+                                    </View>
+                                ) : field === "pronouns" ? (
+                                    <ScrollView>
                                         {modalContent[field].options.map((option, index) => (
                                             <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
                                             </TouchableOpacity>
                                         ))}
                                     </ScrollView>
-                                    <View style={styles.buttonContainer}>
-                                        <Text style={styles.buttonText} onPress={handleCancelChanges}>
-                                            Cancel
-                                        </Text>
-                                        <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                            Apply Changes
-                                        </Text>
+                                ) : (
+                                    <View>
+                                        <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
+                                        <View style={styles.buttonContainer}>
+                                            <Text style={styles.buttonText} onPress={handleCancelChanges}>
+                                                Cancel
+                                            </Text>
+                                            <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
+                                                Apply Changes
+                                            </Text>
+                                        </View>
                                     </View>
-                                </View>
-                            ) : field === "pronouns" ? (
-                                <ScrollView>
-                                    {modalContent[field].options.map((option, index) => (
-                                        <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                            <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </ScrollView>
-                            ) : (
-                                <View>
-                                    <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
-                                    <View style={styles.buttonContainer}>
-                                        <Text style={styles.buttonText} onPress={handleCancelChanges}>
-                                            Cancel
-                                        </Text>
-                                        <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                            Apply Changes
-                                        </Text>
-                                    </View>
-                                </View>
-                            )}
+                                )}
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-            ))}
+                    </Modal>
+                ))}
+            </ScrollView>
             <BottomHeader />
-        </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
         backgroundColor: "#fff",
         paddingHorizontal: 30,
     },
@@ -234,12 +270,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         paddingTop: 10,
-    },
-    button: {
-        padding: 10,
-        borderRadius: 5,
-        width: 190,
-        backgroundColor: "#7b7b7b",
     },
     buttonText: {
         color: "#0f5bd1",

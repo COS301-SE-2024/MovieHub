@@ -33,4 +33,3 @@ https://youtu.be/uN64m3bUY6M?si=4wRHIuM3h0ZwLsB5
  3. scr folder - has components (headers, footer) and screens (which are our pages)
  4. APP.js will be used for navigation
  5. Backend Folder - for backend code 
-

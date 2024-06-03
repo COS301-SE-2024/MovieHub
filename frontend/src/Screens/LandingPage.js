@@ -1,48 +1,63 @@
 import React, { useState } from 'react';
-import { StyleSheet, Button, Pressable, Text, View, ScrollView, Image} from 'react-native';
+import { StyleSheet, Button, Pressable, Text, View, ScrollView, Image, Dimensions } from 'react-native';
 import landing1 from "../../../assets/landing1.png";
 import landing2 from "../../../assets/landing2.png";
 import landing3 from "../../../assets/landing3.png";
 import landing4 from "../../../assets/landing4.png";
-import movie5 from '../../../assets/oppenheimer_movie.jpg'
+import { useNavigation } from '@react-navigation/native';
+
+const { width } = Dimensions.get('window');
 
 const LandingPage = () => {
+    const navigation = useNavigation();
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const handleScroll = (event) => {
+        const scrollPosition = event.nativeEvent.contentOffset.x;
+        const index = Math.round(scrollPosition / width);
+        setActiveIndex(index);
+    };
+
     return (
         <View style={styles.container}>
-            <ScrollView horizontal
+            <ScrollView
+                horizontal
+                pagingEnabled
                 showsHorizontalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
                 contentContainerStyle={styles.scrollView}>
                 <View style={styles.imgContainer}>
-                    <Image source={landing1}/>
+                    <Image source={landing1} style={styles.image}/>
                     <Text style={styles.subTitle}>Welcome to MovieHub</Text>
                     <Text style={styles.text}>Discover, review, and discuss your favourite films on the ultimate platform for movie enthusiasts.</Text>
                 </View>
                 <View style={styles.imgContainer}>
-                    <Image source={landing2}/>
+                    <Image source={landing2} style={styles.image}/>
                     <Text style={styles.subTitle}>Connect With Other Movie Lovers</Text>
                     <Text style={styles.text}>Follow friends, like reviews, and comment on discussions to build your own network.</Text>
                 </View>
                 <View style={styles.imgContainer}>
-                    <Image source={landing3}/>
+                    <Image source={landing3} style={styles.image}/>
                     <Text style={styles.subTitle}>Share Your Thoughts</Text>
                     <Text style={styles.text}>Write and submit reviews, and share your thoughts with a community of movie enthusiasts.</Text>
                 </View>
                 <View style={styles.imgContainer}>
-                    <Image source={landing4}/>
+                    <Image source={landing4} style={styles.image}/>
                     <Text style={styles.subTitle}>Get Personalised Recommendations</Text>
                     <Text style={styles.text}>Enjoy movie suggestions tailored to your unique tastes and viewing history.</Text>
                 </View>
             </ScrollView>
-            <View style={styles.scrollcontainer}>
-                <View style={styles.bubbleActive}/>
-                <View style={styles.bubble}/>
-                <View style={styles.bubble}/>
-                <View style={styles.bubble}/>
+            <View style={styles.scrollContainer}>
+                <View style={activeIndex === 0 ? styles.bubbleActive : styles.bubble} />
+                <View style={activeIndex === 1 ? styles.bubbleActive : styles.bubble} />
+                <View style={activeIndex === 2 ? styles.bubbleActive : styles.bubble} />
+                <View style={activeIndex === 3 ? styles.bubbleActive : styles.bubble} />
             </View>
-            <Pressable style={styles.create}>
+            <Pressable style={styles.create} onPress={() => navigation.navigate('SignupPage')}>
                 <Text style={styles.createText}>Create Account</Text>
             </Pressable>
-            <Pressable style={styles.login}>
+            <Pressable style={styles.login} onPress={() => navigation.navigate('LoginPage')}>
                 <Text style={styles.loginText}>Login</Text>
             </Pressable>
         </View>
@@ -50,12 +65,13 @@ const LandingPage = () => {
 };
 
 const styles = StyleSheet.create({
-    scrollcontainer: {
+    scrollContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        height: 50
+        height: 50,
+        marginTop: 20
     },
     bubble: {
         height: 10,
@@ -78,13 +94,13 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     text: {
-        fontSize: 16,
+        fontSize: 18,
         textAlign: 'center',
         width: 350
     },
     imgContainer: {
-        width: '200',
-        height: '200',
+        width,
+        height: 200,
         paddingHorizontal: 10,
         justifyContent: 'center',
         alignItems: 'center'
@@ -107,7 +123,8 @@ const styles = StyleSheet.create({
         margin:50,
         padding:10,
         width: '70%',
-        height: '200',
+        height: 200,
+        resizeMode: 'contain',
     },
     create: {
         margin: 10,
