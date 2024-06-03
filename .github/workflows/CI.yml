@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "development"
+  pull_request:
+    branches:
+      - "main"
+      - "development"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: ./coverage
+
+      - name: Download Coverage Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage
+
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.3.0
+        with:
+          github-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+            
+  # deploy_vercel:
+    # needs: [test_frontend, upload_coverage]
+    # uses: ./.github/workflows/deploy_vercel.yml
+    # secrets: inherit
+
+  #test_frontend:
+  #  uses: ./.github/workflows/test_frontend.yml
+  #  secrets: inherit
+  #test_backend:
+  #  uses: ./.github/workflows/test_backend.yml
+  #  secrets: inherit
