@@ -35,7 +35,7 @@
 [Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
 
 # Documentation #
-[System Requirements Specification](https://linktodocumentation)
+[System Requirements Specification](https://github.com/COS301-SE-2024/MovieHub/blob/main/Documents/Software%20Requirements%20Contract.md)
 
 ## Branching Strategy
 We use GitFlow as our branching strategy, with main, development, and feature branches.
