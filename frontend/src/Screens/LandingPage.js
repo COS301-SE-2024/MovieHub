@@ -4,9 +4,11 @@ import landing1 from "../../../assets/landing1.png";
 import landing2 from "../../../assets/landing2.png";
 import landing3 from "../../../assets/landing3.png";
 import landing4 from "../../../assets/landing4.png";
-import movie5 from '../../../assets/oppenheimer_movie.jpg'
+import { useNavigation } from '@react-navigation/native';
 
 const LandingPage = () => {
+    const navigation = useNavigation();
+
     return (
         <View style={styles.container}>
             <ScrollView horizontal
@@ -39,10 +41,10 @@ const LandingPage = () => {
                 <View style={styles.bubble}/>
                 <View style={styles.bubble}/>
             </View>
-            <Pressable style={styles.create}>
+            <Pressable style={styles.create} onPress={() => navigation.navigate('SignupPage')}>
                 <Text style={styles.createText}>Create Account</Text>
             </Pressable>
-            <Pressable style={styles.login}>
+            <Pressable style={styles.login} onPress={() => navigation.navigate('LoginPage')}>
                 <Text style={styles.loginText}>Login</Text>
             </Pressable>
         </View>
