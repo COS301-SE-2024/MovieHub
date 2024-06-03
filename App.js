@@ -3,7 +3,6 @@ import React from "react";
 import { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import ProfilePage from "./frontend/src/Screens/ProfilePage";
 import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -12,6 +11,7 @@ import HomePage from "./frontend/src/Screens/HomePage";
 import MainHeader from "./frontend/src/Components/MainHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
+import LandingPage from "./frontend/src/Screens/LandingPage";
 
 const Nav = createNativeStackNavigator();
 
@@ -28,7 +28,7 @@ export default function App() {
     };
     return (
         <NavigationContainer>
-            <Nav.Navigator initialRouteName="SignupPage"
+            <Nav.Navigator initialRouteName="LandingPage"
                 screenOptions={({ navigation }) => {
                     if (!navigationState) {
                         setNavigationState(navigation);
@@ -36,7 +36,7 @@ export default function App() {
 
                     return {};
                 }}>
-                
+                <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
                 <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                 <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
                 <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
