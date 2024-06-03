@@ -17,7 +17,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
-                <Image source={userAvatar} style={styles.avatar} />
+                <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>
