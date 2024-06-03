@@ -39,6 +39,7 @@
 
 ## Branching Strategy
 We use GitFlow as our branching strategy, with main, development, and feature branches.
+![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/a27a0067-9f71-423c-a333-9a0b716767bf)
 
 ## Branch Naming Convention
 **Main Branch**: `main`
