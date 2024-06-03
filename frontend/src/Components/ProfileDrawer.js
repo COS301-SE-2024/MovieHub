@@ -22,7 +22,7 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
             console.log(response);
             if (response.success) {
                 // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen @asa-siphuma
-                navigation.navigate("LoginScreen");
+                navigation.navigate("SignupPage");
             } else {
                 // If there was an error deleting the account, display an error message to the user
                 Alert.alert("Error", response.message);
