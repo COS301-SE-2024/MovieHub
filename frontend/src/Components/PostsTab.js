@@ -9,9 +9,9 @@ export default function PostsTab() {
     const userHandle = "@a_lily";
     const posts = [
         {
-            username: "John Doe",
-            userHandle: "@johnD",
-            userAvatar: "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            username: "Itumeleng Moshokoa",
+            userHandle: "@Joyce",
+            userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
             likes: 150,
             comments: 12,
             saves: 20,
@@ -21,9 +21,9 @@ export default function PostsTab() {
             datePosted: "2024-06-01",
         },
         {
-            username: "Jane Smith",
-            userHandle: "@janeS",
-            userAvatar: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjN8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            username: "Itumeleng Moshokoa",
+            userHandle: "@Joyce",
+            userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
             likes: 200,
             comments: 30,
             saves: 40,
@@ -33,9 +33,9 @@ export default function PostsTab() {
             datePosted: "2024-05-28",
         },
         {
-            username: "Mark Johnson",
-            userHandle: "@markJ",
-            userAvatar: "https://images.unsplash.com/photo-1544435253-f0ead49638fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            username: "Itumeleng Moshokoa",
+            userHandle: "@Joyce",
+            userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
             likes: 120,
             comments: 25,
             saves: 15,
@@ -45,9 +45,9 @@ export default function PostsTab() {
             datePosted: "2024-06-02",
         },
         {
-            username: "Mark Johnson",
-            userHandle: "@markJ",
-            userAvatar: "https://images.unsplash.com/photo-1544435253-f0ead49638fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            username: "Itumeleng Moshokoa",
+            userHandle: "@Joyce",
+            userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
             likes: 120,
             comments: 25,
             saves: 15,
