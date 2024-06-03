@@ -100,6 +100,54 @@ const HomePage = () => {
 
             </ScrollView>
 
+            <View style={styles.viewall}>
+             <Text style={styles.trending}>Comedy</Text>
+             <Text style={styles.viewalltext}>View all</Text>
+            </View>
+
+            <ScrollView horizontal>
+                    <TrendingMovie
+                    imageUrl={movie11}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie12}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie13}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie14}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie15}
+                    />
+
+            </ScrollView>
+
+            <View style={styles.viewall}>
+             <Text style={styles.trending}>Trending Movies</Text>
+             <Text style={styles.viewalltext}>View all</Text>
+            </View>
+
+            <ScrollView horizontal>
+                    <TrendingMovie
+                    imageUrl={movie6}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie7}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie8}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie9}
+                    />
+                    <TrendingMovie
+                    imageUrl={movie10}
+                    />
+
+            </ScrollView>
+
             </View>
             
         </ScrollView>
