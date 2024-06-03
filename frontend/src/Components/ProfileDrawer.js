@@ -4,10 +4,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Switch, Modal, Al
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState } from "react";
 import { deleteUserProfile } from "../Services/UsersApiService";
+import { useNavigation } from "@react-navigation/native";
 
 const CustomDrawer = ({ navigation, closeDrawer }) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [deletedModalVisible, setDeletedModalVisible] = useState(false);
+
+    const navigation = useNavigation();
 
     const confirmDeleteAccount = () => {
         setModalVisible(true);
@@ -22,7 +26,11 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
             console.log(response);
             if (response.success) {
                 // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen @asa-siphuma
-                navigation.navigate("LoginScreen");
+                setDeletedModalVisible(true);
+                setTimeout(() => {
+                    setDeletedModalVisible(false);
+                    navigation.navigate("SignupPage");
+                }, 2000);
             } else {
                 // If there was an error deleting the account, display an error message to the user
                 Alert.alert("Error", response.message);
@@ -65,12 +73,20 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
 
             <View style={{ flex: 1 }} />
 
-            <TouchableOpacity onPress={() => navigation.navigate("LoginPage")} >
+            <TouchableOpacity onPress={() => navigation.navigate("LoginPage")}>
                 <Text style={styles.drawerItem}>Log Out</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
                 <Text style={styles.deleteButtonText}>Delete Account</Text>
             </TouchableOpacity>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={deletedModalVisible}
+                onRequestClose={() => {
+                    setDeletedModalVisible(!deletedModalVisible);
+                }}></Modal>
 
             <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
                 <View style={styles.modalOverlay}>
@@ -160,7 +176,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "rgba(0, 0, 0, 0.5)",
-        height: "100%"
+        height: "100%",
     },
     modalContainer: {
         width: "80%",
