@@ -47,13 +47,17 @@ exports.updateUserProfile = async (userId, updates) => {
 
 exports.deleteUserProfile = async (userId) => {
     const session = driver.session();
+    console.log("Inside services")
     try {
+
         const result = await session.run(
-            'MATCH (u:User {id: $userId}) DETACH DELETE u RETURN u',
+            'MATCH (u:User {userId: $userId}) DETACH DELETE u RETURN count(u) as count',
             { userId: userId }
         );
-
-        return result.summary.counters.updates().nodesDeleted > 0;
+        // console.log(result);
+        const count = result.records[0].get('count');
+        console.log(count);
+        return { success: count > 0 };
     } finally {
         await session.close();
     }
