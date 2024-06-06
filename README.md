@@ -18,7 +18,7 @@
 ![GitHub pull requests](https://img.shields.io/github/last-commit/COS301-SE-2024/MovieHub)
 ![GitHub pull requests](https://img.shields.io/github/repo-size/COS301-SE-2024/MovieHub)
 [![Coverage Status](https://coveralls.io/repos/github/COS301-SE-2024/MovieHub/badge.svg?branch=)](https://coveralls.io/github/COS301-SE-2024/MovieHub?branch=)
-![Build Status](https://github.com/github/docs/actions/workflows/CI.yml/badge.svg)
+![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 
 <img src="https://img.shields.io/badge/-JavaScript-grey?logo=javascript" style="height: 7%;">
   <img src="https://img.shields.io/badge/-React_Native-grey?logo=react" style="height: 7%;">
