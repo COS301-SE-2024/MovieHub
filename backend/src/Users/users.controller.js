@@ -1,5 +1,9 @@
 // backend/users/users.controller.js
+// const express = require('express');
+// const path = require('path');
 const userService = require('./users.services');
+
+let userProfileData;
 
 // exports.getUserProfile = async (req, res) => {
 //     const userId = req.params.userId;
@@ -22,6 +26,8 @@ exports.getUserProfile = async (req, res) => {
         const userProfile = await userService.getUserProfile(userId);
 
         if (userProfile) {
+            userProfileData = userProfile;
+
             console.log('User profile username ' + userProfile.username);
             res.status(200).json(userProfile);
         } else {
@@ -33,6 +39,7 @@ exports.getUserProfile = async (req, res) => {
     }
 };
 
+console.log('User profile username ' + userProfileData);
 
 exports.updateUserProfile = async (req, res) => {
     const userId = req.params.id;
@@ -51,10 +58,15 @@ exports.updateUserProfile = async (req, res) => {
 };
 
 exports.deleteUserProfile = async (req, res) => {
-    try {
-        const result = await userService.deleteUserProfile(req.params.id);
-        if (result) {
+    console.log('DeleteUserProfile called');
+    const userId = req.params.id;
+   try {
+        console.log(`Deleting user profile for ID: ${userId}`);
+        const result = await userService.deleteUserProfile(userId);
+        console.log(result);
+        if (result.success) {
             res.status(200).json({ message: 'User deleted successfully' });
+           // console.log(`'User deleted successfully'`);
         } else {
             res.status(404).json({ message: 'User not found' });
         }

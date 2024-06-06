@@ -15,7 +15,7 @@ export default function BottomHeader() {
                 <Icon name="notifications" size={30} style={styles.icon} />
                 <Icon name="chat" size={30} style={styles.icon} />
                 <TouchableOpacity onPress={() => navigation.navigate("ProfilePage")}>
-                    <Image source={movie2} size={30} style={styles.Image} />
+                    <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} size={30} style={styles.Image} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -36,14 +36,17 @@ const styles = StyleSheet.create({
         width: "100%",
         paddingRight: 20,
         paddingleft: 30,
+        
     },
     icon: {
         textAlign: "center",
+        paddingTop: 6,
     },
 
     Image: {
-        height: 30,
-        width: 30,
-        borderRadius: 15,
+        height: 40,
+        width: 40,
+        borderRadius: 20,
+        paddingTop: 20,
     },
 });

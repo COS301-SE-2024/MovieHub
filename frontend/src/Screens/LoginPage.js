@@ -5,12 +5,14 @@ import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "@expo/vector-icons/MaterialIcons";
+import { signIn } from "../../../backend/src/services/authService";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
+    const [error, setError] = useState("");
+    
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
     };
@@ -22,13 +24,20 @@ const LoginPage = () => {
         navigation.navigate("SignupPage");
     };
 
-    const HandleLogin = () => {
-        navigation.navigate("HomePage");
+    const HandleLogin = async () => {
+        try {
+            await signIn(email, password);
+            console.log("User signed in successfully");
+            navigation.navigate("HomePage");
+            
+        } catch (error) {
+            console.error("Error signing in:", error);
+        }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>.movieHub</Text>
+            <Text style={styles.title}>movieHub.</Text>
             <Text style={styles.title}>Welcome Back!</Text>
             <View>
                 <Text style={styles.label}>Email</Text>
@@ -48,6 +57,7 @@ const LoginPage = () => {
                 <Pressable style={styles.button} onPress={HandleLogin}>
                     <Text style={styles.buttonText}>Login</Text>
                 </Pressable>
+                {error ? <Text>{error}</Text> : null}
             </View>
             <View style={styles.forgot}>
                 <Text style={{ color: "#0f5bd1" }}>Forgot password?</Text>
