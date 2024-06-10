@@ -19,16 +19,8 @@ import FAQs from "./frontend/src/Screens/FAQs";
 const Nav = createNativeStackNavigator();
 
 export default function App() {
-    const [drawerVisible, setDrawerVisible] = useState(false);
     const [navigationState, setNavigationState] = useState(null);
 
-    const toggleDrawer = () => {
-        setDrawerVisible(!drawerVisible);
-    };
-
-    const closeDrawer = () => {
-        setDrawerVisible(false);
-    };
     return (
         <NavigationContainer>
             <Nav.Navigator
@@ -39,10 +31,10 @@ export default function App() {
                     }
                     return {};
                 }}>
-                {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
+                <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
                 <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
-                <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} /> */}
-                {/* <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} /> */}
+                <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
+                <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
                 <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
@@ -52,7 +44,7 @@ export default function App() {
                         headerRight: () => (
                             <View style={{ marginRight: 10 }}>
                                 {/* Your menu icon component */}
-                                <Text onPress={toggleDrawer}>
+                                <Text onPress={() => navigation.navigate("CustomDrawer")}>
                                     <Icon name="menu" size={24} />
                                 </Text>
                             </View>
@@ -62,7 +54,7 @@ export default function App() {
                 <Nav.Screen
                     name="EditProfile"
                     component={EditProfile}
-                    options={() => ({
+                    options={({ navigation }) => ({
                         title: "Edit Profile",
                         headerStyle: {
                             backgroundColor: "#fff",
@@ -74,7 +66,7 @@ export default function App() {
                         headerRight: () => (
                             <View style={{ marginRight: 10 }}>
                                 {/* Your menu icon component */}
-                                <Text onPress={toggleDrawer}>
+                                <Text onPress={() => navigation.navigate("CustomDrawer")}>
                                     <Icon name="menu" size={24} />
                                 </Text>
                             </View>
@@ -83,9 +75,8 @@ export default function App() {
                 />
                 <Nav.Screen name="HelpCentre" component={HelpCentre} />
                 <Nav.Screen name="FAQs" component={FAQs} />
+                <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
             </Nav.Navigator>
-
-            {drawerVisible && <CustomDrawer navigation={navigationState} closeDrawer={closeDrawer} />}
         </NavigationContainer>
     );
 }

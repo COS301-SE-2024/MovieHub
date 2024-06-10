@@ -28,7 +28,8 @@ const sections = [
     }
 ];
 
-export default function HelpCentre({ navigation }) {
+const HelpCentre = ({ navigation }) => {
+    
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.heading}>Welcome to the MovieHub Help Centre</Text>
@@ -95,3 +96,15 @@ const styles = StyleSheet.create({
     },
 });
 
+HelpCentre.navigationOptions = ({ navigation }) => {
+    return {
+        headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+                <Icon name="arrow-back" size={24} color="#000" style={{ marginLeft: 15 }} />
+            </TouchableOpacity>
+        ),
+    };
+};
+
+
+export default HelpCentre;

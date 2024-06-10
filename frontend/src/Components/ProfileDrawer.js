@@ -1,12 +1,12 @@
 // CustomDrawer.js
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Switch, Modal, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Switch, Modal, Alert, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { useState } from "react";
 import { deleteUserProfile } from "../Services/UsersApiService";
 
-function CustomDrawer ({ navigation, closeDrawer }) {
+function CustomDrawer({ navigation, closeDrawer }) {
     const [isEnabled, setIsEnabled] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [deletedModalVisible, setDeletedModalVisible] = useState(false);
@@ -21,7 +21,7 @@ function CustomDrawer ({ navigation, closeDrawer }) {
         navigation.navigate(screen);
         setTimeout(() => {
             closeDrawer();
-        }, 200)
+        }, 300);
     };
     const handleDeleteAccount = async () => {
         try {
@@ -48,12 +48,7 @@ function CustomDrawer ({ navigation, closeDrawer }) {
     };
 
     return (
-        <View style={styles.drawer}>
-            <TouchableOpacity onPress={closeDrawer} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>
-                    <Icon name="close" size={24} />
-                </Text>
-            </TouchableOpacity>
+        <ScrollView style={styles.drawer}>
             <Text style={styles.label}>Your Acount</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
@@ -117,20 +112,19 @@ function CustomDrawer ({ navigation, closeDrawer }) {
             </TouchableOpacity>
             <View style={styles.line} />
             <Text style={styles.label}>Info and Support</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigateTo("HelpCentre")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("HelpCentre")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="help" style={styles.icon} size={24} />
                     <Text style={styles.drawerItem}>Help Centre</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("FAQs")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="info" style={styles.icon} size={24} />
                     <Text style={styles.drawerItem}>FAQs</Text>
                 </View>
             </TouchableOpacity>
             <View style={styles.line} />
-
 
             <View style={{ flex: 1 }} />
 
@@ -166,39 +160,18 @@ function CustomDrawer ({ navigation, closeDrawer }) {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </View>
+                </View>-
             </Modal>
-        </View>
+        </ScrollView>
     );
-};
+}
 
 const styles = StyleSheet.create({
     drawer: {
-        position: "absolute",
-        top: 0,
-        bottom: 0,
-        right: 0,
-        width: "100%",
         flex: 1,
         backgroundColor: "#fff",
-        paddingTop: 38,
+        paddingTop: 25,
         paddingBottom: 15,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    closeButton: {
-        alignSelf: "flex-end",
-    },
-    closeButtonText: {
-        fontSize: 20,
-        fontWeight: "bold",
-        paddingHorizontal: 18,
     },
     label: {
         fontSize: 14,
