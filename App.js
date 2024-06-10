@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProfilePage from "./frontend/src/Screens/ProfilePage";
 import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import CustomDrawer from "./frontend/src/Components/ProfileDrawer";
+import CustomDrawer from "./frontend/src/Screens/ProfileDrawer";
 import HomePage from "./frontend/src/Screens/HomePage";
 import MainHeader from "./frontend/src/Components/MainHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
