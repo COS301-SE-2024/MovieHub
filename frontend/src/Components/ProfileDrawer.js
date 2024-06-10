@@ -1,22 +1,28 @@
 // CustomDrawer.js
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Switch, Modal, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Switch, Modal, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import IonIcon from "react-native-vector-icons/Ionicons";
 import { useState } from "react";
 import { deleteUserProfile } from "../Services/UsersApiService";
-import { useNavigation } from "@react-navigation/native";
 
-const CustomDrawer = ({ navigation, closeDrawer }) => {
+function CustomDrawer ({ navigation, closeDrawer }) {
     const [isEnabled, setIsEnabled] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [deletedModalVisible, setDeletedModalVisible] = useState(false);
-
 
     const confirmDeleteAccount = () => {
         setModalVisible(true);
     };
 
     const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+
+    const navigateTo = (screen) => {
+        navigation.navigate(screen);
+        setTimeout(() => {
+            closeDrawer();
+        }, 200)
+    };
     const handleDeleteAccount = async () => {
         try {
             // Call the deleteUserAccount function from UsersApiService
@@ -28,7 +34,7 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
                 setDeletedModalVisible(true);
                 setTimeout(() => {
                     setDeletedModalVisible(false);
-                    navigation.navigate("SignupPage");
+                    navigateTo("SignupPage");
                 }, 2000);
             } else {
                 // If there was an error deleting the account, display an error message to the user
@@ -49,31 +55,90 @@ const CustomDrawer = ({ navigation, closeDrawer }) => {
                 </Text>
             </TouchableOpacity>
             <Text style={styles.label}>Your Acount</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("")}>
-                <Text style={styles.drawerItem}>Account Settings</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="account-circle" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Account Settings</Text>
+                </View>
             </TouchableOpacity>
             <View style={styles.line} />
 
-            <Text style={styles.label}>About</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("")}>
-                <Text style={styles.drawerItem}>Privacy Policy</Text>
+            <Text style={styles.label}>Activity</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="bookmark" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Saved</Text>
+                </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("")}>
-                <Text style={styles.drawerItem}>Terms and Conditions</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <IonIcon name="stats-chart-sharp" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Stats</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="settings" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Content Preferences</Text>
+                </View>
             </TouchableOpacity>
             <View style={styles.line} />
 
             <Text style={styles.label}>Dark Mode</Text>
-            <TouchableOpacity style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.drawerItem}>Enable Dark Mode </Text>
-                {/* add toggle switch */}
-                <Switch trackColor={{ false: "#ccc", true: "#808080" }} thumbColor={isEnabled ? "#fff" : "#fff"} ios_backgroundColor="#3e3e3e" onValueChange={toggleSwitch} value={isEnabled} />
+            <TouchableOpacity style={{ marginLeft: 20 }}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="dark-mode" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Enable Dark Mode</Text>
+                    <Switch style={{ marginLeft: "auto" }} trackColor={{ false: "#ccc", true: "#808080" }} thumbColor={isEnabled ? "#fff" : "#fff"} ios_backgroundColor="#3e3e3e" onValueChange={toggleSwitch} value={isEnabled} />
+                </View>
             </TouchableOpacity>
+            <View style={styles.line} />
+
+            <Text style={styles.label}>About</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigateTo("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="policy" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Privacy Policy</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="description" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Terms and Conditions</Text>
+                </View>
+            </TouchableOpacity>
+            <View style={styles.line} />
+            <Text style={styles.label}>Notifications</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="notifications" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Configure Notifications</Text>
+                </View>
+            </TouchableOpacity>
+            <View style={styles.line} />
+            <Text style={styles.label}>Info and Support</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigateTo("HelpCentre")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="help" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Help Centre</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="info" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>FAQs</Text>
+                </View>
+            </TouchableOpacity>
+            <View style={styles.line} />
+
 
             <View style={{ flex: 1 }} />
 
-            <TouchableOpacity onPress={() => navigation.navigate("LoginPage")}>
-                <Text style={styles.drawerItem}>Log Out</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="logout" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Log Out</Text>
+                </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
                 <Text style={styles.deleteButtonText}>Delete Account</Text>
@@ -144,7 +209,9 @@ const styles = StyleSheet.create({
     drawerItem: {
         fontSize: 16,
         marginVertical: 10,
-        paddingHorizontal: 20,
+    },
+    icon: {
+        marginRight: 10,
     },
     line: {
         height: 1,

@@ -1,4 +1,4 @@
-import 'regenerator-runtime/runtime';
+import "regenerator-runtime/runtime";
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useState } from "react";
@@ -13,6 +13,8 @@ import MainHeader from "./frontend/src/Components/MainHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
+import HelpCentre from "./frontend/src/Screens/HelpCentre";
+import FAQs from "./frontend/src/Screens/FAQs";
 
 const Nav = createNativeStackNavigator();
 
@@ -29,18 +31,18 @@ export default function App() {
     };
     return (
         <NavigationContainer>
-            <Nav.Navigator initialRouteName="LandingPage"
+            <Nav.Navigator
+                initialRouteName="LandingPage"
                 screenOptions={({ navigation }) => {
                     if (!navigationState) {
                         setNavigationState(navigation);
                     }
-
                     return {};
                 }}>
-                <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
+                {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
                 <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
-                <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
-                <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
+                <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} /> */}
+                {/* <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} /> */}
                 <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
@@ -79,7 +81,10 @@ export default function App() {
                         ),
                     })}
                 />
+                <Nav.Screen name="HelpCentre" component={HelpCentre} />
+                <Nav.Screen name="FAQs" component={FAQs} />
             </Nav.Navigator>
+
             {drawerVisible && <CustomDrawer navigation={navigationState} closeDrawer={closeDrawer} />}
         </NavigationContainer>
     );
