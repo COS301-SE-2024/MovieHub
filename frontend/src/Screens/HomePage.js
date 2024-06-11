@@ -18,8 +18,11 @@ import movie13 from '../../../assets/centa;.jpg'
 import movie14 from '../../../assets/brothers.jpg'
 import movie15 from '../../../assets/friday.jpg'
 import BottomHeader from "../Components/BottomHeader"
+import { useNavigation } from "@react-navigation/native";
 
 const HomePage = () => {
+
+
     return (
         <View style={{flex:1}}>
         <ScrollView>
