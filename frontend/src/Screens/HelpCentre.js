@@ -4,11 +4,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "rea
 const sections = [
     {
         title: "Getting Started",
-        illustration: require("../../../assets/undraw_my_app_re_gxtj.png"),
+        illustration: require("../../../assets/undraw_my_app_re_gxtj 1.png"),
     },
     {
         title: "Account Management",
-        illustration: require("../../../assets/undraw_sign_up_n6im 1.png"),
+        illustration: require("../../../assets/undraw_access_account_re_8spm 1.png"),
     },
     {
         title: "Community Guidelines",
@@ -20,7 +20,7 @@ const sections = [
     },
     {
         title: "Using MovieHub",
-        illustration: require("../../../assets/undraw_access_account_re_8spm 1.png"), // Example, update the path accordingly
+        illustration: require("../../../assets/undraw_sign_up_n6im 1.png"), // Example, update the path accordingly
     },
     {
         title: "FAQs",

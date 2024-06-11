@@ -9,48 +9,13 @@ import { deleteUserProfile } from "../Services/UsersApiService";
 function CustomDrawer({ navigation, closeDrawer }) {
     const [isEnabled, setIsEnabled] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [deletedModalVisible, setDeletedModalVisible] = useState(false);
-
-    const confirmDeleteAccount = () => {
-        setModalVisible(true);
-    };
 
     const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
-
-    const navigateTo = (screen) => {
-        navigation.navigate(screen);
-        setTimeout(() => {
-            closeDrawer();
-        }, 300);
-    };
-    const handleDeleteAccount = async () => {
-        try {
-            // Call the deleteUserAccount function from UsersApiService
-            const userId = "tempUserAgain";
-            const response = await deleteUserProfile(userId);
-            console.log(response);
-            if (response.success) {
-                // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen @asa-siphuma
-                setDeletedModalVisible(true);
-                setTimeout(() => {
-                    setDeletedModalVisible(false);
-                    navigateTo("SignupPage");
-                }, 2000);
-            } else {
-                // If there was an error deleting the account, display an error message to the user
-                Alert.alert("Error", response.message);
-            }
-        } catch (error) {
-            console.error("Error deleting account:", error);
-            // Handle any unexpected errors (e.g., network errors)
-            // You can display an error message to the user or handle the error in any other way
-        }
-    };
 
     return (
         <ScrollView style={styles.drawer}>
             <Text style={styles.label}>Your Acount</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("AccountSettings")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="account-circle" style={styles.icon} size={24} />
                     <Text style={styles.drawerItem}>Account Settings</Text>
@@ -77,6 +42,7 @@ function CustomDrawer({ navigation, closeDrawer }) {
                     <Text style={styles.drawerItem}>Content Preferences</Text>
                 </View>
             </TouchableOpacity>
+
             <View style={styles.line} />
 
             <Text style={styles.label}>Dark Mode</Text>
@@ -84,25 +50,12 @@ function CustomDrawer({ navigation, closeDrawer }) {
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="dark-mode" style={styles.icon} size={24} />
                     <Text style={styles.drawerItem}>Enable Dark Mode</Text>
-                    <Switch style={{ marginLeft: "auto" }} trackColor={{ false: "#ccc", true: "#808080" }} thumbColor={isEnabled ? "#fff" : "#fff"} ios_backgroundColor="#3e3e3e" onValueChange={toggleSwitch} value={isEnabled} />
+                    <Switch style={{ marginLeft: "auto", marginRight: 10 }} trackColor={{ false: "#ccc", true: "#808080" }} thumbColor={isEnabled ? "#fff" : "#fff"} ios_backgroundColor="#3e3e3e" onValueChange={toggleSwitch} value={isEnabled} />
                 </View>
             </TouchableOpacity>
-            <View style={styles.line} />
 
-            <Text style={styles.label}>About</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigateTo("")}>
-                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                    <Icon name="policy" style={styles.icon} size={24} />
-                    <Text style={styles.drawerItem}>Privacy Policy</Text>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
-                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                    <Icon name="description" style={styles.icon} size={24} />
-                    <Text style={styles.drawerItem}>Terms and Conditions</Text>
-                </View>
-            </TouchableOpacity>
             <View style={styles.line} />
+            
             <Text style={styles.label}>Notifications</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
@@ -110,6 +63,22 @@ function CustomDrawer({ navigation, closeDrawer }) {
                     <Text style={styles.drawerItem}>Configure Notifications</Text>
                 </View>
             </TouchableOpacity>
+
+            <View style={styles.line} />
+            <Text style={styles.label}>About</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("PrivacyPolicy")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="policy" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Privacy Policy</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("TermsOfUse")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="description" style={styles.icon} size={24} />
+                    <Text style={styles.drawerItem}>Terms of Use</Text>
+                </View>
+            </TouchableOpacity>
+            
             <View style={styles.line} />
             <Text style={styles.label}>Info and Support</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("HelpCentre")}>
@@ -128,40 +97,13 @@ function CustomDrawer({ navigation, closeDrawer }) {
 
             <View style={{ flex: 1 }} />
 
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
+            <TouchableOpacity style={ styles.logoutBtn } onPress={() => navigation.navigate("LoginPage")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="logout" style={styles.icon} size={24} />
                     <Text style={styles.drawerItem}>Log Out</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
-                <Text style={styles.deleteButtonText}>Delete Account</Text>
-            </TouchableOpacity>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={deletedModalVisible}
-                onRequestClose={() => {
-                    setDeletedModalVisible(!deletedModalVisible);
-                }}></Modal>
-
-            <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Confirm Deletion</Text>
-                        <Text style={styles.modalMessage}>Are you sure you want to delete your account?</Text>
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
-                                <Text style={styles.modalButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={handleDeleteAccount} style={[styles.modalButton, styles.modalButtonDelete]}>
-                                <Text style={[styles.modalButtonText, styles.modalButtonDeleteText]}>Delete</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>-
-            </Modal>
         </ScrollView>
     );
 }
@@ -170,7 +112,7 @@ const styles = StyleSheet.create({
     drawer: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingTop: 25,
+        paddingTop: 20,
         paddingBottom: 15,
     },
     label: {
@@ -188,9 +130,9 @@ const styles = StyleSheet.create({
     },
     line: {
         height: 1,
-        backgroundColor: "lightgray",
+        backgroundColor: "#e0e0e0",
         marginVertical: 5,
-        shadowColor: "#000",
+        shadowColor: "#e0e0e0",
         shadowOffset: {
             width: 0,
             height: 2,
@@ -254,6 +196,9 @@ const styles = StyleSheet.create({
     },
     modalButtonDeleteText: {
         color: "#fff",
+    },
+    logoutBtn: {    
+        marginLeft: 20,
     },
 });
 

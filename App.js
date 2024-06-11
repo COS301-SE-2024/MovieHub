@@ -15,6 +15,14 @@ import SignupPage from "./frontend/src/Screens/SignupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
 import HelpCentre from "./frontend/src/Screens/HelpCentre";
 import FAQs from "./frontend/src/Screens/FAQs";
+import AccountSettings from "./frontend/src/Screens/AccountSettings";
+import AccountManagement from "./frontend/src/Screens/AccountManagement";
+import GettingStarted from "./frontend/src/Screens/GettingStarted";
+import CommunityGuidelines from "./frontend/src/Screens/Guidelines";
+import SocialFeatures from "./frontend/src/Screens/SocialFeatures";
+import UsingMovieHub from "./frontend/src/Screens/UsingMovieHub";
+import PrivacyPolicy from "./frontend/src/Screens/PrivacyPolicy";
+import TermsOfUse from "./frontend/src/Screens/TermsOfUse";
 
 const Nav = createNativeStackNavigator();
 
@@ -31,11 +39,11 @@ export default function App() {
                     }
                     return {};
                 }}>
-                <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
+                {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
                 <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                 <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
-                <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
-                <Nav.Screen
+                <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} /> */}
+                {/* <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
                     options={({ navigation }) => ({
@@ -43,7 +51,6 @@ export default function App() {
                         headerShadowVisible: false,
                         headerRight: () => (
                             <View style={{ marginRight: 10 }}>
-                                {/* Your menu icon component */}
                                 <Text onPress={() => navigation.navigate("CustomDrawer")}>
                                     <Icon name="menu" size={24} />
                                 </Text>
@@ -65,17 +72,24 @@ export default function App() {
                         },
                         headerRight: () => (
                             <View style={{ marginRight: 10 }}>
-                                {/* Your menu icon component */}
                                 <Text onPress={() => navigation.navigate("CustomDrawer")}>
                                     <Icon name="menu" size={24} />
                                 </Text>
                             </View>
                         ),
                     })}
-                />
-                <Nav.Screen name="HelpCentre" component={HelpCentre} />
-                <Nav.Screen name="FAQs" component={FAQs} />
+                /> */}
                 <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
+                <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings" }} />
+                <Nav.Screen name="PrivacyPolicy" component={PrivacyPolicy} options={{ title: "Privacy Policy" }} />
+                <Nav.Screen name="TermsOfUse" component={TermsOfUse} options={{ title: "Terms of Use" }} />
+                <Nav.Screen name="HelpCentre" component={HelpCentre} options={{ title: "Help Centre" }} />
+                <Nav.Screen name="AccountManagement" component={AccountManagement} options={{ title: "Account Management" }} />
+                <Nav.Screen name="GettingStarted" component={GettingStarted} options={{ title: "Getting Started" }} />
+                <Nav.Screen name="CommunityGuidelines" component={CommunityGuidelines} options={{ title: "Community Guidelines" }} />
+                <Nav.Screen name="SocialFeatures" component={SocialFeatures} options={{ title: "Social Features" }} />
+                <Nav.Screen name="UsingMovieHub" component={UsingMovieHub} options={{ title: "Using MovieHub" }} />
+                <Nav.Screen name="FAQs" component={FAQs} />
             </Nav.Navigator>
         </NavigationContainer>
     );
