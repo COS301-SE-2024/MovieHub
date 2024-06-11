@@ -23,6 +23,7 @@ import SocialFeatures from "./frontend/src/Screens/SocialFeatures";
 import UsingMovieHub from "./frontend/src/Screens/UsingMovieHub";
 import PrivacyPolicy from "./frontend/src/Screens/PrivacyPolicy";
 import TermsOfUse from "./frontend/src/Screens/TermsOfUse";
+import ChangePassword from "./frontend/src/Screens/ChangePassword";
 
 const Nav = createNativeStackNavigator();
 
@@ -39,11 +40,11 @@ export default function App() {
                     }
                     return {};
                 }}>
-                {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
+                <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
                 <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                 <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
-                <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} /> */}
-                {/* <Nav.Screen
+                <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
+                <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
                     options={({ navigation }) => ({
@@ -78,9 +79,10 @@ export default function App() {
                             </View>
                         ),
                     })}
-                /> */}
+                />
                 <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
                 <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings" }} />
+                <Nav.Screen name="ChangePassword" component={ChangePassword} options={{ title: "Change Password" }} />
                 <Nav.Screen name="PrivacyPolicy" component={PrivacyPolicy} options={{ title: "Privacy Policy" }} />
                 <Nav.Screen name="TermsOfUse" component={TermsOfUse} options={{ title: "Terms of Use" }} />
                 <Nav.Screen name="HelpCentre" component={HelpCentre} options={{ title: "Help Centre" }} />

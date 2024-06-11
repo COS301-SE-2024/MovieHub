@@ -3,9 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 const UsingMovieHub = () => {
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.heading}>Using MovieHub</Text>
-            
+        <ScrollView style={styles.container}>            
             <Text style={styles.sectionHeading}>Navigating the Platform</Text>
             
             <Text style={styles.subHeading}>Home Screen:</Text>
@@ -73,6 +71,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         backgroundColor: "#fff",
+        paddingTop: 0
     },
     heading: {
         fontSize: 24,
@@ -85,11 +84,13 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginBottom: 10,
         marginTop: 20,
+        color: "#0FBFA6"
     },
     subHeading: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "bold",
         marginTop: 10,
+        marginBottom: 10,
     },
     text: {
         fontSize: 16,
@@ -101,9 +102,8 @@ const styles = StyleSheet.create({
     },
     footer: {
         marginTop: 20,
-        fontSize: 14,
-        textAlign: "center",
-        color: "#555",
+        fontSize: 16,
+        marginBottom: 40,
     },
 });
 

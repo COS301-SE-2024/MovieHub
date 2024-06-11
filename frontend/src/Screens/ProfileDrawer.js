@@ -6,9 +6,8 @@ import IonIcon from "react-native-vector-icons/Ionicons";
 import { useState } from "react";
 import { deleteUserProfile } from "../Services/UsersApiService";
 
-function CustomDrawer({ navigation, closeDrawer }) {
+function CustomDrawer({ navigation }) {
     const [isEnabled, setIsEnabled] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
 
     const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
