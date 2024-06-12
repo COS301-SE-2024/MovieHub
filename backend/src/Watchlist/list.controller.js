@@ -1,23 +1,65 @@
 // backend/src/Watchlist/controller.js
+const WatchlistService = require('./list.services');
 
-const watchlistService = require('./list.services');
-const createWatchlist = async (req, res) => {
-    const { userid: userId } = req.params;
-    const { watchlistName } = req.body;
+exports.createWatchlist = async (req, res) => {
+    const { userid } = req.params;
+    const {
+        name,
+        tags,
+        visibility,
+        isRanked,
+        description,
+        isCollaborative
+    } = req.body;
 
-    if (!userId || !watchlistName) {
-        return res.status(400).json({ error: 'User ID and Watchlist Name are required' });
-    }
+    const watchlistData = {
+        name,
+        tags,
+        visibility,
+        isRanked,
+        description,
+        isCollaborative
+    };
 
     try {
-        const newWatchlist = await watchlistService.createWatchlist(userId, watchlistName);
-        res.status(201).json(newWatchlist);
+        const watchlist = await WatchlistService.createWatchlist(userid, watchlistData);
+        res.status(201).json(watchlist);
     } catch (error) {
-        console.error('Error creating watchlist:', error);
-        res.status(500).json({ error: 'An error occurred while creating the watchlist' });
+        res.status(500).json({ message: error.message });
     }
 };
 
-module.exports = {
-    createWatchlist,
+exports.modifyWatchlist = async (req, res) => {
+    const { watchlistId } = req.params;
+    const updatedData = req.body;
+
+    try {
+        const updatedWatchlist = await WatchlistService.modifyWatchlist(watchlistId, updatedData);
+        res.status(200).json(updatedWatchlist);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.deleteWatchlist = async (req, res) => {
+    const { watchlistId } = req.params;
+
+    try {
+        const result = await WatchlistService.deleteWatchlist(watchlistId);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.addMovieToWatchlist = async (req, res) => {
+    const { watchlistId } = req.params;
+    const { movieName } = req.body;
+
+    try {
+        const movie = await WatchlistService.addMovieToWatchlist(watchlistId, movieName);
+        res.status(201).json(movie);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
