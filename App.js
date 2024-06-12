@@ -10,6 +10,8 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomDrawer from "./frontend/src/Components/ProfileDrawer";
 import HomePage from "./frontend/src/Screens/HomePage";
 import MainHeader from "./frontend/src/Components/MainHeader";
+import SearchHeader from "./frontend/src/Components/SearchHeader";
+import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
@@ -41,14 +43,15 @@ export default function App() {
                 {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
                 <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                 <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} /> */}
-                {/* <Nav.Screen name="SearchPage" component={SearchPage} options={{ headerShown: false }} /> */}
                 <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
+                
                 <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
                     options={({ navigation }) => ({
                         title: "",
                         headerShadowVisible: false,
+                        headerBackTitleVisible: false,
                         headerRight: () => (
                             <View style={{ marginRight: 10 }}>
                                 {/* Your menu icon component */}
@@ -57,31 +60,20 @@ export default function App() {
                                 </Text>
                             </View>
                         ),
+                        headerTintColor: 'black',
                     })}
                 />
-                <Nav.Screen
-                    name="EditProfile"
-                    component={EditProfile}
-                    options={() => ({
-                        title: "Edit Profile",
-                        headerStyle: {
-                            backgroundColor: "#fff",
-                        },
-                        headerTintColor: "#000",
-                        headerTitleStyle: {
-                            fontWeight: "bold",
-                        },
-                        headerRight: () => (
-                            <View style={{ marginRight: 10 }}>
-                                {/* Your menu icon component */}
-                                <Text onPress={toggleDrawer}>
-                                    <Icon name="menu" size={24} />
-                                </Text>
-                            </View>
-                        ),
+
+                <Nav.Screen 
+                    name="SearchPage" 
+                    component={SearchPage} 
+                    options={({ navigation }) => ({
+                        title: "",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
                     })}
                 />
-                <Nav.Screen name="SearchPage" component={SearchPage} />
             </Nav.Navigator>
             {drawerVisible && <CustomDrawer navigation={navigationState} closeDrawer={closeDrawer} />}
         </NavigationContainer>
