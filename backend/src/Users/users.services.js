@@ -63,6 +63,25 @@ exports.deleteUserProfile = async (userId) => {
     }
 };
 
+//For watchlist
+exports.getUserWatchlists = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (u:User {id: $userId})-[:HAS_WATCHLIST]->(w:Watchlist)
+             RETURN w`,
+            { userId }
+        );
+
+        const watchlists = result.records.map(record => record.get('w').properties);
+        return watchlists;
+    } finally {
+        await session.close();
+    }
+};
+
+
 // Close the driver when the application exits
 process.on('exit', async () => {
     await driver.close();

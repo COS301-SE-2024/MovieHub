@@ -74,3 +74,15 @@ exports.deleteUserProfile = async (req, res) => {
         res.status(500).json({ message: 'Error deleting user profile', error: error.message });
     }
 };
+
+
+exports.getUserWatchlists = async (req, res) => {
+    const { userid } = req.params;
+
+    try {
+        const watchlists = await userService.getUserWatchlists(userid);
+        res.status(200).json(watchlists);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
