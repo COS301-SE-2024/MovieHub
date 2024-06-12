@@ -24,6 +24,8 @@ import UsingMovieHub from "./frontend/src/Screens/UsingMovieHub";
 import PrivacyPolicy from "./frontend/src/Screens/PrivacyPolicy";
 import TermsOfUse from "./frontend/src/Screens/TermsOfUse";
 import ChangePassword from "./frontend/src/Screens/ChangePassword";
+import MovieDescriptionPage from "./frontend/src/Screens/MovieDescriptionPage"
+
 
 const Nav = createNativeStackNavigator();
 
@@ -40,10 +42,11 @@ export default function App() {
                     }
                     return {};
                 }}>
-                <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
-                <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
-                <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
+                {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} /> */}
+                {/* <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} /> */}
+                {/* <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} /> */}
                 <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
+                <Nav.Screen name="MovieDescriptionPage" component={MovieDescriptionPage} options={{ header: () => <MainHeader/> }} />
                 <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}

@@ -1,13 +1,26 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 
 export default function MovieCard({imageUrl,title}) {
+
+    const navigation = useNavigation();
+
+    const handleNewUser = () => {
+        navigation.navigate("MovieDescriptionPage", {imageUrl: imageUrl, title: title });
+    };
+
     return (
+        
         <View style={styles.container}>
+            
             <View style={styles.card}>
+            <TouchableOpacity onPress={handleNewUser}>
             <Image source={imageUrl} style={styles.image} />
             <Text style={styles.title}>{title}</Text>
+            </TouchableOpacity>
             </View>
+            
         </View>
     );
 }
