@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl } from "react-native";
+import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
@@ -15,7 +15,6 @@ function renderScene({ route }) {
     switch (route.key) {
         case "posts":
             return (
-                // <Text>First Screen</Text>
                 <PostsTab />
             );
         case "likes":
