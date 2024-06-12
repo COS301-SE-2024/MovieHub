@@ -1,12 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import SearchHeader from '../Components/SearchHeader';
 
 export default function SearchPage() {
     return (
         <View style={styles.container}>
+            {/* <SearchHeader /> */}
             <View style={styles.searchBar}>
-            <Icon name='search' size={30} />
+                <Icon name='search' size={30} />
                 <TextInput
                     style={styles.input}
                     placeholder=""
