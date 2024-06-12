@@ -16,6 +16,7 @@ import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
 import SearchPage from "./frontend/src/Screens/SearchPage";
+import GenrePage from "./frontend/src/Screens/GenrePage";
 
 const Nav = createNativeStackNavigator();
 
@@ -44,7 +45,6 @@ export default function App() {
                 <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                 <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} /> */}
                 <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
-                
                 <Nav.Screen
                     name="ProfilePage"
                     component={ProfilePage}
@@ -67,6 +67,17 @@ export default function App() {
                 <Nav.Screen 
                     name="SearchPage" 
                     component={SearchPage} 
+                    options={({ navigation }) => ({
+                        title: "",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })}
+                />
+
+                <Nav.Screen 
+                    name="GenrePage" 
+                    component={GenrePage}
                     options={({ navigation }) => ({
                         title: "",
                         headerShadowVisible: false,
