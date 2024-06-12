@@ -1,5 +1,5 @@
-const reviewService = require('./review.service');
-const responseHandler = require('../utils/responseHandler');
+import reviewService  from './review.services';
+import responseHandler from '../utils/responseHandler';
 
 exports.addReview = async (req, res) => {
     const { userId, movieId, text } = req.body;
@@ -15,7 +15,7 @@ exports.addCommentToReview = async (req, res) => {
     const { userId, reviewId, movieId, text } = req.body;
     try {
         const comment = await reviewService.addCommentToReview(userId, reviewId, movieId, text);
-        responseHandler(res, 201, 'Comment added to review successfully', comment);
+        responseHandler(res, 201, 'Comment added successfully', comment);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
@@ -25,16 +25,16 @@ exports.addCommentToComment = async (req, res) => {
     const { userId, commentId, movieId, text } = req.body;
     try {
         const comment = await reviewService.addCommentToComment(userId, commentId, movieId, text);
-        responseHandler(res, 201, 'Comment added to comment successfully', comment);
+        responseHandler(res, 201, 'Comment added successfully', comment);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
 exports.editReview = async (req, res) => {
-    const { reviewId, newText } = req.body;
+    const { reviewId, text } = req.body;
     try {
-        const review = await reviewService.editReview(reviewId, newText);
+        const review = await reviewService.editReview(reviewId, text);
         responseHandler(res, 200, 'Review edited successfully', review);
     } catch (error) {
         responseHandler(res, 400, error.message);
@@ -42,9 +42,9 @@ exports.editReview = async (req, res) => {
 };
 
 exports.editComment = async (req, res) => {
-    const { commentId, newText } = req.body;
+    const { commentId, text } = req.body;
     try {
-        const comment = await reviewService.editComment(commentId, newText);
+        const comment = await reviewService.editComment(commentId, text);
         responseHandler(res, 200, 'Comment edited successfully', comment);
     } catch (error) {
         responseHandler(res, 400, error.message);
@@ -75,8 +75,47 @@ exports.toggleLikeReview = async (req, res) => {
     const { userId, reviewId } = req.body;
     try {
         const liked = await reviewService.toggleLikeReview(userId, reviewId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
+        responseHandler(res, 200, `Review ${liked ? 'liked' : 'unliked'} successfully`, { liked });
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getReviewsOfMovie = async (req, res) => {
+    const { movieId } = req.params;
+    try {
+        const reviews = await reviewService.getReviewsOfMovie(movieId);
+        responseHandler(res, 200, 'Reviews fetched successfully', reviews);
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getCommentsOfReview = async (req, res) => {
+    const { reviewId } = req.params;
+    try {
+        const comments = await reviewService.getCommentsOfReview(reviewId);
+        responseHandler(res, 200, 'Comments fetched successfully', comments);
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getReviewsOfUser = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const reviews = await reviewService.getReviewsOfUser(userId);
+        responseHandler(res, 200, 'Reviews fetched successfully', reviews);
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getCommentsOfUser = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const comments = await reviewService.getCommentsOfUser(userId);
+        responseHandler(res, 200, 'Comments fetched successfully', comments);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
