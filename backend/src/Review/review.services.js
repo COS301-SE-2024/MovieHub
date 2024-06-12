@@ -8,17 +8,15 @@ exports.addReview = async (userId, movieId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {id: $userId}), (m:Movie {id: $movieId})
-             CREATE (r:Review {id: randomUUID(), text: $text, createdAt: datetime()})
+            `MATCH (u), (m)
+             WHERE ID(u) = $userId AND ID(m) = $movieId
+             CREATE (r:Review {id: randomUUID(), text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
             { userId, movieId, text }
         );
-        if (result.records.length > 0) {
-            return result.records[0].get('r').properties;
-        } else {
-            throw new Error("No review created");
-        }
+        //console.log(result.summary);
+        return result.records[0].get('r').properties;
     } finally {
         await session.close();
     }
@@ -28,17 +26,14 @@ exports.addCommentToReview = async (userId, reviewId, movieId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {id: $userId}), (r:Review {id: $reviewId})
-             CREATE (c:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime()})
+            `MATCH (u), (r)
+             WHERE ID(u) = $userId AND ID(r) = $reviewId
+             CREATE (c:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(r)
              RETURN c`,
             { userId, reviewId, movieId, text }
         );
-        if (result.records.length > 0) {
-            return result.records[0].get('c').properties;
-        } else {
-            throw new Error("No comment created");
-        }
+        return result.records[0].get('c').properties;
     } finally {
         await session.close();
     }
@@ -48,17 +43,14 @@ exports.addCommentToComment = async (userId, commentId, movieId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {id: $userId}), (c:Comment {id: $commentId})
-             CREATE (nc:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime()})
+            `MATCH (u), (c)
+             WHERE ID(u) = $userId AND ID(c) = $commentId
+             CREATE (nc:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
              CREATE (u)-[:COMMENTED]->(nc)-[:COMMENTED_ON]->(c)
              RETURN nc`,
             { userId, commentId, movieId, text }
         );
-        if (result.records.length > 0) {
-            return result.records[0].get('nc').properties;
-        } else {
-            throw new Error("No comment created");
-        }
+        return result.records[0].get('nc').properties;
     } finally {
         await session.close();
     }
@@ -68,16 +60,13 @@ exports.editReview = async (reviewId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (r:Review {id: $reviewId})
+            `MATCH (r)
+             WHERE ID(r) = $reviewId
              SET r.text = $text, r.updatedAt = datetime()
              RETURN r`,
             { reviewId, text }
         );
-        if (result.records.length > 0) {
-            return result.records[0].get('r').properties;
-        } else {
-            throw new Error("Review not found");
-        }
+        return result.records[0].get('r').properties;
     } finally {
         await session.close();
     }
@@ -87,16 +76,13 @@ exports.editComment = async (commentId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (c:Comment {id: $commentId})
+            `MATCH (c)
+             WHERE ID(c) = $commentId
              SET c.text = $text, c.updatedAt = datetime()
              RETURN c`,
             { commentId, text }
         );
-        if (result.records.length > 0) {
-            return result.records[0].get('c').properties;
-        } else {
-            throw new Error("Comment not found");
-        }
+        return result.records[0].get('c').properties;
     } finally {
         await session.close();
     }
@@ -105,16 +91,13 @@ exports.editComment = async (commentId, text) => {
 exports.removeReview = async (reviewId) => {
     const session = driver.session();
     try {
-        const result = await session.run(
-            `MATCH (r:Review {id: $reviewId})
+        await session.run(
+            `MATCH (r)
+             WHERE ID(r) = $reviewId
              DETACH DELETE r`,
             { reviewId }
         );
-        if (result.summary.counters.nodesDeleted() > 0) {
-            return true;
-        } else {
-            throw new Error("Review not found");
-        }
+        return true;
     } finally {
         await session.close();
     }
@@ -123,16 +106,13 @@ exports.removeReview = async (reviewId) => {
 exports.removeComment = async (commentId) => {
     const session = driver.session();
     try {
-        const result = await session.run(
-            `MATCH (c:Comment {id: $commentId})
+        await session.run(
+            `MATCH (c)
+             WHERE ID(c) = $commentId
              DETACH DELETE c`,
             { commentId }
         );
-        if (result.summary.counters.nodesDeleted() > 0) {
-            return true;
-        } else {
-            throw new Error("Comment not found");
-        }
+        return true;
     } finally {
         await session.close();
     }
@@ -150,11 +130,7 @@ exports.toggleLikeReview = async (userId, reviewId) => {
              RETURN liked`,
             { userId, reviewId }
         );
-        if (result.records.length > 0) {
-            return result.records[0].get('liked');
-        } else {
-            throw new Error("Review or user not found");
-        }
+        return result.records[0].get('liked');
     } finally {
         await session.close();
     }
@@ -164,7 +140,8 @@ exports.getReviewsOfMovie = async (movieId) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (m:Movie {id: $movieId})<-[:REVIEWED_ON]-(r:Review)
+            `MATCH (m)<-[:REVIEWED_ON]-(r:Review)
+             WHERE ID(m) = $movieId
              RETURN r`,
             { movieId }
         );
@@ -178,7 +155,8 @@ exports.getCommentsOfReview = async (reviewId) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (r:Review {id: $reviewId})<-[:COMMENTED_ON]-(c:Comment)
+            `MATCH (r)<-[:COMMENTED_ON]-(c:Comment)
+             WHERE ID(r) = $reviewId
              RETURN c`,
             { reviewId }
         );
@@ -192,7 +170,8 @@ exports.getReviewsOfUser = async (userId) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {id: $userId})-[:REVIEWED]->(r:Review)
+            `MATCH (u)-[:REVIEWED]->(r:Review)
+             WHERE ID(u) = $userId
              RETURN r`,
             { userId }
         );
@@ -206,7 +185,8 @@ exports.getCommentsOfUser = async (userId) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {id: $userId})-[:COMMENTED]->(c:Comment)
+            `MATCH (u)-[:COMMENTED]->(c:Comment)
+            WHERE ID(u) = $userId
              RETURN c`,
             { userId }
         );
