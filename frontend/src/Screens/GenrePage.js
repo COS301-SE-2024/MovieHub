@@ -5,18 +5,13 @@ import BottomHeader from '../Components/BottomHeader';
 const GenrePage = ({ route }) => {
     const { genreName } = route.params;
 
-    // Function to generate a random number between min and max (inclusive)
-    const getRandomInt = (min, max) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
     // Dummy movie data for demonstration
     const dummyMovies = [
         { title: 'Movie 1', imageUrl: `https://source.unsplash.com/300x450/?movie` },
-        { title: 'Movie 2', imageUrl: `https://source.unsplash.com/300x450/?movie${getRandomInt(1, 100)}` },
-        { title: 'Movie 3', imageUrl: `https://source.unsplash.com/300x450/?movie${getRandomInt(1, 100)}` },
-        { title: 'Movie 4', imageUrl: `https://source.unsplash.com/300x450/?movie${getRandomInt(1, 100)}` },
-        { title: 'Movie 5', imageUrl: `https://source.unsplash.com/300x450/?movie${getRandomInt(1, 100)}` },
+        { title: 'Movie 2', imageUrl: `https://source.unsplash.com/300x450/?movie` },
+        { title: 'Movie 3', imageUrl: `https://source.unsplash.com/300x450/?movie` },
+        { title: 'Movie 4', imageUrl: `https://source.unsplash.com/300x450/?movie` },
+        { title: 'Movie 5', imageUrl: `https://source.unsplash.com/300x450/?movie` },
     ];
 
     const renderMovies = (movies) => (
