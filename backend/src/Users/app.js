@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT;
 
 app.use(cors({
-    origin: ['http://localhost:8081', 'exp://10.0.0.109:8081'],// all ports used in frontend web and exp
+    origin: ['http://localhost:8081', 'exp://192.168.226.254:8081'],// all ports used in frontend web and exp
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true 
   }));
