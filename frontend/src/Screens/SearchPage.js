@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        paddingHorizontal: 5, // Add some padding to keep the genres centered
+        paddingHorizontal: 5, 
     },
     genreBox: {
         width: '48%',
