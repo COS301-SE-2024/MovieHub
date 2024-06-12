@@ -64,6 +64,28 @@ export default function App() {
                     })}
                 />
 
+<Nav.Screen
+                    name="EditProfile"
+                    component={EditProfile}
+                    options={({ navigation }) => ({
+                        title: "Edit Profile",
+                        headerStyle: {
+                            backgroundColor: "#fff",
+                        },
+                        headerTintColor: "#000",
+                        headerTitleStyle: {
+                            fontWeight: "bold",
+                        },
+                        headerRight: () => (
+                            <View style={{ marginRight: 10 }}>
+                                <Text onPress={() => navigation.navigate("CustomDrawer")}>
+                                    <Icon name="menu" size={24} />
+                                </Text>
+                            </View>
+                        ),
+                    })}
+                />
+
                 <Nav.Screen 
                     name="SearchPage" 
                     component={SearchPage} 
