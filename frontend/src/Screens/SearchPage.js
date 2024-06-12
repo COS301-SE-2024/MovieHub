@@ -1,9 +1,18 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import SearchHeader from '../Components/SearchHeader';
+import BottomHeader from '../Components/BottomHeader';
 
-export default function SearchPage() {
+const SearchPage = () => {
+    const navigation = useNavigation();
+
+    const genres = ['Action','Adventure', 'Animation','Anime', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family','Fantasy', 'History','Horror','Musical','Mystery','Romance','Sci-Fi','Sport','Thriller'];
+
+    const handleGenrePress = (genre) => {
+        navigation.navigate('GenrePage', { genreName: genre });
+    };
+
     return (
         <View style={styles.container}>
             {/* <SearchHeader /> */}
@@ -16,16 +25,19 @@ export default function SearchPage() {
                 <Icon name='mic' size={30} />
             </View>
             <Text style={styles.title}>Browse Genres</Text>
-            <View style={styles.grid}>
-                {['Action', 'Anime', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy'].map((genre) => (
-                    <TouchableOpacity key={genre} style={styles.genreBox}>
-                        <Text style={styles.genreText}>{genre}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
+            <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.grid}>
+                    {genres.map((genre) => (
+                        <TouchableOpacity key={genre} style={styles.genreBox} onPress={() => handleGenrePress(genre)}>
+                            <Text style={styles.genreText}>{genre}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </ScrollView>
+            <BottomHeader style={styles.bottomHeader} />
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -50,10 +62,14 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginVertical: 20,
     },
+    scrollContainer: {
+        flex: 1,
+    },
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
+        paddingHorizontal: 5, // Add some padding to keep the genres centered
     },
     genreBox: {
         width: '48%',
@@ -67,3 +83,5 @@ const styles = StyleSheet.create({
         fontSize: 18,
     }
 });
+
+export default SearchPage;
