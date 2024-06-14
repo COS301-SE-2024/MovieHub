@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView,RefreshControl} from 'react-native';
 import MovieCard from "../Components/MovieCard"
 import movie1 from "../../../assets/moonlight.jpg"
 import movie2 from '../../../assets/Assassin_movie.jpg'
@@ -19,13 +19,49 @@ import movie14 from '../../../assets/brothers.jpg'
 import movie15 from '../../../assets/friday.jpg'
 import BottomHeader from "../Components/BottomHeader"
 import { useNavigation } from "@react-navigation/native";
+import {getPopularMovies} from '../Services/TMDBApiService';
 
 const HomePage = () => {
 
+    let [movies, setMovies] = useState([]);
+    let [movieTitle, setmovieTitle] = useState([]);
+    let [moviePosterPath, setmoviePosterPath] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
+    
+        const fetchMovies = async () => {
+          try {
+            const fetchedMovies = await getPopularMovies();
+            setMovies(fetchedMovies);
+          } catch (error) {
+            console.error('Error fetching movies:', error);
+          }
+          finally {
+            console.log("fetchmovies",movies);
+          }
+        };
+
+        const handleRefresh = () =>{
+            setRefreshing(true)
+            fetchMovies()
+            setRefreshing(false)
+          }
+    
+
+        useEffect(() => {
+        fetchMovies();
+        }, []);
+
+
+        // movies.forEach((movie) => {
+        //     setmovieTitle(movie.title);
+        //     setmoviePosterPath(movie.poster_path);
+          
+
+        //   });
 
     return (
         <View style={{flex:1}}>
-        <ScrollView>
+        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
  
             <View style={styles.wholecontainer}>
 
