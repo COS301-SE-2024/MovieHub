@@ -13,7 +13,8 @@ export default function BottomHeader() {
                     <Icon name="home" size={30} paddingLeft={10} style={styles.icon} />
                 </TouchableOpacity>
                 <Icon name="notifications" size={30} style={styles.icon} />
-                <Icon name="chat" size={30} style={styles.icon} />
+                <Icon name="add-circle-outline" size={35} style={styles.icon} />
+                <Icon name="people" size={32} style={styles.icon} />
                 <TouchableOpacity onPress={() => navigation.navigate("ProfilePage")}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} size={30} style={styles.Image} />
                 </TouchableOpacity>
@@ -34,8 +35,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         width: "100%",
-        paddingRight: 20,
-        paddingleft: 30,
+        paddingRight: 10,
         
     },
     icon: {

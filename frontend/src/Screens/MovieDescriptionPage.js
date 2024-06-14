@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image} from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Cast from "../Components/Cast";
@@ -6,9 +6,11 @@ import Cast from "../Components/Cast";
 
 const MovieDescriptionPage = () =>
     {
-
+        
         const route = useRoute();
         const { imageUrl, title } = route.params;
+
+
 
         return(
             <ScrollView style={styles.container}>
