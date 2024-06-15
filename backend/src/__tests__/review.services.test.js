@@ -61,7 +61,7 @@ import {
   
         //require('../neo4j').driver.session.mockReturnValue(sessionMock);
   
-        const result = await addCommentToReview('pTjrHHYS2qWczf4mKExik40KgLH3', 'reviewId', 190946.0, 'Comment text');
+        const result = await addCommentToReview(1, 17, 'Comment text on review');
   
         expect(result).toEqual({ id: 'commentId', text: 'Comment text' });
         expect(sessionMock.run).toHaveBeenCalled();
@@ -74,7 +74,7 @@ import {
           run: jest.fn().mockResolvedValue({
             records: [{
               get: jest.fn(() => ({
-                properties: { id: 'commentId', text: 'Comment text' },
+                properties: { id: 'commentId', text: 'Comment text on commnet' },
               })),
             }],
           }),
@@ -83,7 +83,7 @@ import {
   
         //require('../neo4j').driver.session.mockReturnValue(sessionMock);
   
-        const result = await addCommentToComment('pTjrHHYS2qWczf4mKExik40KgLH3', 'commentId', 190946.0, 'Comment text');
+        const result = await addCommentToComment(1, 21, 'Comment text on comment');
   
         expect(result).toEqual({ id: 'commentId', text: 'Comment text' });
         expect(sessionMock.run).toHaveBeenCalled();
@@ -105,7 +105,7 @@ import {
   
         //require('../neo4j').driver.session.mockReturnValue(sessionMock);
   
-        const result = await editReview('reviewId', 'Updated review text');
+        const result = await editReview(17, 'Updated review text');
   
         expect(result).toEqual({ id: 'reviewId', text: 'Updated review text' });
         expect(sessionMock.run).toHaveBeenCalled();
@@ -127,7 +127,7 @@ import {
   
         //require('../neo4j').driver.session.mockReturnValue(sessionMock);
   
-        const result = await editComment('commentId', 'Updated comment text');
+        const result = await editComment(25, 'Updated comment text');
   
         expect(result).toEqual({ id: 'commentId', text: 'Updated comment text' });
         expect(sessionMock.run).toHaveBeenCalled();
@@ -143,7 +143,7 @@ import {
   
         //require('../neo4j').driver.session.mockReturnValue(sessionMock);
   
-        await removeReview('reviewId');
+        await removeReview(24);
   
         expect(sessionMock.run).toHaveBeenCalled();
       });
@@ -158,7 +158,7 @@ import {
   
         //require('../neo4j').driver.session.mockReturnValue(sessionMock);
   
-        await removeComment('commentId');
+        await removeComment(31);
   
         expect(sessionMock.run).toHaveBeenCalled();
       });
@@ -199,7 +199,9 @@ import {
       
             //require('../neo4j').driver.session.mockReturnValue(sessionMock);
       
-            const result = await getReviewsOfMovie(190946.0);
+            const result = await getReviewsOfMovie(50013);
+
+            console.log(result);
       
             expect(result).toEqual([{ id: 'reviewId', text: 'Review text' }]);
             expect(sessionMock.run).toHaveBeenCalled();
@@ -221,7 +223,7 @@ import {
       
             //require('../neo4j').driver.session.mockReturnValue(sessionMock);
       
-            const result = await getCommentsOfReview('reviewId');
+            const result = await getCommentsOfReview(17);
       
             expect(result).toEqual([{ id: 'commentId', text: 'Comment text' }]);
             expect(sessionMock.run).toHaveBeenCalled();

@@ -10,7 +10,7 @@ exports.addReview = async (userId, movieId, text) => {
         const result = await session.run(
             `MATCH (u), (m)
              WHERE ID(u) = $userId AND ID(m) = $movieId
-             CREATE (r:Review {id: randomUUID(), text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
+             CREATE (r:Review { text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
             { userId, movieId, text }
@@ -22,16 +22,16 @@ exports.addReview = async (userId, movieId, text) => {
     }
 };
 
-exports.addCommentToReview = async (userId, reviewId, movieId, text) => {
+exports.addCommentToReview = async (userId, reviewId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (u), (r)
              WHERE ID(u) = $userId AND ID(r) = $reviewId
-             CREATE (c:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
+             CREATE (c:Comment { text: $text, movieId: r.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(r)
              RETURN c`,
-            { userId, reviewId, movieId, text }
+            { userId, reviewId, text }
         );
         return result.records[0].get('c').properties;
     } finally {
@@ -39,18 +39,18 @@ exports.addCommentToReview = async (userId, reviewId, movieId, text) => {
     }
 };
 
-exports.addCommentToComment = async (userId, commentId, movieId, text) => {
+exports.addCommentToComment = async (userId, commentId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u), (c)
+            `MATCH (u), (c) 
              WHERE ID(u) = $userId AND ID(c) = $commentId
-             CREATE (nc:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
-             CREATE (u)-[:COMMENTED]->(nc)-[:COMMENTED_ON]->(c)
-             RETURN nc`,
-            { userId, commentId, movieId, text }
+             CREATE (n:Comment {parentCommentId: $commentId, text: $text, movieId: c.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: c.reviewId})
+             CREATE (u)-[:COMMENTED]->(n)-[:COMMENTED_ON]->(c)
+             RETURN n`,
+            { userId, commentId, text }
         );
-        return result.records[0].get('nc').properties;
+        return result.records[0].get('n').properties;
     } finally {
         await session.close();
     }

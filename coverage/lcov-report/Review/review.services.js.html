@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">93.58% </span>
+                <span class="strong">96.15% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>73/78</span>
+                <span class='fraction'>75/78</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">81.25% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>12/16</span>
+                <span class='fraction'>13/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">98.64% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>73/74</span>
+                <span class='fraction'>74/74</span>
             </div>
         
             
@@ -311,22 +311,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -353,6 +337,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -388,6 +373,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -406,7 +406,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -467,7 +467,7 @@ exports.addReview = async (userId, movieId, text) =&gt; {
         const result = await session.run(
             `MATCH (u), (m)
              WHERE ID(u) = $userId AND ID(m) = $movieId
-             CREATE (r:Review {id: randomUUID(), text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
+             CREATE (r:Review { text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
              CREATE (u)-[:REVIEWED]-&gt;(r)-[:REVIEWED_ON]-&gt;(m)
              RETURN r`,
             { userId, movieId, text }
@@ -479,16 +479,16 @@ exports.addReview = async (userId, movieId, text) =&gt; {
     }
 };
 &nbsp;
-exports.addCommentToReview = async (userId, reviewId, movieId, text) =&gt; {
+exports.addCommentToReview = async (userId, reviewId, text) =&gt; {
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (u), (r)
              WHERE ID(u) = $userId AND ID(r) = $reviewId
-             CREATE (c:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
+             CREATE (c:Comment { text: $text, movieId: r.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
              CREATE (u)-[:COMMENTED]-&gt;(c)-[:COMMENTED_ON]-&gt;(r)
              RETURN c`,
-            { userId, reviewId, movieId, text }
+            { userId, reviewId, text }
         );
         return result.records[0].get('c').properties;
     } finally {
@@ -496,18 +496,18 @@ exports.addCommentToReview = async (userId, reviewId, movieId, text) =&gt; {
     }
 };
 &nbsp;
-exports.addCommentToComment = async (userId, commentId, movieId, text) =&gt; {
+exports.addCommentToComment = async (userId, commentId, text) =&gt; {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u), (c)
+            `MATCH (u), (c) 
              WHERE ID(u) = $userId AND ID(c) = $commentId
-             CREATE (nc:Comment {id: randomUUID(), text: $text, movieId: $movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
-             CREATE (u)-[:COMMENTED]-&gt;(nc)-[:COMMENTED_ON]-&gt;(c)
-             RETURN nc`,
-            { userId, commentId, movieId, text }
+             CREATE (n:Comment {parentCommentId: $commentId, text: $text, movieId: c.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: c.reviewId})
+             CREATE (u)-[:COMMENTED]-&gt;(n)-[:COMMENTED_ON]-&gt;(c)
+             RETURN n`,
+            { userId, commentId, text }
         );
-<span class="cstat-no" title="statement not covered" >        return result.records[0].get('nc').properties;</span>
+        return result.records[0].get('n').properties;
     } finally {
         await session.close();
     }
@@ -602,7 +602,7 @@ exports.getReviewsOfMovie = async (movieId) =&gt; {
              RETURN r`,
             { movieId }
         );
-        return result.records.map(<span class="fstat-no" title="function not covered" >re</span>cord =&gt; <span class="cstat-no" title="statement not covered" >record.get('r').properties)</span>;
+        return result.records.map(record =&gt; record.get('r').properties);
     } finally {
         await session.close();
     }
@@ -658,7 +658,7 @@ exports.getCommentsOfUser = async (userId) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-06-12T19:56:32.243Z
+                at 2024-06-15T11:57:42.570Z
             </div>
         <script src="../prettify.js"></script>
         <script>
