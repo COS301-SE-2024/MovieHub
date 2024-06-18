@@ -1,5 +1,5 @@
-const likesService = require('./likes.services');
-const responseHandler = require('../utils/responseHandler');
+import likesService from './likes.services';
+import responseHandler from '../utils/responseHandler';
 
 exports.toggleLikeReview = async (req, res) => {
     const { userId, reviewId } = req.body;
