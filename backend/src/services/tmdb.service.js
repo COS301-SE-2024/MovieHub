@@ -43,3 +43,18 @@ exports.getMovieDetails = async (movieId) => {
         throw new Error('Failed to fetch movie details');
     }
 };
+
+exports.fetchMovieDetails = async (movieTitle) => {
+    const response = await axios.get(`https://api.themoviedb.org/3/search/movie`, {
+        params: {
+            api_key: TMDB_API_KEY,
+            query: movieTitle
+        }
+    });
+
+    if (response.data.results.length > 0) {
+        return response.data.results[0]; // Return the first matching movie
+    } else {
+        throw new Error(`Movie "${movieTitle}" not found`);
+    }
+};
