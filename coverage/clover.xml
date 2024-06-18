@@ -1,6 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1717252109115" clover="3.2.0">
-  <project timestamp="1717252109115" name="All files">
-    <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0" elements="0" coveredelements="0" complexity="0" loc="0" ncloc="0" packages="0" files="0" classes="0"/>
+<coverage generated="1718692401156" clover="3.2.0">
+  <project timestamp="1718692401157" name="All files">
+    <metrics statements="21" coveredstatements="18" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="3" elements="25" coveredelements="21" complexity="0" loc="21" ncloc="21" packages="3" files="3" classes="3"/>
+    <package name="Auth">
+      <metrics statements="16" coveredstatements="13" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+      <file name="auth.services.js" path="C:\Users\charl\Documents\GitHub\MovieHub\backend\src\Auth\auth.services.js">
+        <metrics statements="16" coveredstatements="13" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="Firebase">
+      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="firebaseConnection.js" path="C:\Users\charl\Documents\GitHub\MovieHub\backend\src\Firebase\firebaseConnection.js">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="__mock__">
+      <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <file name="auth.firebase.js" path="C:\Users\charl\Documents\GitHub\MovieHub\backend\src\__mock__\auth.firebase.js">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+      </file>
+    </package>
   </project>
 </coverage>

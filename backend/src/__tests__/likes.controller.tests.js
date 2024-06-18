@@ -1,8 +1,8 @@
-import likesService from './likes.services';
+import likesService from '../Likes/likes.services';
 import responseHandler from '../utils/responseHandler';
-import likesController from './likes.controller';
+import likesController from '../Likes/likes.controller';
 
-jest.mock('./likes.services');
+jest.mock('../Likes/likes.services');
 jest.mock('../utils/responseHandler');
 
 describe('Likes Controller', () => {
