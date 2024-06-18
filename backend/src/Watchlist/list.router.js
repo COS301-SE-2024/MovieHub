@@ -5,7 +5,7 @@ const WatchlistController = require('./list.controller');
 
 router.post('/:userid', WatchlistController.createWatchlist);
 router.post('/add-movie', WatchlistController.addMovieToWatchlist);
-router.put('/:watchlistId', WatchlistController.modifyWatchlist);
+router.patch('/:watchlistId', WatchlistController.modifyWatchlist);
 router.delete('/:watchlistId', WatchlistController.deleteWatchlist);
 
 module.exports = router;

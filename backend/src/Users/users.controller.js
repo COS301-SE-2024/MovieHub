@@ -4,6 +4,7 @@
 const userService = require('./users.services');
 
 let userProfileData;
+let watchlistsData;
 
 // exports.getUserProfile = async (req, res) => {
 //     const userId = req.params.userId;
@@ -77,11 +78,19 @@ exports.deleteUserProfile = async (req, res) => {
 
 
 exports.getUserWatchlists = async (req, res) => {
-    const { userid } = req.params;
+    const userId  = req.params.id;
 
     try {
-        const watchlists = await userService.getUserWatchlists(userid);
-        res.status(200).json(watchlists);
+        const watchlists = await userService.getUserWatchlists(userId);
+        if (watchlists) {
+            watchlistsData = watchlists
+
+            console.log('Watchlists' + watchlists.name);
+            res.status(200).json(watchlists);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+      //  res.status(200).json(watchlists);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

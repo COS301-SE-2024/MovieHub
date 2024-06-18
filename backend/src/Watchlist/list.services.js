@@ -115,53 +115,89 @@ exports.createWatchlist = async (userId, watchlistData) => {
     }
 };
 
-exports.addMovieToWatchlist = async (watchlistId, movieId) => {
-    const session = driver.session();
+// exports.addMovieToWatchlist = async (watchlistId, movieId) => {
+//     const session = driver.session();
 
-    try {
-        const movie = await TmdbService.getMovieDetails(movieId);
+//     try {
+//         const movie = await TmdbService.getMovieDetails(movieId);
 
-        const result = await session.run(
-            `MATCH (w:Watchlist {id: $watchlistId})
-             CREATE (m:Movie {id: $movieId, title: $title, overview: $overview, releaseDate: $releaseDate, posterPath: $posterPath})
-             CREATE (w)-[:CONTAINS]->(m)
-             RETURN m`,
-            {
-                watchlistId,
-                movieId: movie.id,
-                title: movie.title,
-                overview: movie.overview,
-                releaseDate: movie.release_date,
-                posterPath: movie.poster_path
-            }
-        );
+//         const result = await session.run(
+//             `MATCH (w:Watchlist {id: $watchlistId})
+//              CREATE (m:Movie {id: $movieId, title: $title, overview: $overview, releaseDate: $releaseDate, posterPath: $posterPath})
+//              CREATE (w)-[:CONTAINS]->(m)
+//              RETURN m`,
+//             {
+//                 watchlistId,
+//                 movieId: movie.id,
+//                 title: movie.title,
+//                 overview: movie.overview,
+//                 releaseDate: movie.release_date,
+//                 posterPath: movie.poster_path
+//             }
+//         );
 
-        const addedMovie = result.records[0].get('m').properties;
-        return addedMovie;
-    } finally {
-        await session.close();
-    }
-};
+//         const addedMovie = result.records[0].get('m').properties;
+//         return addedMovie;
+//     } finally {
+//         await session.close();
+//     }
+// };
+
+// exports.modifyWatchlist = async (watchlistId, updatedData) => {
+//     const session = driver.session();
+//     const { name, tags, visibility, ranked, description, collaborative } = updatedData;
+
+//     try {
+//         const result = await session.run(
+//             `MATCH (w:Watchlist {id: $watchlistId})
+//              SET w.name = $name,
+//                  w.tags = $tags,
+//                  w.visibility = $visibility,
+//                  w.ranked = $ranked,
+//                  w.description = $description,
+//                  w.collaborative = $collaborative
+//              RETURN w`,
+//             { watchlistId, name, tags, visibility, ranked, description, collaborative }
+//         );
+
+//         const watchlist = result.records[0].get('w').properties;
+//         return watchlist;
+//     } finally {
+//         await session.close();
+//     }
+// };
 
 exports.modifyWatchlist = async (watchlistId, updatedData) => {
     const session = driver.session();
-    const { name, tags, visibility, ranked, description, collaborative } = updatedData;
+
+    const updateFields = [];
+    const updateValues = { watchlistId };
+
+    // Dynamically create the Cypher SET clause based on provided fields
+    Object.keys(updatedData).forEach(key => {
+        updateFields.push(`w.${key} = $${key}`);
+        updateValues[key] = updatedData[key];
+    });
+
+    const setClause = updateFields.join(', ');
 
     try {
         const result = await session.run(
             `MATCH (w:Watchlist {id: $watchlistId})
-             SET w.name = $name,
-                 w.tags = $tags,
-                 w.visibility = $visibility,
-                 w.ranked = $ranked,
-                 w.description = $description,
-                 w.collaborative = $collaborative
+             SET ${setClause}
              RETURN w`,
-            { watchlistId, name, tags, visibility, ranked, description, collaborative }
+            updateValues
         );
 
+        if (result.records.length === 0) {
+            throw new Error('Watchlist not found');
+        }
+        console.log("Watchlist has been updated successfully");
         const watchlist = result.records[0].get('w').properties;
         return watchlist;
+    } catch (error) {
+        console.error('Error modifying watchlist:', error);
+        throw error;
     } finally {
         await session.close();
     }
@@ -176,7 +212,11 @@ exports.deleteWatchlist = async (watchlistId) => {
              DETACH DELETE w`,
             { watchlistId }
         );
+
+        console.log('Watchlist deleted successfully');
     } finally {
         await session.close();
     }
+
+    
 };

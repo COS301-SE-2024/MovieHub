@@ -69,12 +69,25 @@ exports.getUserWatchlists = async (userId) => {
 
     try {
         const result = await session.run(
-            `MATCH (u:User {id: $userId})-[:HAS_WATCHLIST]->(w:Watchlist)
-             RETURN w`,
+            `MATCH (u:User {userId: $userId})-[:HAS_WATCHLIST]->(w:Watchlist)
+             RETURN w `,
             { userId }
         );
 
-        const watchlists = result.records.map(record => record.get('w').properties);
+        // Log the query result
+        console.log('Query result:', result);
+
+        if (result.records.length === 0) {
+            console.warn(`No watchlists found for userId: ${userId}`);
+            return [];
+        }
+
+        const watchlists = result.records.map(record => {
+            console.log('Record:', record);
+            return record.get('w').properties;
+        });
+
+        console.log('Watchlists:', watchlists);
         return watchlists;
     } finally {
         await session.close();

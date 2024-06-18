@@ -9,6 +9,6 @@ router.get('/:id', userController.getUserProfile);
 router.patch('/:id', userController.updateUserProfile);  // Change PUT to PATCH
 router.delete('/:id', userController.deleteUserProfile);
 
-router.get('/:userid/watchlists', userController.getUserWatchlists);
+router.get('/:id/watchlists', userController.getUserWatchlists);
 
 module.exports = router;
