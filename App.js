@@ -25,6 +25,7 @@ import PrivacyPolicy from "./frontend/src/Screens/PrivacyPolicy";
 import TermsOfUse from "./frontend/src/Screens/TermsOfUse";
 import ChangePassword from "./frontend/src/Screens/ChangePassword";
 import MovieDescriptionPage from "./frontend/src/Screens/MovieDescriptionPage"
+import CreatePost from "./frontend/src/Screens/CreatePost";
 
 
 const Nav = createNativeStackNavigator();
@@ -83,6 +84,7 @@ export default function App() {
                         ),
                     })}
                 />
+                <Nav.Screen name="CreatePost" component={CreatePost} options={{ title: "" }} />
                 <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
                 <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings" }} />
                 <Nav.Screen name="ChangePassword" component={ChangePassword} options={{ title: "Change Password" }} />

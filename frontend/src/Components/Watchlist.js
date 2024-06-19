@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import FAIcon from "react-native-vector-icons/FontAwesome";
 
 const watchlists = [
     { id: "1", name: "To Be Watched", privacy: "Private", movies: 5, image: require("../../../assets/movie2.jpg") },
@@ -40,6 +41,7 @@ const WatchlistTab = () => {
         <View style={styles.container}>
             <TouchableOpacity style={styles.createButton}>
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
+                <View style={{flex :1}} />
                 <MaterialIcons name="add" size={24} color="black" />
             </TouchableOpacity>
             <ScrollView>
@@ -52,7 +54,7 @@ const WatchlistTab = () => {
                             <Text style={styles.watchlistMovies}>{watchlist.movies} movies</Text>
                         </View>
                         <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
-                            <MaterialIcons name="more-vert" size={24} color="black" />
+                            <FAIcon name="angle-right" size={24} color="black" />
                         </TouchableOpacity>
                     </View>
                 ))}
@@ -90,34 +92,38 @@ const WatchlistTab = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        padding: 12,
     },
     createButton: {
         flexDirection: "row",
+        marginBottom: 10,
+        paddingHorizontal: 20,
         alignItems: "center",
-        marginBottom: 16,
     },
     createButtonText: {
-        fontSize: 18,
-        marginLeft: 110,
+        fontSize: 14,
+        color: "#666",
+        fontWeight: "bold",
+        
     },
     watchlistItem: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "center",
         padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: "#ccc",
     },
     watchlistImage: {
         width: 182,
-        height: 170,
+        height: 180,
         borderRadius: 8,
         marginRight: 16,
+        objectFit: "cover",
     },
     watchlistInfo: {
         flexDirection: "column",
         flex: 1,
+        margin:5
     },
     watchlistName: {
         fontSize: 18,
@@ -133,7 +139,7 @@ const styles = StyleSheet.create({
         color: "#666",
     },
     moreButton: {
-        padding: 8,
+        margin: 5,
     },
     emptyContainer: {
         flex: 1,
