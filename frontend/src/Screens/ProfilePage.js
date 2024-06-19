@@ -5,7 +5,7 @@ import { Pressable } from "react-native";
 import { Image } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { EditProfile } from "./EditProfile";
-import LikesTab from "../Components/LikesTab";
+import LikesTab from "../Components/LikesTab"
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from"../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader";
@@ -16,11 +16,13 @@ function renderScene({ route }) {
     switch (route.key) {
         case "posts":
             return (
-                <PostsTab />
+
+                <PostsTab/>
+
             );
         case "likes":
             return (
-                <LikesTab />
+                <LikesTab/>
             );
         case "watchlist":
             return (
@@ -98,11 +100,11 @@ export default function ProfilePage() {
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                    <Text style={styles.number}>{followers ? followers : "100"} </Text>
+                    <Text style={styles.number}>{followers ? followers : 132} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>{following ? following : "50"} </Text>
+                        <Text style={styles.number}>{following ? following : 30} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
@@ -112,12 +114,14 @@ export default function ProfilePage() {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "she/her"}</Text>
-                    <Text>{userProfile.bio ? userProfile.bio : "I'm also just a girl, standing in front of a boy asking him to love her - Notting Hill"}</Text>
+                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
+                    <Text>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
                     <Text style={{ marginTop: 5 }}>
                     <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenre && userProfile.favouriteGenre.length >= 3 && (
+                        {userProfile.favouriteGenre ? userProfile.favouriteGenre.length >= 3 && (
                             <Text>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
+                        ) : (
+                            <Text>Animation, True Crime</Text>
                         )}
                     </Text>
                 </View>
@@ -194,6 +198,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         elevation: 0,
         shadowOpacity: 0,
+        borderBottomWidth: 1,
+        borderBottomColor: "#7b7b7b",
     },
     indicator: {
         backgroundColor: "#7b7b7b",

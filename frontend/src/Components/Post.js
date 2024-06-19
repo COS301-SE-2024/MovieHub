@@ -43,7 +43,6 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                 <View style={{ flex: 1 }}></View>
                 <CommIcon name="share-outline" size={20} style={styles.icon} />
             </View>
-            <Text style={styles.commentInput}>Add a comment...</Text>
         </View>
     );
 }

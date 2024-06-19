@@ -1,6 +1,8 @@
 // src/services/UsersApiService.js
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://192.168.226.254:3000/users/';// enter what url your expo is running on + our port 3000
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://10.0.0.107:3000/users/';// enter what url your expo is running on + our port 3000
+
 
 export const getUserProfile = async (userId) => {
     const response = await fetch(`${API_URL}${userId}`);
