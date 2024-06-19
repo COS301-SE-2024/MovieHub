@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Button, Text, TextInput, View, Image, TouchableOpacity, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Pressable } from "react-native";
 import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
@@ -13,8 +13,8 @@ const SignupPage = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [error, setError] = useState("");
     const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+    const [error, setError] = useState("");
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
@@ -35,76 +35,88 @@ const SignupPage = () => {
             setError("Passwords do not match");
             return;
         }
+        if (username.length < 3) {
+            setError("Username must be at least 3 characters long");
+            return;
+        }
         try {
             await signUp(email, password, username);
             setError("");
             console.log("User signed up successfully");
             navigation.navigate("HomePage");
         } catch (error) {
-            setError(error.message);
+            let errorMessage = "Error signing up";
+            if (error.code === "auth/email-already-in-use") {
+                errorMessage = "Email address is already in use";
+            } else if (error.code === "auth/invalid-email") {
+                errorMessage = "Invalid email address format";
+            } else if (error.code === "auth/weak-password") {
+                errorMessage = "Password should be at least 6 characters long";
+            } else {
+                errorMessage = error.message; // Default to Firebase's error message
+            }
+            console.error("Error signing up:", error);
+            setError(errorMessage);
         }
     };
 
     return (
-                <View style={styles.container}>
-                    <Text style={styles.title}>movieHub.</Text>
-                    <Text style={styles.title}>Create Account</Text>
-                    <View>
-                        <Text style={styles.label}>Username</Text>
-                        <TextInput style={styles.inputText} onChangeText={setUsername} value={username} placeholder="" />
-                    </View>
-                    <View>
-                        <Text style={styles.label}>Email</Text>
-                        <TextInput style={styles.inputText} onChangeText={setEmail} keyboardType="email-address" value={email} placeholder="" />
-                    </View>
-                    <View>
-                        <Text style={styles.label}>Password</Text>
-                        <View style={styles.passwordInputContainer}>
-                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} />
-                            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
-                                <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View>
-                        <Text style={styles.label}>Confirm Password</Text>
-                        <View style={styles.passwordInputContainer}>
-                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
-                            <TouchableOpacity onPress={toggleConfirmPasswordVisibility} style={styles.passwordVisibilityButton}>
-                                <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View style={styles.btn}>
-                        <Pressable style={styles.button} onPress={handleSignup}>
-                            <Text style={styles.buttonText}>Sign Up</Text>
-                        </Pressable>
-                        {error ? <Text>{error}</Text> : null}
-                    </View>
-                    <View style={styles.or}>
-                        <View style={styles.line} />
-                        <Text style={{ fontSize: 15, color: "#7b7b7b" }}>Or</Text>
-                        <View style={styles.line} />
-                    </View>
-                    <View style={styles.socialContainer}>
-                        <Image style={styles.socialLink} source={google} />
-                        <Image style={styles.socialLink} source={facebook} />
-                        <Image style={styles.socialLink} source={twitter} />
-                    </View>
-                    <View style={styles.signupLink}>
-                        <Text style={{ fontSize: 16 }}>Already have an account? </Text>
-                        <TouchableOpacity onPress={handleExistingUser}>
-                            <Text style={styles.link}>Login</Text>
-                        </TouchableOpacity>
-                    </View>
+        <View style={styles.container}>
+            <Text style={styles.title}>movieHub.</Text>
+            <Text style={styles.title}>Create Account</Text>
+            <View>
+                <Text style={styles.label}>Username</Text>
+                <TextInput style={styles.inputText} onChangeText={setUsername} value={username} placeholder="" />
+            </View>
+            <View>
+                <Text style={styles.label}>Email</Text>
+                <TextInput style={styles.inputText} onChangeText={setEmail} keyboardType="email-address" value={email} placeholder="" />
+            </View>
+            <View>
+                <Text style={styles.label}>Password</Text>
+                <View style={styles.passwordInputContainer}>
+                    <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} />
+                    <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
+                        <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                    </TouchableOpacity>
                 </View>
+            </View>
+            <View>
+                <Text style={styles.label}>Confirm Password</Text>
+                <View style={styles.passwordInputContainer}>
+                    <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
+                    <TouchableOpacity onPress={toggleConfirmPasswordVisibility} style={styles.passwordVisibilityButton}>
+                        <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <View style={styles.btn}>
+                <Pressable style={styles.button} onPress={handleSignup}>
+                    <Text style={styles.buttonText}>Sign Up</Text>
+                </Pressable>
+                {error ? <Text style={{ color: 'red', marginTop: 10, textAlign: 'center' }}>{error}</Text> : null}
+            </View>
+            <View style={styles.or}>
+                <View style={styles.line} />
+                <Text style={{ fontSize: 15, color: "#7b7b7b" }}>Or</Text>
+                <View style={styles.line} />
+            </View>
+            <View style={styles.socialContainer}>
+                <Image style={styles.socialLink} source={google} />
+                <Image style={styles.socialLink} source={facebook} />
+                <Image style={styles.socialLink} source={twitter} />
+            </View>
+            <View style={styles.signupLink}>
+                <Text style={{ fontSize: 16 }}>Already have an account? </Text>
+                <TouchableOpacity onPress={handleExistingUser}>
+                    <Text style={styles.link}>Login</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
-    outerContainer: {
-        flex: 1,
-    },
     title: {
         textAlign: "center",
         fontFamily: "Roboto",
@@ -140,35 +152,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#ffffff",
         paddingVertical: 100,
     },
-    justforyou: {
-        paddingTop: 3,
-        textAlign: "center",
-        fontFamily: "Roboto",
-        color: "#000000",
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-
-    trending: {
-        paddingLeft: 10,
-        paddingTop: 20,
-        fontFamily: "Roboto",
-        color: "#000000",
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-
-    viewall: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingRight: 10,
-        backgroundColor: "#fffff",
-    },
-
-    viewalltext: {
-        paddingTop: 25,
-        fontFamily: "Roboto",
-    },
     or: {
         flexDirection: "row",
         alignItems: "center",
@@ -200,7 +183,6 @@ const styles = StyleSheet.create({
         color: "#fff",
         textAlign: "center",
         fontWeight: "bold",
-        fontSize: 18,
     },
     link: {
         fontSize: 15,
@@ -235,8 +217,6 @@ const styles = StyleSheet.create({
     passwordVisibilityButton: {
         margin: 10,
     }
-
 });
 
 export default SignupPage;
-

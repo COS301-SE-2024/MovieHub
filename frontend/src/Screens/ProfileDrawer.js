@@ -49,7 +49,7 @@ function CustomDrawer({ navigation }) {
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="dark-mode" style={styles.icon} size={24} />
                     <Text style={styles.drawerItem}>Enable Dark Mode</Text>
-                    <Switch style={{ marginLeft: "auto", marginRight: 10 }} trackColor={{ false: "#ccc", true: "#808080" }} thumbColor={isEnabled ? "#fff" : "#fff"} ios_backgroundColor="#3e3e3e" onValueChange={toggleSwitch} value={isEnabled} />
+                    <Switch testID="dark-mode-switch" style={{ marginLeft: "auto", marginRight: 10 }} trackColor={{ false: "#ccc", true: "#808080" }} thumbColor={isEnabled ? "#fff" : "#fff"} ios_backgroundColor="#3e3e3e" onValueChange={toggleSwitch} value={isEnabled} />
                 </View>
             </TouchableOpacity>
 
