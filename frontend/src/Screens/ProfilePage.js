@@ -91,16 +91,16 @@ export default function ProfilePage() {
             <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>{userProfile.fullName}</Text>
-                    <Text style={styles.userHandle}>{userProfile.username}</Text>
+                    <Text style={styles.username}>{userProfile.fullName ? userProfile.fullName : "Itumeleng Moshokoa"}</Text>
+                    <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                    <Text style={styles.number}>{followers} </Text>
+                    <Text style={styles.number}>{followers ? followers : 132} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>{following} </Text>
+                        <Text style={styles.number}>{following ? following : 30} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
@@ -110,12 +110,14 @@ export default function ProfilePage() {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns}</Text>
-                    <Text>{userProfile.bio}</Text>
+                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
+                    <Text>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
                     <Text style={{ marginTop: 5 }}>
                     <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenre && userProfile.favouriteGenre.length >= 3 && (
+                        {userProfile.favouriteGenre ? userProfile.favouriteGenre.length >= 3 && (
                             <Text>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
+                        ) : (
+                            <Text>Animation, True Crime</Text>
                         )}
                     </Text>
                 </View>
@@ -192,6 +194,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         elevation: 0,
         shadowOpacity: 0,
+        borderBottomWidth: 1,
+        borderBottomColor: "#7b7b7b",
     },
     indicator: {
         backgroundColor: "#7b7b7b",
