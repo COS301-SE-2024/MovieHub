@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl } from "react-native";
+import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
@@ -8,14 +8,17 @@ import { EditProfile } from "./EditProfile";
 import LikesTab from "../Components/LikesTab"
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from"../Components/Watchlist";
-import BottomHeader from "../Components/BottomHeader"
+import BottomHeader from "../Components/BottomHeader";
+import ProfileHeader from "../Components/ProfileHeader"
 import { getUserProfile } from "../Services/UsersApiService";
 
 function renderScene({ route }) {
     switch (route.key) {
         case "posts":
             return (
+
                 <PostsTab/>
+
             );
         case "likes":
             return (
@@ -86,8 +89,9 @@ export default function ProfilePage() {
     }, [userProfile, followers, following]); 
 
     return (
-        
+        // <ProfileHeader />
         <View style={{ flex: 1 }}>
+            
             <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>

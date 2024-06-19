@@ -10,9 +10,13 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomDrawer from "./frontend/src/Screens/ProfileDrawer";
 import HomePage from "./frontend/src/Screens/HomePage";
 import MainHeader from "./frontend/src/Components/MainHeader";
+import SearchHeader from "./frontend/src/Components/SearchHeader";
+import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
+import SearchPage from "./frontend/src/Screens/SearchPage";
+import GenrePage from "./frontend/src/Screens/GenrePage";
 import HelpCentre from "./frontend/src/Screens/HelpCentre";
 import FAQs from "./frontend/src/Screens/FAQs";
 import AccountSettings from "./frontend/src/Screens/AccountSettings";
@@ -43,9 +47,11 @@ export default function App() {
                     }
                     return {};
                 }}>
+
                 {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} /> */}
                 {/* <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} /> */}
                 {/* <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} /> */}
+
                 <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader/> }} />
                 <Nav.Screen name="MovieDescriptionPage" component={MovieDescriptionPage} options={{ header: () => <MainHeader/> }} />
                 <Nav.Screen
@@ -54,6 +60,7 @@ export default function App() {
                     options={({ navigation }) => ({
                         title: "",
                         headerShadowVisible: false,
+                        headerBackTitleVisible: false,
                         headerRight: () => (
                             <View style={{ marginRight: 10 }}>
                                 <Text onPress={() => navigation.navigate("CustomDrawer")}>
@@ -61,9 +68,11 @@ export default function App() {
                                 </Text>
                             </View>
                         ),
+                        headerTintColor: 'black',
                     })}
                 />
-                <Nav.Screen
+
+<Nav.Screen
                     name="EditProfile"
                     component={EditProfile}
                     options={({ navigation }) => ({
@@ -84,6 +93,30 @@ export default function App() {
                         ),
                     })}
                 />
+
+
+                <Nav.Screen 
+                    name="SearchPage" 
+                    component={SearchPage} 
+                    options={({ navigation }) => ({
+                        title: "",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })}
+                />
+
+                <Nav.Screen 
+                    name="GenrePage" 
+                    component={GenrePage}
+                    options={({ navigation }) => ({
+                        title: "",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })}
+                />
+
                 <Nav.Screen name="CreatePost" component={CreatePost} options={{ title: "" }} />
                 <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
                 <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings" }} />
@@ -97,6 +130,7 @@ export default function App() {
                 <Nav.Screen name="SocialFeatures" component={SocialFeatures} options={{ title: "Social Features" }} />
                 <Nav.Screen name="UsingMovieHub" component={UsingMovieHub} options={{ title: "Using MovieHub" }} />
                 <Nav.Screen name="FAQs" component={FAQs} />
+
             </Nav.Navigator>
         </NavigationContainer>
     );
