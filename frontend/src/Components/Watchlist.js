@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import FAIcon from "react-native-vector-icons/FontAwesome";
+import { useNavigation } from '@react-navigation/native';  // Import navigation hook
 
 const watchlists = [
     { id: "1", name: "To Be Watched", privacy: "Private", movies: 5, image: require("../../../assets/movie2.jpg") },
@@ -12,6 +12,7 @@ const watchlists = [
 const WatchlistTab = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
+    const navigation = useNavigation();  // Use the navigation hook
 
     const openOptionsMenu = (watchlist) => {
         setSelectedWatchlist(watchlist);
@@ -23,23 +24,12 @@ const WatchlistTab = () => {
         setSelectedWatchlist(null);
     };
 
-    const renderWatchlistItem = ({ item }) => (
-        <View style={styles.watchlistItem}>
-            <Image source={item.image} style={styles.watchlistImage} />
-            <View style={styles.watchlistInfo}>
-                <Text style={styles.watchlistName}>{item.name}</Text>
-                <Text style={styles.watchlistPrivacy}>{item.privacy}</Text>
-                <Text style={styles.watchlistMovies}>{item.movies} movies</Text>
-            </View>
-            <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(item)}>
-                <MaterialIcons name="more-vert" size={24} color="black" />
-            </TouchableOpacity>
-        </View>
-    );
-
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.createButton}>
+            <TouchableOpacity
+                style={styles.createButton}
+                onPress={() => navigation.navigate('CreateWatchlist')}  // Navigate to the CreateWatchlist screen
+            >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <View style={{flex :1}} />
                 <MaterialIcons name="add" size={24} color="black" />
@@ -54,7 +44,7 @@ const WatchlistTab = () => {
                             <Text style={styles.watchlistMovies}>{watchlist.movies} movies</Text>
                         </View>
                         <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
-                            <FAIcon name="angle-right" size={24} color="black" />
+                            <MaterialIcons name="more-vert" size={24} color="black" />
                         </TouchableOpacity>
                     </View>
                 ))}
