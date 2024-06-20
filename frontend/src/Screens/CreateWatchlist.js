@@ -148,8 +148,8 @@ export default function CreateWatchlist({ navigation }) {
                     </Modal>
                 ))}
 
-                <TouchableOpacity style={styles.nextButton} onPress={() => navigation.goBack()}>
-                    <Text style={styles.nextButtonText}>Create Watchlist</Text>
+                <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('AddMovies')}>
+                    <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>
