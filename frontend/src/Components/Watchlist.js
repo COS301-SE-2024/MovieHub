@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from '@react-navigation/native';  // Import navigation hook
+import { useNavigation } from '@react-navigation/native'; 
 
 const watchlists = [
     { id: "1", name: "To Be Watched", privacy: "Private", movies: 5, image: require("../../../assets/movie2.jpg") },
