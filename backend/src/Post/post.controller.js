@@ -1,20 +1,20 @@
-import reviewService  from './review.services';
+import postService  from './post.services';
 import responseHandler from '../utils/responseHandler';
 
-exports.addReview = async (req, res) => {
-    const { userId, movieId, text } = req.body;
+exports.addPost = async (req, res) => {
+    const { userId, movieId, text, reviewStatus, rating } = req.body;
     try {
-        const review = await reviewService.addReview(userId, movieId, text);
-        responseHandler(res, 201, 'Review added successfully', review);
+        const post = await postService.addPost(userId, movieId, text, reviewStatus, rating);
+        responseHandler(res, 201, 'Post added successfully', post);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
-exports.addCommentToReview = async (req, res) => {
-    const { userId, reviewId, movieId, text } = req.body;
+exports.addCommentToPost = async (req, res) => {
+    const { userId, postId, movieId, text } = req.body;
     try {
-        const comment = await reviewService.addCommentToReview(userId, reviewId, movieId, text);
+        const comment = await postService.addCommentToPost(userId, postId, movieId, text);
         responseHandler(res, 201, 'Comment added successfully', comment);
     } catch (error) {
         responseHandler(res, 400, error.message);
@@ -24,18 +24,18 @@ exports.addCommentToReview = async (req, res) => {
 exports.addCommentToComment = async (req, res) => {
     const { userId, commentId, movieId, text } = req.body;
     try {
-        const comment = await reviewService.addCommentToComment(userId, commentId, movieId, text);
+        const comment = await postService.addCommentToComment(userId, commentId, movieId, text);
         responseHandler(res, 201, 'Comment added successfully', comment);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
-exports.editReview = async (req, res) => {
-    const { reviewId, text } = req.body;
+exports.editPost = async (req, res) => {
+    const { postId, text } = req.body;
     try {
-        const review = await reviewService.editReview(reviewId, text);
-        responseHandler(res, 200, 'Review edited successfully', review);
+        const post = await postService.editPost(postId, text);
+        responseHandler(res, 200, 'Post edited successfully', post);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
@@ -44,18 +44,18 @@ exports.editReview = async (req, res) => {
 exports.editComment = async (req, res) => {
     const { commentId, text } = req.body;
     try {
-        const comment = await reviewService.editComment(commentId, text);
+        const comment = await postService.editComment(commentId, text);
         responseHandler(res, 200, 'Comment edited successfully', comment);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
-exports.removeReview = async (req, res) => {
-    const { reviewId } = req.body;
+exports.removePost = async (req, res) => {
+    const { postId } = req.body;
     try {
-        await reviewService.removeReview(reviewId);
-        responseHandler(res, 200, 'Review removed successfully');
+        await postService.removePost(postId);
+        responseHandler(res, 200, 'Post removed successfully');
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
@@ -64,18 +64,19 @@ exports.removeReview = async (req, res) => {
 exports.removeComment = async (req, res) => {
     const { commentId } = req.body;
     try {
-        await reviewService.removeComment(commentId);
+        await postService.removeComment(commentId);
         responseHandler(res, 200, 'Comment removed successfully');
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
-exports.toggleLikeReview = async (req, res) => {
-    const { userId, reviewId } = req.body;
+
+exports.getPostsOfMovie = async (req, res) => {
+    const { movieId } = req.params;
     try {
-        const liked = await reviewService.toggleLikeReview(userId, reviewId);
-        responseHandler(res, 200, `Review ${liked ? 'liked' : 'unliked'} successfully`, { liked });
+        const posts = await postService.getPostsOfMovie(movieId);
+        responseHandler(res, 200, 'Posts fetched successfully', posts);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
@@ -84,18 +85,28 @@ exports.toggleLikeReview = async (req, res) => {
 exports.getReviewsOfMovie = async (req, res) => {
     const { movieId } = req.params;
     try {
-        const reviews = await reviewService.getReviewsOfMovie(movieId);
-        responseHandler(res, 200, 'Reviews fetched successfully', reviews);
+        const reviews = await postService.getReviewsOfMovie(movieId);
+        responseHandler(res, 200, 'Reviewa fetched successfully', reviews);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
-exports.getCommentsOfReview = async (req, res) => {
-    const { reviewId } = req.params;
+exports.getCommentsOfPost = async (req, res) => {
+    const { postId } = req.params;
     try {
-        const comments = await reviewService.getCommentsOfReview(reviewId);
+        const comments = await postService.getCommentsOfPost(postId);
         responseHandler(res, 200, 'Comments fetched successfully', comments);
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getPostsOfUser = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const posts = await postService.getPostsOfUser(userId);
+        responseHandler(res, 200, 'Posts fetched successfully', posts);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
@@ -104,7 +115,7 @@ exports.getCommentsOfReview = async (req, res) => {
 exports.getReviewsOfUser = async (req, res) => {
     const { userId } = req.params;
     try {
-        const reviews = await reviewService.getReviewsOfUser(userId);
+        const reviews = await postService.getReviewsOfUser(userId);
         responseHandler(res, 200, 'Reviews fetched successfully', reviews);
     } catch (error) {
         responseHandler(res, 400, error.message);
@@ -114,7 +125,7 @@ exports.getReviewsOfUser = async (req, res) => {
 exports.getCommentsOfUser = async (req, res) => {
     const { userId } = req.params;
     try {
-        const comments = await reviewService.getCommentsOfUser(userId);
+        const comments = await postService.getCommentsOfUser(userId);
         responseHandler(res, 200, 'Comments fetched successfully', comments);
     } catch (error) {
         responseHandler(res, 400, error.message);
