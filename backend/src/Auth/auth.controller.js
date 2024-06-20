@@ -1,6 +1,6 @@
 
 import authService from './auth.services';
-import responseHandler from '../utils/responceHandler';
+import responseHandler from '../utils/responseHandler';
 
 exports.register = async (req, res) => {
     const { email, password } = req.body;
