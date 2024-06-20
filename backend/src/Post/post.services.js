@@ -4,34 +4,34 @@ const driver = neo4j.driver(
     neo4j.auth.basic('neo4j', '1yDboUOlGobuDEJX6xw_JitPl-93pTFKN6iYJCyyvt0')
 );
 
-exports.addReview = async (userId, movieId, text) => {
+exports.addPost = async (userId, movieId, text, isReview, rating) => {
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (u), (m)
              WHERE ID(u) = $userId AND ID(m) = $movieId
-             CREATE (r:Review { text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
-             CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
+             CREATE (r:Post {isReview: $isReview, rating: $rating, text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
+             CREATE (u)-[:POSTED]->(r)-[:POSTED_ON]->(m)
              RETURN r`,
-            { userId, movieId, text }
+            { userId, movieId, text,isReview, rating }
         );
-        //console.log(result.summary);
+        //.log(result.summary);
         return result.records[0].get('r').properties;
     } finally {
         await session.close();
     }
 };
 
-exports.addCommentToReview = async (userId, reviewId, text) => {
+exports.addCommentToPost = async (userId, postId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (u), (r)
-             WHERE ID(u) = $userId AND ID(r) = $reviewId
-             CREATE (c:Comment { text: $text, movieId: r.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: $reviewId})
+             WHERE ID(u) = $userId AND ID(r) = $postId
+             CREATE (c:Comment { text: $text, movieId: r.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, postId: $postId})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(r)
              RETURN c`,
-            { userId, reviewId, text }
+            { userId, postId, text }
         );
         return result.records[0].get('c').properties;
     } finally {
@@ -45,7 +45,7 @@ exports.addCommentToComment = async (userId, commentId, text) => {
         const result = await session.run(
             `MATCH (u), (c) 
              WHERE ID(u) = $userId AND ID(c) = $commentId
-             CREATE (n:Comment {parentCommentId: $commentId, text: $text, movieId: c.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, reviewId: c.reviewId})
+             CREATE (n:Comment {parentCommentId: $commentId, text: $text, movieId: c.movieId, createdAt: datetime(), updatedAt: datetime(), userId: $userId, postId: c.postId})
              CREATE (u)-[:COMMENTED]->(n)-[:COMMENTED_ON]->(c)
              RETURN n`,
             { userId, commentId, text }
@@ -56,16 +56,17 @@ exports.addCommentToComment = async (userId, commentId, text) => {
     }
 };
 
-exports.editReview = async (reviewId, text) => {
+exports.editPost = async (postId, text) => {
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (r)
-             WHERE ID(r) = $reviewId
+             WHERE ID(r) = $postId
              SET r.text = $text, r.updatedAt = datetime()
              RETURN r`,
-            { reviewId, text }
+            { postId, text }
         );
+        console.log(result);
         return result.records[0].get('r').properties;
     } finally {
         await session.close();
@@ -88,14 +89,14 @@ exports.editComment = async (commentId, text) => {
     }
 };
 
-exports.removeReview = async (reviewId) => {
+exports.removePost = async (postId) => {
     const session = driver.session();
     try {
         await session.run(
             `MATCH (r)
-             WHERE ID(r) = $reviewId
+             WHERE ID(r) = $postId
              DETACH DELETE r`,
-            { reviewId }
+            { postId }
         );
         return true;
     } finally {
@@ -118,19 +119,19 @@ exports.removeComment = async (commentId) => {
     }
 };
 
-exports.toggleLikeReview = async (userId, reviewId) => {
+exports.getPostsOfMovie = async (movieId) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {id: $userId}), (r:Review {id: $reviewId})
-             OPTIONAL MATCH (u)-[like:LIKED]->(r)
-             WITH u, r, like, CASE WHEN like IS NULL THEN true ELSE false END AS liked
-             FOREACH (_ IN CASE WHEN liked THEN [1] ELSE [] END | CREATE (u)-[:LIKED]->(r))
-             FOREACH (_ IN CASE WHEN NOT liked THEN [1] ELSE [] END | DELETE like)
-             RETURN liked`,
-            { userId, reviewId }
+            `MATCH (m)<-[:POSTED_ON]-(r:Post)
+             WHERE ID(m) = $movieId
+            RETURN {post : r, id : ID(r)} as data`,
+            { movieId }
         );
-        return result.records[0].get('liked');
+        const  reviews = result.records.map(record => record.get('data'));
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
     } finally {
         await session.close();
     }
@@ -138,44 +139,78 @@ exports.toggleLikeReview = async (userId, reviewId) => {
 
 exports.getReviewsOfMovie = async (movieId) => {
     const session = driver.session();
+    
     try {
+        const isReview = true;
         const result = await session.run(
-            `MATCH (m)<-[:REVIEWED_ON]-(r:Review)
-             WHERE ID(m) = $movieId
-             RETURN r`,
-            { movieId }
+            `MATCH (m)<-[:POSTED_ON]-(r:Post) 
+             WHERE ID(m) = $movieId AND r.isReview = $isReview
+             RETURN {post : r, id : ID(r)} as data`,
+            { movieId, isReview}
         );
-        return result.records.map(record => record.get('r').properties);
+        
+        const  reviews = result.records.map(record => record.get('data'));
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
+        
     } finally {
         await session.close();
     }
 };
 
-exports.getCommentsOfReview = async (reviewId) => {
+exports.getCommentsOfPost = async (postId) => {
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (r)<-[:COMMENTED_ON]-(c:Comment)
-             WHERE ID(r) = $reviewId
-             RETURN c`,
-            { reviewId }
+             WHERE ID(r) = $postId
+             RETURN {post : c, id : ID(c)} as data`,
+            { postId }
         );
-        return result.records.map(record => record.get('c').properties);
+        const  reviews = result.records.map(record => record.get('data'));
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
     } finally {
+        await session.close();
+    }
+};
+
+exports.getPostsOfUser = async (userId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u)-[:POSTED]->(r:Post)
+             WHERE ID(u) = $userId
+             RETURN {post : r, id : ID(r)} as data`,
+            { userId }
+        );
+        const  reviews = result.records.map(record => record.get('data'));
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
+        } finally {
         await session.close();
     }
 };
 
 exports.getReviewsOfUser = async (userId) => {
     const session = driver.session();
+    
     try {
+        const isReview = true;
         const result = await session.run(
-            `MATCH (u)-[:REVIEWED]->(r:Review)
-             WHERE ID(u) = $userId
-             RETURN r`,
-            { userId }
+            `MATCH (u)-[:POSTED]->(r:Post)
+             WHERE ID(u) = $userId AND r.isReview = $isReview
+             RETURN {post : r, id : ID(r)} as data`,
+            { userId, isReview }
         );
-        return result.records.map(record => record.get('r').properties);
+        const  reviews = result.records.map(record => record.get('data'));
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
+
     } finally {
         await session.close();
     }
@@ -187,11 +222,28 @@ exports.getCommentsOfUser = async (userId) => {
         const result = await session.run(
             `MATCH (u)-[:COMMENTED]->(c:Comment)
             WHERE ID(u) = $userId
-             RETURN c`,
+            RETURN {post : c, id : ID(c)} as data`,
             { userId }
         );
-        return result.records.map(record => record.get('c').properties);
+        const  reviews = result.records.map(record => record.get('data'));
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
     } finally {
         await session.close();
     }
 };
+
+exports.processGets= async(datas) =>{
+  return datas.map(data => {
+    // Access the ID
+    const id = data.id.toNumber(); // Convert neo4j.Integer to JavaScript number
+
+    // Access the node properties
+    const properties = data.post.properties; // This is an object containing the node's properties
+
+    // Return the processed data
+    return { id, properties };
+   });
+  };
+  
