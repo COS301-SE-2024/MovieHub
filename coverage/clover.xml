@@ -24,7 +24,9 @@
         <line num="28" count="1" type="stmt"/>
         <line num="30" count="0" type="stmt"/>
       </file>
+
       <file name="auth.services.js" path="C:\Users\user-pc\Documents\GitHub\MovieHub\backend\src\Auth\auth.services.js">
+
         <metrics statements="16" coveredstatements="13" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
         <line num="5" count="2" type="stmt"/>
         <line num="7" count="2" type="stmt"/>
