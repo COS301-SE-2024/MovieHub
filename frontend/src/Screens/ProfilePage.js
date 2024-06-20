@@ -51,7 +51,7 @@ export default function ProfilePage() {
     const fetchData = async () => {// fetching data from api
         try {
             const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3';
-          response = await  getUserProfile(userId); 
+          const response = await  getUserProfile(userId); 
           setUserProfile(response);
 
           if (response.followers && response.followers.low !== undefined) {
