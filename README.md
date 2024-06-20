@@ -29,7 +29,7 @@
 
 # Video Demo Recordings # 
 
-[Girls Gone Code - Demo1](https://linktorecording)
+[Girls Gone Code - Demo1](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
 
 # Project Management #
 [Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
