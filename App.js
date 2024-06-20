@@ -31,6 +31,8 @@ import ChangePassword from "./frontend/src/Screens/ChangePassword";
 import MovieDescriptionPage from "./frontend/src/Screens/MovieDescriptionPage"
 import CreatePost from "./frontend/src/Screens/CreatePost";
 import CreateWatchlist from "./frontend/src/Screens/CreateWatchlist";
+import AddMovies from "./frontend/src/Screens/AddMovies";
+import WatchlistTab from "./frontend/src/Components/Watchlist";
 
 const Nav = createNativeStackNavigator();
 
@@ -126,9 +128,20 @@ export default function App() {
                 <Nav.Screen name="SocialFeatures" component={SocialFeatures} options={{ title: "Social Features" }} />
                 <Nav.Screen name="UsingMovieHub" component={UsingMovieHub} options={{ title: "Using MovieHub" }} />
                 <Nav.Screen name="FAQs" component={FAQs} />
+
                 <Nav.Screen 
                     name="CreateWatchlist" 
                     component={CreateWatchlist} 
+                    options={({ navigation }) => ({
+                        title: "",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })} 
+                />
+                 <Nav.Screen 
+                    name="AddMovies" 
+                    component={AddMovies} 
                     options={({ navigation }) => ({
                         title: "",
                         headerShadowVisible: false,
