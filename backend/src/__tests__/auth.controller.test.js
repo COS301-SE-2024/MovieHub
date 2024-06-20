@@ -1,10 +1,10 @@
 // src/controllers/authController.test.js
 import authController from '../Auth/auth.controller';
 import authService from '../Auth/auth.services';
-import responseHandler from '../utils/responceHandler';
+import responseHandler from '../utils/responseHandler';
 
 jest.mock('../Auth/auth.services');
-jest.mock('../utils/responceHandler');
+jest.mock('../utils/responseHandler');
 
 describe('Auth Controller', () => {
     const mockReq = {
