@@ -125,8 +125,8 @@ export default function EditProfile({ userProfile }) {
     };
 
     return (
-        <View style={styles.container}>
-            <ScrollView>
+        <ScrollView style={styles.container}>
+            {/* <ScrollView> */}
                 <Text style={{ color: "#7b7b7b", marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
                 <View style={styles.avatarContainer}>
                     <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -205,9 +205,9 @@ export default function EditProfile({ userProfile }) {
                         </View>
                     </Modal>
                 ))}
-            </ScrollView>
-            <BottomHeader />
-        </View>
+            {/* </ScrollView> */}
+            {/* <BottomHeader /> */}
+        </ScrollView>
     );
 }
 
