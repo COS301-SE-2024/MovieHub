@@ -56,8 +56,8 @@ export default function CreateWatchlist({ navigation }) {
     };
 
     return (
-        <View style={styles.container}>
-            <ScrollView>
+        
+            <ScrollView style={styles.container}>
                 <TouchableOpacity style={styles.coverContainer} onPress={chooseCover}>
                     {cover ? (
                         <Image source={{ uri: cover }} style={styles.coverImage} />
@@ -85,7 +85,7 @@ export default function CreateWatchlist({ navigation }) {
                     <View style={styles.switchContainer}>
                         <Text style={styles.sectionValue}>{visibility ? "Private" : "Public"}</Text>
                         <Switch value={visibility} onValueChange={setVisibility} thumbColor={visibility ? "white" : "black"}
-                            trackColor={{ false: "grey", true: "black" }} />
+                            />
                     </View>
                 </View>
                 <View style={styles.line} />
@@ -95,7 +95,7 @@ export default function CreateWatchlist({ navigation }) {
                     <View style={styles.switchContainer}>
                         <Text style={styles.sectionValue}>{collaborative ? "Yes" : "No"}</Text>
                         <Switch value={collaborative} onValueChange={setCollaborative} thumbColor={visibility ? "grey" : "black"}
-                            trackColor={{ false: "grey", true: "black" }}/>
+                            />
                     </View>
                 </View>
                 <View style={styles.line} />
@@ -105,7 +105,7 @@ export default function CreateWatchlist({ navigation }) {
                     <View style={styles.switchContainer}>
                         <Text style={styles.sectionValue}>{ranked ? "Yes" : "No"}</Text>
                         <Switch value={ranked} onValueChange={setRanked} thumbColor={visibility ? "grey" : "black"}
-                            trackColor={{ false: "grey", true: "black" }}/>
+                            />
                     </View>
                 </View>
                 <View style={styles.line} />
@@ -152,7 +152,7 @@ export default function CreateWatchlist({ navigation }) {
                     <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
             </ScrollView>
-        </View>
+        
     );
 }
 
@@ -163,11 +163,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
     },
     coverContainer: {
+        width:200,
         height: 200,
         backgroundColor: "#e1e1e1",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 20,
+        marginLeft: 80,
     },
     coverImage: {
         width: "100%",
