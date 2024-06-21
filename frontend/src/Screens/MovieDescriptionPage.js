@@ -8,7 +8,7 @@ const MovieDescriptionPage = () =>
     {
         
         const route = useRoute();
-        const { imageUrl, title } = route.params;
+        const { imageUrl, title, rating, overview, date } = route.params;
 
 
 
@@ -16,22 +16,21 @@ const MovieDescriptionPage = () =>
             <ScrollView style={styles.container}>
                 <View style={styles.wholecontainer} >
                     <View style={styles.card}>
-                        <Image source={imageUrl} style={styles.image} />
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
                     </View>
                 </View>
                 <View style={styles.moviedes}>
                     <View style={styles.movieinfo}>
                         <Text style={styles.movietitle} >{title}</Text>
-                        <Text style={styles.movietitle}>7/10</Text>
+                        <Text style={styles.movietitle}>{rating}/10</Text>
                     </View>
                     <View style={styles.movieinfo2}>
-                        <Text style={styles.movietitle2} >2016 </Text>
+                        <Text style={styles.movietitle2} >{date} </Text>
                         <Text style={styles.movietitle2} > | </Text>
                         <Text style={styles.movietitle2} > 2h </Text>
                     </View>
                     <View style={styles.moviebio}>
-                        <Text style={styles.moviebiotext}>When revolutionary, experimental human drone tech falls into enemy hands, it's up to the leader of an elite C.I.A. group (Bruce Willis) and his team to draft a black-ops soldier into service to retrieve the weapons system at any cost. Co-starring Dominic Purcell ("DC's Legends of Tomorrow"), ASSASSIN is a pulse-pounding sci-fi action thriller.</Text>
-                    </View>
+                        <Text style={styles.moviebiotext}>{overview}</Text></View>
                     <View>
                         <Text style={styles.moviebio}>Starring:</Text>
                         <Text style={styles.moviebio}>Directed by:</Text>
