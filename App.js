@@ -32,7 +32,9 @@ import MovieDescriptionPage from "./frontend/src/Screens/MovieDescriptionPage"
 import CreatePost from "./frontend/src/Screens/CreatePost";
 import CreateWatchlist from "./frontend/src/Screens/CreateWatchlist";
 import AddMovies from "./frontend/src/Screens/AddMovies";
-import WatchlistTab from "./frontend/src/Components/Watchlist";
+import Notifications from "./frontend/src/Screens/Notifications";
+import WatchlistDetails from "./frontend/src/Screens/WatchlistDetails";
+import EditWatchlist from "./frontend/src/Screens/EditWatchlist";
 
 const Nav = createNativeStackNavigator();
 
@@ -115,7 +117,12 @@ export default function App() {
                     })}
                 />
 
-                <Nav.Screen name="CreatePost" component={CreatePost} options={{ title: "" }} />
+                <Nav.Screen name="CreatePost" component={CreatePost} options={({ navigation }) => ({
+                        title: "Create Post",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })}  />
                 <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
                 <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings" }} />
                 <Nav.Screen name="ChangePassword" component={ChangePassword} options={{ title: "Change Password" }} />
@@ -128,6 +135,12 @@ export default function App() {
                 <Nav.Screen name="SocialFeatures" component={SocialFeatures} options={{ title: "Social Features" }} />
                 <Nav.Screen name="UsingMovieHub" component={UsingMovieHub} options={{ title: "Using MovieHub" }} />
                 <Nav.Screen name="FAQs" component={FAQs} />
+                <Nav.Screen name="Notifications" component={Notifications} options={({ navigation }) => ({
+                        title: "Notifications",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })} />
 
                 <Nav.Screen 
                     name="CreateWatchlist" 
@@ -149,6 +162,19 @@ export default function App() {
                         headerTintColor: 'black',
                     })} 
                 />
+                <Nav.Screen name="WatchlistDetails" component={WatchlistDetails} options={({ navigation }) => ({
+                        title: "Watchlist Details",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })}/>
+
+                <Nav.Screen name="EditWatchlist" component={EditWatchlist} options={({ navigation }) => ({
+                        title: "Watchlist Details",
+                        headerShadowVisible: false,
+                        headerBackTitleVisible: false,
+                        headerTintColor: 'black',
+                    })}/>
             </Nav.Navigator>
         </NavigationContainer>
     );
