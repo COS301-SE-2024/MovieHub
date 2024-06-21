@@ -1,13 +1,21 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 
-export default function MovieCard({imageUrl}) {
+export default function MovieCard({imageUrl,title, rating, overview, date}) {
+
+    const navigation = useNavigation();
+
+    const handleNewUser = () => {
+        navigation.navigate("MovieDescriptionPage", {imageUrl,title, rating, overview, date});
+    };
+
     return (
-        <View style={styles.container}>
-           
-            <Image source={imageUrl} style={styles.image} />
-        
-        </View>
+        <TouchableWithoutFeedback onPress={handleNewUser}>
+            <View style={styles.container}>
+                <Image source={{ uri: imageUrl }} style={styles.image} />
+            </View>
+        </TouchableWithoutFeedback>
     );
 }
 
