@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_KEY = '';
-//5cb60bcbd1b573d3c950b827805204a6
+const API_KEY = '5cb60bcbd1b573d3c950b827805204a6';
+
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 export const getPopularMovies = async () => {
@@ -13,6 +13,8 @@ export const getPopularMovies = async () => {
                     page: 1
                 }
             });
+
+
             return response.data.results;
         } catch (error) {
             console.error('Error fetching popular movies:', error);
@@ -36,5 +38,4 @@ export const searchMovies = async (query) => {
             throw error;
         }
     };
-    // Add more methods as needed
 
