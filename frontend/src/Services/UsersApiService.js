@@ -74,3 +74,14 @@ export const deleteUserProfile = async (userId) => {
 //         throw new Error(error.message);
 //     }
 // };
+
+// New function to get a user's watchlists
+export const getUserWatchlists = async (userId) => {
+    const response = await fetch(`${API_URL}${userId}/watchlists`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch user watchlists');
+    }
+
+    const data = await response.json();
+    return data;
+};
