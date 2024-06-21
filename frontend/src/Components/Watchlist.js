@@ -1,12 +1,46 @@
+// WatchlistTab.js
 import React, { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native'; 
 
 const watchlists = [
-    { id: "1", name: "To Be Watched", privacy: "Private", movies: 5, image: require("../../../assets/movie2.jpg") },
-    { id: "2", name: "Peak Fiction", privacy: "Private", movies: 2, image: require("../../../assets/movie1.jpg") },
-    { id: "3", name: "Love to hate", privacy: "Public", movies: 3, image: require("../../../assets/movie3.jpeg") },
+    { 
+        id: "1", 
+        name: "To Be Watched", 
+        privacy: "Private", 
+        movies: 5, 
+        image: require("../../../assets/movie2.jpg"),
+        moviesList: [
+            { id: "1", title: "Planet of the Apes", image: require("../../../assets/movie1.jpg") },
+            { id: "2", title: "A Quiet Place", image: require("../../../assets/movie2.jpg") },
+            { id: "1", title: "Us", image: require("../../../assets/movie1.jpg") },
+            { id: "2", title: "Scream", image: require("../../../assets/movie2.jpg") },
+            { id: "1", title: "Emo", image: require("../../../assets/movie1.jpg")},
+        ],
+    },
+    { 
+        id: "2", 
+        name: "Peak Fiction", 
+        privacy: "Private", 
+        movies: 2, 
+        image: require("../../../assets/movie1.jpg"),
+        moviesList: [
+            { id: "3", title: "Titanic", image: require("../../../assets/movie3.jpeg") },
+            { id: "4", title: "The Graet Jahy", image: require("../../../assets/movie1.jpg") },
+        ],
+    },
+    { 
+        id: "3", 
+        name: "Love to hate", 
+        privacy: "Public", 
+        movies: 3, 
+        image: require("../../../assets/movie3.jpeg"),
+        moviesList: [
+            { id: "5", title: "A Quiet Place", image: require("../../../assets/movie2.jpg") },
+            { id: "6", title: "Titanic", image: require("../../../assets/movie3.jpeg") },
+        ],
+    },
 ];
 
 const WatchlistTab = () => {
@@ -24,6 +58,10 @@ const WatchlistTab = () => {
         setSelectedWatchlist(null);
     };
 
+    const goToWatchlistDetails = (watchlist) => {
+        navigation.navigate('WatchlistDetails', { watchlist });
+    };
+
     return (
         <View style={styles.container}>
             <TouchableOpacity
@@ -36,7 +74,7 @@ const WatchlistTab = () => {
             </TouchableOpacity>
             <ScrollView>
                 {watchlists.map((watchlist) => (
-                    <View key={watchlist.id} style={styles.watchlistItem}>
+                    <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
                         <Image source={watchlist.image} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
@@ -46,7 +84,7 @@ const WatchlistTab = () => {
                         <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
                             <MaterialIcons name="more-vert" size={24} color="black" />
                         </TouchableOpacity>
-                    </View>
+                    </TouchableOpacity>
                 ))}
             </ScrollView>
             <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={closeModal}>
@@ -56,6 +94,7 @@ const WatchlistTab = () => {
                             style={styles.modalOption}
                             onPress={() => {
                                 // Handle Edit action
+                                navigation.navigate('EditWatchlist')
                                 closeModal();
                                 console.log(`Edit ${selectedWatchlist.name}`);
                             }}>
