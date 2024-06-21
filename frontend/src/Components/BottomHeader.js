@@ -12,7 +12,9 @@ export default function BottomHeader() {
                 <TouchableOpacity onPress={() => navigation.navigate("HomePage")}>
                     <Icon name="home" size={30} paddingLeft={10} style={styles.icon} />
                 </TouchableOpacity>
-                <Icon name="notifications" size={30} style={styles.icon} />
+                <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+                    <Icon name="notifications" size={35} style={styles.icon} />
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("CreatePost")}>
                     <Icon name="add-circle-outline" size={35} style={styles.icon} />
                 </TouchableOpacity>
