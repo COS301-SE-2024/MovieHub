@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
-export default function CreateWatchlist({ navigation }) {
+export default function EditWatchlist({ navigation }) {
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
         description: { isVisible: false, newValue: "", tempValue: "" },
@@ -62,7 +62,7 @@ export default function CreateWatchlist({ navigation }) {
                     {cover ? (
                         <Image source={{ uri: cover }} style={styles.coverImage} />
                     ) : (
-                        <Text style={styles.coverText}>Choose cover</Text>
+                        <Text style={styles.coverText}>Change cover</Text>
                     )}
                 </TouchableOpacity>
 
@@ -149,7 +149,7 @@ export default function CreateWatchlist({ navigation }) {
                 ))}
 
                 <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('AddMovies')}>
-                    <Text style={styles.nextButtonText}>Next</Text>
+                    <Text style={styles.nextButtonText}>Update</Text>
                 </TouchableOpacity>
             </ScrollView>
         
