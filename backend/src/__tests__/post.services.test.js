@@ -205,6 +205,7 @@ import {
             //require('../neo4j').driver.session.mockReturnValue(sessionMock);
       
             const result = await getReviewsOfMovie(50014);
+            console.log(result);
             //console.log(result.id, result.post);
       
             //expect(result).toEqual([{ id: 'PostId', text: 'Post text' }]);
@@ -234,23 +235,24 @@ import {
           });
         });
       
-        describe('getPostsOfUser', () => {
+        describe('getPostsOfUser',  () => {
           it('gets all Posts made by a user', async () => {
-            const sessionMock = {
-              run: jest.fn().mockResolvedValue({
-                records: [{
-                  get: jest.fn(() => ({
-                    properties: { id: 'PostId', text: 'Post text' },
-                  })),
-                }],
-              }),
-              close: jest.fn(),
-            };
+            // const sessionMock = {
+            //   run: jest.fn().mockResolvedValue({
+            //     records: [{
+            //       get: jest.fn(() => ({
+            //         properties: { id: 'PostId', text: 'Post text' },
+            //       })),
+            //     }],
+            //   }),
+            //   close: jest.fn(),
+            // };
       
             //require('../neo4j').driver.session.mockReturnValue(sessionMock);
-      
+            //console.log(await getPostsOfUser(0));
             const result = await getPostsOfUser(0);
-      
+                     
+            
             ////expect(result).toEqual([{ id: 'PostId', text: 'Post text' }]);
             expect(sessionMock.run).toHaveBeenCalled();
           });
