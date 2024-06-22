@@ -66,6 +66,7 @@ exports.editPost = async (postId, text) => {
              RETURN r`,
             { postId, text }
         );
+        console.log(result);
         return result.records[0].get('r').properties;
     } finally {
         await session.close();
@@ -128,8 +129,9 @@ exports.getPostsOfMovie = async (movieId) => {
             { movieId }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
-        return data;
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
     } finally {
         await session.close();
     }
@@ -148,8 +150,9 @@ exports.getReviewsOfMovie = async (movieId) => {
         );
         
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
-        return data;
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
         
     } finally {
         await session.close();
@@ -166,8 +169,9 @@ exports.getCommentsOfPost = async (postId) => {
             { postId }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
-        return data;
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
     } finally {
         await session.close();
     }
@@ -183,9 +187,9 @@ exports.getPostsOfUser = async (userId) => {
             { userId }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        
-        const data = await this.processGets(reviews); // Await the processGets call
-        return data;
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
         } finally {
         await session.close();
     }
@@ -203,8 +207,9 @@ exports.getReviewsOfUser = async (userId) => {
             { userId, isReview }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
-        return data;
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
 
     } finally {
         await session.close();
@@ -221,8 +226,9 @@ exports.getCommentsOfUser = async (userId) => {
             { userId }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
-        return data;
+        this.processGets(reviews).then((data) => {
+            return data;
+        })
     } finally {
         await session.close();
     }
