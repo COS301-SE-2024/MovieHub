@@ -19,24 +19,35 @@ import movie14 from '../../../assets/brothers.jpg'
 import movie15 from '../../../assets/friday.jpg'
 import BottomHeader from "../Components/BottomHeader"
 import { useNavigation } from "@react-navigation/native";
-import {getPopularMovies} from '../Services/TMDBApiService';
+import {getPopularMovies, getMoviesByGenre } from '../Services/TMDBApiService';
 
 const HomePage = () => {
 
     let [movies, setMovies] = useState([]);
-    let [movieTitle, setmovieTitle] = useState([]);
-    let [moviePosterPath, setmoviePosterPath] = useState([]);
-    const [refreshing, setRefreshing] = useState(false);
+    let [thrillerMovies, setThrillerMovies] = useState([]);
+    let [comedyMovies, setComedyMovies] = useState([]);
+    let [romanceMovies, setRomanceMovies] = useState([]);
+    let [refreshing, setRefreshing] = useState(false);
     
         const fetchMovies = async () => {
           try {
             const fetchedMovies = await getPopularMovies();
             setMovies(fetchedMovies);
+
+            const fetchedThrillerMovies = await getMoviesByGenre(53);
+            setThrillerMovies(fetchedThrillerMovies);
+
+            const fetchedComedyMovies = await getMoviesByGenre(35);
+            setComedyMovies(fetchedComedyMovies);
+
+            const fetchedRomanceMovies = await getMoviesByGenre(10749);
+            setRomanceMovies(fetchedRomanceMovies);
+
           } catch (error) {
             console.error('Error fetching movies:', error);
           }
           finally {
-            // console.log("fetchmovies",movies);
+            console.log("fetchmovies",thrillerMovies);
             // console.log('item.poster_path',movies)
           }
         };
@@ -74,7 +85,7 @@ const HomePage = () => {
         // console.log('item.poster_path',movies.poster_path)
 
     return (
-        <View style={{flex:1}}>
+        <View style={{flex:1, backgroundColor: '#ffff'}}>
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
  
             <View style={styles.wholecontainer}>
@@ -82,7 +93,7 @@ const HomePage = () => {
             <View style={styles.container}>
                 <Text style={styles.trending}>Just for you</Text>
                 <ScrollView horizontal>
-                     {movies.slice(0, 5).map((movie, index) => (
+                     {movies.slice(0, 10).map((movie, index) => (
                                 <MovieCard
                                     key={index}
                                     movieId={movie.id}
@@ -102,9 +113,10 @@ const HomePage = () => {
             </View>
 
             <ScrollView horizontal>
-            {movies.slice(6, 11).map((movie, index) => (
+            {movies.slice(10, 20).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
+                                movieId={movie.id}
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
@@ -121,9 +133,10 @@ const HomePage = () => {
             </View>
 
             <ScrollView horizontal>
-            {movies.slice(12, 18).map((movie, index) => (
+            {thrillerMovies.slice(0, 20).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
+                                movieId={movie.id}
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
@@ -140,9 +153,10 @@ const HomePage = () => {
             </View>
 
             <ScrollView horizontal>
-            {movies.slice(4, 24).map((movie, index) => (
+            {comedyMovies.slice(5, 24).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
+                                movieId={movie.id}
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
@@ -159,9 +173,10 @@ const HomePage = () => {
             </View>
 
             <ScrollView horizontal>
-            {movies.slice(16, 50).map((movie, index) => (
+            {romanceMovies.slice(0, 20).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
+                                movieId={movie.id}
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
@@ -183,7 +198,7 @@ const HomePage = () => {
 
 const styles = StyleSheet.create({
     wholecontainer: {
-        backgroundColor: '#fff'
+        backgroundColor: '#ffff'
 
     },
     container: {
