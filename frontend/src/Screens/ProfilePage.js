@@ -149,6 +149,8 @@ export default function ProfilePage() {
         tabContainer: {
             color: theme.gray,
             marginTop: 25,
+            height: "110%",
+            
         },
         tabBar: {
             backgroundColor: theme.backgroundColor,
@@ -156,6 +158,7 @@ export default function ProfilePage() {
             shadowOpacity: 0,
             borderBottomWidth: 1,
             borderBottomColor: "#ddd",
+            
         },
         indicator: {
             backgroundColor: colors.primary,

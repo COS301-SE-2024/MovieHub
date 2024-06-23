@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet,ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState, useEffect } from "react";
 import Post from "./Post";
@@ -100,14 +100,16 @@ export default function PostsTab() {
 
     return (
         <View style={styles.outerContainer}>
-            {posts.length === 0 ? (
-                <View style={styles.container}>
-                    <Text style={styles.title}>Share your thoughts!</Text>
-                    <Text style={styles.subtitle}>Create your first post</Text>
-                </View>
-            ) : (
-                posts.map((post) => <Post username={username} userHandle={userHandle} key={post.postTitle} {...post} />)
-            )}
+            <ScrollView>
+                {posts.length === 0 ? (
+                    <View style={styles.container}>
+                        <Text style={styles.title}>Share your thoughts!</Text>
+                        <Text style={styles.subtitle}>Create your first post</Text>
+                    </View>
+                ) : (
+                    posts.map((post) => <Post username={username} userHandle={userHandle} key={post.postTitle} {...post} />)
+                )}
+            </ScrollView>
         </View>
     );
 }
