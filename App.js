@@ -62,7 +62,12 @@ export default function App() {
                     {/* <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} /> */}
 
                     <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader /> }} />
-                    <Nav.Screen name="MovieDescriptionPage" component={MovieDescriptionPage} options={{ header: () => <MainHeader /> }} />
+                    <Nav.Screen name="MovieDescriptionPage" component={MovieDescriptionPage} options={({ navigation }) => ({
+                            title: "movieHub.",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })} />
                     <Nav.Screen
                         name="ProfilePage"
                         component={ProfilePage}
