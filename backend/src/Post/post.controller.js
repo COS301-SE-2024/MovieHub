@@ -73,8 +73,8 @@ exports.removeComment = async (req, res) => {
 
 
 exports.getPostsOfMovie = async (req, res) => {
-    const { movieId } = req.params;
     try {
+        const movieId = req.params.movieId;
         const posts = await postService.getPostsOfMovie(movieId);
         responseHandler(res, 200, 'Posts fetched successfully', posts);
     } catch (error) {
@@ -83,18 +83,18 @@ exports.getPostsOfMovie = async (req, res) => {
 };
 
 exports.getReviewsOfMovie = async (req, res) => {
-    const { movieId } = req.params;
     try {
+        const movieId = req.params.movieId;
         const reviews = await postService.getReviewsOfMovie(movieId);
-        responseHandler(res, 200, 'Reviewa fetched successfully', reviews);
+        responseHandler(res, 200, 'Reviews fetched successfully', reviews);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
 exports.getCommentsOfPost = async (req, res) => {
-    const { postId } = req.params;
     try {
+        const postId = req.params.post;
         const comments = await postService.getCommentsOfPost(postId);
         responseHandler(res, 200, 'Comments fetched successfully', comments);
     } catch (error) {
@@ -103,8 +103,9 @@ exports.getCommentsOfPost = async (req, res) => {
 };
 
 exports.getPostsOfUser = async (req, res) => {
-    const { userId } = req.params;
     try {
+        const userId = req.params.userId;
+        console.log(`Fetching user posts for ID: ${userId}`);
         const posts = await postService.getPostsOfUser(userId);
         responseHandler(res, 200, 'Posts fetched successfully', posts);
     } catch (error) {
@@ -113,8 +114,9 @@ exports.getPostsOfUser = async (req, res) => {
 };
 
 exports.getReviewsOfUser = async (req, res) => {
-    const { userId } = req.params;
     try {
+        const userId = req.params.userId;
+        console.log(`Fetching user posts for ID: ${userId}`);
         const reviews = await postService.getReviewsOfUser(userId);
         responseHandler(res, 200, 'Reviews fetched successfully', reviews);
     } catch (error) {
@@ -123,8 +125,8 @@ exports.getReviewsOfUser = async (req, res) => {
 };
 
 exports.getCommentsOfUser = async (req, res) => {
-    const { userId } = req.params;
     try {
+        const userId = req.params.userId;
         const comments = await postService.getCommentsOfUser(userId);
         responseHandler(res, 200, 'Comments fetched successfully', comments);
     } catch (error) {

@@ -4,6 +4,8 @@ const driver = neo4j.driver(
     neo4j.auth.basic('neo4j', '1yDboUOlGobuDEJX6xw_JitPl-93pTFKN6iYJCyyvt0')
 );
 
+//PUTS//
+
 exports.addPost = async (userId, movieId, text, isReview, rating) => {
     const session = driver.session();
     try {
@@ -88,6 +90,8 @@ exports.editComment = async (commentId, text) => {
     }
 };
 
+//DELETES//
+
 exports.removePost = async (postId) => {
     const session = driver.session();
     try {
@@ -118,8 +122,14 @@ exports.removeComment = async (commentId) => {
     }
 };
 
+//GETS//
+
 exports.getPostsOfMovie = async (movieId) => {
     const session = driver.session();
+    movieId = parseInt(movieId, 10);
+    if (isNaN(movieId)) {
+        throw new Error('Invalid movie ID');
+    }
     try {
         const result = await session.run(
             `MATCH (m)<-[:POSTED_ON]-(r:Post)
@@ -127,8 +137,11 @@ exports.getPostsOfMovie = async (movieId) => {
             RETURN {post : r, id : ID(r)} as data`,
             { movieId }
         );
+        if (result.records.length === 0) {
+            return null;
+        }
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
+        const data = await processGets(reviews); // Await the processGets call
         return data;
     } finally {
         await session.close();
@@ -137,7 +150,10 @@ exports.getPostsOfMovie = async (movieId) => {
 
 exports.getReviewsOfMovie = async (movieId) => {
     const session = driver.session();
-    
+    movieId = parseInt(movieId, 10);
+    if (isNaN(movieId)) {
+        throw new Error('Invalid movie ID');
+    }
     try {
         const isReview = true;
         const result = await session.run(
@@ -146,9 +162,11 @@ exports.getReviewsOfMovie = async (movieId) => {
              RETURN {post : r, id : ID(r)} as data`,
             { movieId, isReview}
         );
-        
+        if (result.records.length === 0) {
+            return null;
+        }
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
+        const data = await processGets(reviews); // Await the processGets call
         return data;
         
     } finally {
@@ -158,6 +176,10 @@ exports.getReviewsOfMovie = async (movieId) => {
 
 exports.getCommentsOfPost = async (postId) => {
     const session = driver.session();
+    postId = parseInt(postId, 10);
+    if (isNaN(postId)) {
+        throw new Error('Invalid post ID');
+    }
     try {
         const result = await session.run(
             `MATCH (r)<-[:COMMENTED_ON]-(c:Comment)
@@ -165,8 +187,11 @@ exports.getCommentsOfPost = async (postId) => {
              RETURN {post : c, id : ID(c)} as data`,
             { postId }
         );
+        if (result.records.length === 0) {
+            return null;
+        }
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
+        const data = await processGets(reviews); // Await the processGets call
         return data;
     } finally {
         await session.close();
@@ -175,6 +200,10 @@ exports.getCommentsOfPost = async (postId) => {
 
 exports.getPostsOfUser = async (userId) => {
     const session = driver.session();
+    userId = parseInt(userId, 10);
+    if (isNaN(userId)) {
+        throw new Error('Invalid User ID');
+    }
     try {
         const result = await session.run(
             `MATCH (u)-[:POSTED]->(r:Post)
@@ -183,8 +212,7 @@ exports.getPostsOfUser = async (userId) => {
             { userId }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        
-        const data = await this.processGets(reviews); // Await the processGets call
+        const data = await processGets(reviews); // Await the processGets call
         return data;
         } finally {
         await session.close();
@@ -193,7 +221,10 @@ exports.getPostsOfUser = async (userId) => {
 
 exports.getReviewsOfUser = async (userId) => {
     const session = driver.session();
-    
+    userId = parseInt(userId, 10);
+    if (isNaN(userId)) {
+        throw new Error('Invalid User ID');
+    }
     try {
         const isReview = true;
         const result = await session.run(
@@ -203,7 +234,7 @@ exports.getReviewsOfUser = async (userId) => {
             { userId, isReview }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
+        const data = await processGets(reviews); // Await the processGets call
         return data;
 
     } finally {
@@ -213,6 +244,10 @@ exports.getReviewsOfUser = async (userId) => {
 
 exports.getCommentsOfUser = async (userId) => {
     const session = driver.session();
+    userId = parseInt(userId, 10);
+    if (isNaN(userId)) {
+        throw new Error('Invalid User ID');
+    }
     try {
         const result = await session.run(
             `MATCH (u)-[:COMMENTED]->(c:Comment)
@@ -221,18 +256,21 @@ exports.getCommentsOfUser = async (userId) => {
             { userId }
         );
         const  reviews = result.records.map(record => record.get('data'));
-        const data = await this.processGets(reviews); // Await the processGets call
+        const data = await processGets(reviews); // Await the processGets call
         return data;
     } finally {
         await session.close();
     }
 };
 
-exports.processGets= async(datas) =>{
+const processGets= async(datas) =>{
+    console.log('Enter processGets with ',datas);
   return datas.map(data => {
     // Access the ID
+    console.log(data);
+    console.log(data.id);
     const id = data.id.toNumber(); // Convert neo4j.Integer to JavaScript number
-
+    console.log(id);
     // Access the node properties
     const properties = data.post.properties; // This is an object containing the node's properties
 
