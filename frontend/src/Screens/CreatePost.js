@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, FlatList, 
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
-
+import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 
 export default function CreatePost() {
@@ -75,6 +75,22 @@ export default function CreatePost() {
         Alert.alert("Add Emoji", "This functionality is not implemented yet.");
     };
 
+    const handleAddPost = async () => {
+        const postData = {
+            text: "",
+            userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            movieId: 0,
+            isReview: false,
+            rating: 0
+        };
+        
+        try {
+            const post = await addPost(postData);
+            console.log('Post added successfully:', data);
+        } catch(error){
+            console.error('Error adding post:', error);
+        };
+    };
 
     return (
         <ScrollView style={styles.container}>
