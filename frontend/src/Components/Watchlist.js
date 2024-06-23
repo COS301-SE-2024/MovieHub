@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
+import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 
 const WatchlistTab = () => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -19,8 +20,8 @@ const WatchlistTab = () => {
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error('Error fetching user watchlists:', error);
-                // Handle error or fallback to mock data
-                setWatchlists(mockWatchlists); // Fallback to mock data on error
+                // Handle error or fallback to empty array
+                setWatchlists([]);
             }
         };
 
@@ -39,6 +40,18 @@ const WatchlistTab = () => {
 
     const goToWatchlistDetails = (watchlist) => {
         navigation.navigate('WatchlistDetails', { watchlist });
+    };
+
+    const handleDeleteWatchlist = async () => {
+        try {
+            await deleteWatchlist(selectedWatchlist.id);
+            setWatchlists(watchlists.filter(w => w.id !== selectedWatchlist.id)); // Update state to remove deleted watchlist
+            closeModal();
+            Alert.alert('Success', 'Watchlist deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting watchlist:', error);
+            Alert.alert('Error', 'Failed to delete watchlist. Please try again later.');
+        }
     };
 
     return (
@@ -87,9 +100,7 @@ const WatchlistTab = () => {
                         <TouchableOpacity
                             style={styles.modalOption}
                             onPress={() => {
-                                // Handle Delete action
-                                closeModal();
-                                console.log(`Delete ${selectedWatchlist.name}`);
+                                handleDeleteWatchlist();
                             }}>
                             <MaterialIcons name="delete" size={24} color="black" />
                             <Text style={styles.modalOptionText}>Delete</Text>
