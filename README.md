@@ -37,7 +37,8 @@
 
 # Documentation #
 [System Requirements Specification](https://drive.google.com/drive/folders/16fJP4jYCHB0H5OU3CgpYu_xFF-FxxibN?usp=sharing)
-[System Requirements Specification V2]((https://docs.google.com/document/d/1xU8-jJXFGvj36zFVYMH4AKWorYx7icOV1DTvzTpjpDE/edit))
+
+[System Requirements Specification V2](https://docs.google.com/document/d/1xU8-jJXFGvj36zFVYMH4AKWorYx7icOV1DTvzTpjpDE/edit?usp=drive_link)
 
 ## Branching Strategy
 We use GitFlow as our branching strategy, with main, development, and feature branches.
