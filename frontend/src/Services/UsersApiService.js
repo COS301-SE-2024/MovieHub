@@ -111,3 +111,29 @@ export const getUserLikedPosts = async (userId) => {
     console.log("data", data);
     return data;
 };
+
+export const getCommentsOfUser = async (userId) => {
+    const response = await fetch(`http://localhost:3000/post/user/${userId}/comments`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch movie posts');
+    }
+
+    const textData = await response.text();
+        console.log('Response text:', textData);
+        const data = JSON.parse(textData);
+        console.log('Parsed data:', data);
+    return data;
+};
+
+export const getReviewsOfUser = async (userId) => {
+    const response = await fetch(`http://localhost:3000/post/user/${userId}/reviews`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch movie posts');
+    }
+
+    const textData = await response.text();
+        console.log('Response text:', textData);
+        const data = JSON.parse(textData);
+        console.log('Parsed data:', data);
+    return data;
+};
