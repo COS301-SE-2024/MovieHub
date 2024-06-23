@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { colors, themeStyles } from '../styles/theme';
 
 export default function MainHeader() {
     const navigation = useNavigation(); // Access the navigation prop using the hook
@@ -25,10 +26,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     logo: {
-        paddingLeft: 10,
+        paddingLeft: 15,
         paddingTop: 20,
         fontFamily: 'Roboto',
-        color: '#000000',
+        color: colors.primary,
         fontSize: 20,
         fontWeight: 'bold',
     },

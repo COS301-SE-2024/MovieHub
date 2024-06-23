@@ -3,8 +3,10 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState } from "react";
 import Post from "./Post";
+import { useTheme } from "../styles/ThemeContext";
 
 export default function PostsTab() {
+    const { theme } = useTheme();
     const username = "Lily Smith";
     const userHandle = "@a_lily";
     const posts = [
@@ -59,8 +61,32 @@ export default function PostsTab() {
 
     ];
 
+    const styles = StyleSheet.create({
+        outerContainer: {
+            backgroundColor: theme.backgroundColor,
+        },
+        container: {
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 35,
+            paddingTop: 35,
+            textAlign: "center",
+        },
+        title: {
+            fontSize: 18,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 6,
+        },
+        subtitle: {
+            fontSize: 14,
+            textAlign: "center",
+            color: "#0f5bd1",
+            fontWeight: "600",
+        },
+    });
+
     return (
-        <View>
+        <View style={styles.outerContainer}>
             {posts.length === 0 ? (
                 <View style={styles.container}>
                     <Text style={styles.title}>Share your thoughts!</Text>
@@ -73,23 +99,4 @@ export default function PostsTab() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-        paddingHorizontal: 35,
-        paddingTop: 35,
-        textAlign: "center",
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: 6,
-    },
-    subtitle: {
-        fontSize: 14,
-        textAlign: "center",
-        color: "#0f5bd1",
-        fontWeight: "600",
-    },
-});
+

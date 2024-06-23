@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import BottomHeader from "../Components/BottomHeader";
+
+import { themeStyles } from "../styles/theme";
 
 const Notifications = () => {
     const [notifications, setNotifications] = useState([
@@ -45,6 +48,7 @@ const Notifications = () => {
                     <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
             </View>
+
         </View>
     );
 
@@ -55,7 +59,8 @@ const Notifications = () => {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={styles.listContainer}
-            />
+            />            
+            <BottomHeader />
         </View>
     );
 };
