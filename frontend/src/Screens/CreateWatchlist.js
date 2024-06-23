@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 20,
-        marginLeft: 80,
+        alignSelf:"center"
     },
     coverImage: {
         width: "100%",

@@ -148,7 +148,7 @@ export default function EditWatchlist({ navigation }) {
                     </Modal>
                 ))}
 
-                <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('AddMovies')}>
+                <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('ProfilePage')}>
                     <Text style={styles.nextButtonText}>Update</Text>
                 </TouchableOpacity>
             </ScrollView>
