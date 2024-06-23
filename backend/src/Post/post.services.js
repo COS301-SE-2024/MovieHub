@@ -1,10 +1,12 @@
 const neo4j = require('neo4j-driver');
+require('dotenv').config();
+
 const driver = neo4j.driver(
-    'neo4j+s://d16778b5.databases.neo4j.io',
-    neo4j.auth.basic('neo4j', '1yDboUOlGobuDEJX6xw_JitPl-93pTFKN6iYJCyyvt0')
+    process.env.NEO4J_URI,
+    neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
 );
 
-//PUTS//
+//POSTS//
 
 exports.addPost = async (userId, movieId, text, isReview, rating) => {
     const session = driver.session();
@@ -57,6 +59,8 @@ exports.addCommentToComment = async (userId, commentId, text) => {
         await session.close();
     }
 };
+
+//PUTS//
 
 exports.editPost = async (postId, text) => {
     const session = driver.session();

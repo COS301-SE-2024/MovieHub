@@ -6,6 +6,7 @@ const router = express.Router();
 router.post('/add', postController.addPost);
 router.post('/comment/post', postController.addCommentToPost);
 router.post('/comment/comment', postController.addCommentToComment);
+
 router.put('/edit', postController.editPost);
 router.put('/edit/comment', postController.editComment);
 
