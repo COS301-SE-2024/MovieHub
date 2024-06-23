@@ -15,7 +15,7 @@ export const addPost = async (bodyData) => {
     return data;
 };
 
-export const addCommentToPost = async (bodyData) => {
+export const addCommentToPost = async (bodyData) => { //NOT INTEGRATED
     const response = await fetch(`http://localhost:3000/post/comment/post`, {
         method: 'POST',
         headers: {
@@ -30,7 +30,7 @@ export const addCommentToPost = async (bodyData) => {
     return data;
 };
 
-export const addCommentToComment = async (bodyData) => {
+export const addCommentToComment = async (bodyData) => { //NOT INTEGRATED
     const response = await fetch(`http://localhost:3000/post/comment/comment`, {
         method: 'POST',
         headers: {
@@ -60,7 +60,7 @@ export const editPost = async (bodyData) => {
     return data;
 };
 
-export const editComment = async (bodyData) => {
+export const editComment = async (bodyData) => { //NOT INTEGRATED
     const response = await fetch(`http://localhost:3000/post/edit/comment`, {
         method: 'PUT',
         headers: {
@@ -91,7 +91,7 @@ export const removePost = async (bodyData) => {
     return data;
 };
 
-export const removeComment = async (bodyData) => {
+export const removeComment = async (bodyData) => { //NOT INTEGRATED
     const response = await fetch(`http://localhost:3000/post/remove/comment`, {
         method: 'DELETE',
         headers: {
@@ -106,7 +106,7 @@ export const removeComment = async (bodyData) => {
     return data;
 };
 
-export const getPostsOfMovie = async (movieId) => {
+export const getPostsOfMovie = async (movieId) => { //NOT INTEGRATED
     const response = await fetch(`http://localhost:3000/post/movie/${movieId}/posts`);
     if (!response.ok) {
         throw new Error('Failed to fetch movie posts');
@@ -119,7 +119,7 @@ export const getPostsOfMovie = async (movieId) => {
     return data;
 };
 
-export const getReviewsOfMovie = async (movieId) => {
+export const getReviewsOfMovie = async (movieId) => { //NOT INTEGRATED
     const response = await fetch(`http://localhost:3000/post/movie/${movieId}/reviews`);
     if (!response.ok) {
         throw new Error('Failed to fetch movie posts');
@@ -132,7 +132,7 @@ export const getReviewsOfMovie = async (movieId) => {
     return data;
 };
 
-export const getCommentsOfPost = async (postId) => {
+export const getCommentsOfPost = async (postId) => { //NOT INTEGRATED
     const response = await fetch(`http://localhost:3000/post/post/${postId}/comments`);
     if (!response.ok) {
         throw new Error('Failed to fetch comments of post');
