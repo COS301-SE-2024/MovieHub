@@ -1,57 +1,37 @@
-// WatchlistTab.js
-import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from '@react-navigation/native'; 
-
-const watchlists = [
-    { 
-        id: "1", 
-        name: "To Be Watched", 
-        privacy: "Private", 
-        movies: 5, 
-        image: require("../../../assets/movie2.jpg"),
-        moviesList: [
-            { id: "1", title: "Planet of the Apes", image: require("../../../assets/movie1.jpg") },
-            { id: "2", title: "A Quiet Place", image: require("../../../assets/movie2.jpg") },
-            { id: "1", title: "Us", image: require("../../../assets/movie1.jpg") },
-            { id: "2", title: "Scream", image: require("../../../assets/movie2.jpg") },
-            { id: "1", title: "Emo", image: require("../../../assets/movie1.jpg")},
-        ],
-    },
-    { 
-        id: "2", 
-        name: "Peak Fiction", 
-        privacy: "Private", 
-        movies: 2, 
-        image: require("../../../assets/movie1.jpg"),
-        moviesList: [
-            { id: "3", title: "Titanic", image: require("../../../assets/movie3.jpeg") },
-            { id: "4", title: "The Graet Jahy", image: require("../../../assets/movie1.jpg") },
-        ],
-    },
-    { 
-        id: "3", 
-        name: "Love to hate", 
-        privacy: "Public", 
-        movies: 3, 
-        image: require("../../../assets/movie3.jpeg"),
-        moviesList: [
-            { id: "5", title: "A Quiet Place", image: require("../../../assets/movie2.jpg") },
-            { id: "6", title: "Titanic", image: require("../../../assets/movie3.jpeg") },
-        ],
-    },
-];
+import { useNavigation } from '@react-navigation/native';
+import { getUserWatchlists } from "../Services/UsersApiService";
+import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 
 const WatchlistTab = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
-    const navigation = useNavigation();  // Use the navigation hook
+    const [watchlists, setWatchlists] = useState([]);
+    const navigation = useNavigation();
+
+    // Fetch user watchlists
+    useEffect(() => {
+        const fetchUserWatchlists = async () => {
+            try {
+                const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3'; // Replace with actual user ID fetching logic
+                const userWatchlists = await getUserWatchlists(userId);
+                setWatchlists(userWatchlists);
+            } catch (error) {
+                console.error('Error fetching user watchlists:', error);
+                // Handle error or fallback to empty array
+                setWatchlists([]);
+            }
+        };
+
+        fetchUserWatchlists();
+    }, []);
 
     const openOptionsMenu = (watchlist) => {
         setSelectedWatchlist(watchlist);
         setModalVisible(true);
-    }; 
+    };
 
     const closeModal = () => {
         setModalVisible(false);
@@ -62,14 +42,26 @@ const WatchlistTab = () => {
         navigation.navigate('WatchlistDetails', { watchlist });
     };
 
+    const handleDeleteWatchlist = async () => {
+        try {
+            await deleteWatchlist(selectedWatchlist.id);
+            setWatchlists(watchlists.filter(w => w.id !== selectedWatchlist.id)); // Update state to remove deleted watchlist
+            closeModal();
+            Alert.alert('Success', 'Watchlist deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting watchlist:', error);
+            Alert.alert('Error', 'Failed to delete watchlist. Please try again later.');
+        }
+    };
+
     return (
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-                onPress={() => navigation.navigate('CreateWatchlist')}  // Navigate to the CreateWatchlist screen
+                onPress={() => navigation.navigate('CreateWatchlist')}
             >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
-                <View style={{flex :1}} />
+                <View style={{ flex: 1 }} />
                 <MaterialIcons name="add" size={24} color="black" />
             </TouchableOpacity>
             <ScrollView>
@@ -86,6 +78,11 @@ const WatchlistTab = () => {
                         </TouchableOpacity>
                     </TouchableOpacity>
                 ))}
+                {watchlists.length === 0 && (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>No watchlists available</Text>
+                    </View>
+                )}
             </ScrollView>
             <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={closeModal}>
                 <TouchableOpacity style={styles.modalOverlay} onPress={closeModal}>
@@ -93,8 +90,7 @@ const WatchlistTab = () => {
                         <TouchableOpacity
                             style={styles.modalOption}
                             onPress={() => {
-                                // Handle Edit action
-                                navigation.navigate('EditWatchlist')
+                                navigation.navigate('EditWatchlist');
                                 closeModal();
                                 console.log(`Edit ${selectedWatchlist.name}`);
                             }}>
@@ -104,9 +100,7 @@ const WatchlistTab = () => {
                         <TouchableOpacity
                             style={styles.modalOption}
                             onPress={() => {
-                                // Handle Delete action
-                                closeModal();
-                                console.log(`Delete ${selectedWatchlist.name}`);
+                                handleDeleteWatchlist();
                             }}>
                             <MaterialIcons name="delete" size={24} color="black" />
                             <Text style={styles.modalOptionText}>Delete</Text>
@@ -133,7 +127,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#666",
         fontWeight: "bold",
-        
     },
     watchlistItem: {
         flexDirection: "row",
@@ -152,7 +145,7 @@ const styles = StyleSheet.create({
     watchlistInfo: {
         flexDirection: "column",
         flex: 1,
-        margin:5
+        margin: 5
     },
     watchlistName: {
         fontSize: 18,

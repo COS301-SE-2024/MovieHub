@@ -5,7 +5,7 @@ const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://10.0.0.107:3000/u
 
 
 export const getUserProfile = async (userId) => {
-    const response = await fetch(`${API_URL}${userId}`);
+    const response = await fetch(`http://localhost:3000/users/${userId}`);
     if (!response.ok) {
         throw new Error('Failed to fetch user profile');
     }
@@ -19,7 +19,7 @@ export const getUserProfile = async (userId) => {
     return data;
 };
 export const updateUserProfile = async (userId, updatedData) => {
-    const response = await fetch(`${API_URL}${userId}`, {
+    const response = await fetch(`http://localhost:3000/users/${userId}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export const deleteUserProfile = async (userId) => {
 
 // New function to get a user's watchlists
 export const getUserWatchlists = async (userId) => {
-    const response = await fetch(`${API_URL}${userId}/watchlists`);
+    const response = await fetch(`http://localhost:3000/users/${userId}/watchlists`);
     if (!response.ok) {
         throw new Error('Failed to fetch user watchlists');
     }

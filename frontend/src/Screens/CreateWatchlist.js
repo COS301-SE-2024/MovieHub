@@ -6,7 +6,7 @@ export default function CreateWatchlist({ navigation }) {
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
         description: { isVisible: false, newValue: "", tempValue: "" },
-        tags : { isVisible: false, newValue: "", tempValue: "" },
+        tags: { isVisible: false, newValue: "", tempValue: "" },
     });
     const [cover, setCover] = useState(null);
     const [visibility, setVisibility] = useState(true);
@@ -55,104 +55,113 @@ export default function CreateWatchlist({ navigation }) {
         setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: value } });
     };
 
+    const handleNext = () => {
+        const watchlistData = {
+            name: modalContent.name.newValue,
+            description: modalContent.description.newValue,
+            tags: modalContent.tags.newValue,
+            visibility,
+            collaborative,
+            ranked,
+           // cover,
+        };
+
+        navigation.navigate('AddMovies', { watchlistData });
+    };
+
     return (
-        
-            <ScrollView style={styles.container}>
-                <TouchableOpacity style={styles.coverContainer} onPress={chooseCover}>
-                    {cover ? (
-                        <Image source={{ uri: cover }} style={styles.coverImage} />
-                    ) : (
-                        <Text style={styles.coverText}>Choose cover</Text>
-                    )}
-                </TouchableOpacity>
+        <ScrollView style={styles.container}>
+            <TouchableOpacity style={styles.coverContainer} onPress={chooseCover}>
+                {cover ? (
+                    <Image source={{ uri: cover }} style={styles.coverImage} />
+                ) : (
+                    <Text style={styles.coverText}>Choose cover</Text>
+                )}
+            </TouchableOpacity>
 
-                {Object.keys(modalContent).map((field, index) => (
-                    <View key={index}>
-                        <TouchableOpacity onPress={() => handleFieldPress(field)}>
-                            <View style={styles.section}>
-                                <Text style={styles.sectionTitle}>
-                                    {field.charAt(0).toUpperCase() + field.slice(1)}
+            {Object.keys(modalContent).map((field, index) => (
+                <View key={index}>
+                    <TouchableOpacity onPress={() => handleFieldPress(field)}>
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>
+                                {field.charAt(0).toUpperCase() + field.slice(1)}
+                            </Text>
+                            <Text style={styles.sectionValue}>{modalContent[field].newValue}</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={styles.line} />
+                </View>
+            ))}
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Visibility</Text>
+                <View style={styles.switchContainer}>
+                    <Text style={styles.sectionValue}>{visibility ? "Private" : "Public"}</Text>
+                    <Switch value={visibility} onValueChange={setVisibility} thumbColor={visibility ? "white" : "black"} />
+                </View>
+            </View>
+            <View style={styles.line} />
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Collaborative</Text>
+                <View style={styles.switchContainer}>
+                    <Text style={styles.sectionValue}>{collaborative ? "Yes" : "No"}</Text>
+                    <Switch value={collaborative} onValueChange={setCollaborative} thumbColor={visibility ? "grey" : "black"} />
+                </View>
+            </View>
+            <View style={styles.line} />
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Ranked</Text>
+                <View style={styles.switchContainer}>
+                    <Text style={styles.sectionValue}>{ranked ? "Yes" : "No"}</Text>
+                    <Switch value={ranked} onValueChange={setRanked} thumbColor={visibility ? "grey" : "black"} />
+                </View>
+            </View>
+            <View style={styles.line} />
+
+            {Object.keys(modalContent).map((field, index) => (
+                <Modal
+                    key={index}
+                    animationType="fade"
+                    transparent={true}
+                    visible={modalContent[field].isVisible}
+                    onRequestClose={() =>
+                        setModalContent({
+                            ...modalContent,
+                            [field]: { ...modalContent[field], isVisible: false },
+                        })
+                    }
+                >
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>
+                                Change {field.charAt(0).toUpperCase() + field.slice(1)}
+                            </Text>
+                            <TextInput
+                                style={styles.input}
+                                autoFocus={true}
+                                placeholder={modalContent[field].newValue}
+                                value={modalContent[field].tempValue}
+                                onChangeText={(text) => handleInputChange(field, text)}
+                            />
+                            <View style={styles.buttonContainer}>
+                                <Text style={styles.buttonText} onPress={handleCancelChanges}>
+                                    Cancel
                                 </Text>
-                                <Text style={styles.sectionValue}>{modalContent[field].newValue}</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <View style={styles.line} />
-                    </View>
-                ))}
-
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Visibility</Text>
-                    <View style={styles.switchContainer}>
-                        <Text style={styles.sectionValue}>{visibility ? "Private" : "Public"}</Text>
-                        <Switch value={visibility} onValueChange={setVisibility} thumbColor={visibility ? "white" : "black"}
-                            />
-                    </View>
-                </View>
-                <View style={styles.line} />
-
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Collaborative</Text>
-                    <View style={styles.switchContainer}>
-                        <Text style={styles.sectionValue}>{collaborative ? "Yes" : "No"}</Text>
-                        <Switch value={collaborative} onValueChange={setCollaborative} thumbColor={visibility ? "grey" : "black"}
-                            />
-                    </View>
-                </View>
-                <View style={styles.line} />
-
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Ranked</Text>
-                    <View style={styles.switchContainer}>
-                        <Text style={styles.sectionValue}>{ranked ? "Yes" : "No"}</Text>
-                        <Switch value={ranked} onValueChange={setRanked} thumbColor={visibility ? "grey" : "black"}
-                            />
-                    </View>
-                </View>
-                <View style={styles.line} />
-
-                {Object.keys(modalContent).map((field, index) => (
-                    <Modal
-                        key={index}
-                        animationType="fade"
-                        transparent={true}
-                        visible={modalContent[field].isVisible}
-                        onRequestClose={() =>
-                            setModalContent({
-                                ...modalContent,
-                                [field]: { ...modalContent[field], isVisible: false },
-                            })
-                        }
-                    >
-                        <View style={styles.modalBackground}>
-                            <View style={styles.modalContent}>
-                                <Text style={styles.modalTitle}>
-                                    Change {field.charAt(0).toUpperCase() + field.slice(1)}
+                                <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
+                                    Apply Changes
                                 </Text>
-                                <TextInput
-                                    style={styles.input}
-                                    autoFocus={true}
-                                    placeholder={modalContent[field].newValue}
-                                    value={modalContent[field].tempValue}
-                                    onChangeText={(text) => handleInputChange(field, text)}
-                                />
-                                <View style={styles.buttonContainer}>
-                                    <Text style={styles.buttonText} onPress={handleCancelChanges}>
-                                        Cancel
-                                    </Text>
-                                    <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                        Apply Changes
-                                    </Text>
-                                </View>
                             </View>
                         </View>
-                    </Modal>
-                ))}
+                    </View>
+                </Modal>
+            ))}
 
-                <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('AddMovies')}>
-                    <Text style={styles.nextButtonText}>Next</Text>
-                </TouchableOpacity>
-            </ScrollView>
-        
+            <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                <Text style={styles.nextButtonText}>Next</Text>
+            </TouchableOpacity>
+        </ScrollView>
     );
 }
 
@@ -163,13 +172,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
     },
     coverContainer: {
-        width:200,
+        width: 200,
         height: 200,
         backgroundColor: "#e1e1e1",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 20,
-        alignSelf:"center"
+        alignSelf: "center",
     },
     coverImage: {
         width: "100%",
