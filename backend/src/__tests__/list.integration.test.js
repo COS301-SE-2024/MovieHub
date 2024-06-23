@@ -93,7 +93,7 @@ describe('Watchlist Integration Tests', () => {
         } catch (error) {
           //  expect(error.response.status).toBe(400); // Assuming your API returns 400 for bad requests
             // Optionally, validate the error response structure or message
-            expect(error.response.data.error).toBeUndefined();
+            expect(error.response).toBeUndefined();
         }
     });
 

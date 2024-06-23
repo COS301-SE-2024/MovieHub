@@ -27,7 +27,7 @@ app.use('/list', watchlistRouter);
 describe('Watchlist API', () => {
     describe('POST /list/:userid', () => {
         it('should create a new watchlist', async () => {
-            const userId = 'user2';
+            const userId = 'tempUserAgain';
             const watchlistDetails = {
                 name: 'Another New Watchlist',
                 tags: ['horror', 'suspense'],
@@ -50,7 +50,7 @@ describe('Watchlist API', () => {
         });
 
         it('should handle server error during watchlist creation', async () => {
-            const userId = 'user2';
+            const userId = 'tempUserAgain';
             const watchlistDetails = {
                 tags: ['tag1', 'tag2'],
                 visibility: 'public',
@@ -70,7 +70,7 @@ describe('Watchlist API', () => {
 
     describe('PATCH /list/:watchlistId', () => {
         it('should modify an existing watchlist', async () => {
-          //  const watchlistId = '47603eeb-3aaf-4ec1-9f46-540475490f2a';
+            const watchlistId = '0a8e58df-0e53-4791-a29c-13190c1c30c5';
             const watchlistDetails = {
                 name: 'Updated Comedy List',
                 visibility: 'private',

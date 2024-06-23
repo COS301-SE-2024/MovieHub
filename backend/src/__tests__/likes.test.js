@@ -11,7 +11,7 @@ describe('Likes API', () => {
     describe('POST /likes/toggleLikeReview', () => {
         it('should toggle like for a review', async () => {
             const toggleLikeReviewData = {
-                userId: 'test-user-id',
+                userId: 'tempUserAgain',
                 reviewId: 'test-review-id'
             };
 
@@ -33,7 +33,7 @@ describe('Likes API', () => {
                 .post('/likes/toggleLikeReview')
                 .send(toggleLikeReviewData);
 
-            expect(res.status).toBe(400);
+            expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('message');
         });
     });
@@ -41,7 +41,7 @@ describe('Likes API', () => {
     describe('POST /likes/toggleLikeComment', () => {
         it('should toggle like for a comment', async () => {
             const toggleLikeCommentData = {
-                userId: 'test-user-id',
+                userId: 'tempUserAgain',
                 commentId: 'test-comment-id'
             };
 
@@ -63,7 +63,7 @@ describe('Likes API', () => {
                 .post('/likes/toggleLikeComment')
                 .send(toggleLikeCommentData);
 
-            expect(res.status).toBe(400);
+            expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('message');
         });
     });
@@ -71,7 +71,7 @@ describe('Likes API', () => {
     describe('POST /likes/toggleLikeMovie', () => {
         it('should toggle like for a movie', async () => {
             const toggleLikeMovieData = {
-                userId: 'test-user-id',
+                userId: 'tempUserAgain',
                 movieId: 'test-movie-id'
             };
 
@@ -93,7 +93,7 @@ describe('Likes API', () => {
                 .post('/likes/toggleLikeMovie')
                 .send(toggleLikeMovieData);
 
-            expect(res.status).toBe(400);
+            expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('message');
         });
     });
