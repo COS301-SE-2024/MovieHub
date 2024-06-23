@@ -30,6 +30,7 @@
 # Video Demo Recordings # 
 
 [Girls Gone Code - Demo1](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
+
 [Girls Gone Code - Demo2](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
 
 # Project Management #
@@ -41,8 +42,10 @@
 [System Requirements Specification V2](https://docs.google.com/document/d/1xU8-jJXFGvj36zFVYMH4AKWorYx7icOV1DTvzTpjpDE/edit?usp=drive_link)
 
 ## Branching Strategy
-We use GitFlow as our branching strategy, with main, development, and feature branches.
 ![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/a27a0067-9f71-423c-a333-9a0b716767bf)
+
+We use GitFlow as our branching strategy, with main, development, and feature branches.
+
 
 ## Branch Naming Convention
 **Main Branch**: `main`
