@@ -81,7 +81,7 @@ const HomePage = () => {
 
             <View style={styles.container}>
                 <Text style={styles.trending}>Just for you</Text>
-                <ScrollView horizontal>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                      {movies.slice(0, 5).map((movie, index) => (
                                 <MovieCard
                                     key={index}
@@ -92,15 +92,15 @@ const HomePage = () => {
                                     date={movie.release_date}
                                 />
                             ))}
-             </ScrollView>
-         </View>   
+                </ScrollView>
+            </View>   
 
             <View style={styles.viewall}>
-             <Text style={styles.trending}>Trending Movies</Text>
-             <Text style={styles.viewalltext}>View all</Text>
+                <Text style={styles.trending}>Trending Movies</Text>
+                <Text style={styles.viewalltext}>View all</Text>
             </View>
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movies.slice(6, 11).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
@@ -115,11 +115,11 @@ const HomePage = () => {
             </ScrollView>
 
             <View style={styles.viewall}>
-             <Text style={styles.trending}>Thiller</Text>
+             <Text style={styles.trending}>Thriller</Text>
              <Text style={styles.viewalltext}>View all</Text>
             </View>
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movies.slice(12, 18).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
@@ -138,7 +138,7 @@ const HomePage = () => {
              <Text style={styles.viewalltext}>View all</Text>
             </View>
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movies.slice(4, 24).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
@@ -157,7 +157,7 @@ const HomePage = () => {
              <Text style={styles.viewalltext}>View all</Text>
             </View>
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movies.slice(16, 50).map((movie, index) => (
                             <TrendingMovie
                                 key={index}
@@ -201,10 +201,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
 
     },
-
     trending :{
         paddingLeft:10,
-        paddingTop: 20,
+        paddingTop: 0,
         fontFamily: 'Roboto',
         color: '#000000',
         fontSize: 20,
@@ -214,12 +213,13 @@ const styles = StyleSheet.create({
     viewall: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         paddingRight: 10,
+        paddingTop: 10,
         backgroundColor: '#fffff',
     },
 
     viewalltext: {
-        paddingTop: 25,
         fontFamily: 'Roboto',
     }
 
