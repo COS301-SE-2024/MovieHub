@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const userRouter = require('./src/Users/users.router');
 const watchlistRouter = require('./src/Watchlist/list.router');
 const postRouter = require('./src/Post/post.router');
+const likesRouter = require('./src/Likes/likes.router');
 const cors = require('cors'); // since we are using more than on port
 const https = require('https');
 const fs = require('fs');
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use('/users', userRouter);
 app.use('/list', watchlistRouter);
 app.use('/post', postRouter);
+app.use('/like', likesRouter);
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);
