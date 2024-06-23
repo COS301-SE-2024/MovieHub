@@ -45,8 +45,12 @@ const MovieDescriptionPage = () =>
                     <View style={styles.moviebio}>
                         <Text style={styles.moviebiotext}>{overview}</Text></View>
                     <View>
-                        <Text style={styles.moviebio}>Starring: {cast}</Text>
-                        <Text style={styles.moviebio}>Directed by: {cast}</Text>
+                    <Text style={styles.moviebio}>
+                        <Text style={styles.bold}>Starring:</Text> {cast}
+                    </Text>
+                    <Text style={styles.moviebio}>
+                        <Text style={styles.bold}>Directed by:</Text> {director ? director.name : 'N/A'}
+                    </Text>
                     </View>
                     <Text style={styles.moviecast} > Cast</Text>
 
@@ -119,13 +123,13 @@ const MovieDescriptionPage = () =>
         },
         movietitle: {
             paddingTop: 20,
-            fontSize: 25,
+            fontSize: 23,
             fontWeight: 'bold',
             textAlign: 'center',
         },
         movietitle2: {
             paddingLeft: 10,
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: 'bold',
             textAlign: 'center',
         },
@@ -155,6 +159,11 @@ const MovieDescriptionPage = () =>
             fontSize: 25,
             paddingLeft:20,
             fontWeight: 'bold',
+        },
+
+        bold: {
+            fontWeight: 'bold',
+            fontSize: 15,
         },
 
 
