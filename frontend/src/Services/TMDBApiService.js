@@ -33,6 +33,18 @@ export const getMovieCredits = async (movieId) => {
         }
     };
 
+
+export const getMoviesByGenre = async (genreId) => {
+        try {
+            const response = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`);
+            const data = await response.json();
+            return data.results;
+        } catch (error) {
+            console.error('Error fetching movies by genre:', error);
+            return [];
+        }
+    };
+
 export const searchMovies = async (query) => {
         try {
             const response = await axios.get(`${BASE_URL}/search/movie`, {
