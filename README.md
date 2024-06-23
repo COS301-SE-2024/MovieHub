@@ -30,12 +30,14 @@
 # Video Demo Recordings # 
 
 [Girls Gone Code - Demo1](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
+[Girls Gone Code - Demo2](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
 
 # Project Management #
 [Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
 
 # Documentation #
 [System Requirements Specification](https://drive.google.com/drive/folders/16fJP4jYCHB0H5OU3CgpYu_xFF-FxxibN?usp=sharing)
+[System Requirements Specification V2]((https://docs.google.com/document/d/1xU8-jJXFGvj36zFVYMH4AKWorYx7icOV1DTvzTpjpDE/edit))
 
 ## Branching Strategy
 We use GitFlow as our branching strategy, with main, development, and feature branches.
