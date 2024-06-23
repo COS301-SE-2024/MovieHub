@@ -85,11 +85,12 @@ const HomePage = () => {
                      {movies.slice(0, 5).map((movie, index) => (
                                 <MovieCard
                                     key={index}
+                                    movieId={movie.id}
                                     imageUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                                     title={movie.title}
                                     overview={movie.overview}
-                                    rating={movie.vote_average}
-                                    date={movie.release_date}
+                                    rating={movie.vote_average.toFixed(1)}
+                                    date={new Date(movie.release_date).getFullYear()}
                                 />
                             ))}
              </ScrollView>
@@ -107,8 +108,8 @@ const HomePage = () => {
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
-                                rating={movie.vote_average}
-                                date={movie.release_date}
+                                rating={movie.vote_average.toFixed(1)}
+                                date={new Date(movie.release_date).getFullYear()}
                             />
                         ))}
 
@@ -126,8 +127,8 @@ const HomePage = () => {
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
-                                rating={movie.vote_average}
-                                date={movie.release_date}
+                                rating={movie.vote_average.toFixed(1)}
+                                date={new Date(movie.release_date).getFullYear()}
                             />
                         ))}
 
@@ -145,8 +146,8 @@ const HomePage = () => {
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
-                                rating={movie.vote_average}
-                                date={movie.release_date}
+                                rating={movie.vote_average.toFixed(1)}
+                                date={new Date(movie.release_date).getFullYear()}
                             />
                         ))}
 
@@ -164,8 +165,8 @@ const HomePage = () => {
                                 imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                                 title={movie.title}
                                 overview={movie.overview}
-                                rating={movie.vote_average}
-                                date={movie.release_date}
+                                rating={movie.vote_average.toFixed(1)}
+                                date={new Date(movie.release_date).getFullYear()}
                             />
                         ))}
             </ScrollView>
