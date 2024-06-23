@@ -71,7 +71,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             marginTop: 5,
         },
         icon: {
-            marginRight: 5,
+           
             color: theme.iconColor,
         },
         statsContainer: {
@@ -112,7 +112,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} onPress={toggleLike} />
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5,}} onPress={toggleLike} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>

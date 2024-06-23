@@ -3,10 +3,11 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState, useEffect } from "react";
 import Post from "./Post";
-import { getUserPosts } from "../Services/PostsApiService";
+import { getUserPosts } from "../Services/PostsApiServices";
 import { useTheme } from "../styles/ThemeContext";
 
 export default function PostsTab() {
+    const { theme } = useTheme();
     const username = "Lily Smith";
     const userHandle = "@a_lily";
     // const posts = [
@@ -58,14 +59,13 @@ export default function PostsTab() {
     //         datePosted: "2024-06-02",
     //     },
 
-
     // ];
 
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
         const fetchPosts = async () => {
-            const userId = '0';
+            const userId = "0";
             const posts = await getUserPosts(userId);
             console.log("posts", posts);
             setPosts(posts);
@@ -73,6 +73,30 @@ export default function PostsTab() {
 
         fetchPosts();
     }, []);
+
+    const styles = StyleSheet.create({
+        outerContainer: {
+            backgroundColor: theme.backgroundColor,
+        },
+        container: {
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 35,
+            paddingTop: 35,
+            textAlign: "center",
+        },
+        title: {
+            fontSize: 18,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 6,
+        },
+        subtitle: {
+            fontSize: 14,
+            textAlign: "center",
+            color: "#0f5bd1",
+            fontWeight: "600",
+        },
+    });
 
     return (
         <View style={styles.outerContainer}>
@@ -87,27 +111,3 @@ export default function PostsTab() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    outerContainer: {
-        backgroundColor: theme.backgroundColor,
-    },
-    container: {
-        backgroundColor: theme.backgroundColor,
-        paddingHorizontal: 35,
-        paddingTop: 35,
-        textAlign: "center",
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: 6,
-    },
-    subtitle: {
-        fontSize: 14,
-        textAlign: "center",
-        color: "#0f5bd1",
-        fontWeight: "600",
-    },
-});
