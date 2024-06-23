@@ -92,8 +92,10 @@ const HomePage = () => {
 
             <View style={styles.container}>
                 <Text style={styles.trending}>Just for you</Text>
+
                 <ScrollView horizontal>
                      {movies.slice(0, 10).map((movie, index) => (
+
                                 <MovieCard
                                     key={index}
                                     movieId={movie.id}
@@ -104,16 +106,18 @@ const HomePage = () => {
                                     date={new Date(movie.release_date).getFullYear()}
                                 />
                             ))}
-             </ScrollView>
-         </View>   
+                </ScrollView>
+            </View>   
 
             <View style={styles.viewall}>
-             <Text style={styles.trending}>Trending Movies</Text>
-             <Text style={styles.viewalltext}>View all</Text>
+                <Text style={styles.trending}>Trending Movies</Text>
+                <Text style={styles.viewalltext}>View all</Text>
             </View>
+
 
             <ScrollView horizontal>
             {movies.slice(10, 20).map((movie, index) => (
+
                             <TrendingMovie
                                 key={index}
                                 movieId={movie.id}
@@ -128,12 +132,14 @@ const HomePage = () => {
             </ScrollView>
 
             <View style={styles.viewall}>
-             <Text style={styles.trending}>Thiller</Text>
+             <Text style={styles.trending}>Thriller</Text>
              <Text style={styles.viewalltext}>View all</Text>
             </View>
 
+
             <ScrollView horizontal>
             {thrillerMovies.slice(0, 20).map((movie, index) => (
+
                             <TrendingMovie
                                 key={index}
                                 movieId={movie.id}
@@ -152,8 +158,10 @@ const HomePage = () => {
              <Text style={styles.viewalltext}>View all</Text>
             </View>
 
+
             <ScrollView horizontal>
             {comedyMovies.slice(5, 24).map((movie, index) => (
+
                             <TrendingMovie
                                 key={index}
                                 movieId={movie.id}
@@ -172,8 +180,10 @@ const HomePage = () => {
              <Text style={styles.viewalltext}>View all</Text>
             </View>
 
+
             <ScrollView horizontal>
             {romanceMovies.slice(0, 20).map((movie, index) => (
+
                             <TrendingMovie
                                 key={index}
                                 movieId={movie.id}
@@ -217,10 +227,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
 
     },
-
     trending :{
         paddingLeft:10,
-        paddingTop: 20,
+        paddingTop: 0,
         fontFamily: 'Roboto',
         color: '#000000',
         fontSize: 20,
@@ -230,12 +239,13 @@ const styles = StyleSheet.create({
     viewall: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         paddingRight: 10,
+        paddingTop: 10,
         backgroundColor: '#fffff',
     },
 
     viewalltext: {
-        paddingTop: 25,
         fontFamily: 'Roboto',
     }
 

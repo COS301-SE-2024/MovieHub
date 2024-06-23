@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { colors } from "../styles/theme";
 
 export default function ChangePassword() {
     const [currPassword, setCurrPassword] = useState("");
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     saveButton: {
-        backgroundColor: "#000",
+        backgroundColor: colors.primary,
         padding: 12,
         borderRadius: 10,
         width: 150,
