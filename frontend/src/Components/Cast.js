@@ -1,12 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 
-export default function MovieCard({imageUrl}) {
+export default function MovieCard({imageUrl, name}) {
     return (
         <View style={styles.container}>
-           
-            <Image source={imageUrl} style={styles.image} />
-        
+                <Image source={{ uri: imageUrl }} style={styles.image} /> 
         </View>
     );
 }
@@ -33,4 +31,16 @@ const styles = StyleSheet.create({
         borderColor: '#000000',
     },
 
+    noImage: {
+        width: 100,
+        height: 150,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#ccc',
+        borderRadius: 5,
+    },
+    noImageText: {
+        color: '#fff',
+        fontSize: 12,
+    },
 });

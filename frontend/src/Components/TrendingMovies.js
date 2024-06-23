@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 
-export default function MovieCard({imageUrl,title, rating, overview, date}) {
+export default function MovieCard({movieId,imageUrl,title, rating, overview, date}) {
 
     const navigation = useNavigation();
 
     const handleNewUser = () => {
-        navigation.navigate("MovieDescriptionPage", {imageUrl,title, rating, overview, date});
+        navigation.navigate("MovieDescriptionPage", {movieId,imageUrl,title, rating, overview, date});
     };
 
     return (
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
         height: 250,
         paddingRight: 15,
         paddingLeft: 15,
-        backgroundColor: "#fff"
+        backgroundColor: "#ffff"
 
     },
       image: {

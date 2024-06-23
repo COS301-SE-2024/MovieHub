@@ -2,15 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image} from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Cast from "../Components/Cast";
+import { getMovieCredits } from '../Services/TMDBApiService';
 
 
 const MovieDescriptionPage = () =>
     {
         
         const route = useRoute();
-        const { imageUrl, title, rating, overview, date } = route.params;
+        const {movieId, imageUrl, title, rating, overview, date } = route.params;
 
+        const [credits, setCredits] = useState({ cast: [], crew: [] });
 
+        useEffect(() => {
+            const fetchCredits = async () => {
+                const data = await getMovieCredits(movieId);
+                setCredits(data);
+            };
+    
+            fetchCredits();
+        }, [movieId]);
+
+        const director = credits.crew.find(person => person.job === 'Director');
+    const cast = credits.cast.slice(0, 5).map(person => person.name).join(', ');
 
         return(
             <ScrollView style={styles.container}>
@@ -32,30 +45,27 @@ const MovieDescriptionPage = () =>
                     <View style={styles.moviebio}>
                         <Text style={styles.moviebiotext}>{overview}</Text></View>
                     <View>
-                        <Text style={styles.moviebio}>Starring:</Text>
-                        <Text style={styles.moviebio}>Directed by:</Text>
+                        <Text style={styles.moviebio}>Starring: {cast}</Text>
+                        <Text style={styles.moviebio}>Directed by: {cast}</Text>
                     </View>
-                    <Text style={styles.moviecast} >Cast</Text>
+                    <Text style={styles.moviecast} > Cast</Text>
+
+                    
 
                     <ScrollView horizontal>
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
+                    {credits.cast.slice(0, 5).map((member, index) => (
+                        <Cast
+                            key={index}
+                            imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`}
+                            name={member.name}
+                        />
+                    ))}
+
                     </ScrollView>
 
                     </View>
+
+                    
 
             </ScrollView>
         );

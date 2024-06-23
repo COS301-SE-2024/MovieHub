@@ -22,6 +22,29 @@ export const getPopularMovies = async () => {
         }
     };
 
+export const getMovieCredits = async (movieId) => {
+        try {
+            const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${API_KEY}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching movie credits:', error);
+            return { cast: [], crew: [] };
+        }
+    };
+
+
+export const getMoviesByGenre = async (genreId) => {
+        try {
+            const response = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`);
+            const data = await response.json();
+            return data.results;
+        } catch (error) {
+            console.error('Error fetching movies by genre:', error);
+            return [];
+        }
+    };
+
 export const searchMovies = async (query) => {
         try {
             const response = await axios.get(`${BASE_URL}/search/movie`, {

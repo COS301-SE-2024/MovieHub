@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 
-export default function MovieCard({imageUrl,title, rating, overview, date}) {
+export default function MovieCard({movieId, imageUrl,title, rating, overview, date}) {
 
     const navigation = useNavigation();
 
     const handleNewUser = () => {
-        navigation.navigate("MovieDescriptionPage", {imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date});
+        navigation.navigate("MovieDescriptionPage", {movieId : movieId,imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date});
     };
 
     return (
