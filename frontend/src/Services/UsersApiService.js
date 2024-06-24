@@ -1,6 +1,8 @@
 // src/services/UsersApiService.js
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://10.0.0.109:3000/users/';// enter what url your expo is running on + our port 3000
+
+const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://10.0.0.107:3000/users/';// enter what url your expo is running on + our port 3000
+
 
 export const getUserProfile = async (userId) => {
     const response = await fetch(`http://localhost:3000/users/${userId}`);
@@ -72,3 +74,66 @@ export const deleteUserProfile = async (userId) => {
 //         throw new Error(error.message);
 //     }
 // };
+
+// New function to get a user's watchlists
+export const getUserWatchlists = async (userId) => {
+    const response = await fetch(`http://localhost:3000/users/${userId}/watchlists`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch user watchlists');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+// funtion get get user's posts
+export const getUserPosts = async (userId) => {
+    const response = await fetch(`http://localhost:3000/post/user/${userId}/posts`);
+    if (!response.ok) {
+        console.log(response)
+        throw new Error("Failed to fetch user posts");
+    } 
+    
+    const data = await response.json();
+    console.log("data", data);
+    return data;
+};
+
+// funtion get get user's liked posts
+export const getUserLikedPosts = async (userId) => {
+    const response = await fetch(`http://localhost:3000/like/${userId}/likes`);
+    if (!response.ok) {
+        console.log(response)
+        throw new Error("Failed to fetch user liked posts");
+    } 
+    
+    const data = await response.json();
+    console.log("data", data);
+    return data;
+};
+
+export const getCommentsOfUser = async (userId) => {
+    const response = await fetch(`http://localhost:3000/post/user/${userId}/comments`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch comments');
+    }
+
+    const textData = await response.text();
+        console.log('Response text:', textData);
+        const data = JSON.parse(textData);
+        console.log('Parsed data:', data);
+    return data;
+};
+
+export const getReviewsOfUser = async (userId) => {
+    const response = await fetch(`http://localhost:3000/post/user/${userId}/reviews`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch reviews');
+    }
+
+    const textData = await response.text();
+        console.log('Response text:', textData);
+        const data = JSON.parse(textData);
+        console.log('Parsed data:', data);
+    return data;
+};

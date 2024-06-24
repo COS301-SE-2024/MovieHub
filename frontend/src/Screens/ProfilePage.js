@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl } from "react-native";
+import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import { EditProfile } from "./EditProfile";
-import LikesTab from "../Components/LikesTab";
+import LikesTab from "../Components/LikesTab"
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from"../Components/Watchlist";
-import BottomHeader from "../Components/BottomHeader"
+import BottomHeader from "../Components/BottomHeader";
 import { getUserProfile } from "../Services/UsersApiService";
+
+import { colors, themeStyles } from '../styles/theme';
+import { useTheme } from '../styles/ThemeContext';
 
 function renderScene({ route }) {
     switch (route.key) {
         case "posts":
             return (
-                // <Text>First Screen</Text>
-                <PostsTab />
+                <PostsTab/>
             );
         case "likes":
             return (
-                <LikesTab />
+                <LikesTab/>
             );
         case "watchlist":
             return (
@@ -30,6 +31,7 @@ function renderScene({ route }) {
 } 
 
 export default function ProfilePage() {
+    const { theme } = useTheme();
     const layout = useWindowDimensions();
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
@@ -86,10 +88,89 @@ export default function ProfilePage() {
         console.log("Followers:", followers);
     }, [userProfile, followers, following]); 
 
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: "#fff",
+        },
+        avatar: {
+            width: 80,
+            height: 80,
+            borderRadius: 50,
+        },
+        button: {
+            backgroundColor: "#000",
+            padding: 10,
+            borderRadius: 5,
+            width: 190,
+        },
+        buttonText: {
+            color: "#fff",
+            fontWeight: "bold",
+            textAlign: "center",
+        },
+        buttonContainer: {
+            alignItems: "center",
+            marginTop: 20,
+        },
+        accountInfo: {
+            alignItems: "center",
+        },
+        username: {
+            fontSize: 24,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        userHandle: {
+            fontSize: 16,
+            fontWeight: "600",
+            color: theme.gray,
+        },
+        followInfo: {
+            flexDirection: "row",
+            justifyContent: "space-around",
+            marginTop: 20,
+            paddingHorizontal: 25,
+        },
+        number: {
+            fontSize: 16,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        label: {
+            fontSize: 14,
+            fontWeight: "500",
+            color: theme.textColor,
+            textTransform: "capitalize",
+        },
+        about: {
+            marginTop: 25,
+            marginHorizontal: 25,
+        },
+        tabContainer: {
+            color: theme.gray,
+            marginTop: 25,
+            height: "110%",
+            
+        },
+        tabBar: {
+            backgroundColor: theme.backgroundColor,
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: "#ddd",
+            
+        },
+        indicator: {
+            backgroundColor: colors.primary,
+            borderRadius: 50,
+        },
+    });
+
     return (
-        
+        // <ProfileHeader />
         <View style={{ flex: 1 }}>
-            <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
+            
+            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
                     <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
                     <Text style={styles.username}>{userProfile.fullName ? userProfile.fullName : "Itumeleng Moshokoa"}</Text>
@@ -97,26 +178,28 @@ export default function ProfilePage() {
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                    <Text style={styles.number}>{followers ? followers : "100"} </Text>
+                    <Text style={styles.number}>{followers ? followers : 132} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>{following ? following : "50"} </Text>
+                        <Text style={styles.number}>{following ? following : 30} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={styles.button} onPress={handleEditProfile}>
+                    <Pressable style={themeStyles.button} onPress={handleEditProfile}>
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "she/her"}</Text>
-                    <Text>{userProfile.bio ? userProfile.bio : "I'm also just a girl, standing in front of a boy asking him to love her - Notting Hill"}</Text>
+                    <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
+                    <Text style={{ color: theme.textColor }}>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
                     <Text style={{ marginTop: 5 }}>
-                    <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenre && userProfile.favouriteGenre.length >= 3 && (
-                            <Text>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
+                    <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
+                        {userProfile.favouriteGenre ? userProfile.favouriteGenre.length >= 3 && (
+                            <Text style={{color: theme.textColor }}>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
+                        ) : (
+                            <Text style={{color: theme.textColor }}>Animation, True Crime</Text>
                         )}
                     </Text>
                 </View>
@@ -130,73 +213,5 @@ export default function ProfilePage() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-    },
-    avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 50,
-    },
-    button: {
-        backgroundColor: "#000",
-        padding: 10,
-        borderRadius: 5,
-        width: 190,
-    },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    buttonContainer: {
-        alignItems: "center",
-        marginTop: 20,
-    },
-    accountInfo: {
-        alignItems: "center",
-    },
-    username: {
-        fontSize: 24,
-        fontWeight: "bold",
-    },
-    userHandle: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#7b7b7b",
-    },
-    followInfo: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        marginTop: 20,
-        paddingHorizontal: 25,
-    },
-    number: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    label: {
-        fontSize: 16,
-        color: "#7b7b7b",
-        textTransform: "capitalize",
-    },
-    about: {
-        marginTop: 25,
-        marginHorizontal: 25,
-    },
-    tabContainer: {
-        color: "#7b7b7b",
-        marginTop: 25,
-    },
-    tabBar: {
-        backgroundColor: "#fff",
-        elevation: 0,
-        shadowOpacity: 0,
-    },
-    indicator: {
-        backgroundColor: "#7b7b7b",
-        borderRadius: 50,
-    },
-});
+
 // export default ProfilePage;

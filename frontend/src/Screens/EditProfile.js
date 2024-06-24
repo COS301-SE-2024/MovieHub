@@ -8,6 +8,7 @@ export default function EditProfile({ userProfile }) {
     const [modalContent, setModalContent] = useState({
         username: { isVisible: false, newValue: "", tempValue: "" },
         fullName: { isVisible: false, newValue: "", tempValue: "" },
+        currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: "", tempValue: "" },
         pronouns: { isVisible: false, newValue: "", tempValue: "", options: ["He/Him", "She/Her", "They/Them"] },
         favoriteGenres: { isVisible: false, newValue: [], tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
@@ -18,6 +19,7 @@ export default function EditProfile({ userProfile }) {
     const name = userProfile?.name || "";
     const bio = userProfile?.bio || "";
     const pronouns = userProfile?.pronouns || "";
+    const currentlyWatching = userProfile?.currWatching || "";
     const favoriteGenres = userProfile?.favoriteGenres || [];
 
     const applyChanges = async (field) => {
@@ -123,8 +125,8 @@ export default function EditProfile({ userProfile }) {
     };
 
     return (
-        <View style={styles.container}>
-            <ScrollView>
+        <ScrollView style={styles.container}>
+            {/* <ScrollView> */}
                 <Text style={{ color: "#7b7b7b", marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
                 <View style={styles.avatarContainer}>
                     <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -137,7 +139,7 @@ export default function EditProfile({ userProfile }) {
                     <View key={index}>
                         <TouchableOpacity onPress={() => handleFieldPress(field)}>
                             <View style={styles.section}>
-                                <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                                <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "currentlyWatching" ? "Currently Watching" : field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
                                 {field === "favoriteGenres" ? (
                                     <ScrollView horizontal={true} contentContainerStyle={{ flexDirection: "row" }}>
                                         {modalContent[field].newValue.map((option, index) => (
@@ -203,9 +205,9 @@ export default function EditProfile({ userProfile }) {
                         </View>
                     </Modal>
                 ))}
-            </ScrollView>
-            <BottomHeader />
-        </View>
+            {/* </ScrollView> */}
+            {/* <BottomHeader /> */}
+        </ScrollView>
     );
 }
 
