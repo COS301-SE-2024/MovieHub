@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet , ScrollView} from "react-native";
 import Post from "./Post";
 
 export default function LikesTab() {
@@ -57,14 +57,17 @@ export default function LikesTab() {
 
     return (
         <View>
-            {posts.length === 0 ? (
-                <View style={styles.container}>
-                    <Text style={styles.title}>You haven't liked any reviews yet.</Text>
-                    <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
-                </View>
-            ) : (
-                posts.map((post) => <Post username={post.username} userHandle={post.userHandle} key={post.postTitle} {...post} />)
-            )}
+            <ScrollView>
+                {posts.length === 0 ? (
+                    <View style={styles.container}>
+                        <Text style={styles.title}>You haven't liked any reviews yet.</Text>
+                        <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
+                    </View>
+                ) : (
+                    posts.map((post) => <Post username={post.username} userHandle={post.userHandle} key={post.postTitle} {...post} />)
+                )}
+            </ScrollView>
+            
         </View>
     );
 }

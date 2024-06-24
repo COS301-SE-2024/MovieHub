@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet,ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState, useEffect } from "react";
 import Post from "./Post";
