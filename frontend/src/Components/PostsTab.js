@@ -16,14 +16,19 @@ export default function PostsTab() {
 
     const [posts, setPosts] = useState([]);
 
-    useEffect(() => {
-        const fetchPosts = async () => {
+    const fetchPosts = async () => {
+        try {
             const userId = 0;
-            const posts = await getUserPosts(userId);
-            console.log("posts", posts.data);
-            setPosts(posts.data);
-        };
+            const response = await getUserPosts(userId);
+            console.log("posts", response.data); // Ensure this logs the correct data structure
+            setPosts(response.data); // Assuming response.data is an array of post objects
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            // Handle error state or retry logic
+        }
+    };
 
+    useEffect(() => {
         fetchPosts();
     }, []);
 
@@ -66,11 +71,11 @@ export default function PostsTab() {
                 userHandle={userHandle}
                 userAvatar={avatar} 
                 postTitle={post.properties.postTitle}
-                likes={post.properties.likes.low}
-                comments={post.properties.comments.low}
-                preview={post.properties.preview}
-                saves={post.properties.saves.low}
-                image={post.properties.image} 
+                likes={post.properties.likes}
+               // comments={post.properties.comments.low}
+                preview={post.properties.text}
+                saves={post.properties.saves}
+             //   image={post.properties.image} 
             />)
             )}
             </ScrollView>
