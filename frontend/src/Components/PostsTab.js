@@ -3,48 +3,49 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState, useEffect } from "react";
 import Post from "./Post";
-import { getUserPosts } from "../Services/UsersApiServices";
+import { getUserPosts } from "../Services/UsersApiService";
 import { useTheme } from "../styles/ThemeContext";
 
 export default function PostsTab() {
     const { theme } = useTheme();
-    const username = "Lily Smith";
-    const userHandle = "@a_lily";
+    const username = "Itumeleng Moshokoa";
+    const userHandle = "@Joyce";
+    const avatar = "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg";
     // const posts = [
     //     {
-    //         username: "Itumeleng Moshokoa",
-    //         userHandle: "@Joyce",
-    //         userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
-    //         likes: 150,
-    //         comments: 12,
-    //         saves: 20,
-    //         image: "https://images.unsplash.com/photo-1635205411883-ae35d1169f60?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGluY2VwdGlvbnxlbnwwfHwwfHx8MA%3D%3D",
-    //         postTitle: "Inception: A Mind-Bending Thriller",
-    //         preview: "Inception is a sci-fi thriller that takes you on a journey through the dream world. The complex narrative and stunning visuals make it a must-watch.",
+            // username: "Itumeleng Moshokoa",
+            // userHandle: "@Joyce",
+            // userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
+            // likes: 150,
+            // comments: 12,
+            // saves: 20,
+            // image: "https://images.unsplash.com/photo-1635205411883-ae35d1169f60?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGluY2VwdGlvbnxlbnwwfHwwfHx8MA%3D%3D",
+            // postTitle: "Inception: A Mind-Bending Thriller",
+            // preview: "Inception is a sci-fi thriller that takes you on a journey through the dream world. The complex narrative and stunning visuals make it a must-watch.",
     //         datePosted: "2024-06-01",
     //     },
     //     {
     //         username: "Itumeleng Moshokoa",
-    //         userHandle: "@Joyce",
-    //         userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
-    //         likes: 200,
-    //         comments: 30,
-    //         saves: 40,
-    //         image: "https://plus.unsplash.com/premium_photo-1710324885138-d6b19ebaaefb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDl8fGF2YXRhciUyMG1vdmllfGVufDB8fDB8fHww",
-    //         postTitle: "Interstellar: A Journey Beyond the Stars",
-    //         preview: "Interstellar is a visually stunning and emotionally gripping sci-fi epic. Christopher Nolan's masterpiece explores themes of love, sacrifice, and the unknown.",
+            // userHandle: "@Joyce",
+            // userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
+            // likes: 200,
+            // comments: 30,
+            // saves: 40,
+            // image: "https://plus.unsplash.com/premium_photo-1710324885138-d6b19ebaaefb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDl8fGF2YXRhciUyMG1vdmllfGVufDB8fDB8fHww",
+            // postTitle: "Interstellar: A Journey Beyond the Stars",
+            // preview: "Interstellar is a visually stunning and emotionally gripping sci-fi epic. Christopher Nolan's masterpiece explores themes of love, sacrifice, and the unknown.",
     //         datePosted: "2024-05-28",
     //     },
     //     {
-    //         username: "Itumeleng Moshokoa",
-    //         userHandle: "@Joyce",
-    //         userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
-    //         likes: 120,
-    //         comments: 25,
-    //         saves: 15,
-    //         image: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGFyayUyMGtuaWdodHxlbnwwfHwwfHx8MA%3D%3D",
-    //         postTitle: "The Dark Knight: A Masterclass in Storytelling",
-    //         preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
+            // username: "Itumeleng Moshokoa",
+            // userHandle: "@Joyce",
+            // userAvatar: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
+            // likes: 120,
+            // comments: 25,
+            // saves: 15,
+            // image: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGFyayUyMGtuaWdodHxlbnwwfHwwfHx8MA%3D%3D",
+            // postTitle: "The Dark Knight: A Masterclass in Storytelling",
+            // preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
     //         datePosted: "2024-06-02",
     //     },
     //     {
@@ -65,10 +66,9 @@ export default function PostsTab() {
 
     useEffect(() => {
         const fetchPosts = async () => {
-            const userId = "0";
+            const userId = "10";
             const posts = await getUserPosts(userId);
-            console.log("posts", posts);
-            setPosts(posts);
+            setPosts(posts.data);
         };
 
         fetchPosts();
@@ -106,7 +106,18 @@ export default function PostsTab() {
                     <Text style={styles.subtitle}>Create your first post</Text>
                 </View>
             ) : (
-                posts.map((post) => <Post username={username} userHandle={userHandle} key={post.postTitle} {...post} />)
+                posts.map((post) => 
+                <Post 
+                    username={username} 
+                    userHandle={userHandle}
+                    userAvatar={avatar} 
+                    postTitle={post.properties.postTitle}
+                    likes={post.properties.likes.low}
+                    comments={post.properties.comments.low}
+                    preview={post.properties.preview}
+                    saves={post.properties.saves.low}
+                    image={post.properties.image} 
+                />)
             )}
         </View>
     );
