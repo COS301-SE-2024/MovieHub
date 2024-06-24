@@ -102,6 +102,7 @@ export default function PostsTab() {
 
     return (
         <View style={styles.outerContainer}>
+            <ScrollView>
             {posts.length === 0 ? (
                 <View style={styles.container}>
                     <Text style={styles.title}>Share your thoughts!</Text>
@@ -121,6 +122,7 @@ export default function PostsTab() {
                 image={post.properties.image} 
             />)
             )}
+            </ScrollView>
         </View>
     );
 }
