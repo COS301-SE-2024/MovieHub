@@ -67,7 +67,7 @@ export default function PostsTab() {
 
     useEffect(() => {
         const fetchPosts = async () => {
-            const userId = "10";
+            const userId = "pTjrHHYS2qWczf4mKExik40KgLH3";
             const posts = await getUserPosts(userId);
             console.log("posts", posts.data);
             setPosts(posts.data);

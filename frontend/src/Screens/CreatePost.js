@@ -77,11 +77,11 @@ export default function CreatePost() {
 
     const handleAddPost = async () => {
         const postData = {
-            text: "",
+            text: "heres a new post",
             userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 0,
+            movieId: 310,
             isReview: false,
-            rating: 0
+            rating: 3
         };
         
         try {
@@ -145,7 +145,7 @@ export default function CreatePost() {
 
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled}>
+                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleAddPost}>
                     <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
