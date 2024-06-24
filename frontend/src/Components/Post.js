@@ -71,8 +71,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             marginTop: 5,
         },
         icon: {
-           
-            color: theme.iconColor,
+            marginRight: 5,
         },
         statsContainer: {
             display: "flex",
