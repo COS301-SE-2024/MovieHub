@@ -1,13 +1,49 @@
 // src/Auth/auth.services.js
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import firebaseApp from '../Firebase/firebaseConnection';
+import { firebase } from '../Firebase/firebaseConnection';
+//import admin from '../Firebase/firebase.config.js'
+//import { getFirestore } from 'firebase-admin/firestore';
+import { createUserNode } from '../Users/users.services';
 
-const auth = getAuth(firebaseApp);
 
-exports.registerUser = async (email, password) => {
+// Initialize Firebase Admin SDK
+// admin.initializeApp({
+//   credential: admin.credential.applicationDefault(),
+//   databaseURL: "moviehub-3ebc8.firebaseapp.com"
+// });
+//const admin = firebase();
+
+const auth = getAuth();
+
+exports.registerUser = async (email, password, username) => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+    //const userCredential = await firebase.auth().createUserWithEmailAndPassword(auth, email, password);
+    //const user = userCredential.user;
+    const userRecord = await firebase.auth().createUser({
+      email,
+      password,
+      displayName: username
+      // Additional fields should be added as needed
+    });
+
+   //const user = userRecord.user;
+    console.log("Heres the user: ", userRecord);
+    
+    const userId = userRecord.uid;
+    //console.log("Heres the user's Id:  ", userId)
+    // Create a new user node in Neo4j
+    if(userId !== undefined){
+      await createUserNode(userId, username);
+    }
+    else{
+      console.log("Oops! Something went wrong");
+    }
+
+    // Generate a custom token for the user
+    const customToken = await firebase.auth().createCustomToken(userId);
+
+    return { userRecord, customToken };
   } catch (error) {
     throw error;
   }
@@ -16,7 +52,13 @@ exports.registerUser = async (email, password) => {
 exports.loginUser = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+    const idToken = await userCredential.user.getIdToken();
+
+    // Create session cookie
+    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
+    const sessionCookie = await firebase.auth().createSessionCookie(idToken, { expiresIn });
+
+    return { user: userCredential.user, sessionCookie };
   } catch (error) {
     throw error;
   }

@@ -94,6 +94,19 @@ exports.getUserWatchlists = async (userId) => {
     }
 };
 
+exports.createUserNode = async (uid, username) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            'CREATE (u:User {uid: $uid, username: $username}) RETURN u',
+            { uid, username }
+        );
+        return result.records[0].get('u');
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Close the driver when the application exits
 process.on('exit', async () => {

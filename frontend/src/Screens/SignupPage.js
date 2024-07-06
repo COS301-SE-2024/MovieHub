@@ -27,7 +27,7 @@ const SignupPage = () => {
     const navigation = useNavigation();
 
     const handleExistingUser = () => {
-        navigation.navigate("LoginPage");
+        navigation.navigate("HomePage"); ///Change back to LoginPage
     };
 
     const handleSignup = async () => {
