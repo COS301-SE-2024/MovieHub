@@ -4,7 +4,9 @@ import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
 
-export default function EditProfile({ userProfile }) {
+export default function EditProfile({route, userProfile }) {
+    const {userInfo} = route.params;
+
     const [modalContent, setModalContent] = useState({
         username: { isVisible: false, newValue: "", tempValue: "" },
         fullName: { isVisible: false, newValue: "", tempValue: "" },
@@ -54,7 +56,8 @@ export default function EditProfile({ userProfile }) {
                 default:
                     break;
             }
-            const updatedUser = await updateUserProfile('pTjrHHYS2qWczf4mKExik40KgLH3', updatedData);
+            const userId = userInfo.userId;
+            const updatedUser = await updateUserProfile(userId, updatedData);
             console.log("Update went well", updatedUser);
 
             setModalContent((prevState) => {

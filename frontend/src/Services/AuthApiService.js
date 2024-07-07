@@ -44,6 +44,9 @@ export const loginUser = async (email, password) => {
     }
 
     const data = await response.json();
+
+    // Store the token securely using Expo SecureStore
+    await SecureStore.setItemAsync('userToken', data.data.token);
     return data;
 };
 

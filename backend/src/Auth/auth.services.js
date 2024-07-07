@@ -38,7 +38,7 @@ exports.registerUser = async (email, password, username) => {
       await createUserNode(userId, username);
     }
     else{
-      console.log("Oops! Something went wrong");
+      console.log("Oops! Something went wrong in auth.services");
     }
 
     // Generate a custom token for the user

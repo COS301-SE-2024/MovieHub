@@ -28,9 +28,9 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     try {
-        const { user, sessionCookie } = await authService.loginUser(email, password);
-        res.cookie('session', sessionCookie, { httpOnly: true, secure: true, maxAge: 60 * 60 * 24 * 5 * 1000 });
-        responseHandler(res, 200, 'User logged in successfully', { uid: user.uid, username: user.displayName });
+        const { user, customToken } = await authService.loginUser(email, password);
+        res.cookie('session', customToken, { httpOnly: true, secure: true, maxAge: 60 * 60 * 24 * 5 * 1000 });
+        responseHandler(res, 200, 'User logged in successfully', { uid: user.uid, username: user.displayName, token: customToken });
     } catch (error) {
         responseHandler(res, 400, error.message);
     }

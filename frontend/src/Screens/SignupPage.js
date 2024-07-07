@@ -50,7 +50,13 @@ const SignupPage = () => {
             await SecureStore.setItemAsync('userToken', data.data.token);
             setError("");
             console.log("User signed up successfully");
-            navigation.navigate("HomePage");
+            //navigate to the home page with the users info
+            const userInfo = {
+                userId: data.data.uid,
+                username: data.data.username,
+                //???     token : data.data.token 
+            }
+            navigation.navigate("HomePage", { userInfo });
         } catch (error) {
             let errorMessage = "Error signing up";
             if (error.code === "auth/email-already-in-use") {

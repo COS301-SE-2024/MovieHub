@@ -5,7 +5,9 @@ import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "@expo/vector-icons/MaterialIcons";
-import { signIn } from "../../../backend/src/services/authService";
+//import { signIn } from "../../../backend/src/services/authService";
+import { loginUser } from "../Services/AuthApiService";
+import * as SecureStore from 'expo-secure-store';
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -25,9 +27,18 @@ const LoginPage = () => {
 
     const HandleLogin = async () => {
         try {
-            await signIn(email, password);
+           // await signIn(email, password);
+            const data = await loginUser(email, password);
+            console.log("User Loggin in???")
+            await SecureStore.setItemAsync('userToken', data.data.token);
             console.log("User signed in successfully");
-            navigation.navigate("HomePage");
+            //navigate to the home page with the users info
+            const userInfo = {
+                userId: data.data.uid,
+               username:  data.data.username,
+          //???     token : data.data.token 
+            }
+            navigation.navigate("HomePage", {userInfo});
         } catch (error) {
             let errorMessage = "Error signing in";
             if (error.code === "auth/user-not-found") {

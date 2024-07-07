@@ -9,11 +9,13 @@ const driver = neo4j.driver(
 
 exports.getUserProfile = async (userId) => {
     const session = driver.session();
+  
     try {
         const result = await session.run(
-            'MATCH (u:User {userId: $userId}) RETURN u',
+            'MATCH (u:User {uid: $userId}) RETURN u',
             { userId }
         );
+        console.log("Letssss see the result " , result);
         if (result.records.length === 0) {
             return null;
         }
@@ -28,7 +30,7 @@ exports.getUserProfile = async (userId) => {
 exports.updateUserProfile = async (userId, updates) => {
     const session = driver.session();
     const query = `
-    MATCH (u:User {userId: $userId})
+    MATCH (u:User {uid: $userId})
     SET u += $updates
     RETURN u
   `;
@@ -51,7 +53,7 @@ exports.deleteUserProfile = async (userId) => {
     try {
 
         const result = await session.run(
-            'MATCH (u:User {userId: $userId}) DETACH DELETE u RETURN count(u) as count',
+            'MATCH (u:User {uid: $userId}) DETACH DELETE u RETURN count(u) as count',
             { userId: userId }
         );
         // console.log(result);
@@ -95,7 +97,7 @@ exports.getUserWatchlists = async (userId) => {
 };
 
 exports.createUserNode = async (uid, username) => {
-    
+
     const session = driver.session();
     try {
         const result = await session.run(
