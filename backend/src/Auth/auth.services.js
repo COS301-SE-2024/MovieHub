@@ -18,6 +18,7 @@ const auth = getAuth();
 
 exports.registerUser = async (email, password, username) => {
   try {
+    console.log("In auth register service ")
     //const userCredential = await firebase.auth().createUserWithEmailAndPassword(auth, email, password);
     //const user = userCredential.user;
     const userRecord = await firebase.auth().createUser({
@@ -52,16 +53,31 @@ exports.registerUser = async (email, password, username) => {
 exports.loginUser = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const idToken = await userCredential.user.getIdToken();
+    const user = userCredential.user;
 
-    // Create session cookie
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-    const sessionCookie = await firebase.auth().createSessionCookie(idToken, { expiresIn });
+    if (!user) {
+      throw new Error('User login failed');
+    }
 
-    return { user: userCredential.user, sessionCookie };
+    // Generate a custom token for the user
+    const customToken = await firebase.auth().createCustomToken(user.uid);
+
+    return { user, customToken };
   } catch (error) {
     throw error;
   }
+  // try {
+  //   const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  //   const idToken = await userCredential.user.getIdToken();
+
+  //   // Create session cookie
+  //   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
+  //   const sessionCookie = await firebase.auth().createSessionCookie(idToken, { expiresIn });
+
+  //   return { user: userCredential.user, sessionCookie };
+  // } catch (error) {
+  //   throw error;
+  // }
 };
 
 exports.logoutUser = async () => {

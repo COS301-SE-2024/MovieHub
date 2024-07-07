@@ -95,6 +95,7 @@ exports.getUserWatchlists = async (userId) => {
 };
 
 exports.createUserNode = async (uid, username) => {
+    
     const session = driver.session();
     try {
         const result = await session.run(

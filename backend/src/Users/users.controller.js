@@ -40,7 +40,7 @@ exports.getUserProfile = async (req, res) => {
     }
 };
 
-console.log('User profile username ' + userProfileData);
+//console.log('User profile username: ' + userProfileData);
 
 exports.updateUserProfile = async (req, res) => {
     const userId = req.params.id;

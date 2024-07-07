@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "expo": "^51.0.10",
     "expo-image-picker": "^15.0.5",
+    "expo-secure-store": "^13.0.2",
     "expo-status-bar": "~1.12.1",
     "firebase": "^9.0.0",
     "neo4j-driver": "^5.21.0",

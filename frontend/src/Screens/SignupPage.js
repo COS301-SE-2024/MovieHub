@@ -5,7 +5,10 @@ import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "@expo/vector-icons/MaterialIcons";
-import { signUp } from "../../../backend/src/services/authService";
+//import { signUp } from "../../../backend/src/services/authService";
+import { registerUser } from "../Services/AuthApiService";
+import * as SecureStore from 'expo-secure-store';
+
 
 const SignupPage = () => {
     const [username, setUsername] = useState("");
@@ -27,7 +30,7 @@ const SignupPage = () => {
     const navigation = useNavigation();
 
     const handleExistingUser = () => {
-        navigation.navigate("HomePage"); ///Change back to LoginPage
+        navigation.navigate("LoginPage"); ///Change back to LoginPage
     };
 
     const handleSignup = async () => {
@@ -39,8 +42,12 @@ const SignupPage = () => {
             setError("Username must be at least 3 characters long");
             return;
         }
+        console.log("This is the username ", username)
         try {
-            await signUp(email, password, username);
+          //  await signUp(email, password, username);
+            const data = await registerUser(email, password, username);
+            console.log("User Registering???")
+            await SecureStore.setItemAsync('userToken', data.data.token);
             setError("");
             console.log("User signed up successfully");
             navigation.navigate("HomePage");

@@ -104,7 +104,7 @@ export const getUserLikedPosts = async (userId) => {
     const response = await fetch(`http://localhost:3000/like/${userId}/likes`);
     if (!response.ok) {
         console.log(response)
-        throw new Error("Failed to fetch user liked posts");
+        throw new Error("Failed to fetch user posts");
     } 
     
     const data = await response.json();
@@ -115,7 +115,7 @@ export const getUserLikedPosts = async (userId) => {
 export const getCommentsOfUser = async (userId) => {
     const response = await fetch(`http://localhost:3000/post/user/${userId}/comments`);
     if (!response.ok) {
-        throw new Error('Failed to fetch comments');
+        throw new Error('Failed to fetch movie posts');
     }
 
     const textData = await response.text();
@@ -128,7 +128,7 @@ export const getCommentsOfUser = async (userId) => {
 export const getReviewsOfUser = async (userId) => {
     const response = await fetch(`http://localhost:3000/post/user/${userId}/reviews`);
     if (!response.ok) {
-        throw new Error('Failed to fetch reviews');
+        throw new Error('Failed to fetch movie posts');
     }
 
     const textData = await response.text();

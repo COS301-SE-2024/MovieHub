@@ -1,6 +1,8 @@
+import * as SecureStore from 'expo-secure-store';
 const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/auth/'; // Update to your Expo URL
 
 export const registerUser = async (email, password, username) => {
+    console.log("Inside AuthApi Service");
     const response = await fetch(`http://localhost:3000/auth/register`, {
         method: 'POST',
         headers: {
@@ -8,12 +10,23 @@ export const registerUser = async (email, password, username) => {
         },
         body: JSON.stringify({ email, password, username }),
     });
-
+    console.log("*********");
+    console.log(response);
     if (!response.ok) {
         throw new Error('Failed to register user');
     }
-
+ 
+    console.log("+++++++");
     const data = await response.json();
+    console.log("--------------");
+    console.log("Heres the data: " + JSON.stringify(data));
+    if (!data.data || !data.data.token) {
+        throw new Error('Token not found in response');
+    }
+
+    // Store the token securely
+    await SecureStore.setItemAsync('userToken', data.data.token);
+
     return data;
 };
 
