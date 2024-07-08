@@ -184,7 +184,11 @@ export default function ProfilePage({route}) {
             
             <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
-                    <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
+                    <Image  source={{ 
+// uri: userProfile.profilePicture ======Getting error: No suitable URL request handler found for gs://moviehub-3ebc8.appspot.com/ProfilePictures/spiderman_point.webp=======
+ //     ? userProfile.profilePicture 
+               uri : "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" 
+        }} style={styles.avatar}></Image>
                     <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
                     <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
                 </View>

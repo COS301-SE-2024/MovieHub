@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, FlatList, Image, Alert, ScrollView } from "react-native";
+import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, FlatList, Image, Alert, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 
-export default function CreatePost() {
+export default function CreatePost({navigation}) {
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [thoughts, setThoughts] = useState("");
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
-
+    const [modalVisible, setModalVisible] = useState(false);
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
 
     // Mock movie search results
@@ -77,6 +77,7 @@ export default function CreatePost() {
 
     const handleAddPost = async () => {
         const postData = {
+            postTitle: title,
             text: "heres a new post",
             userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             movieId: 310,
@@ -86,7 +87,13 @@ export default function CreatePost() {
         
         try {
             const post = await addPost(postData);
-            console.log('Post added successfully:', data);
+            console.log('Post added successfully:', post);
+            setModalVisible(true);
+            setTimeout(() => {
+                setModalVisible(false);
+                navigation.navigate("HomePage");
+            }, 2000);
+            
         } catch(error){
             console.error('Error adding post:', error);
         };
@@ -149,7 +156,23 @@ export default function CreatePost() {
                     <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Post Created Successfully</Text>
+                
+                    </View>
+                </View>
+            </Modal>
         </ScrollView>
+
+        
     );
 }
 
@@ -255,5 +278,24 @@ const styles = StyleSheet.create({
         right: 60,
         backgroundColor: colors.primary,
         borderRadius: 50,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        height: "100%",
+    },
+    modalContainer: {
+        width: "80%",
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 10,
     },
 });

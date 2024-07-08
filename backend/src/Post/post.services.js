@@ -8,19 +8,22 @@ const driver = neo4j.driver(
 
 //POSTS//
 
-exports.addPost = async (userId, movieId, text, isReview, rating) => {
+exports.addPost = async (userId, movieId, text, isReview, rating, postTitle) => {
+    console.log("In Services: ");
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (u), (m)
              WHERE ID(u) = $userId AND ID(m) = $movieId
-             CREATE (r:Post {isReview: $isReview, rating: $rating, text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId})
+             CREATE (r:Post {isReview: $isReview, rating: $rating, text: $text, createdAt: datetime(), updatedAt: datetime(), userId: $userId, movieId: $movieId, postTitle: $postTitle})
              CREATE (u)-[:POSTED]->(r)-[:POSTED_ON]->(m)
              RETURN r`,
-            { userId, movieId, text,isReview, rating }
+            { userId, movieId, text,isReview, rating, postTitle }
         );
         //.log(result.summary);
+        console.log("The Result " + result.summary)
         return result.records[0].get('r').properties;
+
     } finally {
         await session.close();
     }
