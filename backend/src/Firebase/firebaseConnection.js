@@ -5,6 +5,8 @@
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 import { initializeApp } from 'firebase/app';
+import admin from "firebase-admin";
+require('dotenv').config();
 
 const firebaseConfig = {
   apiKey: "AIzaSyCR1DdCie3_-NR9L9hl5Yh7qQHAiamkVGg",
@@ -17,7 +19,27 @@ const firebaseConfig = {
   measurementId: "G-FNMTL54L6R"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const config = {
+  credential: admin.credential.cert({
+    type: process.env.FIREBASE_TYPE,
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Replace escaped newlines
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: process.env.FIREBASE_AUTH_URI,
+    token_uri: process.env.FIREBASE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
+    client_x509_cert_url: process.env.FIREBASE_CERT_URL,
+    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN
+  }),
+};
 
-export default app;
+export const firebase = admin.apps.length
+  ? admin.app()
+  : admin.initializeApp(config);
+
+// Initialize Firebase
+export const app = initializeApp(firebaseConfig);
+
+//export default app;

@@ -1,5 +1,6 @@
 // backend/users/users.routers.js
 const express = require('express');
+//import {verifyToken} from '../Auth/auth.middleware.js';
 const userController = require('./users.controller');
 
 const router = express.Router();

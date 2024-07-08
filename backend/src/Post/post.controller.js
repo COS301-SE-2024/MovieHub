@@ -8,9 +8,10 @@ exports.addPost = async (req, res) => {
     const text = req.body.text;
     const isReview = req.body.isReview;
     const rating = req.body.rating;
-    console.log(userId, movieId, text, isReview, rating);
+    const postTitle = req.body.postTitle;
+    console.log(userId, movieId, text, isReview, rating, postTitle);
     try {
-        const post = await postService.addPost(userId, movieId, text, isReview, rating);
+        const post = await postService.addPost(userId, movieId, text, isReview, rating, postTitle);
         responseHandler(res, 201, 'Post added successfully', post);
     } catch (error) {
         responseHandler(res, 400, error.message);

@@ -5,13 +5,14 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 
 import { colors } from "../styles/theme";
 
-export default function BottomHeader() {
+export default function BottomHeader({ userInfo }) {
     const navigation = useNavigation();
     const route = useRoute();
-
+    console.log("The users info in BottomHeader.js: ", userInfo);
     const isActive = (screen) => route.name === screen;
 
     return (
+        ///// add user info parameter to other pages as necessary /////////
         <View style={styles.header}>
             <View style={styles.iconRow}>
                 <TouchableOpacity onPress={() => navigation.navigate("HomePage")} style={styles.iconContainer}>
@@ -22,6 +23,7 @@ export default function BottomHeader() {
                     <Icon name="notifications" size={30} style={[styles.icon, isActive("Notifications") && styles.activeIcon]} />
                     {isActive("Notifications") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
+                
                 <TouchableOpacity onPress={() => navigation.navigate("CreatePost")} style={styles.iconContainer}>
                     <Icon name="add-circle-outline" size={30} style={[styles.icon, isActive("CreatePost") && styles.activeIcon]} />
                     {isActive("CreatePost") && <View style={styles.activeIndicator} />}
@@ -30,7 +32,7 @@ export default function BottomHeader() {
                     <Icon name="people" size={32} style={[styles.icon, isActive("People") && styles.activeIcon]} />
                     {isActive("People") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("ProfilePage")} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("ProfilePage", { userInfo })} style={styles.iconContainer}>
                     <Image 
                         source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} 
                         style={[styles.image, isActive("ProfilePage") && styles.activeImage]} 

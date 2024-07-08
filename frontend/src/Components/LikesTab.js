@@ -1,144 +1,93 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../styles/ThemeContext";
-import { toggleLikePost } from "../Services/LikesApiService"; // Assuming this service function exists
+import React from "react";
+import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import Post from "./Post";
 
-export default function Post({
-    postId, // Added postId for the like functionality
-    username,
-    userHandle,
-    userAvatar,
-    likes,
-    comments,
-    saves,
-    image,
-    postTitle,
-    preview,
-    datePosted
-}) {
-    const { theme } = useTheme();
-    const [liked, setLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(likes);
-    const [saved, setSaved] = useState(false);
+export default function LikesTab() {
 
-    const toggleLike = async () => {
-        try {
-            const updatedPost = await toggleLikePost({ postId, liked: !liked });
-            setLiked(!liked);
-            setLikeCount(updatedPost.likes);
-        } catch (error) {
-            console.error("Error toggling like:", error);
-        }
-    };
+    const posts = [
+        {
+            username: "Mark Johnson",
+            userHandle: "@markJ",
+            userAvatar: "https://images.unsplash.com/photo-1544435253-f0ead49638fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            likes: 120,
+            comments: 25,
+            saves: 15,
+            postTitle: "I just love movies with cliches",
+            preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
+            datePosted: "2024-06-02",
+        },
+        {
+            username: "John Doe",
+            userHandle: "@johnD",
+            userAvatar: "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            likes: 150,
+            comments: 12,
+            saves: 20,
+            image: "https://images.unsplash.com/photo-1635205411883-ae35d1169f60?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGluY2VwdGlvbnxlbnwwfHwwfHx8MA%3D%3D",
+            postTitle: "Inception: A Mind-Bending Thriller",
+            preview: "Inception is a sci-fi thriller that takes you on a journey through the dream world. The complex narrative and stunning visuals make it a must-watch.",
+            datePosted: "2024-06-01",
+        },
+        {
+            username: "Jane Smith",
+            userHandle: "@janeS",
+            userAvatar: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjN8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            likes: 200,
+            comments: 30,
+            saves: 40,
+            image: "https://plus.unsplash.com/premium_photo-1710324885138-d6b19ebaaefb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDl8fGF2YXRhciUyMG1vdmllfGVufDB8fDB8fHww",
+            postTitle: "Interstellar: A Journey Beyond the Stars",
+            preview: "Interstellar is a visually stunning and emotionally gripping sci-fi epic. Christopher Nolan's masterpiece explores themes of love, sacrifice, and the unknown.",
+            datePosted: "2024-05-28",
+        },
+        {
+            username: "Mark Johnson",
+            userHandle: "@markJ",
+            userAvatar: "https://images.unsplash.com/photo-1544435253-f0ead49638fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fHww",
+            likes: 120,
+            comments: 25,
+            saves: 15,
+            image: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGFyayUyMGtuaWdodHxlbnwwfHwwfHx8MA%3D%3D",
+            postTitle: "The Dark Knight: A Masterclass in Storytelling",
+            preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
+            datePosted: "2024-06-02",
+        },
 
-    const styles = StyleSheet.create({
-        container: {
-            backgroundColor: theme.backgroundColor,
-            paddingHorizontal: 25,
-            paddingVertical: 15,
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.45,
-            shadowRadius: 3.84,
-            elevation: 5,
-        },
-        avatar: {
-            width: 40,
-            height: 40,
-            borderRadius: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginRight: 10,
-        },
-        username: {
-            fontSize: 18,
-            fontWeight: "bold",
-            color: theme.textColor,
-        },
-        userHandle: {
-            color: theme.gray,
-        },
-        profileInfo: {
-            alignItems: "center",
-            display: "flex",
-            flexDirection: "row",
-        },
-        postImage: {
-            width: "100%",
-            height: 300,
-            marginTop: 10,
-            borderRadius: 10,
-            objectFit: "cover",
-        },
-        postTitle: {
-            fontWeight: "bold",
-            fontSize: 18,
-            marginTop: 10,
-            color: theme.textColor,
-        },
-        postPreview: {
-            color: theme.gray,
-            marginVertical: 10,
-            marginTop: 5,
-        },
-        icon: {
-            marginRight: 5,
-        },
-        statsContainer: {
-            display: "flex",
-            flexDirection: "row",
-        },
-        stats: {
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            marginRight: 20,
-        },
-        statsNumber: {
-            color: theme.textColor,
-        },
-    });
+    ];
 
     return (
-        <View style={styles.container}>
-            <View style={styles.profileInfo}>
-                <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View>
-                    <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>{userHandle} &bull; {datePosted}</Text>
-                </View>
-                <Icon name="more-vert" size={20} style={{ marginLeft: "auto" }} />
-            </View>
-            {image && <Image source={{ uri: image }} style={styles.postImage} />}
-            <Text style={styles.postTitle}>{postTitle}</Text>
-            <Text style={styles.postPreview}>{preview}</Text>
-            <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon
-                        name={liked ? "favorite" : "favorite-border"}
-                        size={20}
-                        color={liked ? "red" : "black"}
-                        style={styles.icon}
-                    />
-                    <Text style={styles.statsNumber}>{likeCount}</Text>
-                </TouchableOpacity>
-                <View style={styles.stats}>
-                    <CommIcon name="comment-outline" size={20} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{comments}</Text>
-                </View>
-                <View style={styles.stats}>
-                    <Icon name="bookmark-border" size={20} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{saves}</Text>
-                </View>
-                <View style={{ flex: 1 }}></View>
-                <CommIcon name="share-outline" size={20} style={styles.icon} />
-            </View>
+        <View>
+            <ScrollView>
+                {posts.length === 0 ? (
+                    <View style={styles.container}>
+                        <Text style={styles.title}>You haven't liked any reviews yet.</Text>
+                        <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
+                    </View>
+                ) : (
+                    posts.map((post) => <Post username={post.username} userHandle={post.userHandle} key={post.postTitle} {...post} />)
+                )}
+            </ScrollView>
+
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: "#fff",
+        paddingHorizontal: 35,
+        paddingTop: 35,
+        textAlign: "center",
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: 6,
+    },
+    subtitle: {
+        fontSize: 14,
+        textAlign: "center",
+        color: "#7b7b7b",
+    },
+});

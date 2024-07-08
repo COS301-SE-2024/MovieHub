@@ -1,11 +1,38 @@
 // src/services/UsersApiService.js
-
+import * as SecureStore from 'expo-secure-store';
 
 const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://10.0.0.107:3000/users/';// enter what url your expo is running on + our port 3000
 
+// Helper function to get the token from SecureStore
+const getToken = async () => {
+    const token = await SecureStore.getItemAsync('userToken');
+    if (!token) {
+        throw new Error('No token found');
+    }
+    return token;
+};
+
+// Middleware function for verifying Firebase token
+const verifyToken = async () => {
+    const authHeader = 'Bearer ' + await getToken();
+    return {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+    };
+};
 
 export const getUserProfile = async (userId) => {
-    const response = await fetch(`http://localhost:3000/users/${userId}`);
+    //const token = await getToken();
+    const headers = await verifyToken();
+    const response = await fetch(`http://localhost:3000/users/${userId}`, {
+        // headers: {
+        //     'Authorization': `Bearer ${token}`,
+        //     'Content-Type': 'application/json'
+        // }
+        headers,
+    });
+
+    console.log("Here is the API res  ",response);
     if (!response.ok) {
         throw new Error('Failed to fetch user profile');
     }
@@ -18,11 +45,17 @@ export const getUserProfile = async (userId) => {
 
     return data;
 };
+
+
 export const updateUserProfile = async (userId, updatedData) => {
+   // const token = await getToken();
+    const headers = await verifyToken();
     const response = await fetch(`http://localhost:3000/users/${userId}`, {
         method: 'PATCH',
         headers: {
-            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${token}`,
+            // 'Content-Type': 'application/json',
+            ...headers,
         },
         body: JSON.stringify(updatedData),
     });
@@ -36,8 +69,16 @@ export const updateUserProfile = async (userId, updatedData) => {
 
 export const deleteUserProfile = async (userId) => {
     try {
+        //const token = await getToken();
+        const headers = await verifyToken();
         const response = await fetch(`http://localhost:3000/users/${userId}`, {
             method: 'DELETE',
+            headers: {
+                // 'Authorization': `Bearer ${token}`,
+                // 'Content-Type': 'application/json'
+                ...headers,
+            }
+            
         });
         if (!response.ok) {
             throw new Error('Failed to delete user profile');
@@ -77,7 +118,13 @@ export const deleteUserProfile = async (userId) => {
 
 // New function to get a user's watchlists
 export const getUserWatchlists = async (userId) => {
-    const response = await fetch(`http://localhost:3000/users/${userId}/watchlists`);
+    const token = await getToken();
+    const response = await fetch(`http://localhost:3000/users/${userId}/watchlists`,{
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
     if (!response.ok) {
         throw new Error('Failed to fetch user watchlists');
     }
@@ -88,7 +135,13 @@ export const getUserWatchlists = async (userId) => {
 
 // funtion get get user's posts
 export const getUserPosts = async (userId) => {
-    const response = await fetch(`http://localhost:3000/post/user/${userId}/posts`);
+    const token = await getToken();
+    const response = await fetch(`http://localhost:3000/post/user/${userId}/posts`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
     if (!response.ok) {
         console.log(response)
         throw new Error("Failed to fetch user posts");
@@ -104,7 +157,7 @@ export const getUserLikedPosts = async (userId) => {
     const response = await fetch(`http://localhost:3000/like/${userId}/likes`);
     if (!response.ok) {
         console.log(response)
-        throw new Error("Failed to fetch user liked posts");
+        throw new Error("Failed to fetch user posts");
     } 
     
     const data = await response.json();
@@ -115,7 +168,7 @@ export const getUserLikedPosts = async (userId) => {
 export const getCommentsOfUser = async (userId) => {
     const response = await fetch(`http://localhost:3000/post/user/${userId}/comments`);
     if (!response.ok) {
-        throw new Error('Failed to fetch comments');
+        throw new Error('Failed to fetch movie posts');
     }
 
     const textData = await response.text();
@@ -128,7 +181,7 @@ export const getCommentsOfUser = async (userId) => {
 export const getReviewsOfUser = async (userId) => {
     const response = await fetch(`http://localhost:3000/post/user/${userId}/reviews`);
     if (!response.ok) {
-        throw new Error('Failed to fetch reviews');
+        throw new Error('Failed to fetch movie posts');
     }
 
     const textData = await response.text();

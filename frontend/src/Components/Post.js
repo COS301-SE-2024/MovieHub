@@ -11,7 +11,10 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
-
+    const [modalVisible, setModalVisible] = useState(false); 
+    const toggleModal = () => {
+        setModalVisible(!modalVisible);
+    };
     const toggleLike = () => {
         setLiked(!liked);
     };
@@ -93,6 +96,31 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             color: theme.gray,
             fontSize: 13,
         },
+        modalContainer: {
+            position: 'absolute',
+            top: 30,
+            right: 10,
+            backgroundColor: 'white',
+            borderRadius: 5,
+            shadowColor: "#000",
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+            shadowOpacity: 0.45,
+            shadowRadius: 3.84,
+            elevation: 5,
+            padding: 10,
+            zIndex: 1000,
+        },
+        modalOption: {
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+        },
+        modalText: {
+            color: 'black',
+            fontSize: 16,
+        }
     });
     
 
@@ -125,6 +153,16 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                 <View style={{ flex: 1 }}></View>
                 <CommIcon name="share-outline" size={20} style={styles.icon} />
             </View>
+            {modalVisible && (
+                <View style={styles.modalContainer}>
+                    <TouchableOpacity style={styles.modalOption} onPress={() => { /* Add edit functionality / }}>
+                        <Text style={styles.modalText}>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.modalOption} onPress={() => { / Add delete functionality */ }}>
+                        <Text style={styles.modalText}>Delete</Text>
+                    </TouchableOpacity>
+                </View>
+            )} 
         </View>
     );
 }
