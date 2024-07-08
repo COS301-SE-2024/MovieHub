@@ -2,61 +2,74 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image} from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Cast from "../Components/Cast";
+import { getMovieCredits } from '../Services/TMDBApiService';
 
 
 const MovieDescriptionPage = () =>
     {
         
         const route = useRoute();
-        const { imageUrl, title } = route.params;
+        const {movieId, imageUrl, title, rating, overview, date } = route.params;
 
+        const [credits, setCredits] = useState({ cast: [], crew: [] });
 
+        useEffect(() => {
+            const fetchCredits = async () => {
+                const data = await getMovieCredits(movieId);
+                setCredits(data);
+            };
+    
+            fetchCredits();
+        }, [movieId]);
+
+        const director = credits.crew.find(person => person.job === 'Director');
+    const cast = credits.cast.slice(0, 5).map(person => person.name).join(', ');
 
         return(
             <ScrollView style={styles.container}>
                 <View style={styles.wholecontainer} >
                     <View style={styles.card}>
-                        <Image source={imageUrl} style={styles.image} />
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
                     </View>
                 </View>
                 <View style={styles.moviedes}>
                     <View style={styles.movieinfo}>
                         <Text style={styles.movietitle} >{title}</Text>
-                        <Text style={styles.movietitle}>7/10</Text>
+                        <Text style={styles.movietitle}>{rating}/10</Text>
                     </View>
                     <View style={styles.movieinfo2}>
-                        <Text style={styles.movietitle2} >2016 </Text>
+                        <Text style={styles.movietitle2} >{date} </Text>
                         <Text style={styles.movietitle2} > | </Text>
                         <Text style={styles.movietitle2} > 2h </Text>
                     </View>
                     <View style={styles.moviebio}>
-                        <Text style={styles.moviebiotext}>When revolutionary, experimental human drone tech falls into enemy hands, it's up to the leader of an elite C.I.A. group (Bruce Willis) and his team to draft a black-ops soldier into service to retrieve the weapons system at any cost. Co-starring Dominic Purcell ("DC's Legends of Tomorrow"), ASSASSIN is a pulse-pounding sci-fi action thriller.</Text>
-                    </View>
+                        <Text style={styles.moviebiotext}>{overview}</Text></View>
                     <View>
-                        <Text style={styles.moviebio}>Starring:</Text>
-                        <Text style={styles.moviebio}>Directed by:</Text>
+                    <Text style={styles.moviebio}>
+                        <Text style={styles.bold}>Starring:</Text> {cast}
+                    </Text>
+                    <Text style={styles.moviebio}>
+                        <Text style={styles.bold}>Directed by:</Text> {director ? director.name : 'N/A'}
+                    </Text>
                     </View>
-                    <Text style={styles.moviecast} >Cast</Text>
+                    <Text style={styles.moviecast} > Cast</Text>
+
+                    
 
                     <ScrollView horizontal>
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
-                    <Cast
-                    imageUrl={imageUrl}
-                    />
+                    {credits.cast.slice(0, 5).map((member, index) => (
+                        <Cast
+                            key={index}
+                            imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`}
+                            name={member.name}
+                        />
+                    ))}
+
                     </ScrollView>
 
                     </View>
+
+                    
 
             </ScrollView>
         );
@@ -110,13 +123,13 @@ const MovieDescriptionPage = () =>
         },
         movietitle: {
             paddingTop: 20,
-            fontSize: 25,
+            fontSize: 23,
             fontWeight: 'bold',
             textAlign: 'center',
         },
         movietitle2: {
             paddingLeft: 10,
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: 'bold',
             textAlign: 'center',
         },
@@ -146,6 +159,11 @@ const MovieDescriptionPage = () =>
             fontSize: 25,
             paddingLeft:20,
             fontWeight: 'bold',
+        },
+
+        bold: {
+            fontWeight: 'bold',
+            fontSize: 15,
         },
 
 

@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 
-export default function MovieCard({imageUrl,title}) {
+export default function MovieCard({movieId, imageUrl,title, rating, overview, date}) {
 
     const navigation = useNavigation();
 
     const handleNewUser = () => {
-        navigation.navigate("MovieDescriptionPage", {imageUrl: imageUrl, title: title });
+        navigation.navigate("MovieDescriptionPage", {movieId : movieId,imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date});
     };
 
     return (
@@ -16,7 +16,7 @@ export default function MovieCard({imageUrl,title}) {
             
             <View style={styles.card}>
             <TouchableOpacity onPress={handleNewUser}>
-            <Image source={imageUrl} style={styles.image} />
+            <Image source={{ uri: imageUrl }} style={styles.image} />
             <Text style={styles.title}>{title}</Text>
             </TouchableOpacity>
             </View>

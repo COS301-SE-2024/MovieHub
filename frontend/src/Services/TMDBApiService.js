@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_KEY = '';
-//5cb60bcbd1b573d3c950b827805204a6
+const API_KEY = '5cb60bcbd1b573d3c950b827805204a6';
+
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 export const getPopularMovies = async () => {
@@ -13,10 +13,35 @@ export const getPopularMovies = async () => {
                     page: 1
                 }
             });
+
+
             return response.data.results;
         } catch (error) {
             console.error('Error fetching popular movies:', error);
             throw error;
+        }
+    };
+
+export const getMovieCredits = async (movieId) => {
+        try {
+            const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${API_KEY}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching movie credits:', error);
+            return { cast: [], crew: [] };
+        }
+    };
+
+
+export const getMoviesByGenre = async (genreId) => {
+        try {
+            const response = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`);
+            const data = await response.json();
+            return data.results;
+        } catch (error) {
+            console.error('Error fetching movies by genre:', error);
+            return [];
         }
     };
 
@@ -36,5 +61,4 @@ export const searchMovies = async (query) => {
             throw error;
         }
     };
-    // Add more methods as needed
 

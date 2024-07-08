@@ -1,9 +1,33 @@
 const neo4j = require('neo4j-driver');
-// require('dotenv').config();
+require('dotenv').config();
+
 const driver = neo4j.driver(
-    'neo4j+s://d16778b5.databases.neo4j.io',
-    neo4j.auth.basic('neo4j', '1yDboUOlGobuDEJX6xw_JitPl-93pTFKN6iYJCyyvt0')
+    process.env.NEO4J_URI,
+    neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
 );
+
+exports.getLikesOfUser = async (userId) => {
+    const session = driver.session();
+    console.log("getLikesOfUser", userId);
+    userId = parseInt(userId, 10);
+    if (isNaN(userId)) {
+        throw new Error('Invalid User ID');
+    }
+    try {
+        const result = await session.run(
+            `MATCH (u)-[:LIKES]->(p:Post)
+            WHERE ID(u) = $userId
+            RETURN {post : p, id : ID(p)} as data`,
+            { userId }
+        );
+        console.log(result);
+        const  reviews = result.records.map(record => record.get('data'));
+        const data = await processGets(reviews); // Await the processGets call
+        return data;
+    } finally {
+        await session.close();
+    }
+};
 
 async function toggleLike(userId, entityId, entityType) {
     const session = driver.session();
@@ -14,13 +38,6 @@ async function toggleLike(userId, entityId, entityType) {
             MATCH (u)-[like:LIKES]->(e)
             RETURN like`,
             { userId, entityId }
-            // `MATCH (u:User {id: $userId})
-            //  WITH u
-            //  MATCH (u)-[like:LIKES]->(e:${entityType} {id: $entityId})
-            //  RETURN like`,
-
-            // `MATCH (u:User {id: $userId})-[like:LIKES]->(${entityType} {id: $entityId}) ` +
-            // 'RETURN like',
         );
 
         if (result.records.length > 0) {
@@ -30,13 +47,6 @@ async function toggleLike(userId, entityId, entityType) {
                 MATCH (u)-[like:LIKES]->(e)
                 DETACH DELETE like`,
                 { userId, entityId }
-                // `MATCH (u:User {id: $userId})
-                //  WITH u
-                //  MATCH (u)-[like:LIKES]->(e:${entityType} {id: $entityId})
-                //  DETACH DELETE like`,
-
-                // `MATCH (u:User {id: $userId})-[like:LIKES]->(${entityType} {id: $entityId}) ` +
-                // 'DELETE like',
             );
             return false; // Like removed
         } else {
@@ -44,8 +54,6 @@ async function toggleLike(userId, entityId, entityType) {
                 `MATCH (u), (e)
                 WHERE ID(u) = $userId AND ID(e) = $entityId
                 MERGE (u)-[:LIKES]->(e)`,
-                // `MATCH (u:User {id: $userId}), (${entityType} {id: $entityId}) ` +
-                // `MERGE (u)-[:LIKES]->(${entityType})`,
                 { userId, entityId }
             );
             return true; // Entity liked
@@ -58,20 +66,38 @@ async function toggleLike(userId, entityId, entityType) {
     }
 }
 
-async function toggleLikeReview(userId, reviewId) {
+exports.toggleLikeReview = async (userId, reviewId) => {
     return toggleLike(userId, reviewId, 'Review');
-}
+};
 
-async function toggleLikeComment(userId, commentId) {
+exports.toggleLikeComment = async(userId, commentId) => {
     return toggleLike(userId, commentId, 'Comment');
-}
+};
 
-async function toggleLikeMovie(userId, movieId) {
+exports.toggleLikeMovie = async (userId, movieId) => {
     return toggleLike(userId, movieId, 'Movie');
-}
+};
+
+exports.toggleLikePost = async (userId, postId) => {
+    return toggleLike(userId, postId, 'Post');
+};
 
 process.on('exit', () => {
     driver.close();
 });
 
-module.exports = { toggleLikeReview, toggleLikeComment, toggleLikeMovie };
+const processGets= async(datas) =>{
+    console.log('Enter processGets with ',datas);
+  return datas.map(data => {
+    // Access the ID
+    console.log(data);
+    console.log(data.id);
+    const id = data.id.toNumber(); // Convert neo4j.Integer to JavaScript number
+    console.log(id);
+    // Access the node properties
+    const properties = data.post.properties; // This is an object containing the node's properties
+
+    // Return the processed data
+    return { id, properties };
+   });
+  };

@@ -4,21 +4,21 @@ import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import { EditProfile } from "./EditProfile";
 import LikesTab from "../Components/LikesTab"
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from"../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader";
-import ProfileHeader from "../Components/ProfileHeader"
 import { getUserProfile } from "../Services/UsersApiService";
+import * as SecureStore from 'expo-secure-store';
+
+import { colors, themeStyles } from '../styles/theme';
+import { useTheme } from '../styles/ThemeContext';
 
 function renderScene({ route }) {
     switch (route.key) {
         case "posts":
             return (
-
                 <PostsTab/>
-
             );
         case "likes":
             return (
@@ -31,7 +31,8 @@ function renderScene({ route }) {
     }
 } 
 
-export default function ProfilePage() {
+export default function ProfilePage({route}) {
+    const { theme } = useTheme();
     const layout = useWindowDimensions();
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
@@ -40,9 +41,13 @@ export default function ProfilePage() {
         { key: "watchlist", title: "Watchlist" },
     ]);
 
+  //  const route = useRoute();
+    const { userInfo } = route.params;
+    console.log("The users info in Profile Page: ", userInfo);
+
     const navigation = useNavigation();
     const handleEditProfile = () => {
-        navigation.navigate("EditProfile");
+        navigation.navigate("EditProfile", {userInfo});
     };
 
     let [userProfile, setUserProfile] = useState({});
@@ -52,7 +57,14 @@ export default function ProfilePage() {
 
     const fetchData = async () => {// fetching data from api
         try {
-            const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3';
+            // //Check Users Token
+            // const token = await SecureStore.getItemAsync('userToken');
+            // if (!token) {
+            //     throw new Error('No token found');
+            // }
+
+            const userId = userInfo.userId;
+            console.log("/////About to fetch data//////");
           const response = await  getUserProfile(userId); 
           setUserProfile(response);
 
@@ -88,14 +100,96 @@ export default function ProfilePage() {
         console.log("Followers:", followers);
     }, [userProfile, followers, following]); 
 
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: "#fff",
+        },
+        avatar: {
+            width: 80,
+            height: 80,
+            borderRadius: 50,
+        },
+        button: {
+            backgroundColor: "#000",
+            padding: 10,
+            borderRadius: 5,
+            width: 190,
+        },
+        buttonText: {
+            color: "#fff",
+            fontWeight: "bold",
+            textAlign: "center",
+        },
+        buttonContainer: {
+            alignItems: "center",
+            marginTop: 20,
+        },
+        accountInfo: {
+            alignItems: "center",
+        },
+        username: {
+            fontSize: 24,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        userHandle: {
+            fontSize: 16,
+            fontWeight: "600",
+            color: theme.gray,
+        },
+        followInfo: {
+            flexDirection: "row",
+            justifyContent: "space-around",
+            marginTop: 20,
+            paddingHorizontal: 25,
+        },
+        number: {
+            fontSize: 16,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        label: {
+            fontSize: 14,
+            fontWeight: "500",
+            color: theme.textColor,
+            textTransform: "capitalize",
+        },
+        about: {
+            marginTop: 25,
+            marginHorizontal: 25,
+        },
+        tabContainer: {
+            color: theme.gray,
+            marginTop: 25,
+            height: "110%",
+            
+        },
+        tabBar: {
+            backgroundColor: theme.backgroundColor,
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: "#ddd",
+            
+        },
+        indicator: {
+            backgroundColor: colors.primary,
+            borderRadius: 50,
+        },
+    });
+
     return (
         // <ProfileHeader />
         <View style={{ flex: 1 }}>
             
-            <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
+            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
                 <View style={styles.accountInfo}>
-                    <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>{userProfile.fullName ? userProfile.fullName : "Itumeleng Moshokoa"}</Text>
+                    <Image  source={{ 
+// uri: userProfile.profilePicture ======Getting error: No suitable URL request handler found for gs://moviehub-3ebc8.appspot.com/ProfilePictures/spiderman_point.webp=======
+ //     ? userProfile.profilePicture 
+               uri : "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" 
+        }} style={styles.avatar}></Image>
+                    <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
                     <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
@@ -109,20 +203,23 @@ export default function ProfilePage() {
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={styles.button} onPress={handleEditProfile}>
+                    <Pressable style={themeStyles.button} onPress={handleEditProfile}>
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: "#7b7b7b", paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
-                    <Text>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
+                    <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
+                    <Text style={{ color: theme.textColor }}>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
                     <Text style={{ marginTop: 5 }}>
-                    <Text style={{ fontWeight: "bold" }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenre ? userProfile.favouriteGenre.length >= 3 && (
-                            <Text>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
+                        <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
+                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? (
+                            <Text style={{ color: theme.textColor }}>
+                                {userProfile.favouriteGenres.slice(0, 3).join(', ')}
+                            </Text>
                         ) : (
-                            <Text>Animation, True Crime</Text>
+                            <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>
                         )}
+
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
@@ -135,75 +232,5 @@ export default function ProfilePage() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-    },
-    avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 50,
-    },
-    button: {
-        backgroundColor: "#000",
-        padding: 10,
-        borderRadius: 5,
-        width: 190,
-    },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    buttonContainer: {
-        alignItems: "center",
-        marginTop: 20,
-    },
-    accountInfo: {
-        alignItems: "center",
-    },
-    username: {
-        fontSize: 24,
-        fontWeight: "bold",
-    },
-    userHandle: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#7b7b7b",
-    },
-    followInfo: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        marginTop: 20,
-        paddingHorizontal: 25,
-    },
-    number: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    label: {
-        fontSize: 16,
-        color: "#7b7b7b",
-        textTransform: "capitalize",
-    },
-    about: {
-        marginTop: 25,
-        marginHorizontal: 25,
-    },
-    tabContainer: {
-        color: "#7b7b7b",
-        marginTop: 25,
-    },
-    tabBar: {
-        backgroundColor: "#fff",
-        elevation: 0,
-        shadowOpacity: 0,
-        borderBottomWidth: 1,
-        borderBottomColor: "#7b7b7b",
-    },
-    indicator: {
-        backgroundColor: "#7b7b7b",
-        borderRadius: 50,
-    },
-});
+
 // export default ProfilePage;
