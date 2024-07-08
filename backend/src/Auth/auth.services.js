@@ -21,7 +21,7 @@ exports.registerUser = async (email, password, username) => {
     console.log("In auth register service ");
 
     // Create a user in Firebase Authentication
-    const userRecord = await admin.auth().createUser({
+    const userRecord = await firebase.auth().createUser({
       email,
       password,
       displayName: username
@@ -38,7 +38,7 @@ exports.registerUser = async (email, password, username) => {
         await createUserNode(userId, username);
       } catch (error) {
         // If Neo4j user creation fails, delete the created Firebase user
-        await admin.auth().deleteUser(userId);
+        await firebase.auth().deleteUser(userId);
         throw new Error('Failed to create user in Neo4j: ' + error.message);
       }
     } else {
@@ -46,7 +46,7 @@ exports.registerUser = async (email, password, username) => {
     }
 
     // Generate a custom token for the user
-    const customToken = await admin.auth().createCustomToken(userId);
+    const customToken = await firebase.auth().createCustomToken(userId);
 
     return { userRecord, customToken };
   } catch (error) {
