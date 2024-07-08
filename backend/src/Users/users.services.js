@@ -97,18 +97,33 @@ exports.getUserWatchlists = async (userId) => {
 };
 
 exports.createUserNode = async (uid, username) => {
-
     const session = driver.session();
     try {
-        const result = await session.run(
+        // Check if the username already exists
+        const checkUsernameResult = await session.run(
+            'MATCH (u:User {username: $username}) RETURN u',
+            { username }
+        );
+
+        if (checkUsernameResult.records.length > 0) {
+            // Username already exists
+            throw new Error('Username already exists');
+        }
+
+        // Create the new user node
+        const createUserResult = await session.run(
             'CREATE (u:User {uid: $uid, username: $username}) RETURN u',
             { uid, username }
         );
-        return result.records[0].get('u');
+
+        return createUserResult.records[0].get('u');
+    } catch (error) {
+        throw error;
     } finally {
         await session.close();
     }
 };
+
 
 
 // Close the driver when the application exits
