@@ -92,7 +92,7 @@ export const deleteUserProfile = async (userId) => {
 
 // export const deleteUserProfile = async (userId) => {
 //     try {
-//         const response = await fetch(`http://localhost:3000/users/${userId}`, {
+//         const response = await fetch(`${API_URL}${userId}`, {
 //             method: 'DELETE',
 //         });
 
@@ -119,7 +119,7 @@ export const deleteUserProfile = async (userId) => {
 // New function to get a user's watchlists
 export const getUserWatchlists = async (userId) => {
     const token = await getToken();
-    const response = await fetch(`http://localhost:3000/users/${userId}/watchlists`,{
+    const response = await fetch(`${API_URL}${userId}/watchlists`,{
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
