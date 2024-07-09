@@ -32,15 +32,15 @@ export const getUserProfile = async (userId) => {
         headers,
     });
 
-    console.log("Here is the API res  ",response);
+    // console.log("Here is the API res  ",response);
     if (!response.ok) {
         throw new Error('Failed to fetch user profile');
     }
 
     const textData = await response.text();
-        console.log('Response text:', textData);
+        // console.log('Response text:', textData);
         const data = JSON.parse(textData);
-        console.log('Parsed data:', data);
+        // console.log('Parsed data:', data);
 
 
     return data;
