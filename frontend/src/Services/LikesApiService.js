@@ -1,5 +1,5 @@
 // src/services/LikesApiService.js
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/auth/'; // Update to your Expo URL
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/like/'; // Update to your Expo URL
 
 export const toggleLikeReview = async (bodyData) => {
     const response = await fetch(`${API_URL}toggleLikeReview`, {
