@@ -1,4 +1,5 @@
 // src/services/PostsApiService.js
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.193.139:3000/auth/'; // Update to your Expo URL
 
 export const addPost = async (bodyData) => {
     const response = await fetch(`http://localhost:3000/post/add`, {

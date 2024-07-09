@@ -215,10 +215,12 @@ export default function ProfilePage({ route }) {
                         onIndexChange={setIndex} 
                         initialLayout={{ width: layout.width }} 
                         renderTabBar={(props) => 
-                        <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />
+                        <TabBar {...props} 
+                            indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />
                     } />
                 </View>
             </ScrollView>
+
             <BottomHeader />
         </View>
     );
