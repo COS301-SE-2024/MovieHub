@@ -85,7 +85,7 @@ const SignupPage = () => {
                 username: data.data.username,
                 //???     token : data.data.token
             };
-            navigation.navigate("HomePage", { userInfo });
+            navigation.navigate("ProfileSetup", { userInfo });
         } catch (error) {
             let errorMessage = "Error signing up";
             if (error.code === "auth/email-already-in-use") {
@@ -139,8 +139,8 @@ const SignupPage = () => {
         },
         socialLink: {
             marginHorizontal: 20,
-            height: 40,
-            width: 40,
+            height: 35,
+            width: 35,
         },
         container: {
             flex: 1,

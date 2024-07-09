@@ -15,6 +15,7 @@ import SearchHeader from "./frontend/src/Components/SearchHeader";
 import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
+import ProfileSetup from "./frontend/src/Screens/ProfileSetupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
 import SearchPage from "./frontend/src/Screens/SearchPage";
 import GenrePage from "./frontend/src/Screens/GenrePage";
@@ -36,6 +37,7 @@ import AddMovies from "./frontend/src/Screens/AddMovies";
 import Notifications from "./frontend/src/Screens/Notifications";
 import WatchlistDetails from "./frontend/src/Screens/WatchlistDetails";
 import EditWatchlist from "./frontend/src/Screens/EditWatchlist";
+
 
 const Nav = createNativeStackNavigator();
 
@@ -59,8 +61,8 @@ export default function App() {
                 >
                     {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} /> */}
                     <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
+                    <Nav.Screen name="ProfileSetup" component={ProfileSetup} options={{ headerShown: false }} />
                     <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
-
                     <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader /> }} />
                     <Nav.Screen name="MovieDescriptionPage" component={MovieDescriptionPage} options={({ navigation }) => ({
                             title: "movieHub.",

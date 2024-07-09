@@ -39,6 +39,7 @@ export default function ProfilePage({ route }) {
     const { userInfo } = route.params;
     console.log("The users info in Profile Page: ", userInfo);
 
+
     const navigation = useNavigation();
     const handleEditProfile = () => {
         navigation.navigate("EditProfile", { userInfo });
@@ -70,11 +71,11 @@ export default function ProfilePage({ route }) {
             if (response.following && response.following.low !== undefined) {
                 setfollowing(response.following.low);
             }
-            console.log("24", following);
+            // console.log("24", following);
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
-            console.log("1", userProfile);
+            // console.log("1", userProfile);
         }
     };
 
@@ -178,7 +179,7 @@ export default function ProfilePage({ route }) {
                         source={{
                             // uri: userProfile.profilePicture ======Getting error: No suitable URL request handler found for gs://moviehub-3ebc8.appspot.com/ProfilePictures/spiderman_point.webp=======
                             //     ? userProfile.profilePicture
-                            uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg",
+                            uri: userProfile.avatar,
                         }}
                         style={styles.avatar}></Image>
                     <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
@@ -186,11 +187,11 @@ export default function ProfilePage({ route }) {
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                        <Text style={styles.number}>{followers ? followers : 132} </Text>
+                        <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>{following ? following : 30} </Text>
+                        <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
@@ -200,7 +201,7 @@ export default function ProfilePage({ route }) {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
+                    {userProfile.pronouns === "Prefer not to say" ? null : <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>}
                     <Text style={{ color: theme.textColor }}>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
                     <Text style={{ marginTop: 5 }}>
                         <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
@@ -208,7 +209,14 @@ export default function ProfilePage({ route }) {
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
-                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
+                    <TabView 
+                        navigationState={{ index, routes }} 
+                        renderScene={renderScene} 
+                        onIndexChange={setIndex} 
+                        initialLayout={{ width: layout.width }} 
+                        renderTabBar={(props) => 
+                        <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />
+                    } />
                 </View>
             </ScrollView>
             <BottomHeader />

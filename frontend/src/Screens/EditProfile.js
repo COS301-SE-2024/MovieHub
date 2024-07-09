@@ -12,7 +12,7 @@ export default function EditProfile({route, userProfile }) {
         fullName: { isVisible: false, newValue: "", tempValue: "" },
         currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: "", tempValue: "" },
-        pronouns: { isVisible: false, newValue: "", tempValue: "", options: ["He/Him", "She/Her", "They/Them"] },
+        pronouns: { isVisible: false, newValue: "", tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
         favoriteGenres: { isVisible: false, newValue: [], tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
     });
     const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");

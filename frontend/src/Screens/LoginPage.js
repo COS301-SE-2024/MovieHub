@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     },
     socialLink: {
         marginHorizontal: 20,
-        height: 40,
-        width: 40,
+        height: 35,
+        width: 35,
     },
     container: {
         flex: 1,
