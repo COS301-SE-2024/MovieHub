@@ -73,7 +73,7 @@ const ProfileSetupPage = ({ route }) => {
         const updatedUser = await updateUserProfile(userInfo.userId, updatedData);
         console.log("Update went well", updatedUser);
 
-        navigation.navigate("HomePage", { updatedData, userInfo });
+        navigation.navigate("HomePage", { updatedData });
     };
 
     return (

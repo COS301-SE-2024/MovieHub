@@ -42,13 +42,15 @@ const LoginPage = () => {
         } catch (error) {
             let errorMessage = "Error signing in";
             if (error.code === "auth/user-not-found") {
-                errorMessage = "User not found. Please check your email";
+                errorMessage = "User not found. Please check your email address";
             } else if (error.code === "auth/wrong-password") {
                 errorMessage = "Incorrect password. Please try again";
             } else if (error.code === "auth/invalid-email") {
                 errorMessage = "Invalid email address format";
             } else if (error.code === "auth/invalid-login-credentials") {
                 errorMessage = "Incorrect email or password. Please try again";
+            } else if (!email || !password) {
+                errorMessage = "Email and password are required";
             } else {
                 errorMessage = error.message; // Default to Firebase's error message
             }

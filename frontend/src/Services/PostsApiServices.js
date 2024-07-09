@@ -1,8 +1,8 @@
 // src/services/PostsApiService.js
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.193.139:3000/auth/'; // Update to your Expo URL
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.193.139:3000/post/'; // Update to your Expo URL
 
 export const addPost = async (bodyData) => {
-    const response = await fetch(`http://localhost:3000/post/add`, {
+    const response = await fetch(`${API_URL}add`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ export const addPost = async (bodyData) => {
 };
 
 export const addCommentToPost = async (bodyData) => { //NOT INTEGRATED
-    const response = await fetch(`http://localhost:3000/post/comment/post`, {
+    const response = await fetch(`${API_URL}comment/post`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export const addCommentToPost = async (bodyData) => { //NOT INTEGRATED
 };
 
 export const addCommentToComment = async (bodyData) => { //NOT INTEGRATED
-    const response = await fetch(`http://localhost:3000/post/comment/comment`, {
+    const response = await fetch(`${API_URL}comment/comment`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ export const addCommentToComment = async (bodyData) => { //NOT INTEGRATED
 };
 
 export const editPost = async (bodyData) => {
-    const response = await fetch(`http://localhost:3000/post/edit`, {
+    const response = await fetch(`${API_URL}edit`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export const editPost = async (bodyData) => {
 };
 
 export const editComment = async (bodyData) => { //NOT INTEGRATED
-    const response = await fetch(`http://localhost:3000/post/edit/comment`, {
+    const response = await fetch(`${API_URL}edit/comment`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export const editComment = async (bodyData) => { //NOT INTEGRATED
 
 
 export const removePost = async (bodyData) => {
-    const response = await fetch(`http://localhost:3000/post/remove`, {
+    const response = await fetch(`${API_URL}remove`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export const removePost = async (bodyData) => {
 };
 
 export const removeComment = async (bodyData) => { //NOT INTEGRATED
-    const response = await fetch(`http://localhost:3000/post/remove/comment`, {
+    const response = await fetch(`${API_URL}remove/comment`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export const removeComment = async (bodyData) => { //NOT INTEGRATED
 };
 
 export const getPostsOfMovie = async (movieId) => { //NOT INTEGRATED
-    const response = await fetch(`http://localhost:3000/post/movie/${movieId}/posts`);
+    const response = await fetch(`${API_URL}movie/${movieId}/posts`);
     if (!response.ok) {
         throw new Error('Failed to fetch movie posts');
     }
@@ -121,7 +121,7 @@ export const getPostsOfMovie = async (movieId) => { //NOT INTEGRATED
 };
 
 export const getReviewsOfMovie = async (movieId) => { //NOT INTEGRATED
-    const response = await fetch(`http://localhost:3000/post/movie/${movieId}/reviews`);
+    const response = await fetch(`${API_URL}movie/${movieId}/reviews`);
     if (!response.ok) {
         throw new Error('Failed to fetch movie posts');
     }
@@ -134,7 +134,7 @@ export const getReviewsOfMovie = async (movieId) => { //NOT INTEGRATED
 };
 
 export const getCommentsOfPost = async (postId) => { //NOT INTEGRATED
-    const response = await fetch(`http://localhost:3000/post/post/${postId}/comments`);
+    const response = await fetch(`${API_URL}post/${postId}/comments`);
     if (!response.ok) {
         throw new Error('Failed to fetch comments of post');
     }

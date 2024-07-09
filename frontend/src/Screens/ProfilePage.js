@@ -42,6 +42,7 @@ export default function ProfilePage({ route }) {
 
     const navigation = useNavigation();
     const handleEditProfile = () => {
+        userInfo.userProfile = userProfile;
         navigation.navigate("EditProfile", { userInfo });
     };
 
@@ -58,8 +59,8 @@ export default function ProfilePage({ route }) {
             // if (!token) {
             //     throw new Error('No token found');
             // }
-
-            const userId = userInfo.userId;
+            
+            const userId = userInfo.userId;  
             console.log("/////About to fetch data//////");
             const response = await getUserProfile(userId);
             setUserProfile(response);
@@ -183,7 +184,7 @@ export default function ProfilePage({ route }) {
                         }}
                         style={styles.avatar}></Image>
                     <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
-                    <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
+                    <Text style={styles.userHandle}>@{userProfile.username ? userProfile.username : "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
@@ -221,7 +222,7 @@ export default function ProfilePage({ route }) {
                 </View>
             </ScrollView>
 
-            <BottomHeader />
+            <BottomHeader userInfo={userInfo} />
         </View>
     );
 }
