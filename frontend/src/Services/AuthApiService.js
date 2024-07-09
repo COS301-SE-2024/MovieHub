@@ -3,7 +3,7 @@ const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/au
 
 export const registerUser = async (email, password, username) => {
     console.log("Inside AuthApi Service");
-    const response = await fetch(`http://localhost:3000/auth/register`, {
+    const response = await fetch(`${API_URL}register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ export const registerUser = async (email, password, username) => {
 };
 
 export const loginUser = async (email, password) => {
-    const response = await fetch(`http://localhost:3000/auth/login`, {
+    const response = await fetch(`${API_URL}login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export const loginUser = async (email, password) => {
 };
 
 export const logoutUser = async () => {
-    const response = await fetch(`http://localhost:3000/auth/logout`, {
+    const response = await fetch(`${API_URL}logout`, {
         method: 'POST',
     });
 
