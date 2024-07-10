@@ -21,7 +21,10 @@ import BottomHeader from "../Components/BottomHeader"
 import { useNavigation } from "@react-navigation/native";
 import {getPopularMovies, getMoviesByGenre } from '../Services/TMDBApiService';
 
-const HomePage = () => {
+const HomePage = ({route}) => {
+   // const route = useRoute();
+    //Use userInfo to personlise a users homepage
+    const {userInfo} = route.params;
 
     let [movies, setMovies] = useState([]);
     let [thrillerMovies, setThrillerMovies] = useState([]);
@@ -199,8 +202,8 @@ const HomePage = () => {
             </View>
             
         </ScrollView>
-
-        <BottomHeader/>
+{/* Add users info for bottom header */}
+            <BottomHeader userInfo={userInfo} />
 
     </View>
     );

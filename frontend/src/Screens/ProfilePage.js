@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
@@ -9,9 +9,10 @@ import PostsTab from "../Components/PostsTab";
 import WatchlistTab from "../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader";
 import { getUserProfile } from "../Services/UsersApiService";
+import * as SecureStore from "expo-secure-store";
 
-import { colors, themeStyles } from '../styles/theme';
-import { useTheme } from '../styles/ThemeContext';
+import { colors, themeStyles } from "../styles/theme";
+import { useTheme } from "../styles/ThemeContext";
 
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
@@ -37,8 +38,15 @@ export default function ProfilePage({ route }) {
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchData = async () => {
+        // fetching data from api
         try {
-            const userId = userInfo.userId;
+            // //Check Users Token
+            // const token = await SecureStore.getItemAsync('userToken');
+            // if (!token) {
+            //     throw new Error('No token found');
+            // }
+            
+            const userId = userInfo.userId;  
             console.log("/////About to fetch data//////");
             const response = await getUserProfile(userId);
             setUserProfile(response);
@@ -168,20 +176,21 @@ export default function ProfilePage({ route }) {
                 <View style={styles.accountInfo}>
                     <Image
                         source={{
-                            uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg"
+                            // uri: userProfile.profilePicture ======Getting error: No suitable URL request handler found for gs://moviehub-3ebc8.appspot.com/ProfilePictures/spiderman_point.webp=======
+                            //     ? userProfile.profilePicture
+                            uri: userProfile.avatar,
                         }}
-                        style={styles.avatar}
-                    />
+                        style={styles.avatar}></Image>
                     <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
-                    <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
+                    <Text style={styles.userHandle}>@{userProfile.username ? userProfile.username : "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                        <Text style={styles.number}>{followers ? followers : 132} </Text>
+                        <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>{following ? following : 30} </Text>
+                        <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
@@ -191,15 +200,11 @@ export default function ProfilePage({ route }) {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
+                    {userProfile.pronouns === "Prefer not to say" ? null : <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>}
                     <Text style={{ color: theme.textColor }}>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
                     <Text style={{ marginTop: 5 }}>
-                    <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenre ? userProfile.favouriteGenre.length >= 3 && (
-                            <Text style={{color: theme.textColor }}>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
-                        ) : (
-                            <Text style={{color: theme.textColor }}>Animation, True Crime</Text>
-                        )}
+                        <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
+                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text> : <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>

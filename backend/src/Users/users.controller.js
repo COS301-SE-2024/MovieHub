@@ -20,7 +20,7 @@ let watchlistsData;
 // };
 
 exports.getUserProfile = async (req, res) => {
-    console.log('getUserProfile called');
+    console.log('getUserProfile called in user.controller');
     try {
         const userId = req.params.id;
         console.log(`Fetching user profile for ID: ${userId}`);
@@ -40,7 +40,7 @@ exports.getUserProfile = async (req, res) => {
     }
 };
 
-console.log('User profile username ' + userProfileData);
+//console.log('User profile username: ' + userProfileData);
 
 exports.updateUserProfile = async (req, res) => {
     const userId = req.params.id;
