@@ -1,7 +1,7 @@
 // src/services/UsersApiService.js
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://10.0.0.107:3000/users/';// enter what url your expo is running on + our port 3000
+const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://192.168.0.123:3000/users';// enter what url your expo is running on + our port 3000
 
 // Helper function to get the token from SecureStore
 const getToken = async () => {
@@ -24,7 +24,8 @@ const verifyToken = async () => {
 export const getUserProfile = async (userId) => {
     //const token = await getToken();
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}${userId}`, {
+    const response = await fetch(`${API_URL}/${userId}`, {
+
         // headers: {
         //     'Authorization': `Bearer ${token}`,
         //     'Content-Type': 'application/json'
@@ -50,7 +51,8 @@ export const getUserProfile = async (userId) => {
 export const updateUserProfile = async (userId, updatedData) => {
    // const token = await getToken();
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}${userId}`, {
+    const response = await fetch(`${API_URL}/${userId}`, {
+
         method: 'PATCH',
         headers: {
             // 'Authorization': `Bearer ${token}`,
@@ -71,7 +73,8 @@ export const deleteUserProfile = async (userId) => {
     try {
         //const token = await getToken();
         const headers = await verifyToken();
-        const response = await fetch(`${API_URL}${userId}`, {
+        const response = await fetch(`${API_URL}/${userId}`, {
+
             method: 'DELETE',
             headers: {
                 // 'Authorization': `Bearer ${token}`,
@@ -119,7 +122,8 @@ export const deleteUserProfile = async (userId) => {
 // New function to get a user's watchlists
 export const getUserWatchlists = async (userId) => {
     const token = await getToken();
-    const response = await fetch(`${API_URL}${userId}/watchlists`,{
+    const response = await fetch(`${API_URL}/${userId}/watchlists`,{
+
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -136,7 +140,7 @@ export const getUserWatchlists = async (userId) => {
 // funtion get get user's posts
 export const getUserPosts = async (userId) => {
     const token = await getToken();
-    const response = await fetch(`http://localhost:3000/post/user/${userId}/posts`, {
+    const response = await fetch(`${API_URL}/${userId}/posts`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

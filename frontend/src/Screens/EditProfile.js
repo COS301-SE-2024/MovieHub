@@ -3,11 +3,14 @@ import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, Scro
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../../backend/src/Firebase/firebase.config';
 
-export default function EditProfile({ route }) {
-    const { userInfo } = route.params;
-    const userProfile = userInfo.userProfile;
-    console.log("User Profile: ", userProfile.avatar);
+export default function EditProfile({route, userProfile }) {
+    const {userInfo} = route.params;
+    const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");
+    const [uploading, setUploading] = useState(false);
+
 
     const [modalContent, setModalContent] = useState({
         username: { isVisible: false, newValue: userProfile.username, tempValue: "" },
@@ -17,23 +20,9 @@ export default function EditProfile({ route }) {
         pronouns: { isVisible: false, newValue: userProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
         favoriteGenres: { isVisible: false, newValue: userProfile.favoriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
     });
-    const [avatar, setAvatar] = useState(userProfile.avatar);
 
-    // const username = userProfile?.username || "";
-    // const name = userProfile?.name || "";
-    // const bio = userProfile?.bio || "";
-    // const pronouns = userProfile?.pronouns || "";
-    // const currentlyWatching = userProfile?.currWatching || "";
-    // const favoriteGenres = userProfile?.favoriteGenres || [];
+   // const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");
 
-    // useEffect to set user details with temp values
-    // React.useEffect(() => {
-    //     if (userProfile) {
-    //         setModalContent({
-    //             ...modalContent,
-    //         })
-    //     }
-    // })
 
 
     const applyChanges = async (field) => {
@@ -136,8 +125,24 @@ export default function EditProfile({ route }) {
         if (pickerResult.canceled === true) {
             return;
         }
-        setAvatar(pickerResult.assets[0].uri);
+        const { uri } = pickerResult.assets[0];
+        setAvatar(uri);
+
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `ProfilePictures/${userInfo.userId}.jpg`);
+
+        uploadBytes(storageRef, blob)
+            .then((snapshot) => {
+                getDownloadURL(snapshot.ref).then((downloadURL) => {
+                    updateUserProfile(userInfo.userId, { profilePicture: downloadURL });
+                });
+            })
+            .catch((error) => {
+                console.error('Error uploading image: ', error);
+            });
     };
+
 
     return (
         <ScrollView style={styles.container}>
