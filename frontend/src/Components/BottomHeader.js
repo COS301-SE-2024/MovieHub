@@ -15,20 +15,20 @@ export default function BottomHeader({ userInfo }) {
         ///// add user info parameter to other pages as necessary /////////
         <View style={styles.header}>
             <View style={styles.iconRow}>
-                <TouchableOpacity onPress={() => navigation.navigate("HomePage")} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("HomePage", { userInfo })} style={styles.iconContainer}>
                     <Icon name="home" size={30} style={[styles.icon, isActive("HomePage") && styles.activeIcon]} />
                     {isActive("HomePage") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("Notifications")} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("Notifications", { userInfo })} style={styles.iconContainer}>
                     <Icon name="notifications" size={30} style={[styles.icon, isActive("Notifications") && styles.activeIcon]} />
                     {isActive("Notifications") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 
-                <TouchableOpacity onPress={() => navigation.navigate("CreatePost")} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("CreatePost", { userInfo })} style={styles.iconContainer}>
                     <Icon name="add-circle-outline" size={30} style={[styles.icon, isActive("CreatePost") && styles.activeIcon]} />
                     {isActive("CreatePost") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("People")} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("People", { userInfo })} style={styles.iconContainer}>
                     <Icon name="people" size={32} style={[styles.icon, isActive("People") && styles.activeIcon]} />
                     {isActive("People") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
