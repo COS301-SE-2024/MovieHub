@@ -15,23 +15,27 @@ export default function PostsTab() {
 
 
     const [posts, setPosts] = useState([]);
+    const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    const fetchPosts = async () => {
-        try {
-            const userId = 0;
-            const response = await getUserPosts(userId);
-            console.log("posts", response.data); // Ensure this logs the correct data structure
-            setPosts(response.data); // Assuming response.data is an array of post objects
-        } catch (error) {
-            console.error("Error fetching posts:", error);
-            // Handle error state or retry logic
-        }
-    };
+  const fetchPosts = async () => {
+    try {
+        const userId = 0;
+        const response = await getUserPosts(userId);
+        console.log("posts", response.data); // Ensure this logs the correct data structure
+        setPosts(response.data); // Assuming response.data is an array of post objects
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        // Handle error state or retry logic
+    }
+};
 
-    useEffect(() => {
-        fetchPosts();
-    }, []);
+useEffect(() => {
+    fetchPosts();
+}, []);
 
+useEffect(() => {
+    console.log(posts)
+}, [posts])
     const styles = StyleSheet.create({
         outerContainer: {
             backgroundColor: theme.backgroundColor,
@@ -71,11 +75,12 @@ export default function PostsTab() {
                 userHandle={userHandle}
                 userAvatar={avatar} 
                 postTitle={post.properties.postTitle}
-                likes={post.properties.likes}
-               // comments={post.properties.comments.low}
-                preview={post.properties.text}
-                saves={post.properties.saves}
-             //   image={post.properties.image} 
+              //  like = {14}
+                likes={getRandomNumber(0,100)}
+                    comments={ getRandomNumber(0, 50)}
+                    preview={post.properties.preview || post.properties.text}
+                    saves={getRandomNumber(0, 18)}
+                image={post.properties.image} 
             />)
             )}
             </ScrollView>

@@ -5,6 +5,7 @@ const userRouter = require('./src/Users/users.router');
 const watchlistRouter = require('./src/Watchlist/list.router');
 const postRouter = require('./src/Post/post.router');
 const likesRouter = require('./src/Likes/likes.router');
+const authRouter  = require('./src/Auth/auth.router'); // Import Firebase authentication middleware
 const cors = require('cors'); // since we are using more than on port
 const https = require('https');
 const fs = require('fs');
@@ -21,6 +22,7 @@ app.use(cors({
   }));
 
 app.use(express.json());
+app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/list', watchlistRouter);
 app.use('/post', postRouter);
