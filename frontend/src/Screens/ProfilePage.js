@@ -4,33 +4,16 @@ import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import LikesTab from "../Components/LikesTab"
+import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
-import WatchlistTab from"../Components/Watchlist";
+import WatchlistTab from "../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader";
 import { getUserProfile } from "../Services/UsersApiService";
 
 import { colors, themeStyles } from '../styles/theme';
 import { useTheme } from '../styles/ThemeContext';
 
-function renderScene({ route }) {
-    switch (route.key) {
-        case "posts":
-            return (
-                <PostsTab/>
-            );
-        case "likes":
-            return (
-                <LikesTab/>
-            );
-        case "watchlist":
-            return (
-                <WatchlistTab/>
-            );
-    }
-} 
-
-export default function ProfilePage() {
+export default function ProfilePage({ route }) {
     const { theme } = useTheme();
     const layout = useWindowDimensions();
     const [index, setIndex] = React.useState(0);
@@ -40,53 +23,55 @@ export default function ProfilePage() {
         { key: "watchlist", title: "Watchlist" },
     ]);
 
+    const { userInfo } = route.params;
+    console.log("The user's info in Profile Page: ", userInfo);
+
     const navigation = useNavigation();
     const handleEditProfile = () => {
-        navigation.navigate("EditProfile");
+        navigation.navigate("EditProfile", { userInfo });
     };
 
-    let [userProfile, setUserProfile] = useState({});
-    let [followers, setfollowers] = useState(0);
-    let [following, setfollowing] = useState(0);
+    const [userProfile, setUserProfile] = useState({});
+    const [followers, setFollowers] = useState(0);
+    const [following, setFollowing] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
 
-    const fetchData = async () => {// fetching data from api
+    const fetchData = async () => {
         try {
-            const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3';
-          const response = await  getUserProfile(userId); 
-          setUserProfile(response);
+            const userId = userInfo.userId;
+            console.log("/////About to fetch data//////");
+            const response = await getUserProfile(userId);
+            setUserProfile(response);
 
-          if (response.followers && response.followers.low !== undefined) {
-            setfollowers(response.followers.low);
-        }
+            if (response.followers && response.followers.low !== undefined) {
+                setFollowers(response.followers.low);
+            }
 
-        if (response.following && response.following.low !== undefined) {
-            setfollowing(response.following.low);
-        }
-          console.log("24",following);
+            if (response.following && response.following.low !== undefined) {
+                setFollowing(response.following.low);
+            }
+            console.log("24", following);
         } catch (error) {
-          console.error('Error fetching user data:', error);
-      
+            console.error('Error fetching user data:', error);
         } finally {
-            console.log("1",userProfile);
-
+            console.log("1", userProfile);
         }
-      };
+    };
 
-      const handleRefresh = () =>{
-        setRefreshing(true)
-        fetchData()
-        setRefreshing(false)
-      }
+    const handleRefresh = () => {
+        setRefreshing(true);
+        fetchData();
+        setRefreshing(false);
+    }
 
     useEffect(() => {
-        fetchData(); 
-    }, []); 
+        fetchData();
+    }, []);
 
     useEffect(() => {
         console.log("User Profile:", userProfile);
         console.log("Followers:", followers);
-    }, [userProfile, followers, following]); 
+    }, [userProfile, followers, following]);
 
     const styles = StyleSheet.create({
         container: {
@@ -150,7 +135,6 @@ export default function ProfilePage() {
             color: theme.gray,
             marginTop: 25,
             height: "110%",
-            
         },
         tabBar: {
             backgroundColor: theme.backgroundColor,
@@ -158,7 +142,6 @@ export default function ProfilePage() {
             shadowOpacity: 0,
             borderBottomWidth: 1,
             borderBottomColor: "#ddd",
-            
         },
         indicator: {
             backgroundColor: colors.primary,
@@ -166,19 +149,35 @@ export default function ProfilePage() {
         },
     });
 
+    const renderScene = ({ route }) => {
+        switch (route.key) {
+            case "posts":
+                return <PostsTab />;
+            case "likes":
+                return <LikesTab />;
+            case "watchlist":
+                return <WatchlistTab userInfo={userInfo} />;
+            default:
+                return null;
+        }
+    };
+
     return (
-        // <ProfileHeader />
         <View style={{ flex: 1 }}>
-            
-            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
+            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
                 <View style={styles.accountInfo}>
-                    <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>{userProfile.fullName ? userProfile.fullName : "Itumeleng Moshokoa"}</Text>
+                    <Image
+                        source={{
+                            uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg"
+                        }}
+                        style={styles.avatar}
+                    />
+                    <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
                     <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                    <Text style={styles.number}>{followers ? followers : 132} </Text>
+                        <Text style={styles.number}>{followers ? followers : 132} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
@@ -204,14 +203,16 @@ export default function ProfilePage() {
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
-                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
+                    <TabView
+                        navigationState={{ index, routes }}
+                        renderScene={renderScene}
+                        onIndexChange={setIndex}
+                        initialLayout={{ width: layout.width }}
+                        renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />}
+                    />
                 </View>
-               
             </ScrollView>
-            <BottomHeader />
+            <BottomHeader userInfo={userInfo} />
         </View>
     );
 }
-
-
-// export default ProfilePage;

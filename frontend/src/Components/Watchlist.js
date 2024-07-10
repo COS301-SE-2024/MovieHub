@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 
-const WatchlistTab = () => {
+const WatchlistTab = ({userInfo}) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
@@ -15,7 +15,8 @@ const WatchlistTab = () => {
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
-                const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3'; // Replace with actual user ID fetching logic
+                //const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3'; // Replace with actual user ID fetching logic
+                const userId = userInfo.userId;
                 const userWatchlists = await getUserWatchlists(userId);
                 setWatchlists(userWatchlists);
             } catch (error) {
@@ -58,7 +59,7 @@ const WatchlistTab = () => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-                onPress={() => navigation.navigate('CreateWatchlist')}
+                onPress={() => navigation.navigate('CreateWatchlist', {userInfo})}
             >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <View style={{ flex: 1 }} />
@@ -92,7 +93,7 @@ const WatchlistTab = () => {
                         <TouchableOpacity
                             style={styles.modalOption}
                             onPress={() => {
-                                navigation.navigate('EditWatchlist');
+                                navigation.navigate('EditWatchlist', {userInfo});
                                 closeModal();
                                 console.log(`Edit ${selectedWatchlist.name}`);
                             }}>

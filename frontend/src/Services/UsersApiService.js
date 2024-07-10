@@ -75,7 +75,7 @@ export const deleteUserProfile = async (userId) => {
 //     }
 // };
 
-// New function to get a user's watchlists
+// get a user's watchlists
 export const getUserWatchlists = async (userId) => {
     const response = await fetch(`http://localhost:3000/users/${userId}/watchlists`);
     if (!response.ok) {

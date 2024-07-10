@@ -14,7 +14,7 @@ export default function BottomHeader() {
     return (
         <View style={styles.header}>
             <View style={styles.iconRow}>
-                <TouchableOpacity onPress={() => navigation.navigate("HomePage")} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("HomePage", {userInfo})} style={styles.iconContainer}>
                     <Icon name="home" size={30} style={[styles.icon, isActive("HomePage") && styles.activeIcon]} />
                     {isActive("HomePage") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>

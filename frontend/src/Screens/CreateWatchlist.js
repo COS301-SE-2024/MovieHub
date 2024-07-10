@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
-export default function CreateWatchlist({ navigation }) {
+export default function CreateWatchlist({route,  navigation }) {
+    //Use userInfo to personlise a users homepage
+    const { userInfo } = route.params;
+
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
         description: { isVisible: false, newValue: "", tempValue: "" },
@@ -66,7 +69,7 @@ export default function CreateWatchlist({ navigation }) {
            // cover,
         };
 
-        navigation.navigate('AddMovies', { watchlistData });
+        navigation.navigate('AddMovies', { watchlistData, userInfo });
     };
 
     return (
