@@ -57,6 +57,7 @@ export default function LikesTab() {
 
     return (
         <View>
+            <Text style={styles.title}>Your Likes</Text>
             <ScrollView>
                 {posts.length === 0 ? (
                     <View style={styles.container}>

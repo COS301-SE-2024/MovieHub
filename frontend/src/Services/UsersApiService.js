@@ -24,7 +24,7 @@ const verifyToken = async () => {
 export const getUserProfile = async (userId) => {
     //const token = await getToken();
     const headers = await verifyToken();
-    const response = await fetch(`http://localhost:3000/users/${userId}`, {
+    const response = await fetch(`${API_URL}${userId}`, {
         // headers: {
         //     'Authorization': `Bearer ${token}`,
         //     'Content-Type': 'application/json'
@@ -32,15 +32,15 @@ export const getUserProfile = async (userId) => {
         headers,
     });
 
-    console.log("Here is the API res  ",response);
+    // console.log("Here is the API res  ",response);
     if (!response.ok) {
         throw new Error('Failed to fetch user profile');
     }
 
     const textData = await response.text();
-        console.log('Response text:', textData);
+        // console.log('Response text:', textData);
         const data = JSON.parse(textData);
-        console.log('Parsed data:', data);
+        // console.log('Parsed data:', data);
 
 
     return data;
@@ -50,7 +50,7 @@ export const getUserProfile = async (userId) => {
 export const updateUserProfile = async (userId, updatedData) => {
    // const token = await getToken();
     const headers = await verifyToken();
-    const response = await fetch(`http://localhost:3000/users/${userId}`, {
+    const response = await fetch(`${API_URL}${userId}`, {
         method: 'PATCH',
         headers: {
             // 'Authorization': `Bearer ${token}`,
@@ -71,7 +71,7 @@ export const deleteUserProfile = async (userId) => {
     try {
         //const token = await getToken();
         const headers = await verifyToken();
-        const response = await fetch(`http://localhost:3000/users/${userId}`, {
+        const response = await fetch(`${API_URL}${userId}`, {
             method: 'DELETE',
             headers: {
                 // 'Authorization': `Bearer ${token}`,
@@ -92,7 +92,7 @@ export const deleteUserProfile = async (userId) => {
 
 // export const deleteUserProfile = async (userId) => {
 //     try {
-//         const response = await fetch(`http://localhost:3000/users/${userId}`, {
+//         const response = await fetch(`${API_URL}${userId}`, {
 //             method: 'DELETE',
 //         });
 
@@ -119,7 +119,7 @@ export const deleteUserProfile = async (userId) => {
 // New function to get a user's watchlists
 export const getUserWatchlists = async (userId) => {
     const token = await getToken();
-    const response = await fetch(`http://localhost:3000/users/${userId}/watchlists`,{
+    const response = await fetch(`${API_URL}${userId}/watchlists`,{
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
