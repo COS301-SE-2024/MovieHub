@@ -38,13 +38,13 @@
 [Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
 
 # Documentation #
-[User Manual](Documents/user_manual.pdf)
+[User Manual](documents/user_manual.pdf)
 
-[Coding Standards](Documents/coding_standards.md)
+[Coding Standards](documents/coding_standards.md)
 
-[System Requirements Specification](Documents/srs_v1.pdf)
+[System Requirements Specification](documents/srs_v1.pdf)
 
-[System Requirements Specification V2](Documents/srs_v2.pdf)
+[System Requirements Specification V2](documents/srs_v2.pdf)
 
 ## Branching Strategy
 ![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/a27a0067-9f71-423c-a333-9a0b716767bf)
