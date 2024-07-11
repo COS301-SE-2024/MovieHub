@@ -1,4 +1,23 @@
+import * as SecureStore from 'expo-secure-store';
+
 const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/post/';
+
+const getToken = async () => {
+    const token = await SecureStore.getItemAsync('userToken');
+    if (!token) {
+        throw new Error('No token found');
+    }
+    return token;
+};
+
+// Middleware function for verifying Firebase token
+const verifyToken = async () => {
+    const authHeader = 'Bearer ' + await getToken();
+    return {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+    };
+};
 
 export const addPost = async (bodyData) => {
     const response = await fetch(`${API_URL}add`, {
