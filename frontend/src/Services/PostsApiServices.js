@@ -20,7 +20,7 @@ const verifyToken = async () => {
 };
 
 export const addPost = async (bodyData) => {
-    const response = await fetch(`${API_URL}add`, {
+    const response = await fetch(`${API_URL}add/post`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ export const addCommentToComment = async (bodyData) => {
 };
 
 export const editPost = async (bodyData) => {
-    const response = await fetch(`${API_URL}edit`, {
+    const response = await fetch(`${API_URL}edit/post`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ export const editComment = async (bodyData) => {
 };
 
 export const removePost = async (bodyData) => {
-    const response = await fetch(`${API_URL}remove`, {
+    const response = await fetch(`${API_URL}remove/post`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
