@@ -68,7 +68,11 @@ export default function App() {
                             title: "movieHub.",
                             headerShadowVisible: false,
                             headerBackTitleVisible: false,
-                            headerTintColor: "black",
+                            headerTintColor: "white",
+                            headerTransparent: true, // Make the header transparent
+                            headerStyle: {
+                                backgroundColor: 'transparent',
+                            }
                         })} />
                     <Nav.Screen
                         name="ProfilePage"
