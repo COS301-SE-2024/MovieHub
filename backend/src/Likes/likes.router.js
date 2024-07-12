@@ -4,9 +4,10 @@ import likesController from './likes.controller';
 const router = express.Router();
 
 router.get('/:userId/likes', likesController.getLikesOfUser); // likes tab  (Returns only posts that a user has liked)
-// router.get('/movie', likesController.getLikesOfMovie); // 
-// router.get('/comment', likesController.getLikesOfComment); // postTab
-// router.get('/review', likesController.getLikesOfReview); // "
+router.get('/movie/:movieId', likesController.getLikesOfMovie); // 
+router.get('/comment/:commentId', likesController.getLikesOfComment); // postTab
+router.get('/review/:reviewId', likesController.getLikesOfReview); // "
+router.get('/post/:postId', likesController.getLikesOfPost); // "
 
 router.post('/toggleLikeReview', likesController.toggleLikeReview); // LikesTab / posttab
 router.post('/toggleLikeComment', likesController.toggleLikeComment); // PostsTab
