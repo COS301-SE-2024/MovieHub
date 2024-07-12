@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight + 90, // Adjust 56 if your header height is different
+        paddingTop: StatusBar.currentHeight + 40, // Adjust 56 if your header height is different
         width: '100%',
     },
     activityIndicator: {
