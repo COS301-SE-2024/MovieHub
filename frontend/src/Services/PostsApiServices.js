@@ -1,8 +1,26 @@
-// src/services/PostsApiService.js
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/post/'; // Update to your Expo URL
+import * as SecureStore from 'expo-secure-store';
+
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/post/';
+
+const getToken = async () => {
+    const token = await SecureStore.getItemAsync('userToken');
+    if (!token) {
+        throw new Error('No token found');
+    }
+    return token;
+};
+
+// Middleware function for verifying Firebase token
+const verifyToken = async () => {
+    const authHeader = 'Bearer ' + await getToken();
+    return {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+    };
+};
 
 export const addPost = async (bodyData) => {
-    const response = await fetch(`${API_URL}add`, {
+    const response = await fetch(`${API_URL}add/post`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -16,7 +34,22 @@ export const addPost = async (bodyData) => {
     return data;
 };
 
-export const addCommentToPost = async (bodyData) => { //NOT INTEGRATED
+export const addReview = async (bodyData) => {
+    const response = await fetch(`${API_URL}add/review`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to add review');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const addCommentToPost = async (bodyData) => {
     const response = await fetch(`${API_URL}comment/post`, {
         method: 'POST',
         headers: {
@@ -31,7 +64,22 @@ export const addCommentToPost = async (bodyData) => { //NOT INTEGRATED
     return data;
 };
 
-export const addCommentToComment = async (bodyData) => { //NOT INTEGRATED
+export const addCommentToReview = async (bodyData) => {
+    const response = await fetch(`${API_URL}comment/review`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to add comment to review');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const addCommentToComment = async (bodyData) => {
     const response = await fetch(`${API_URL}comment/comment`, {
         method: 'POST',
         headers: {
@@ -47,7 +95,7 @@ export const addCommentToComment = async (bodyData) => { //NOT INTEGRATED
 };
 
 export const editPost = async (bodyData) => {
-    const response = await fetch(`${API_URL}edit`, {
+    const response = await fetch(`${API_URL}edit/post`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -61,7 +109,22 @@ export const editPost = async (bodyData) => {
     return data;
 };
 
-export const editComment = async (bodyData) => { //NOT INTEGRATED
+export const editReview = async (bodyData) => {
+    const response = await fetch(`${API_URL}edit/review`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to edit review');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const editComment = async (bodyData) => {
     const response = await fetch(`${API_URL}edit/comment`, {
         method: 'PUT',
         headers: {
@@ -76,9 +139,8 @@ export const editComment = async (bodyData) => { //NOT INTEGRATED
     return data;
 };
 
-
 export const removePost = async (bodyData) => {
-    const response = await fetch(`${API_URL}remove`, {
+    const response = await fetch(`${API_URL}remove/post`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -88,11 +150,24 @@ export const removePost = async (bodyData) => {
     if (!response.ok) {
         throw new Error('Failed to remove post');
     }
-    const data = await response.json();
-    return data;
+    return true;
 };
 
-export const removeComment = async (bodyData) => { //NOT INTEGRATED
+export const removeReview = async (bodyData) => {
+    const response = await fetch(`${API_URL}remove/review`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to remove review');
+    }
+    return true;
+};
+
+export const removeComment = async (bodyData) => {
     const response = await fetch(`${API_URL}remove/comment`, {
         method: 'DELETE',
         headers: {
@@ -103,45 +178,82 @@ export const removeComment = async (bodyData) => { //NOT INTEGRATED
     if (!response.ok) {
         throw new Error('Failed to remove comment');
     }
+    return true;
+};
+
+export const getPostsOfMovie = async (movieId) => {
+    const response = await fetch(`${API_URL}movie/${movieId}/posts`, {
+        method: 'GET',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch posts of movie');
+    }
     const data = await response.json();
     return data;
 };
 
-export const getPostsOfMovie = async (movieId) => { //NOT INTEGRATED
-    const response = await fetch(`${API_URL}movie/${movieId}/posts`);
+export const getReviewsOfMovie = async (movieId) => {
+    const response = await fetch(`${API_URL}movie/${movieId}/reviews`, {
+        method: 'GET',
+    });
     if (!response.ok) {
-        throw new Error('Failed to fetch movie posts');
+        throw new Error('Failed to fetch reviews of movie');
     }
-
-    const textData = await response.text();
-        console.log('Response text:', textData);
-        const data = JSON.parse(textData);
-        console.log('Parsed data:', data);
+    const data = await response.json();
     return data;
 };
 
-export const getReviewsOfMovie = async (movieId) => { //NOT INTEGRATED
-    const response = await fetch(`${API_URL}movie/${movieId}/reviews`);
-    if (!response.ok) {
-        throw new Error('Failed to fetch movie posts');
-    }
-
-    const textData = await response.text();
-        console.log('Response text:', textData);
-        const data = JSON.parse(textData);
-        console.log('Parsed data:', data);
-    return data;
-};
-
-export const getCommentsOfPost = async (postId) => { //NOT INTEGRATED
-    const response = await fetch(`${API_URL}post/${postId}/comments`);
+export const getCommentsOfPost = async (postId) => {
+    const response = await fetch(`${API_URL}post/${postId}/comments`, {
+        method: 'GET',
+    });
     if (!response.ok) {
         throw new Error('Failed to fetch comments of post');
     }
+    const data = await response.json();
+    return data;
+};
 
-    const textData = await response.text();
-        console.log('Response text:', textData);
-        const data = JSON.parse(textData);
-        console.log('Parsed data:', data);
+export const getCommentsOfReview = async (reviewId) => {
+    const response = await fetch(`${API_URL}review/${reviewId}/comments`, {
+        method: 'GET',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch comments of review');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const getPostsOfUser = async (userId) => {
+    const response = await fetch(`${API_URL}user/${userId}/posts`, {
+        method: 'GET',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch posts of user');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const getReviewsOfUser = async (userId) => {
+    const response = await fetch(`${API_URL}user/${userId}/reviews`, {
+        method: 'GET',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch reviews of user');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const getCommentsOfUser = async (userId) => {
+    const response = await fetch(`${API_URL}user/${userId}/comments`, {
+        method: 'GET',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch comments of user');
+    }
+    const data = await response.json();
     return data;
 };
