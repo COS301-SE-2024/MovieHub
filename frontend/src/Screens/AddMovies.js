@@ -4,7 +4,6 @@ import { createWatchlist } from '../Services/ListApiService';
 import { searchMovies } from '../Services/TMDBApiService'; // Adjust the import path as necessary
 
 export default function AddMovies({ route, navigation }) {
-    // Receive watchlistData and userInfo passed from CreateWatchlist
     const { watchlistData, userInfo } = route.params;
 
     const [movies, setMovies] = useState([]);
@@ -35,11 +34,12 @@ export default function AddMovies({ route, navigation }) {
 
     const handleDone = async () => {
         const selectedMovieNames = selectedMovies.map((movie) => movie.title);
+        const selectedMoviePosters = selectedMovies.map((movie) => movie.poster_path);
 
-        // Add selected movie names to watchlist data
         const finalWatchlistData = {
             ...watchlistData,
             movies: selectedMovieNames,
+          //  posters: selectedMoviePosters,
         };
 
         try {
