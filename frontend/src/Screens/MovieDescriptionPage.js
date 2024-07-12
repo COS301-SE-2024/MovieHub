@@ -29,7 +29,7 @@ const MovieDescriptionPage = () => {
     useEffect(() => {
         const fetchColors = async () => {
             try {
-                const response = await axios.post(`http://192.168.193.139:3000/extract-colors`, { imageUrl }, {
+                const response = await axios.post(`http://10.0.0.104:3000/extract-colors`, { imageUrl }, {
                     headers: {
                         'Content-Type': "application/json",
                     },
@@ -65,7 +65,8 @@ const MovieDescriptionPage = () => {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+            <StatusBar translucent backgroundColor="transparent" />
             <LinearGradient
                 colors={colors}
                 // locations={[0, 0.5, 1]}
@@ -99,7 +100,6 @@ const MovieDescriptionPage = () => {
                             </Text>
                         </View>
                         <Text style={styles.moviecast}> Cast</Text>
-
                         <ScrollView horizontal>
                             {credits.cast.slice(0, 5).map((member, index) => (
                                 <Cast
@@ -112,18 +112,20 @@ const MovieDescriptionPage = () => {
                     </View>
                 </ScrollView>
             </LinearGradient>
-        </SafeAreaView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ffffff",
+        width: '100%',
+        // backgroundColor: "#ffffff",
     },
     content: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight + 40, // Adjust 56 if your header height is different
+        paddingTop: StatusBar.currentHeight + 90, // Adjust 56 if your header height is different
+        width: '100%',
     },
     activityIndicator: {
         flex: 1,
@@ -138,6 +140,7 @@ const styles = StyleSheet.create({
     },
     card: {
         // width: "75%",
+        paddingTop: 20,
         padding: 10,
         height: 430,
         width: "100%",
@@ -147,6 +150,14 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "115%",
         objectFit: "contain",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+            },
+    
+            shadowOpacity: 0.5,
+            shadowRadius: 3.84,
+            elevation: 5,
     },
     movieinfo: {
         flex: 1,
