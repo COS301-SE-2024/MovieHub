@@ -6,6 +6,7 @@ import { getPopularMovies } from '../Services/TMDBApiService'; // Adjust the imp
 export default function AddMovies({ route, navigation }) {
     // Receive watchlist data passed from CreateWatchlist
     const { watchlistData } = route.params;
+    const { userInfo } = route.params;
 
     // State to hold popular movies from TMDB
     const [movies, setMovies] = useState([]);
@@ -47,7 +48,7 @@ export default function AddMovies({ route, navigation }) {
             // Call createWatchlist function to create the watchlist
             await createWatchlist(userId, finalWatchlistData);
             Alert.alert('Success', 'Watchlist created successfully!');
-            navigation.navigate('ProfilePage');
+            navigation.navigate('ProfilePage', {userInfo});
         } catch (error) {
             Alert.alert('Error', 'Failed to create watchlist.');
             console.error(error);

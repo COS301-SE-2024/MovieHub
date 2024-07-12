@@ -166,7 +166,6 @@ export default function CreatePost({navigation}) {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Post Created Successfully</Text>
-                
                     </View>
                 </View>
             </Modal>
@@ -247,9 +246,10 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 35,
         borderRadius: 10,
+        opacity: 1,
     },
     postButtonDisabled: {
-        backgroundColor: "#aaa",
+        opacity: 0.7
     },
     postButtonText: {
         color: "#fff",
