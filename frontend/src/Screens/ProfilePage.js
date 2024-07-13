@@ -181,8 +181,8 @@ export default function ProfilePage({ route }) {
                             uri: userProfile.avatar,
                         }}
                         style={styles.avatar}></Image>
-                    <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
-                    <Text style={styles.userHandle}>@{userProfile.username ? userProfile.username : "Joyce"}</Text>
+                    <Text style={styles.username}>{userProfile.name}</Text>
+                    <Text style={styles.userHandle}>@{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
@@ -200,11 +200,11 @@ export default function ProfilePage({ route }) {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    {userProfile.pronouns === "Prefer not to say" ? null : <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>}
-                    <Text style={{ color: theme.textColor }}>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
+                    {userProfile.pronouns === "Prefer not to say" ? null : <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns }</Text>}
+                    <Text style={{ color: theme.textColor }}>{userProfile.bio}</Text>
                     <Text style={{ marginTop: 5 }}>
                         <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text> : <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>}
+                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 }
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
