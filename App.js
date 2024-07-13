@@ -59,7 +59,7 @@ export default function App() {
                     //     }
                     // }}
                 >
-                    {/* <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} /> */}
+                    <Nav.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
                     <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                     <Nav.Screen name="ProfileSetup" component={ProfileSetup} options={{ headerShown: false }} />
                     <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
