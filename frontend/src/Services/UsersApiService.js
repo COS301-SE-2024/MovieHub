@@ -119,7 +119,7 @@ export const deleteUserProfile = async (userId) => {
 //     }
 // };
 
-// New function to get a user's watchlists
+// get a user's watchlists
 export const getUserWatchlists = async (userId) => {
     const token = await getToken();
     const response = await fetch(`${API_URL}/${userId}/watchlists`,{

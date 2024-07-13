@@ -14,17 +14,6 @@ import * as SecureStore from "expo-secure-store";
 import { colors, themeStyles } from "../styles/theme";
 import { useTheme } from "../styles/ThemeContext";
 
-function renderScene({ route }) {
-    switch (route.key) {
-        case "posts":
-            return <PostsTab />;
-        case "likes":
-            return <LikesTab />;
-        case "watchlist":
-            return <WatchlistTab />;
-    }
-}
-
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
     const layout = useWindowDimensions();
@@ -35,20 +24,17 @@ export default function ProfilePage({ route }) {
         { key: "watchlist", title: "Watchlist" },
     ]);
 
-    //  const route = useRoute();
     const { userInfo } = route.params;
-    console.log("The users info in Profile Page: ", userInfo);
-
+    console.log("The user's info in Profile Page: ", userInfo);
 
     const navigation = useNavigation();
     const handleEditProfile = () => {
-        userInfo.userProfile = userProfile;
         navigation.navigate("EditProfile", { userInfo });
     };
 
-    let [userProfile, setUserProfile] = useState({});
-    let [followers, setfollowers] = useState(0);
-    let [following, setfollowing] = useState(0);
+    const [userProfile, setUserProfile] = useState({});
+    const [followers, setFollowers] = useState(0);
+    const [following, setFollowing] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchData = async () => {
@@ -66,17 +52,17 @@ export default function ProfilePage({ route }) {
             setUserProfile(response);
 
             if (response.followers && response.followers.low !== undefined) {
-                setfollowers(response.followers.low);
+                setFollowers(response.followers.low);
             }
 
             if (response.following && response.following.low !== undefined) {
-                setfollowing(response.following.low);
+                setFollowing(response.following.low);
             }
-            // console.log("24", following);
+            console.log("24", following);
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            console.error('Error fetching user data:', error);
         } finally {
-            // console.log("1", userProfile);
+            console.log("1", userProfile);
         }
     };
 
@@ -84,7 +70,7 @@ export default function ProfilePage({ route }) {
         setRefreshing(true);
         fetchData();
         setRefreshing(false);
-    };
+    }
 
     useEffect(() => {
         fetchData();
@@ -171,8 +157,20 @@ export default function ProfilePage({ route }) {
         },
     });
 
+    const renderScene = ({ route }) => {
+        switch (route.key) {
+            case "posts":
+                return <PostsTab />;
+            case "likes":
+                return <LikesTab />;
+            case "watchlist":
+                return <WatchlistTab userInfo={userInfo} />;
+            default:
+                return null;
+        }
+    };
+
     return (
-        // <ProfileHeader />
         <View style={{ flex: 1 }}>
             <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
                 <View style={styles.accountInfo}>
@@ -210,21 +208,16 @@ export default function ProfilePage({ route }) {
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
-                    <TabView 
-                        navigationState={{ index, routes }} 
-                        renderScene={renderScene} 
-                        onIndexChange={setIndex} 
-                        initialLayout={{ width: layout.width }} 
-                        renderTabBar={(props) => 
-                        <TabBar {...props} 
-                            indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />
-                    } />
+                    <TabView
+                        navigationState={{ index, routes }}
+                        renderScene={renderScene}
+                        onIndexChange={setIndex}
+                        initialLayout={{ width: layout.width }}
+                        renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />}
+                    />
                 </View>
             </ScrollView>
-
             <BottomHeader userInfo={userInfo} />
         </View>
     );
 }
-
-// export default ProfilePage;
