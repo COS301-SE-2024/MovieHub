@@ -19,7 +19,8 @@ export default function PostsTab({ userInfo, userProfile }) {
                 postTitle: "I just love movies with cliches",
                 preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
                 image: null, // No image for this post
-                userId: userInfo.userId
+                userId: userInfo.userId,
+                isReview: false
             },
         },
         {

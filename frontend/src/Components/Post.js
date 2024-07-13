@@ -7,7 +7,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 
-export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isUserPost }) {
+export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);

@@ -36,7 +36,9 @@ import CreateWatchlist from "./frontend/src/Screens/CreateWatchlist";
 import AddMovies from "./frontend/src/Screens/AddMovies";
 import Notifications from "./frontend/src/Screens/Notifications";
 import WatchlistDetails from "./frontend/src/Screens/WatchlistDetails";
-import EditWatchlist from "./frontend/src/Screens/EditWatchlist";
+import EditWatchlist from "./frontend/src/Screens/EditWatchlist";4
+import WatchParty from "./frontend/src/Screens/WatchParty";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 
 const Nav = createNativeStackNavigator();
@@ -46,6 +48,7 @@ export default function App() {
     const theme = useTheme();
 
     return (
+        <GestureHandlerRootView>
         <ThemeProvider>
             <NavigationContainer
                 ref={(nav) => {
@@ -210,8 +213,20 @@ export default function App() {
                             headerTintColor: "black",
                         })}
                     />
+
+                    <Nav.Screen
+                        name="WatchParty"
+                        component={WatchParty}
+                        options={({ navigation }) => ({
+                            title: "Watch Party",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })}
+                    />
                 </Nav.Navigator>
             </NavigationContainer>
         </ThemeProvider>
+        </GestureHandlerRootView>
     );
 }

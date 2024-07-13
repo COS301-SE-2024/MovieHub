@@ -10,7 +10,6 @@ const WatchlistTab = ({ userInfo }) => {
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
-    console.log("yooooo")
         // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {

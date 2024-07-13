@@ -14,6 +14,7 @@ export default function CreatePost({navigation}) {
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [rating, setRating] = useState(0); // Add state for rating
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
 
     // Mock movie search results
@@ -78,11 +79,11 @@ export default function CreatePost({navigation}) {
     const handleAddPost = async () => {
         const postData = {
             postTitle: title,
-            text: "heres a new post",
+            text: thoughts,
             userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             movieId: 310,
-            isReview: false,
-            rating: 3
+            isReview: isMovieReview,
+            rating: isMovieReview ? rating : 0
         };
         
         try {
@@ -97,6 +98,26 @@ export default function CreatePost({navigation}) {
         } catch(error){
             console.error('Error adding post:', error);
         };
+    };
+
+    const handleRatingPress = (value) => {
+        setRating(value);
+    };
+
+    const renderRatingOptions = () => {
+        const ratingOptions = [];
+        for (let i = 1; i <= 10; i++) {
+            ratingOptions.push(
+                <TouchableOpacity
+                    key={i}
+                    onPress={() => handleRatingPress(i)}
+                    style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}
+                >
+                    <Text style={styles.ratingText}>{i}</Text>
+                </TouchableOpacity>
+            );
+        }
+        return ratingOptions;
     };
 
     return (
@@ -126,6 +147,8 @@ export default function CreatePost({navigation}) {
                     <Text style={styles.label}>Movie</Text>
                     <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
                     {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
+                    <Text style={styles.label}>Rating</Text>
+                    <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
                 </View>
             )}
 
@@ -299,5 +322,23 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 10,
+    },
+    ratingContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 20,
+    },
+    ratingOption: {
+        padding: 8,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 5,
+    },
+    ratingOptionSelected: {
+        backgroundColor: "#827DC3",
+        borderColor: "#4A42C0",
+    },
+    ratingText: {
+        fontSize: 16,
     },
 });

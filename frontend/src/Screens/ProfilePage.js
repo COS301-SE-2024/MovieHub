@@ -25,6 +25,8 @@ export default function ProfilePage({ route }) {
     const { userInfo } = route.params;
     const navigation = useNavigation();
 
+    
+
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
     const [following, setFollowing] = useState(0);
@@ -190,7 +192,7 @@ export default function ProfilePage({ route }) {
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("EditProfile", { userInfo, userProfile })}>
+                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("WatchParty", { userInfo, userProfile })}>
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
