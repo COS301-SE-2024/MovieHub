@@ -29,7 +29,7 @@ const MovieDescriptionPage = () => {
     useEffect(() => {
         const fetchColors = async () => {
             try {
-                const response = await axios.post(`http://192.168.193.139:3000/extract-colors`, { imageUrl }, {
+                const response = await axios.post(`http://192.168.8.35:3000/extract-colors`, { imageUrl }, {
                     headers: {
                         'Content-Type': "application/json",
                     },
