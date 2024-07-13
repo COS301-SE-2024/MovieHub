@@ -33,13 +33,18 @@ export default function AddMovies({ route, navigation }) {
     };
 
     const handleDone = async () => {
-        const selectedMovieNames = selectedMovies.map((movie) => movie.title);
-        const selectedMoviePosters = selectedMovies.map((movie) => movie.poster_path);
+        const moviesList = selectedMovies.map((movie) => ({
+            id: movie.id,
+            title: movie.title,
+            poster_path: movie.poster_path,
+            genre: "Unknown", // Replace with actual genre if available
+            duration: "Unknown", // Replace with actual duration if available
+        }));
 
         const finalWatchlistData = {
             ...watchlistData,
-            movies: selectedMovieNames,
-          //  posters: selectedMoviePosters,
+            movies: moviesList.map(movie => movie.title), // Old property to maintain backward compatibility
+            moviesList, // New property for detailed movie data
         };
 
         try {
