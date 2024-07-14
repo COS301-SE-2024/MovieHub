@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator,TouchableOpacity } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { getMovieCredits } from "../Services/TMDBApiService";
 import { LinearGradient } from 'expo-linear-gradient';
 import Cast from "../Components/Cast";
 import axios from "axios";
+import { Ionicons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { SimpleLineIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const MovieDescriptionPage = () => {
     const route = useRoute();
@@ -16,6 +22,15 @@ const MovieDescriptionPage = () => {
     ]); // Initial state with three colors, can be replaced with initial color values
     const [credits, setCredits] = useState({ cast: [], crew: [] });
     const [loading, setLoading] = useState(true); // State to track loading
+    const [isAddedToList, setIsAddedToList] = useState(false);
+    const [isWatched, setIsWatched] = useState(false);
+    const [isReviewed, setIsReviewed] = useState(false);
+    const navigation = useNavigation();
+
+    const handleReviewPress = () => {
+        setIsReviewed(true);
+        navigation.navigate('CreatePost'); // Make sure 'PostsPage' is the correct route name
+    };
 
     useEffect(() => {
         const fetchCredits = async () => {
@@ -29,7 +44,7 @@ const MovieDescriptionPage = () => {
     useEffect(() => {
         const fetchColors = async () => {
             try {
-                const response = await axios.post(`http://192.168.193.139:3000/extract-colors`, { imageUrl }, {
+                const response = await axios.post(`http://10.0.0.104:3000/extract-colors`, { imageUrl }, {
                     headers: {
                         'Content-Type': "application/json",
                     },
@@ -65,7 +80,8 @@ const MovieDescriptionPage = () => {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+            <StatusBar translucent backgroundColor="transparent" />
             <LinearGradient
                 colors={colors}
                 // locations={[0, 0.5, 1]}
@@ -87,6 +103,32 @@ const MovieDescriptionPage = () => {
                             <Text style={styles.movietitle2}> | </Text>
                             <Text style={styles.movietitle2}> 2h </Text>
                         </View>
+                        <View style={styles.icons}>
+                        <TouchableOpacity onPress={() => setIsAddedToList(!isAddedToList)} style={styles.block1}>
+                        <View style={styles.iconTextContainer}>
+                            <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon}/>
+                            <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
+                        </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setIsWatched(!isWatched)} style={styles.block2} >
+                        <View style={styles.iconTextContainer}>
+                        <FontAwesome name="check-circle" size={24} color={isWatched ? 'green' : 'white'} style={styles.icon}/>
+                            <Text style={styles.text}>{isWatched ? 'Watched' : 'Watch'}</Text>
+                        </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
+                        <View style={styles.iconTextContainer}> 
+                            <Ionicons name="star-outline" size={24} color={isReviewed ? 'gold' : 'white'} style={styles.icon} />
+                            <Text style={styles.text}>{isReviewed ? 'Reviewed' : 'Review'}</Text>
+                        </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.block4} >
+                        <View style={styles.iconTextContainer}>
+                            <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} /> 
+                            <Text style={styles.text}>Watch Party</Text>
+                        </View>
+                        </TouchableOpacity>
+                        </View>
                         <View style={styles.moviebio}>
                             <Text style={styles.moviebiotext}>{overview}</Text>
                         </View>
@@ -99,7 +141,6 @@ const MovieDescriptionPage = () => {
                             </Text>
                         </View>
                         <Text style={styles.moviecast}> Cast</Text>
-
                         <ScrollView horizontal>
                             {credits.cast.slice(0, 5).map((member, index) => (
                                 <Cast
@@ -112,18 +153,20 @@ const MovieDescriptionPage = () => {
                     </View>
                 </ScrollView>
             </LinearGradient>
-        </SafeAreaView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ffffff",
+        width: '100%',
+        // backgroundColor: "#ffffff",
     },
     content: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight + 40, // Adjust 56 if your header height is different
+        paddingTop: StatusBar.currentHeight + 80, // Adjust 56 if your header height is different
+        width: '100%',
     },
     activityIndicator: {
         flex: 1,
@@ -136,8 +179,43 @@ const styles = StyleSheet.create({
         paddingBottom: 50,
         
     },
+    iconTextContainer: {
+        width: 79, // Adjust this width to fit your needs
+        alignItems: 'center',
+    },
+    icons: {
+        flexDirection: 'row',
+        paddingTop: 30,
+        paddingLeft: 0,
+        paddingBottom: 10,
+    },
+    icon: {
+        paddingLeft: 0,
+    },
+    text: {
+        paddingLeft: 0,
+        color: 'white',
+        fontWeight: "bold",
+    },
+    block1: {
+        alignItems: 'center',
+        marginHorizontal: 9,
+    },
+    block2: {
+        alignItems: 'center',
+        marginHorizontal: 9,
+    },
+    block3: {
+        alignItems: 'center',
+        marginHorizontal: 9,
+    },
+    block4: {
+        alignItems: 'center',
+        marginHorizontal: 9,
+    },
     card: {
         // width: "75%",
+        paddingTop: 20,
         padding: 10,
         height: 430,
         width: "100%",
@@ -147,6 +225,14 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "115%",
         objectFit: "contain",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+            },
+    
+            shadowOpacity: 0.5,
+            shadowRadius: 3.84,
+            elevation: 5,
     },
     movieinfo: {
         flex: 1,
