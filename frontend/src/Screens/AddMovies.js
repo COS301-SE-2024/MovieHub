@@ -37,8 +37,8 @@ export default function AddMovies({ route, navigation }) {
             id: movie.id,
             title: movie.title,
             poster_path: movie.poster_path,
-            genre: "Unknown", // Replace with actual genre if available
-            duration: "Unknown", // Replace with actual duration if available
+            genre: movie.genre, 
+            duration: movie.duration,
         }));
 
         const finalWatchlistData = {
