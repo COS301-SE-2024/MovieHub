@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
 import { Octicons } from '@expo/vector-icons';
-import CirclesWatch from "./CirclesWatch";
 import image1 from "../../../assets/Assassin_movie.jpg";
 import image2 from "../../../assets/oppenheimer_movie.jpg";
 import image3 from "../../../assets/moonlight.jpg";
