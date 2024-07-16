@@ -184,3 +184,13 @@ exports.getCommentsOfUser = async (req, res) => {
         responseHandler(res, 400, error.message);
     }
 };
+
+exports.getAverageRating = async (req, res) => {
+    try {
+        const movieId = req.params.movieId;
+        const averageRating = await postService.getAverageRating(movieId);
+                   responseHandler(res, 200, 'Average rating fetched successfully', { averageRating });
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};

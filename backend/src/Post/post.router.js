@@ -24,5 +24,7 @@ router.get('/review/:reviewId/comments', postController.getCommentsOfReview);
 router.get('/user/:userId/posts', postController.getPostsOfUser);
 router.get('/user/:userId/comments', postController.getCommentsOfUser);
 router.get('/user/:userId/reviews', postController.getReviewsOfUser);
+router.get('/movie/:movieId/rating', postController.getAverageRating);
+
 
 module.exports = router;

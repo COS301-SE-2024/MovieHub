@@ -238,3 +238,15 @@ export const getCommentsOfUser = async (userId) => {
         throw new Error('Failed to fetch comments of user: ' + error.message);
     }
 };
+
+export const getAverageRating = async (movieId) => {
+    try {
+        const response = await fetchWithAuth(`${API_URL}movie/${movieId}/rating`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to fetch average rating: ' + error.message);
+    }
+};
+

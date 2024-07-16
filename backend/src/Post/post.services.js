@@ -400,3 +400,29 @@ exports.getCommentsOfUser = async (uid) => {
         await session.close();
     }
 };
+
+exports.getAverageRating = async (movieId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `
+            MATCH (m:Movie {movieId: $movieId})<-[:REVIEWED_ON]-(r:Review)
+            RETURN avg(r.rating) AS averageRating
+            `,
+            { movieId }
+        );
+
+        if (result.records.length === 0) {
+            return null;
+        }
+
+        const averageRating = result.records[0].get('averageRating').toFixed(2); // toFixed to round to 2 decimal places
+        return averageRating;
+    } catch (error) {
+        console.error("Error getting average rating: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
