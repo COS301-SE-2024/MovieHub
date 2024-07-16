@@ -112,9 +112,10 @@ const styles = StyleSheet.create({
         marginTop: 25,
         marginLeft: 30,
         alignItems: "center",
+        opacity: 1,
     },
     saveButtonDisabled: {
-        backgroundColor: "#aaa",
+        opacity: 0.7,
     },
     saveButtonText: {
         color: "#fff",

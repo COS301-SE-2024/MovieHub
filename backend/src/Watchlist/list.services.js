@@ -203,6 +203,49 @@ exports.modifyWatchlist = async (watchlistId, updatedData) => {
     }
 };
 
+
+//Get a particular watchlists details
+exports.getWatchlistDetails = async (watchlistId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (w:Watchlist {id: $watchlistId})-[:INCLUDES]->(m:Movie)
+             RETURN w, m`,
+            { watchlistId }
+        );
+
+        if (result.records.length === 0) {
+            throw new Error('Watchlist not found');
+        }
+
+        const watchlistRecord = result.records[0].get('w').properties;
+        const movieIds = result.records.map(record => record.get('m').properties.id);
+
+        const movieDetailsPromises = movieIds.map(id => TmdbService.getMovieDetails(id));
+        const movies = await Promise.all(movieDetailsPromises);
+
+        const movieList = movies.map(movie => ({
+            id: movie.id,
+            title: movie.title,
+            genre: movie.genres.map(genre => genre.name).join(', '),
+            duration: movie.runtime,
+            poster_path: movie.poster_path
+        }));
+
+        return {
+            name: watchlistRecord.name,
+            movieList
+        };
+    } catch (error) {
+        console.error('Error fetching watchlist details:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
 exports.deleteWatchlist = async (watchlistId) => {
     const session = driver.session();
 
