@@ -163,7 +163,7 @@ exports.getPostsOfMovie = async (req, res) => {
         if (posts)
             responseHandler(res, 200, 'Posts fetched successfully', posts);
         else
-            res.status(400).json({ message: 'Error fetching post' });
+            res.status(400).json({ message: 'Error fetching posts' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -215,7 +215,7 @@ exports.getPostsOfUser = async (req, res) => {
         if (posts)
             responseHandler(res, 200, 'Posts fetched successfully', posts);
         else
-            res.status(400).json({ message: 'Error fetching post' });
+            res.status(400).json({ message: 'Error fetching posts' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -252,7 +252,7 @@ exports.getAverageRating = async (req, res) => {
         const movieId = req.params.movieId;
         const averageRating = await postService.getAverageRating(movieId);
         if (averageRating)
-            responseHandler(res, 200, 'Average rating fetched successfully', { averageRating });
+            responseHandler(res, 200, 'Average rating fetched successfully', averageRating);
         else
             res.status(400).json({ message: 'Error fetching average rating' });
     } catch (error) {
