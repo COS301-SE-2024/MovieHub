@@ -23,7 +23,6 @@ exports.addPost = async (userId, movieId, text, isReview, rating, postTitle) => 
         //.log(result.summary);
         console.log("The Result " + result.summary)
         return result.records[0].get('r').properties;
-
     } finally {
         await session.close();
     }

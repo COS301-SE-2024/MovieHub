@@ -16,7 +16,7 @@ router.delete('/remove/comment', postController.removeComment);
 router.get('/movie/:movieId/posts', postController.getPostsOfMovie);
 router.get('/movie/:movieId/reviews', postController.getReviewsOfMovie);
 router.get('/post/:post/comments', postController.getCommentsOfPost);
-router.get('/user/:userId/posts', postController.getPostsOfUser);
+router.get('/user/:userId/posts', postController.getPostsOfUser); //Where is this tested?
 router.get('/user/:userId/comments', postController.getCommentsOfUser);
 router.get('/user/:userId/reviews', postController.getReviewsOfUser);
 
