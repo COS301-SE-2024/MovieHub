@@ -5,7 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 
+
 const WatchlistTab = ({ userInfo }) => {
+
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
@@ -14,7 +16,9 @@ const WatchlistTab = ({ userInfo }) => {
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
+
                 const userId = userInfo.userId; // Replace with actual user ID fetching logic
+
                 const userWatchlists = await getUserWatchlists(userId);
                 console.log(userWatchlists);
                 setWatchlists(userWatchlists);
@@ -58,7 +62,9 @@ const WatchlistTab = ({ userInfo }) => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-                onPress={() => navigation.navigate('CreateWatchlist', { userInfo })}
+
+                onPress={() => navigation.navigate('CreateWatchlist', {userInfo})}
+
             >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <View style={{ flex: 1 }} />
