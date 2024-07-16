@@ -39,6 +39,17 @@ exports.modifyWatchlist = async (req, res) => {
     }
 };
 
+exports.getWatchlistDetails = async (req, res) => {
+    const { watchlistId } = req.params;
+
+    try {
+        const watchlistDetails = await WatchlistService.getWatchlistDetails(watchlistId);
+        res.status(200).json(watchlistDetails);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 exports.deleteWatchlist = async (req, res) => {
     const watchlistId = req.params.watchlistId;
 
