@@ -6,7 +6,7 @@ import Post from "./Post";
 import { getUserPosts } from "../Services/UsersApiService";
 import { useTheme } from "../styles/ThemeContext";
 
-export default function PostsTab({ userInfo, userProfile }) {
+export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
     const username = userProfile.name;
     const userHandle = "@" + userInfo.username;
@@ -114,6 +114,7 @@ export default function PostsTab({ userInfo, userProfile }) {
                             saves={getRandomNumber(0, 18)}
                             image={post.properties.image}
                             isUserPost={post.properties.userId === userInfo.userId} // confirm this
+                            handleCommentPress={handleCommentPress}
                         />
                     ))
                 )}
