@@ -225,10 +225,7 @@ export default function App() {
                                 name="WatchParty"
                                 component={WatchParty}
                                 options={({ navigation }) => ({
-                                    title: "Watch Party",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
+                                    headerShown: false
                                 })}
                             />
 

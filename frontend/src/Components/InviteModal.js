@@ -72,7 +72,7 @@ const InviteModal = forwardRef((props, ref) => {
                     )}
                 /> */}
                 {friends.map((friend) => (
-                    <View style={styles.friendItem}>
+                    <View key={friend.id} style={styles.friendItem}>
                         <View style={styles.friendInfo}>
                             <View style={styles.avatar} />
                             <Text>{friend.name}</Text>

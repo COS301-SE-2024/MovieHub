@@ -1,16 +1,22 @@
 // WatchParty.js
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import InviteModal from "../Components/InviteModal";
+import Chatbox from "../Components/Chatbox";
+import { useWebSocket } from "../context/WebSocketProvider";
+import WatchPartyHeader from "../Components/WatchPartyHeader";
 
 const WatchParty = ({ route }) => {
-    const {userInfo} = route.params;
+    const { userInfo } = route.params;
+    const { roomName } = route.params;
+    // console.log("Room Details: ", roomDetails); 
     const navigation = useNavigation();
     const [message, setMessage] = useState("");
-
+    const [userCount, setUserCount] = useState(0)
     const bottomSheetRef = useRef(null);
+    const socket = useWebSocket();
 
     const handleSnapPress = useCallback((index) => {
         bottomSheetRef.current?.snapToIndex(index);
@@ -35,7 +41,7 @@ const WatchParty = ({ route }) => {
                 },
                 {
                     text: "Yes",
-                    onPress: () => navigation.dispatch(e.data.action)
+                    onPress: () => navigation.dispatch(e.data.action, { roomName })
                 }
             ],
             { cancelable: true }
@@ -55,6 +61,19 @@ const WatchParty = ({ route }) => {
         }, [navigation])
     );
 
+    useEffect(() => {
+        if (socket) {
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === "user_count") {
+                    setUserCount(data.count);
+                }
+            };
+
+            // Notify the server that the user has joined the room
+            socket.send(JSON.stringify({ type: "join_room", roomName: roomName, userInfo }));
+        }
+    }, [socket]);
 
     const friends = [
         { id: "1", name: "Rebecca Malope" },
@@ -68,6 +87,7 @@ const WatchParty = ({ route }) => {
 
     return (
         <View style={styles.container}>
+            <WatchPartyHeader />
             <View style={styles.header}>
                 <Text style={styles.title}>Interstellar</Text>
                 {/* <TouchableOpacity>
@@ -82,7 +102,7 @@ const WatchParty = ({ route }) => {
             {/* Room Info */}
             <View style={styles.roomInfo}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text>Asa's room</Text>
+                    <Text>{roomName ? roomName : "Asa's Name"}</Text>
                     <View style={styles.roomDetails}>
                         <Ionicons name="people" size={16} color="black" />
                         <Text>1</Text>
@@ -94,17 +114,17 @@ const WatchParty = ({ route }) => {
             </View>
 
             {/* Invite Friends */}
-            <View style={styles.chatbox}>
+            {/* <View style={styles.chatbox}>
                 <View style={styles.inviteFriends}>
                     <Text>You seem to be the only one in the room</Text>
                     <TouchableOpacity onPress={handleInvitePress}>
                         <Text style={styles.inviteText}>Invite Friends</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </View> */}
 
             {/* Chat Input */}
-            <View style={styles.chatInput}>
+            {/* <View style={styles.chatInput}>
                 <View style={styles.inputContainer}>
                     <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
                     <TouchableOpacity>
@@ -114,7 +134,9 @@ const WatchParty = ({ route }) => {
                 <TouchableOpacity style={styles.sendButton}>
                     <Ionicons name="send" size={24} color="white" />
                 </TouchableOpacity>
-            </View>
+            </View> */}
+            <Chatbox userInfo={userInfo} handleInvitePress={handleInvitePress} />
+
             <InviteModal ref={bottomSheetRef} friends={friends} title="Invite Friends" userInfo={userInfo} />
         </View>
     );

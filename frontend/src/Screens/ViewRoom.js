@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "rea
 import Icon from "react-native-vector-icons/MaterialIcons";
 import ViewRoomHeader from "../Components/ViewRoomHeader";
 
-const ViewRoom = () => {
+const ViewRoom = ({route}) => {
     const requests = [
         { name: "Joyce Moshokoa", status: null },
         { name: "John Cena", status: "You can't see me" },

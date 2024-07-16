@@ -50,7 +50,7 @@ export default function PostsTab({ userInfo, userProfile }) {
         try {
             const userId = userInfo.userId;
             const response = await getUserPosts(userId);
-            console.log("posts", response.data); // Ensure this logs the correct data structure
+            // console.log("posts", response.data); // Ensure this logs the correct data structure
             setPosts(response.data); // Assuming response.data is an array of post objects
         } catch (error) {
             console.error("Error fetching posts:", error);

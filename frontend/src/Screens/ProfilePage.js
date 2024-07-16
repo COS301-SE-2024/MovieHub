@@ -192,7 +192,7 @@ export default function ProfilePage({ route }) {
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("WatchParty", { userInfo, userProfile })}>
+                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("EditProfile", { userInfo, userProfile })}>
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
