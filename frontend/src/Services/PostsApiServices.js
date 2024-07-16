@@ -206,9 +206,9 @@ export const getCommentsOfReview = async (reviewId) => {
     }
 };
 
-export const getPostsOfUser = async (userId) => {
+export const getPostsOfUser = async (uid) => {
     try {
-        const response = await fetchWithAuth(`${API_URL}user/${userId}/posts`, {
+        const response = await fetchWithAuth(`${API_URL}user/${uid}/posts`, {
             method: 'GET',
         });
         return response;
@@ -217,9 +217,9 @@ export const getPostsOfUser = async (userId) => {
     }
 };
 
-export const getReviewsOfUser = async (userId) => {
+export const getReviewsOfUser = async (uid) => {
     try {
-        const response = await fetchWithAuth(`${API_URL}user/${userId}/reviews`, {
+        const response = await fetchWithAuth(`${API_URL}user/${uid}/reviews`, {
             method: 'GET',
         });
         return response;
@@ -228,9 +228,9 @@ export const getReviewsOfUser = async (userId) => {
     }
 };
 
-export const getCommentsOfUser = async (userId) => {
+export const getCommentsOfUser = async (uid) => {
     try {
-        const response = await fetchWithAuth(`${API_URL}user/${userId}/comments`, {
+        const response = await fetchWithAuth(`${API_URL}user/${uid}/comments`, {
             method: 'GET',
         });
         return response;
