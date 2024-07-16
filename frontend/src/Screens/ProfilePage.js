@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
@@ -11,6 +11,7 @@ import BottomHeader from "../Components/BottomHeader";
 import { getUserProfile } from "../Services/UsersApiService";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
+import CommentsModal from "../Components/CommentsModal";
 
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
@@ -24,14 +25,14 @@ export default function ProfilePage({ route }) {
 
     const { userInfo } = route.params;
     const navigation = useNavigation();
-
-    
+    const bottomSheetRef = useRef(null);
 
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
     const [following, setFollowing] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true); // Add this line
+    const [comments, setComments] = useState(mockComments);
 
     const fetchData = async () => {
         try {
@@ -61,6 +62,43 @@ export default function ProfilePage({ route }) {
     useEffect(() => {
         fetchData();
     }, []);
+
+    const handleCommentPress = () => {
+        bottomSheetRef.current?.present();
+    };
+
+    const mockComments = [
+        {
+            username: "user1",
+            userAvatar: "https://via.placeholder.com/40",
+            datePosted: "2024-07-16",
+            text: "This is a sample comment.",
+        },
+        {
+            username: "user2",
+            userAvatar: "https://via.placeholder.com/40",
+            datePosted: "2024-07-15",
+            text: "Another sample comment.",
+        },
+        {
+            username: "user3",
+            userAvatar: "https://via.placeholder.com/40",
+            datePosted: "2024-07-14",
+            text: "Yet another sample comment.",
+        },
+        {
+            username: "user4",
+            userAvatar: "https://via.placeholder.com/40",
+            datePosted: "2024-07-13",
+            text: "One more sample comment with a lot of text to test out spacing.",
+        },
+        {
+            username: "user5",
+            userAvatar: "https://via.placeholder.com/40",
+            datePosted: "2024-07-12",
+            text: "One more sample comment with a lot of text to test out spacing.",
+        }
+    ]
 
     const styles = StyleSheet.create({
         container: {
@@ -147,7 +185,7 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} />;
             case "watchlist":
@@ -233,6 +271,11 @@ export default function ProfilePage({ route }) {
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
+            
+            <CommentsModal    
+                ref={bottomSheetRef} 
+                comments={mockComments} 
+            />
         </View>
     );
 }
