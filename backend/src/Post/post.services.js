@@ -20,7 +20,7 @@ exports.addPost = async (uid, movieId, text, postTitle, img) => {
         const postId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, postTitle: $postTitle, img: $img})
+             CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, postTitle: $postTitle, img: $img, username : u.username, avatar : u.avatar})
              CREATE (u)-[:POSTED]->(p)-[:POSTED_ON]->(m)
              RETURN p`,
             { uid, movieId, text, postId, postTitle, img, createdAt, updatedAt }
@@ -44,7 +44,7 @@ exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
         const reviewId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle})
+             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, , username : u.username, avatar : u.avatar})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
             { uid, movieId, text, rating, reviewId, reviewTitle, createdAt, updatedAt }
@@ -72,7 +72,7 @@ exports.addCommentToPost = async (uid, postId, text) => {
         const comOnId = -1;
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (p:Post {postId: $postId})
-             CREATE (c:Comment {comId: $comId, text: $text, movieId: p.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: $postId, reviewId: $reviewId, comOnId: $comOnId})
+             CREATE (c:Comment {comId: $comId, text: $text, movieId: p.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: $postId, reviewId: $reviewId, comOnId: $comOnId, , username : u.username, avatar : u.avatar})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(p)
              RETURN c`,
             { uid, postId, text, comId, reviewId, comOnId, createdAt, updatedAt }
@@ -97,7 +97,7 @@ exports.addCommentToReview = async (uid, reviewId, text) => {
         const comOnId = -1;
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (r:Review {reviewId: $reviewId})
-             CREATE (c:Comment {comId: $comId, text: $text, movieId: r.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, reviewId: $reviewId, postId: $postId, comOnId: $comOnId})
+             CREATE (c:Comment {comId: $comId, text: $text, movieId: r.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, reviewId: $reviewId, postId: $postId, comOnId: $comOnId, , username : u.username, avatar : u.avatar})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(r)
              RETURN c`,
             { uid, reviewId, text, comId, postId, comOnId, createdAt, updatedAt }
@@ -120,7 +120,7 @@ exports.addCommentToComment = async (uid, comOnId, text) => {
         const comId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (c:Comment {comId: $comOnId})
-             CREATE (n:Comment {comId: $comId, comOnId: $comOnId, text: $text, movieId: c.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: c.postId, reviewId: c.reviewId})
+             CREATE (n:Comment {comId: $comId, comOnId: $comOnId, text: $text, movieId: c.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: c.postId, reviewId: c.reviewId, , username : u.username, avatar : u.avatar})
              CREATE (u)-[:COMMENTED]->(n)-[:COMMENTED_ON]->(c)
              RETURN n`,
             { uid, comOnId, text, comId, createdAt, updatedAt }
@@ -135,17 +135,20 @@ exports.addCommentToComment = async (uid, comOnId, text) => {
 };
 
 // EDIT //
-exports.editPost = async (postId, text) => {
+exports.editPost = async (postId, uid, text) => {
     console.log("In Services: editPost");
     const session = driver.session();
     const updatedAt = new Date().toISOString();
     try {
         const result = await session.run(
-            `MATCH (p:Post {postId: $postId})
+            `MATCH (p:Post {postId: $postId, uid: $uid})
              SET p.text = $text, p.updatedAt = $updatedAt
              RETURN p`,
-            { postId, text, updatedAt }
+            { postId, uid, text, updatedAt }
         );
+        if (result.records.length === 0) {
+            throw new Error("Post not found or user not authorized to edit this post");
+        }
         return result.records[0].get('p').properties;
     } catch (error) {
         console.error("Error editing post: ", error);
@@ -155,17 +158,20 @@ exports.editPost = async (postId, text) => {
     }
 };
 
-exports.editReview = async (reviewId, text) => {
+exports.editReview = async (reviewId, uid, text) => {
     console.log("In Services: editReview");
     const session = driver.session();
     const updatedAt = new Date().toISOString();
     try {
         const result = await session.run(
-            `MATCH (r:Review {reviewId: $reviewId})
+            `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
              SET r.text = $text, r.updatedAt = $updatedAt
              RETURN r`,
-            { reviewId, text, updatedAt }
+            { reviewId, uid, text, updatedAt }
         );
+        if (result.records.length === 0) {
+            throw new Error("Review not found or user not authorized to edit this review");
+        }
         return result.records[0].get('r').properties;
     } catch (error) {
         console.error("Error editing review: ", error);
@@ -175,17 +181,20 @@ exports.editReview = async (reviewId, text) => {
     }
 };
 
-exports.editComment = async (commentId, text) => {
+exports.editComment = async (commentId, uid, text) => {
     console.log("In Services: editComment");
     const session = driver.session();
     const updatedAt = new Date().toISOString();
     try {
         const result = await session.run(
-            `MATCH (c:Comment {comId: $commentId})
+            `MATCH (c:Comment {comId: $commentId, uid: $uid})
              SET c.text = $text, c.updatedAt = $updatedAt
              RETURN c`,
-            { commentId, text, updatedAt }
+            { commentId, uid, text, updatedAt }
         );
+        if (result.records.length === 0) {
+            throw new Error("Comment not found or user not authorized to edit this comment");
+        }
         return result.records[0].get('c').properties;
     } catch (error) {
         console.error("Error editing comment: ", error);
@@ -197,15 +206,19 @@ exports.editComment = async (commentId, text) => {
 
 // DELETE //
 
-exports.removePost = async (postId) => {
+exports.removePost = async (postId, uid) => {
     console.log("In Services: removePost");
     const session = driver.session();
     try {
-        await session.run(
-            `MATCH (p:Post {postId: $postId})
-             DETACH DELETE p`,
-            { postId }
+        const result = await session.run(
+            `MATCH (p:Post {postId: $postId, uid: $uid})
+             DETACH DELETE p
+             RETURN p`,
+            { postId, uid }
         );
+        if (result.records.length === 0) {
+            throw new Error("Post not found or user not authorized to remove this post");
+        }
         return true;
     } catch (error) {
         console.error("Error removing post: ", error);
@@ -215,15 +228,20 @@ exports.removePost = async (postId) => {
     }
 };
 
-exports.removeReview = async (reviewId) => {
+
+exports.removeReview = async (reviewId, uid) => {
     console.log("In Services: removeReview");
     const session = driver.session();
     try {
-        await session.run(
-            `MATCH (r:Review {reviewId: $reviewId})
-             DETACH DELETE r`,
-            { reviewId }
+        const result = await session.run(
+            `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
+             DETACH DELETE r
+             RETURN r`,
+            { reviewId, uid }
         );
+        if (result.records.length === 0) {
+            throw new Error("Review not found or user not authorized to remove this review");
+        }
         return true;
     } catch (error) {
         console.error("Error removing review: ", error);
@@ -233,15 +251,20 @@ exports.removeReview = async (reviewId) => {
     }
 };
 
-exports.removeComment = async (commentId) => {
+
+exports.removeComment = async (commentId, uid) => {
     console.log("In Services: removeComment");
     const session = driver.session();
     try {
-        await session.run(
-            `MATCH (c:Comment {comId: $commentId})
-             DETACH DELETE c`,
-            { commentId }
+        const result = await session.run(
+            `MATCH (c:Comment {comId: $commentId, uid: $uid})
+             DETACH DELETE c
+             RETURN c`,
+            { commentId, uid }
         );
+        if (result.records.length === 0) {
+            throw new Error("Comment not found or user not authorized to remove this comment");
+        }
         return true;
     } catch (error) {
         console.error("Error removing comment: ", error);
@@ -250,6 +273,7 @@ exports.removeComment = async (commentId) => {
         await session.close();
     }
 };
+
 
 //GETS//
 
