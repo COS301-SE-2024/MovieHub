@@ -4,11 +4,66 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, Bottom
 import { Ionicons } from "@expo/vector-icons";
 
 const CommentsModal = forwardRef((props, ref) => {
-    const { comments } = props;
+    // const { comments } = props;
+    const { postId } = props;
+    const { currentUser } = props;
+    const { currentUserAvatar } = props;
+    console.log("CommentsModal Post ID: ", postId);
     const [message, setMessage] = useState("");
-
+    const mockComments = [
+        {
+            username: "user1",
+            userAvatar: "https://via.placeholder.com/40",
+            datePosted: "2024-07-16",
+            text: "This is a sample comment.",
+        },
+        {
+            username: "user2",
+            userAvatar: "https://via.placeholder.com/40",
+            datePosted: "2024-07-15",
+            text: "Another sample comment.",
+        },
+    ]
+    const [comments, setComments] = useState(mockComments);
+    
     const snapPoints = useMemo(() => ["30%", "50%", "75%"], []);
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
+
+    // converts Date to time ago
+    const formatTimeAgo = (date) => {
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(seconds / 3600);
+        const days = Math.floor(seconds / 86400);
+    
+        if (seconds < 60) return `${seconds}s`;
+        if (minutes < 60) return `${minutes}m`;
+        if (hours < 24) return `${hours}h`;
+        return `${days}d`;
+    };
+
+    // function for user to add comment to post
+    const handleSendComment = () => {
+        if (message.trim()) {
+            const newComment = {
+                username: currentUser,
+                userAvatar: currentUserAvatar, 
+                datePosted: formatTimeAgo(new Date()), // Replace with formatted date
+                text: message,
+            };
+
+            setComments((prevComments) => [...prevComments, newComment]);
+            setMessage(""); // Clear input
+        
+        // TODO: **Add your comment logic here**
+        }
+    };
+
+    // TODO: **fetch comments of post**
+    
+
+    // TODO: **convert date format - so that it's shows from day posted, like 6h or 1d**
 
     return (
         <BottomSheetModalProvider>
@@ -22,31 +77,33 @@ const CommentsModal = forwardRef((props, ref) => {
                                     <Image source={{ uri: comment.userAvatar }} style={styles.avatar} />
                                     <View style={styles.commentContent}>
                                         <View style={styles.commentHeader}>
-                                            <Text style={styles.username}>{comment.username}</Text>
-                                            <Text style={styles.date}>{comment.datePosted}</Text>
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
+                                                <Text style={styles.username}>{comment.username}</Text>
+                                                <Text style={styles.date}>
+                                                    {comment.datePosted}{/* TODO: replace with formatted date here */}
+                                                </Text>
+                                            </View>
+                                            <Ionicons name="heart-outline" size={18} color="black" />
                                         </View>
                                         <Text style={styles.commentText}>{comment.text}</Text>
+                                        <Text style={styles.replyText}>Reply</Text>
                                     </View>
                                 </View>
                             ))}
                         </View>
-                        {/* <TextInput style={styles.commentInput} placeholder="Add a comment..." value={comment} onChangeText={setComment} />
-                        <TouchableOpacity style={styles.sendButton}>
-                            <Text style={styles.sendButtonText}>Send</Text>
-                        </TouchableOpacity> */}
-                        <View style={styles.chatInput}>
-                            <View style={styles.inputContainer}>
-                                <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
-                                <TouchableOpacity>
-                                    <Ionicons name="happy" size={24} color="black" />
-                                </TouchableOpacity>
-                            </View>
-                            <TouchableOpacity style={styles.sendButton}>
-                                <Ionicons name="send" size={24} color="white" />
-                            </TouchableOpacity>
-                        </View>
                     </View>
                 </BottomSheetScrollView>
+                <View style={styles.chatInput}>
+                    <View style={styles.inputContainer}>
+                        <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
+                        <TouchableOpacity>
+                            <Ionicons name="happy" size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                    <TouchableOpacity style={styles.sendButton}  onPress={handleSendComment}>
+                        <Ionicons name="send" size={24} color="white" />
+                    </TouchableOpacity>
+                </View>
             </BottomSheetModal>
         </BottomSheetModalProvider>
     );
@@ -82,6 +139,7 @@ const styles = StyleSheet.create({
     },
     commentHeader: {
         flexDirection: "row",
+        alignContent: "center",
         justifyContent: "space-between",
     },
     username: {
@@ -90,7 +148,9 @@ const styles = StyleSheet.create({
     },
     date: {
         fontSize: 12,
+        paddingLeft: 8,
         color: "gray",
+        textAlignVertical: "center",
     },
     commentText: {
         fontSize: 16,
@@ -102,6 +162,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 8,
         marginBottom: 16,
+    },
+    replyText: {
+        color: "grey",
+        fontSize: 12,      
     },
     chatInput: {
         flexDirection: "row",
@@ -126,7 +190,7 @@ const styles = StyleSheet.create({
     sendButton: {
         backgroundColor: "blue",
         borderRadius: 20,
-        padding: 8,
+        padding: 7,
         marginLeft: 8,
     },
 });

@@ -45,7 +45,8 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
 
     const [posts, setPosts] = useState(mockPosts);
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-  
+    
+    // TODO: resolve adding posts
     const fetchPosts = async () => {
         try {
             const userId = userInfo.userId;
@@ -63,7 +64,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
     }, []);
 
     useEffect(() => {
-        console.log("posts", posts, posts.length);
+        // console.log("posts", posts, posts.length);
     }, [posts]);
     
     const styles = StyleSheet.create({
@@ -103,13 +104,14 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                     posts.map((post) => (
                         <Post
                             key={post.id}
+                            id={post.id}
                             username={username}
                             userHandle={userHandle}
                             userAvatar={avatar}
                             postTitle={post.properties.postTitle}
                             //  like = {14}
-                            likes={getRandomNumber(0, 100)}
-                            comments={getRandomNumber(0, 50)}
+                            likes={getRandomNumber(0, 100)} /** TODO: get actual number of likes */
+                            comments={getRandomNumber(0, 50)} /** TODO: get actual number of comments */
                             preview={post.properties.preview || post.properties.text}
                             saves={getRandomNumber(0, 18)}
                             image={post.properties.image}

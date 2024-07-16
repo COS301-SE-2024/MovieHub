@@ -7,12 +7,10 @@ import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import CommentsModal from "./CommentsModal";
 
-export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
+export default function Post({ id, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [comment, setComment] = useState("");
-    const bottomSheetRef = useRef(null);
     const [modalVisible, setModalVisible] = useState(false);
 
     const toggleModal = () => {
@@ -22,15 +20,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
         setLiked(!liked);
     };
 
-    // const handleCommentPress = () => {
-    //     bottomSheetRef.current?.present();
-    // };
-
-    const renderContent = () => (
-        <View>
-            
-        </View>
-    );
+    // TODO: Increment or decrement number of likes
 
     const styles = StyleSheet.create({
         container: {
@@ -151,12 +141,12 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} onPress={toggleLike} />
+                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <Pressable onPress={handleCommentPress}>
+                    <Pressable onPress={() => {handleCommentPress(id)}}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
@@ -175,14 +165,15 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    /* Edit logic */
+                                    /*TODO: Edit logic */
+                                    // navigate.navigate("EditPost", { userInfo });
                                 }}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    /* Delete logic */
+                                    /* TODO: Delete logic */
                                 }}>
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>

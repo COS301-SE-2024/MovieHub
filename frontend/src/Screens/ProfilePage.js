@@ -32,13 +32,14 @@ export default function ProfilePage({ route }) {
     const [following, setFollowing] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true); // Add this line
-    const [comments, setComments] = useState(mockComments);
+    const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
 
     const fetchData = async () => {
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
             setUserProfile(response);
+            console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);
@@ -63,42 +64,10 @@ export default function ProfilePage({ route }) {
         fetchData();
     }, []);
 
-    const handleCommentPress = () => {
+    const handleCommentPress = (postId) => {
+        setSelectedPostId(postId);
         bottomSheetRef.current?.present();
     };
-
-    const mockComments = [
-        {
-            username: "user1",
-            userAvatar: "https://via.placeholder.com/40",
-            datePosted: "2024-07-16",
-            text: "This is a sample comment.",
-        },
-        {
-            username: "user2",
-            userAvatar: "https://via.placeholder.com/40",
-            datePosted: "2024-07-15",
-            text: "Another sample comment.",
-        },
-        {
-            username: "user3",
-            userAvatar: "https://via.placeholder.com/40",
-            datePosted: "2024-07-14",
-            text: "Yet another sample comment.",
-        },
-        {
-            username: "user4",
-            userAvatar: "https://via.placeholder.com/40",
-            datePosted: "2024-07-13",
-            text: "One more sample comment with a lot of text to test out spacing.",
-        },
-        {
-            username: "user5",
-            userAvatar: "https://via.placeholder.com/40",
-            datePosted: "2024-07-12",
-            text: "One more sample comment with a lot of text to test out spacing.",
-        }
-    ]
 
     const styles = StyleSheet.create({
         container: {
@@ -230,7 +199,7 @@ export default function ProfilePage({ route }) {
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("WatchParty", { userInfo, userProfile })}>
+                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("EditProfile", { userInfo, userProfile })}>
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
@@ -274,7 +243,9 @@ export default function ProfilePage({ route }) {
             
             <CommentsModal    
                 ref={bottomSheetRef} 
-                comments={mockComments} 
+                postId={selectedPostId} 
+                currentUser={userInfo.username}
+                currentUserAvatar={userProfile.avatar}
             />
         </View>
     );
