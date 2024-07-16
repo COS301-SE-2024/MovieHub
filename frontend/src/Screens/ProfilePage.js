@@ -10,9 +10,7 @@ import WatchlistTab from "../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader";
 import { getUserProfile } from "../Services/UsersApiService";
 import { useTheme } from "../styles/ThemeContext";
-
 import { colors, themeStyles } from "../styles/theme";
-
 
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
@@ -25,14 +23,9 @@ export default function ProfilePage({ route }) {
     ]);
 
     const { userInfo } = route.params;
-
-    console.log("The user's info in Profile Page: ", userInfo);
-
     const navigation = useNavigation();
-    const handleEditProfile = () => {
-        navigation.navigate("EditProfile", { userInfo });
-    };
 
+    
 
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
@@ -53,30 +46,17 @@ export default function ProfilePage({ route }) {
             if (response.following && response.following.low !== undefined) {
                 setFollowing(response.following.low);
             }
-
-            console.log("24", following);
-
         } catch (error) {
-            console.error('Error fetching user data:', error);
+            console.error("Error fetching user data:", error);
         } finally {
-
-            console.log("1", userProfile);
-
             setLoading(false); // Set loading to false after data is fetched
-
         }
     };
 
     const handleRefresh = () => {
         setRefreshing(true);
-
-        fetchData();
-        setRefreshing(false);
-    }
-
         fetchData().finally(() => setRefreshing(false));
     };
-
 
     useEffect(() => {
         fetchData();
@@ -167,18 +147,15 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-
                 return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} />;
             case "watchlist":
                 return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
-
             default:
                 return null;
         }
     };
-
 
     if (loading) {
         return (
@@ -187,7 +164,6 @@ export default function ProfilePage({ route }) {
             </View>
         );
     }
-
 
     return (
         <View style={{ flex: 1 }}>
@@ -200,11 +176,10 @@ export default function ProfilePage({ route }) {
                         source={{
                             uri: userProfile.avatar,
                         }}
-
-                        style={styles.avatar}></Image>
-                    <Text style={styles.username}>{userProfile.name}</Text>
-                    <Text style={styles.userHandle}>@{userProfile.username}</Text>
-
+                        style={styles.avatar}
+                    />
+                    <Text style={styles.username}>{userProfile.name || "Itumeleng Moshokoa"}</Text>
+                    <Text style={styles.userHandle}>@{userProfile.username || "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
@@ -222,13 +197,21 @@ export default function ProfilePage({ route }) {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-
-                    {userProfile.pronouns === "Prefer not to say" ? null : <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns }</Text>}
-                    <Text style={{ color: theme.textColor }}>{userProfile.bio}</Text>
+                    {userProfile.pronouns !== "Prefer not to say" && (
+                        <Text style={{ color: theme.gray, paddingBottom: 5 }}>
+                            {userProfile.pronouns || "They/Them"}
+                        </Text>
+                    )}
+                    <Text style={{ color: theme.textColor }}>
+                        {userProfile.bio || "No bio here because they can't know me like that"}
+                    </Text>
                     <Text style={{ marginTop: 5 }}>
                         <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 }
-
+                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? (
+                            <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text>
+                        ) : (
+                            <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>
+                        )}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
@@ -237,12 +220,18 @@ export default function ProfilePage({ route }) {
                         renderScene={renderScene}
                         onIndexChange={setIndex}
                         initialLayout={{ width: layout.width }}
-
-                        renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />}
-
+                        renderTabBar={(props) => (
+                            <TabBar
+                                {...props}
+                                indicatorStyle={styles.indicator}
+                                labelStyle={styles.label}
+                                style={styles.tabBar}
+                            />
+                        )}
                     />
                 </View>
             </ScrollView>
+
             <BottomHeader userInfo={userInfo} />
         </View>
     );

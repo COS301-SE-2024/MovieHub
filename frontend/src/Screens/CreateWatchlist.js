@@ -3,11 +3,7 @@ import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, Scro
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 
-export default function CreateWatchlist({route,  navigation }) {
-    //Use userInfo to personlise a users homepage
-    const { userInfo } = route.params;
-
-
+export default function CreateWatchlist({route}) {
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
         description: { isVisible: false, newValue: "", tempValue: "" },

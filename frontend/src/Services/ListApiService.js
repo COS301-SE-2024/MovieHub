@@ -1,7 +1,7 @@
 // ListApiServices.js
 import axios from 'axios';
 
-const API_URL = 'http://192.168.8.35:3000/list/'; // Update to your Expo URL
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/list/'; // Update to your Expo URL
 
     export const createWatchlist = async (userId, watchlistData) => {
         try {
