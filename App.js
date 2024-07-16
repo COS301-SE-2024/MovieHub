@@ -41,6 +41,7 @@ import WatchParty from "./frontend/src/Screens/WatchParty";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
+import ExplorePage from "./frontend/src/Screens/ExplorePage"
 
 const Nav = createNativeStackNavigator();
 
@@ -230,6 +231,12 @@ export default function App() {
                                     headerTintColor: "black",
                                 })}
                             />
+                            <Nav.Screen name="ExplorePage" component={ExplorePage} options={({ navigation }) => ({
+                            title: "Explore",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })} />
 
                             <Nav.Screen
                                 name="ViewRoom"
