@@ -38,10 +38,9 @@ import Notifications from "./frontend/src/Screens/Notifications";
 import WatchlistDetails from "./frontend/src/Screens/WatchlistDetails";
 import EditWatchlist from "./frontend/src/Screens/EditWatchlist";
 import WatchParty from "./frontend/src/Screens/WatchParty";
-import CreateRoom from "./frontend/src/Screens/CreateRoom";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
+// import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
 
 const Nav = createNativeStackNavigator();
 
@@ -226,17 +225,6 @@ export default function App() {
                                 component={WatchParty}
                                 options={({ navigation }) => ({
                                     title: "Watch Party",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                            />
-
-                            <Nav.Screen
-                                name="CreateRoom"
-                                component={CreateRoom}
-                                options={({ navigation }) => ({
-                                    title: "Create Room",
                                     headerShadowVisible: false,
                                     headerBackTitleVisible: false,
                                     headerTintColor: "black",
