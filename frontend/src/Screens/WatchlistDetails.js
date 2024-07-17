@@ -37,7 +37,7 @@ const WatchlistDetails = ({route }) => {
         <View style={styles.container}>
             <Text style={styles.title}>{iniWatchlist.name}</Text>
             <ScrollView>
-                {iniWatchlist.moviesList && iniWatchlist.moviesList.map((movie) => (
+                {iniWatchlist.movieList && iniWatchlist.movieList.map((movie) => (
                     <View key={movie.id} style={styles.movieItem}>
                         <View style={styles.imagePlaceholder}>
                             <Image
