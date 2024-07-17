@@ -1,24 +1,26 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
+import CommentsModal from "./CommentsModal";
 
-export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost }) {
+export default function Post({ id, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false); 
-    
+    const [modalVisible, setModalVisible] = useState(false);
+
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
     const toggleLike = () => {
         setLiked(!liked);
     };
+
+    // TODO: Increment or decrement number of likes
 
     const styles = StyleSheet.create({
         container: {
@@ -86,7 +88,6 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             flexDirection: "row",
             alignItems: "center",
             marginRight: 20,
-            
         },
         statsNumber: {
             color: theme.textColor,
@@ -98,10 +99,10 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             fontSize: 13,
         },
         modalContainer: {
-            position: 'absolute',
+            position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: 'white',
+            backgroundColor: "white",
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -119,11 +120,11 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             paddingHorizontal: 20,
         },
         modalText: {
-            color: 'black',
+            color: "black",
             fontSize: 16,
-        }
+        },
     });
-    
+
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
@@ -140,12 +141,14 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5,}} onPress={toggleLike} />
+                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                    <Pressable onPress={() => {handleCommentPress(id)}}>
+                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                    </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
                 <View style={styles.stats}>
@@ -159,21 +162,33 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                 <View style={styles.modalContainer}>
                     {isUserPost ? ( // Check if the post belongs to the user
                         <>
-                            <TouchableOpacity style={styles.modalOption} onPress={() => { /* Edit logic */ }}>
+                            <TouchableOpacity
+                                style={styles.modalOption}
+                                onPress={() => {
+                                    /*TODO: Edit logic */
+                                    // navigate.navigate("EditPost", { userInfo });
+                                }}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalOption} onPress={() => { /* Delete logic */ }}>
+                            <TouchableOpacity
+                                style={styles.modalOption}
+                                onPress={() => {
+                                    /* TODO: Delete logic */
+                                }}>
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>
                         </>
                     ) : (
-                        <TouchableOpacity style={styles.modalOption} onPress={() => { /* Report logic */ }}>
+                        <TouchableOpacity
+                            style={styles.modalOption}
+                            onPress={() => {
+                                /* Report logic */
+                            }}>
                             <Text style={styles.modalText}>Report</Text>
                         </TouchableOpacity>
                     )}
                 </View>
-            )} 
+            )}
         </View>
     );
 }
-

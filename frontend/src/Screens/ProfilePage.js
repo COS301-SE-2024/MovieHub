@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
@@ -11,6 +11,7 @@ import BottomHeader from "../Components/BottomHeader";
 import { getUserProfile } from "../Services/UsersApiService";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
+import CommentsModal from "../Components/CommentsModal";
 
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
@@ -24,20 +25,21 @@ export default function ProfilePage({ route }) {
 
     const { userInfo } = route.params;
     const navigation = useNavigation();
-
-    
+    const bottomSheetRef = useRef(null);
 
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
     const [following, setFollowing] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true); // Add this line
+    const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
 
     const fetchData = async () => {
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
             setUserProfile(response);
+            console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);
@@ -61,6 +63,11 @@ export default function ProfilePage({ route }) {
     useEffect(() => {
         fetchData();
     }, []);
+
+    const handleCommentPress = (postId) => {
+        setSelectedPostId(postId);
+        bottomSheetRef.current?.present();
+    };
 
     const styles = StyleSheet.create({
         container: {
@@ -147,7 +154,7 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} />;
             case "watchlist":
@@ -192,7 +199,7 @@ export default function ProfilePage({ route }) {
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("WatchParty", { userInfo, userProfile })}>
+                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("EditProfile", { userInfo, userProfile })}>
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
@@ -233,6 +240,13 @@ export default function ProfilePage({ route }) {
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
+            
+            <CommentsModal    
+                ref={bottomSheetRef} 
+                postId={selectedPostId} 
+                currentUser={userInfo.username}
+                currentUserAvatar={userProfile.avatar}
+            />
         </View>
     );
 }
