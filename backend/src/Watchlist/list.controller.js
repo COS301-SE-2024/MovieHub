@@ -41,6 +41,8 @@ exports.modifyWatchlist = async (req, res) => {
 
 exports.getWatchlistDetails = async (req, res) => {
     const { watchlistId } = req.params;
+    console.log('Inside getWatchlistDeatils list controller');
+    console.log('WatchlistId: ' + watchlistId);
 
     try {
         const watchlistDetails = await WatchlistService.getWatchlistDetails(watchlistId);

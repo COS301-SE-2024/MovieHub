@@ -14,16 +14,6 @@ import * as SecureStore from "expo-secure-store";
 import { colors, themeStyles } from "../styles/theme";
 import { useTheme } from "../styles/ThemeContext";
 
-function renderScene({ route }) {
-    switch (route.key) {
-        case "posts":
-            return <PostsTab />;
-        case "likes":
-            return <LikesTab />;
-        case "watchlist":
-            return <WatchlistTab />;
-    }
-}
 
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
@@ -170,6 +160,21 @@ export default function ProfilePage({ route }) {
             borderRadius: 50,
         },
     });
+    
+    const renderScene = ({ route }) => {
+        switch (route.key) {
+            case "posts":
+
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
+            case "likes":
+                return <LikesTab userInfo={userInfo} userProfile={userProfile} />;
+            case "watchlist":
+                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
+
+            default:
+                return null;
+        }
+    };
 
     return (
         // <ProfileHeader />

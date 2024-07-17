@@ -63,7 +63,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
                 throw new Error(`Movie not found: ${movieTitle}`);
             }
             await tx.run(
-                `MERGE (m:Movie {id: $id, title: $title, releaseDate: $releaseDate, overview: $overview, posterPath: $posterPath})
+                `MERGE (m:Movie {movieId: $id, title: $title, releaseDate: $releaseDate, overview: $overview, posterPath: $posterPath})
                  RETURN m`,
                 {
                     id: movieDetails.id,
@@ -94,7 +94,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
         // Associate movies with the watchlist
         for (const movieId of movieIds) {
             await tx.run(
-                `MATCH (w:Watchlist {id: $watchlistId}), (m:Movie {id: $movieId})
+                `MATCH (w:Watchlist {id: $watchlistId}), (m:Movie {movieId: $movieId})
                  CREATE (w)-[:INCLUDES]->(m)`,
                 { watchlistId, movieId }
             );
@@ -204,14 +204,14 @@ exports.modifyWatchlist = async (watchlistId, updatedData) => {
 };
 
 
-//Get a particular watchlists details
+// Get a particular watchlist's details
 exports.getWatchlistDetails = async (watchlistId) => {
     const session = driver.session();
 
     try {
         const result = await session.run(
             `MATCH (w:Watchlist {id: $watchlistId})-[:INCLUDES]->(m:Movie)
-             RETURN w, m`,
+             RETURN w, m.movieId AS movieId`,
             { watchlistId }
         );
 
@@ -220,7 +220,7 @@ exports.getWatchlistDetails = async (watchlistId) => {
         }
 
         const watchlistRecord = result.records[0].get('w').properties;
-        const movieIds = result.records.map(record => record.get('m').properties.id);
+        const movieIds = result.records.map(record => record.get('movieId'));
 
         const movieDetailsPromises = movieIds.map(id => TmdbService.getMovieDetails(id));
         const movies = await Promise.all(movieDetailsPromises);
@@ -233,6 +233,8 @@ exports.getWatchlistDetails = async (watchlistId) => {
             poster_path: movie.poster_path
         }));
 
+        console.log('About to return request');
+
         return {
             name: watchlistRecord.name,
             movieList
@@ -244,6 +246,7 @@ exports.getWatchlistDetails = async (watchlistId) => {
         await session.close();
     }
 };
+
 
 
 exports.deleteWatchlist = async (watchlistId) => {

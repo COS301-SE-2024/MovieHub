@@ -1,66 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet } from 'react-native';
+import { getWatchlistDetails } from '../Services/ListApiService'; // Make sure to adjust the import path
 
-const WatchlistDetails = ({ route }) => {
-    const watchlist = {
-        name: "Hey",
-        moviesList: [
-            {
-                id: '1',
-                title: 'Inception',
-                genre: 'Action, Sci-Fi',
-                duration: '148 min',
-                poster_path: '/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg',
-            },
-            {
-                id: '2',
-                title: 'The Dark Knight',
-                genre: 'Action, Crime, Drama',
-                duration: '152 min',
-                poster_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
-            },
-            {
-                id: '3',
-                title: 'Interstellar',
-                genre: 'Adventure, Drama, Sci-Fi',
-                duration: '169 min',
-                poster_path: '/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-            },
-            {
-                id: '4',
-                title: 'Inside Out',
-                genre: 'Animation, Adventure, Comedy',
-                duration: '95 min',
-                poster_path: '/nQK2B3cNspR6NAHZ4VAsWKHokJv.jpg',
-            },
-            {
-                id: '5',
-                title: 'IT',
-                genre: 'Horror',
-                duration: '135 min',
-                poster_path: '/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg',
-            },
-            {
-                id: '6',
-                title: 'Bad Boys',
-                genre: 'Action, Comedy, Crime',
-                duration: '119 min',
-                poster_path: '/x1ygBecKHfXX4M2kRhmFKWfWbJc.jpg',
-            },
-            
-        ]
-    };
+const WatchlistDetails = ({route }) => {
+    const [iniWatchlist, setWatchlist] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const {watchlist} = route.params;
+   console.log('Here is the watchlist passed: ', JSON.stringify(watchlist));
+   
+    useEffect(() => {
+        const fetchWatchlistDetails = async () => {
+            try {
+                console.log('===========');
+                const watchlistId = watchlist.id;
+                console.log(watchlistId);
+                const data = await getWatchlistDetails(watchlistId);
+                console.log('Watchlist Id in WatchListDetails', JSON.stringify(watchlistId));
+
+                setWatchlist(data);
+            } catch (error) {
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchWatchlistDetails();
+    }, [watchlist]);
+
+    if (loading) return <Text>Loading...</Text>;
+    if (error) return <Text>Error: {error}</Text>;
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{watchlist.name}</Text>
+            <Text style={styles.title}>{iniWatchlist.name}</Text>
             <ScrollView>
-                {watchlist.moviesList && watchlist.moviesList.map((movie) => (
+                {iniWatchlist.moviesList && iniWatchlist.moviesList.map((movie) => (
                     <View key={movie.id} style={styles.movieItem}>
                         <View style={styles.imagePlaceholder}>
-                            <Image 
-                                source={{ uri: `https://image.tmdb.org/t/p/w500/${movie.poster_path}` }} 
-                                style={styles.movieImage} 
+                            <Image
+                                source={{ uri: `https://image.tmdb.org/t/p/w500/${movie.poster_path}` }}
+                                style={styles.movieImage}
                             />
                         </View>
                         <View style={styles.movieDetails}>
@@ -85,7 +67,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 16,
-        alignSelf:'center'
+        alignSelf: 'center',
     },
     movieItem: {
         flexDirection: 'row',
