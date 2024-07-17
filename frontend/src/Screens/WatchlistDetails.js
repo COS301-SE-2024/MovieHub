@@ -48,7 +48,7 @@ const WatchlistDetails = ({route }) => {
                         <View style={styles.movieDetails}>
                             <Text style={styles.movieTitle}>{movie.title}</Text>
                             <Text style={styles.movieGenre}>{movie.genre}</Text>
-                            <Text style={styles.movieDuration}>{movie.duration}</Text>
+                            <Text style={styles.movieDuration}>{movie.duration + ' min'}</Text>
                         </View>
                     </View>
                 ))}
