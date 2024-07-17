@@ -210,21 +210,18 @@ exports.getPostsOfUser = async (userId) => {
     }
     try {
         const result = await session.run(
-          'MATCH (u:User {userID: $userID})-[:POSTED]->(p:Post) RETURN p',
-          { userId }
+            `MATCH (u)-[:POSTED]->(r:Post)
+             WHERE ID(u) = $userId
+             RETURN {post : r, id : ID(r)} as data`,
+            { userId }
         );
-    
-        const posts = result.records.map(record => record.get('p').properties);
-        return posts;
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        throw error;
-      } finally {
+        const  reviews = result.records.map(record => record.get('data'));
+        const data = await processGets(reviews); // Await the processGets call
+        return data;
+        } finally {
         await session.close();
-      }
+    }
 };
-
-
 
 exports.getReviewsOfUser = async (userId) => {
     const session = driver.session();
