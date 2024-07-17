@@ -137,6 +137,7 @@ exports.getReviewsOfMovie = async (req, res) => {
 
 exports.getCommentsOfPost = async (req, res) => {
     try {
+        console.log('Getting comments');
         const postId = req.params.postId;
         const comments = await postService.getCommentsOfPost(postId);
         responseHandler(res, 200, 'Comments fetched successfully', comments);
