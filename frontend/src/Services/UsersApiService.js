@@ -158,10 +158,16 @@ export const getUserPosts = async (userId) => {
 
 // funtion get get user's liked posts
 export const getUserLikedPosts = async (userId) => {
-    const response = await fetch(`http://localhost:3000/like/${userId}/likes`);
+    const token = await getToken();
+    const response = await fetch(`http://localhost:3000/like/${userId}/likes`,{
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
     if (!response.ok) {
         console.log(response)
-        throw new Error("Failed to fetch user posts");
+        throw new Error("Failed to fetch user liked posts");
     } 
     
     const data = await response.json();
