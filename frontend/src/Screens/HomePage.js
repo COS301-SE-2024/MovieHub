@@ -21,10 +21,7 @@ import BottomHeader from "../Components/BottomHeader"
 import { useNavigation } from "@react-navigation/native";
 import {getPopularMovies, getMoviesByGenre } from '../Services/TMDBApiService';
 
-const HomePage = ({route}) => {
-   // const route = useRoute();
-    //Use userInfo to personlise a users homepage
-    const {userInfo} = route.params;
+const HomePage = () => {
 
     let [movies, setMovies] = useState([]);
     let [thrillerMovies, setThrillerMovies] = useState([]);
@@ -50,7 +47,7 @@ const HomePage = ({route}) => {
             console.error('Error fetching movies:', error);
           }
           finally {
-            // console.log("fetchmovies",thrillerMovies);
+            console.log("fetchmovies",thrillerMovies);
             // console.log('item.poster_path',movies)
           }
         };
@@ -96,7 +93,7 @@ const HomePage = ({route}) => {
             <View style={styles.container}>
                 <Text style={styles.trending}>Just for you</Text>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView horizontal>
                      {movies.slice(0, 10).map((movie, index) => (
 
                                 <MovieCard
@@ -118,7 +115,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal>
             {movies.slice(10, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -140,7 +137,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal>
             {thrillerMovies.slice(0, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -162,7 +159,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal>
             {comedyMovies.slice(5, 24).map((movie, index) => (
 
                             <TrendingMovie
@@ -184,7 +181,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal>
             {romanceMovies.slice(0, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -202,8 +199,8 @@ const HomePage = ({route}) => {
             </View>
             
         </ScrollView>
-{/* Add users info for bottom header */}
-            <BottomHeader userInfo={userInfo} />
+
+        <BottomHeader/>
 
     </View>
     );

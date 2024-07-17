@@ -12,49 +12,38 @@ exports.getLikesOfUser = async (req, res) => {
     }
 };
 
-exports.getLikesOfMovie = async (req, res) => {
-    const { movieId } = req.params.movieId;
-    try {
-        const liked = await likesService.getLikesOfMovie(movieId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
-    } catch (error) {
-        responseHandler(res, 400, error.message);
-    }
-};
+// exports.getLikesOfMovie = async (req, res) => {
+//     const { userId, reviewId } = req.body;
+//     try {
+//         const liked = await likesService.toggleLikeReview(userId, reviewId);
+//         const message = liked ? 'Review liked successfully' : 'Like removed successfully';
+//         responseHandler(res, 200, message);
+//     } catch (error) {
+//         responseHandler(res, 400, error.message);
+//     }
+// };
 
-exports.getLikesOfComment = async (req, res) => {
-    const { commentId } = req.params.commentId;
-    try {
-        const liked = await likesService.getLikesOfComment(commentId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
-    } catch (error) {
-        responseHandler(res, 400, error.message);
-    }
-};
+// exports.getLikesOfComment = async (req, res) => {
+//     const { userId, reviewId } = req.body;
+//     try {
+//         const liked = await likesService.toggleLikeReview(userId, reviewId);
+//         const message = liked ? 'Review liked successfully' : 'Like removed successfully';
+//         responseHandler(res, 200, message);
+//     } catch (error) {
+//         responseHandler(res, 400, error.message);
+//     }
+// };
 
-exports.getLikesOfReview = async (req, res) => {
-    const { reviewId } = req.params.reviewId;
-    try {
-        const liked = await likesService.getLikesOfReview(reviewId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
-    } catch (error) {
-        responseHandler(res, 400, error.message);
-    }
-};
-
-exports.getLikesOfPost = async (req, res) => {
-    const { postId } = req.params.postId;
-    try {
-        const liked = await likesService.getLikesOfPost(postId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
-    } catch (error) {
-        responseHandler(res, 400, error.message);
-    }
-};
+// exports.getLikesOfReview = async (req, res) => {
+//     const { userId, reviewId } = req.body;
+//     try {
+//         const liked = await likesService.toggleLikeReview(userId, reviewId);
+//         const message = liked ? 'Review liked successfully' : 'Like removed successfully';
+//         responseHandler(res, 200, message);
+//     } catch (error) {
+//         responseHandler(res, 400, error.message);
+//     }
+// };
 
 exports.toggleLikeReview = async (req, res) => {
     const userId = req.body.userId;

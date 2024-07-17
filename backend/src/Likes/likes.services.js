@@ -29,47 +29,6 @@ exports.getLikesOfUser = async (userId) => {
     }
 };
 
-exports.getLikes = async ( entityType) => {
-    const session = driver.session();
-    console.log("getLikes", entityType);
-    // userId = parseInt(userId, 10);
-    if (isNaN(userId)) {
-        throw new Error('Invalid User ID');
-    }
-
-    try {
-        const result = await session.run(
-            `MATCH (u)-[:LIKES]->(e:${entityType})
-            WHERE ID(u) = $userId
-            RETURN {entity: e, id: ID(e)} as data`,
-            { userId }
-        );
-
-        console.log(result);
-        const entities = result.records.map(record => record.get('data'));
-        const data = await processGets(entities); // Await the processGets call if necessary
-        return data;
-    } finally {
-        await session.close();
-    }
-};
-
-exports.getLikesOfReview = async (userId, reviewId) => {
-    return getLikes(userId, reviewId, 'Review');
-};
-
-exports.getLikesOfComment = async(userId, commentId) => {
-    return getLikes(userId, commentId, 'Comment');
-};
-
-exports.getLikesOfMovie = async (userId, movieId) => {
-    return getLikes(userId, movieId, 'Movie');
-};
-
-exports.getLikesOfPost = async (userId, postId) => {
-    return getLikes(userId, postId, 'Post');
-};
-
 async function toggleLike(userId, entityId, entityType) {
     const session = driver.session();
     try {

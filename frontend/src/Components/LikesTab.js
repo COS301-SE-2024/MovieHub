@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import React from "react";
+import { View, Text, Image, StyleSheet } from "react-native";
 import Post from "./Post";
 
 export default function LikesTab() {
-
+    
     const posts = [
         {
             username: "Mark Johnson",
@@ -52,31 +52,19 @@ export default function LikesTab() {
             preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
             datePosted: "2024-06-02",
         },
-
+        
     ];
-    const [likedPosts, setLikedPosts] = useState(posts);
-
-    /*TODO: fetch liked posts */
 
     return (
         <View>
-            <ScrollView>
-                {posts.length === 0 ? (
-                    <View style={styles.container}>
-                        <Text style={styles.title}>You haven't liked any reviews yet.</Text>
-                        <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
-                    </View>
-                ) : (
-                    posts.map((post) => 
-                        <Post // TODO: update to reflect actual posts
-                            username={post.username} 
-                            userHandle={post.userHandle} 
-                            key={post.postTitle} 
-                            {...post} 
-                        />)
-                )}
-            </ScrollView>
-
+            {posts.length === 0 ? (
+                <View style={styles.container}>
+                    <Text style={styles.title}>You haven't liked any reviews yet.</Text>
+                    <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
+                </View>
+            ) : (
+                posts.map((post) => <Post username={post.username} userHandle={post.userHandle} key={post.postTitle} {...post} />)
+            )}
         </View>
     );
 }
@@ -85,7 +73,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
         paddingHorizontal: 35,
-        paddingTop: 55,
+        paddingTop: 35,  
         textAlign: "center",
     },
     title: {

@@ -32,7 +32,7 @@ export const themeStyles = {
     button: {
         backgroundColor: colors.primary,
         padding: 12,
-        paddingHorizontal: 30,
+        paddingHorizontal: 20,
         borderRadius: 10,
         alignItems: 'center',
     },

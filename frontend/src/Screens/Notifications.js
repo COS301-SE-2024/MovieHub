@@ -4,9 +4,7 @@ import BottomHeader from "../Components/BottomHeader";
 
 import { themeStyles } from "../styles/theme";
 
-const Notifications = ({ route }) => {
-    const { userInfo } = route.params;
-
+const Notifications = () => {
     const [notifications, setNotifications] = useState([
         { id: 1, text: "New message from John", read: false },
         { id: 2, text: "You have 3 new followers", read: true },
@@ -62,7 +60,7 @@ const Notifications = ({ route }) => {
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={styles.listContainer}
             />            
-            <BottomHeader userInfo={userInfo} />
+            <BottomHeader />
         </View>
     );
 };
