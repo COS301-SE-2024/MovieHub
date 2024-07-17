@@ -11,6 +11,7 @@ const CommentsModal = forwardRef((props, ref) => {
     const { currentUser } = props;
     const { currentUserAvatar } = props;
     console.log("CommentsModal Post ID: ", postId);
+    console.log("CommentsModal Post user: ", currentUser);
     const [message, setMessage] = useState("");
     const mockComments = [
         {

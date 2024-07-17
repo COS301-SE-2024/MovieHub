@@ -14,7 +14,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
 
     const mockPosts = [
         {
-            id: 1,
+            postId: 1,
             properties: {
                 postTitle: "I just love movies with cliches",
                 preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
@@ -24,7 +24,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             },
         },
         {
-            id: 2,
+            postId: 2,
             properties: {
                 postTitle: "Inception: A Mind-Bending Thriller",
                 preview: "Inception is a sci-fi thriller that takes you on a journey through the dream world. The complex narrative and stunning visuals make it a must-watch.",
@@ -33,7 +33,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             },
         },
         {
-            id: 3,
+            postId: 3,
             properties: {
                 postTitle: "Interstellar: A Journey Beyond the Stars",
                 preview: "Interstellar is a visually stunning and emotionally gripping sci-fi epic. Christopher Nolan's masterpiece explores themes of love, sacrifice, and the unknown.",
