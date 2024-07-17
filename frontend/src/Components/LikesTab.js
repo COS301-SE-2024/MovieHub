@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import Post from "./Post";
 
@@ -54,10 +54,12 @@ export default function LikesTab() {
         },
 
     ];
+    const [likedPosts, setLikedPosts] = useState(posts);
+
+    /*TODO: fetch liked posts */
 
     return (
         <View>
-            <Text style={styles.title}>Your Likes</Text>
             <ScrollView>
                 {posts.length === 0 ? (
                     <View style={styles.container}>
@@ -65,7 +67,13 @@ export default function LikesTab() {
                         <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
                     </View>
                 ) : (
-                    posts.map((post) => <Post username={post.username} userHandle={post.userHandle} key={post.postTitle} {...post} />)
+                    posts.map((post) => 
+                        <Post // TODO: update to reflect actual posts
+                            username={post.username} 
+                            userHandle={post.userHandle} 
+                            key={post.postTitle} 
+                            {...post} 
+                        />)
                 )}
             </ScrollView>
 
@@ -77,7 +85,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
         paddingHorizontal: 35,
-        paddingTop: 35,
+        paddingTop: 55,
         textAlign: "center",
     },
     title: {

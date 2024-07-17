@@ -1,4 +1,5 @@
 // backend/index.js
+
 const express = require('express');
 const dotenv = require('dotenv');
 const userRouter = require('./src/Users/users.router');
@@ -10,6 +11,8 @@ const movieRouter = require('./src/movieHandeling/movie.router');
 const actorRouter = require('./src/actorHandeling/actor.router');
 const genreRouter = require('./src/genreHandeling/genre.router');
 
+const ColorThief = require("colorthief");
+const bodyParser = require('body-parser');
 const cors = require('cors'); // since we are using more than on port
 const https = require('https');
 const fs = require('fs');
@@ -19,13 +22,16 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-app.use(cors({
-    origin: ['http://localhost:8081', 'exp://10.0.0.107:8081'],// all ports used in frontend web and exp
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true 
-  }));
+app.use(
+    cors({
+        origin: ["http://localhost:8081", "exp://10.0.0.107:8081"], // all ports used in frontend web and exp
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true,
+    })
+);
 
 app.use(express.json());
+
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/list', watchlistRouter);
@@ -41,7 +47,28 @@ app.use((req, res, next) => {
     next();
 });
 
+// Code for extracting colors from an image
+// For parsing application/json
+app.use(bodyParser.json());
+
+// For parsing application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post("/extract-colors", async (req, res) => {
+    try {
+        const image = req.body.imageUrl;
+        if (!image) {
+            return res.status(400).send("No image file provided.");
+        }
+
+        const colors = await ColorThief.getPalette(image);
+        res.json({ colors: colors });
+    } catch (error) {
+        console.error("Error extracting colors:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
-

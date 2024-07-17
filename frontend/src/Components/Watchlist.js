@@ -5,19 +5,18 @@ import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 
-const WatchlistTab = ({userInfo}) => {
+const WatchlistTab = ({ userInfo }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
-
-    // Fetch user watchlists
+        // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
-                //const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3'; // Replace with actual user ID fetching logic
-                const userId = userInfo.userId;
+                const userId = userInfo.userId; // Replace with actual user ID fetching logic
                 const userWatchlists = await getUserWatchlists(userId);
+                console.log(userWatchlists);
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error('Error fetching user watchlists:', error);
@@ -59,7 +58,7 @@ const WatchlistTab = ({userInfo}) => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-                onPress={() => navigation.navigate('CreateWatchlist', {userInfo})}
+                onPress={() => navigation.navigate('CreateWatchlist', { userInfo })}
             >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <View style={{ flex: 1 }} />
@@ -83,7 +82,7 @@ const WatchlistTab = ({userInfo}) => {
                 ))}
                 {watchlists.length === 0 && (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>No watchlists available</Text>
+                        <Text style={styles.emptyText}>Your watchlists will appear here</Text>
                     </View>
                 )}
             </ScrollView>
