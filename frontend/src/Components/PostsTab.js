@@ -1,16 +1,16 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
 import Post from "./Post";
 import { getPostsOfUser, getCountCommentsOfPost } from "../Services/PostsApiServices";
-import { useTheme } from "../styles/ThemeContext";
 
 export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
     const username = userProfile.name;
     const userHandle = "@" + userInfo.username;
     const avatar = userProfile.avatar;
+    const navigation = useNavigation();
 
     const mockPosts = [
         {
@@ -42,17 +42,29 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             },
         },
     ];
- 
+
     const [posts, setPosts] = useState(mockPosts);
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    
-    // TODO: resolve adding posts
+
     const fetchPosts = async () => {
         try {
             const userId = userInfo.userId;
             const response = await getPostsOfUser(userId);
-            console.log("posts", response.data); // Ensure this logs the correct data structure
-            setPosts(response.data); // Assuming response.data is an array of post objects
+            console.log("Fetched posts:", response.data); // Log the response to verify the structure
+
+            if (response.data === null) {
+                setPosts([]);
+                return;
+            }
+
+            const postsWithComments = await Promise.all(response.data.map(async (post) => {
+                const commentsResponse = await getCountCommentsOfPost(post.postId);
+                // console.log("Comments response for post", post.postId, ":", commentsResponse); // Log to verify structure
+                const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
+                return { ...post, commentsCount };
+            }));
+
+            setPosts(postsWithComments);
         } catch (error) {
             console.error("Error fetching posts:", error);
             // Handle error state or retry logic
@@ -63,10 +75,6 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
         fetchPosts();
     }, []);
 
-    useEffect(() => {
-        // console.log("posts", posts, posts.length);
-    }, [posts]);
-    
     const styles = StyleSheet.create({
         outerContainer: {
             backgroundColor: theme.backgroundColor,
@@ -94,33 +102,32 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
 
     return (
         <View style={styles.outerContainer}>
-            {/* <ScrollView> */}
-                {posts.length === 0 ? (
-                    <View style={styles.container}>
-                        <Text style={styles.title}>Share your thoughts!</Text>
+            {posts.length === 0 ? (
+                <View style={styles.container}>
+                    <Text style={styles.title}>Share your thoughts!</Text>
+                    <Pressable onPress={() => navigation.navigate("CreatePost", { userInfo })}>
                         <Text style={styles.subtitle}>Create your first post</Text>
-                    </View>
-                ) : (
-                    posts.map((post) => (
-                        <Post
-                            key={post.id}
-                            postId={post.id}
-                            username={username}
-                            userHandle={userHandle}
-                            userAvatar={avatar}
-                            postTitle={post.properties.postTitle}
-                            //  like = {14}
-                            likes={getRandomNumber(0, 100)} /** TODO: get actual number of likes */
-                            comments={getCountCommentsOfPost(post.id)} /** TODO: get actual number of comments */
-                            preview={post.properties.preview || post.properties.text}
-                            saves={getRandomNumber(0, 18)}
-                            image={post.properties.image}
-                            isUserPost={post.properties.uid === userInfo.userId} // confirm this
-                            handleCommentPress={handleCommentPress}
-                        />
-                    ))
-                )}
-            {/* </ScrollView> */}
+                    </Pressable>
+                </View>
+            ) : (
+                posts.map((post) => (
+                    <Post
+                        key={post.postId}
+                        postId={post.postId}
+                        username={username}
+                        userHandle={userHandle}
+                        userAvatar={avatar}
+                        postTitle={post.postTitle}
+                        likes={getRandomNumber(0, 100)} /** TODO: get actual number of likes */
+                        comments={post.commentsCount || 0} /** Comments count */
+                        preview={post.text}
+                        saves={getRandomNumber(0, 18)}
+                        image={post.image || null}
+                        isUserPost={post.uid === userInfo.userId}
+                        handleCommentPress={handleCommentPress}
+                    />
+                ))
+            )}
         </View>
     );
 }

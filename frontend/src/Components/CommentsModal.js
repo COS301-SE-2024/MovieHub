@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, forwardRef, useState } from "react";
+import React, { useCallback, useMemo, forwardRef, useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
@@ -69,6 +69,7 @@ const CommentsModal = forwardRef((props, ref) => {
                 const response = await getCommentsOfPost(postId);
                 if (response.ok) {
                     const data = await response.json();
+                    console.log("data", data);
                     setComments(data);
                 } else {
                     throw new Error("Failed to fetch comments of post");
