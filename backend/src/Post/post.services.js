@@ -287,7 +287,7 @@ exports.getPostsOfMovie = async (movieId) => {
             { movieId }
         );
         if (result.records.length === 0) {
-            return null;
+            return [];
         }
         return result.records.map(record => record.get('p').properties);
     } catch (error) {
@@ -308,7 +308,7 @@ exports.getReviewsOfMovie = async (movieId) => {
             { movieId }
         );
         if (result.records.length === 0) {
-            return null;
+            return [];
         }
         return result.records.map(record => record.get('r').properties);
     } catch (error) {
@@ -330,7 +330,7 @@ exports.getCommentsOfPost = async (postId) => {
             { postId }
         );
         if (result.records.length === 0) {
-            return null;
+            return [];
         }
         return result.records.map(record => record.get('c').properties);
     } catch (error) {
@@ -351,7 +351,7 @@ exports.getCommentsOfReview = async (reviewId) => {
             { reviewId }
         );
         if (result.records.length === 0) {
-            return null;
+            return [];
         }
         return result.records.map(record => record.get('c').properties);
     } catch (error) {
@@ -372,7 +372,7 @@ exports.getPostsOfUser = async (uid) => {
             { uid }
         );
         if (result.records.length === 0) {
-            return null;
+            return ;
         }
         return result.records.map(record => record.get('p').properties);
     } catch (error) {
@@ -393,7 +393,7 @@ exports.getReviewsOfUser = async (uid) => {
             { uid }
         );
         if (result.records.length === 0) {
-            return null;
+            return [];
         }
         return result.records.map(record => record.get('r').properties);
     } catch (error) {
@@ -414,7 +414,7 @@ exports.getCommentsOfUser = async (uid) => {
             { uid }
         );
         if (result.records.length === 0) {
-            return null;
+            return [];
         }
         return result.records.map(record => record.get('c').properties);
     } catch (error) {
@@ -438,7 +438,7 @@ exports.getAverageRating = async (movieId) => {
         );
 
         if (result.records.length === 0) {
-            return null;
+            return [];
         }
 
         const averageRating = result.records[0].get('averageRating').toFixed(2); // toFixed to round to 2 decimal places
