@@ -4,15 +4,13 @@ import responseHandler from '../utils/responseHandler';
 //POSTS//
 exports.addPost = async (req, res) => {
     const userId = req.body.userId;
-    // const movieId = req.body.movieId;
-    // const text = req.body.text;
-    // const isReview = req.body.isReview;
-    // const rating = req.body.rating;
-    const { preview, postTitle, userHandle, username, userAvatar, image} = req.body
-
-    console.log("POSTS: ", req.body);
+    const movieId = req.body.movieId;
+    const text = req.body.text;
+    const isReview = req.body.isReview;
+    const rating = req.body.rating;
+    console.log(userId, movieId, text, isReview, rating);
     try {
-        const post = await postService.addPost(userId, preview, postTitle, userHandle, username, userAvatar, image);
+        const post = await postService.addPost(userId, movieId, text, isReview, rating);
         responseHandler(res, 201, 'Post added successfully', post);
     } catch (error) {
         responseHandler(res, 400, error.message);

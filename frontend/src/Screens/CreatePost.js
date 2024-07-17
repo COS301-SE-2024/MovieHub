@@ -14,10 +14,6 @@ export default function CreatePost() {
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
 
-    const username = "Itumeleng Moshokoa";
-    const userHandle = "@Joyce";
-    const avatar = "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg";
-
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
 
     // Mock movie search results
@@ -31,8 +27,8 @@ export default function CreatePost() {
 
     const handleAddImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== "granted") {
-            alert("Sorry, we need camera roll permissions to make this work!");
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
             return;
         }
 
@@ -42,15 +38,15 @@ export default function CreatePost() {
             quality: 1,
         });
 
-        if (!result.canceled) {
+        if (!result.cancelled) {
             setImageUri(result.assets[0].uri);
         }
     };
 
     const handleReplaceImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== "granted") {
-            alert("Sorry, we need camera roll permissions to make this work!");
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
             return;
         }
 
@@ -81,23 +77,19 @@ export default function CreatePost() {
 
     const handleAddPost = async () => {
         const postData = {
+            text: "",
             userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            isReview: isMovieReview,
-            preview: thoughts,
-            postTitle: title,
-            userHandle: userHandle,
-            username: username,
-            userAvatar: avatar,
-            image: imageUri,
+            movieId: 0,
+            isReview: false,
+            rating: 0
         };
-        console.log("yohh")
+        
         try {
             const post = await addPost(postData);
-            console.log("Post added successfully:", data);
-        } catch (error) {
-            console.log("Error adding post:", error.message);
-            console.error("Error adding post:", error);
-        }
+            console.log('Post added successfully:', data);
+        } catch(error){
+            console.error('Error adding post:', error);
+        };
     };
 
     return (
@@ -154,7 +146,7 @@ export default function CreatePost() {
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
                 <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled}>
-                    <Text style={styles.postButtonText} onPress={handleAddPost}>Post</Text>
+                    <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
@@ -213,7 +205,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     allowComments: {
-        marginTop: 4,
+        marginTop: 4
     },
     footer: {
         flexDirection: "row",
@@ -247,14 +239,14 @@ const styles = StyleSheet.create({
         height: 400,
         borderRadius: 10,
         marginBottom: 10,
-        objectFit: "contain",
+        objectFit: "contain"
     },
     removeImageButton: {
         position: "absolute",
         top: 10,
         right: 25,
         backgroundColor: colors.primary,
-
+        
         borderRadius: 50,
     },
     replaceImageButton: {

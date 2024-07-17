@@ -1,56 +1,19 @@
-import React, { useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, Dimensions } from "react-native";
+import React from "react";
+import { View, Text, Image, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useState } from "react";
+import { TextInput } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
-import { removePost } from "../Services/PostsApiServices";
 
 export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
 
     const toggleLike = () => {
         setLiked(!liked);
-    };
-
-    const openModal = () => {
-        setModalVisible(true);
-    };
-
-    const closeModal = () => {
-        setModalVisible(false);
-    };
-    
-    // delete post
-
-    const handleDelete = async () => {
-        try {
-            await removePost(postTitle);
-            console.log("Post deleted successfully");
-        } catch (error) {
-            console.error("Error deleting post:", error);
-        }   
-    };
-
-    // const handleDelete = () => {
-    //     // Add delete logic here
-
-    //     console.log("Delete post");
-    //     closeModal();
-    // };
-
-    const handleEdit = () => {
-        // Add edit logic here
-        console.log("Edit post");
-        closeModal();
-    };
-
-    const onIconLayout = (event) => {
-        const { x, y } = event.nativeEvent.layout;
-        setIconPosition({ x, y });
     };
 
     const styles = StyleSheet.create({
@@ -108,7 +71,8 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             marginTop: 5,
         },
         icon: {
-            marginRight: 5,
+           
+            color: theme.iconColor,
         },
         statsContainer: {
             display: "flex",
@@ -119,9 +83,10 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             flexDirection: "row",
             alignItems: "center",
             marginRight: 20,
+            
         },
         statsNumber: {
-            marginRight: 5,
+            color: theme.textColor,
         },
         commentInput: {
             marginTop: 10,
@@ -129,61 +94,25 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
             color: theme.gray,
             fontSize: 13,
         },
-        centeredView: {
-            position: "absolute",
-            top: iconPosition.y + 30,
-            left: iconPosition.x - 50,
-            zIndex: 1,
-        },
-        modalView: {
-            width: 100,
-            backgroundColor: "white",
-            borderRadius: 10,
-            padding: 10,
-            alignItems: "center",
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
-        },
-        button: {
-            borderRadius: 10,
-            padding: 10,
-            elevation: 2,
-            width: "100%",
-            marginVertical: 2,
-        },
-        textStyle: {
-            color: "black",
-        },
-        modalText: {
-            marginBottom: 15,
-            textAlign: "center",
-        },
     });
+    
 
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "flex-start" }}>
+                <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>
                 </View>
-                <TouchableOpacity onLayout={onIconLayout} onPress={openModal} style={{ marginLeft: "auto" }}>
-                    <Icon name="more-vert" size={20}  />
-                </TouchableOpacity>
+                <Icon name="more-vert" size={20} style={{ marginLeft: "auto" }}></Icon>
             </View>
             {image && <Image source={{ uri: image }} style={styles.postImage} />}
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
+                <TouchableOpacity style={styles.stats}>
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5,}} onPress={toggleLike} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
@@ -197,22 +126,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                 <View style={{ flex: 1 }}></View>
                 <CommIcon name="share-outline" size={20} style={styles.icon} />
             </View>
-
-            {modalVisible && (
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <TouchableOpacity style={[styles.button, styles.buttonClose]} onPress={handleEdit}>
-                            <Text style={styles.textStyle}>Edit</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.buttonClose]} onPress={handleDelete}>
-                            <Text style={styles.textStyle}>Delete</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.buttonClose]} onPress={closeModal}>
-                            <Text style={styles.textStyle}>Cancel</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )}
         </View>
     );
 }
+

@@ -9,7 +9,6 @@ export const addPost = async (bodyData) => {
         body: JSON.stringify(bodyData),
     });
     if (!response.ok) {
-        console.log(response)
         throw new Error('Failed to add post');
     }
     const data = await response.json();
