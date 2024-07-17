@@ -1,17 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { TabView, TabBar } from "react-native-tab-view";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
-import { TabView, TabBar } from "react-native-tab-view";
 import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
 import WatchlistTab from "../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader";
-import { getUserProfile } from "../Services/UsersApiService";
+import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
-import CommentsModal from "../Components/CommentsModal";
+import { getCommentsOfPost } from "../Services/PostsApiServices";
+import { getUserProfile } from "../Services/UsersApiService";
 
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
@@ -33,6 +34,8 @@ export default function ProfilePage({ route }) {
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true); // Add this line
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
+    const [comments, setComments] = useState([]);
+    const [loadingComments, setLoadingComments] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -55,6 +58,20 @@ export default function ProfilePage({ route }) {
         }
     };
 
+    const fetchComments = async (postId) => {
+        setLoadingComments(true);
+        try {
+            const response = await getCommentsOfPost(postId);
+            // console.log("Fetched comments:", response.data);
+            setComments(response.data);
+        } catch (error) {
+            console.error("Error fetching comments of post:", error.message);
+            throw new Error("Failed to fetch comments of post");
+        } finally {
+            setLoadingComments(false);
+        }
+    };
+
     const handleRefresh = () => {
         setRefreshing(true);
         fetchData().finally(() => setRefreshing(false));
@@ -64,8 +81,10 @@ export default function ProfilePage({ route }) {
         fetchData();
     }, []);
 
-    const handleCommentPress = (postId) => {
+    const handleCommentPress = async (postId) => {
         setSelectedPostId(postId);
+        await fetchComments(postId);
+        console.log("Comments:", comments);
         bottomSheetRef.current?.present();
     };
 
@@ -244,8 +263,12 @@ export default function ProfilePage({ route }) {
             <CommentsModal    
                 ref={bottomSheetRef} 
                 postId={selectedPostId} 
-                currentUser={userInfo.username}
+                userId={userInfo.userId}
+                username={userInfo.username}
                 currentUserAvatar={userProfile.avatar}
+                comments={comments}
+                loadingComments={loadingComments}
+                onFetchComments={fetchComments}
             />
         </View>
     );
