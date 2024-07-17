@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share} from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TextInput } from "react-native-gesture-handler";
@@ -7,12 +7,14 @@ import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import CommentsModal from "./CommentsModal";
 import { removePost } from "../Services/PostsApiServices";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const navigation = useNavigation();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -45,8 +47,15 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
 
     const handleRemovePost = async (uid, postId) => {
         try {
-            await removePost(uid, postId);
-            console.log('Post removed successfully');
+            //
+            console.log('Removing post:', postId + ' by ' + uid);
+            const postBody = {
+                postId: postId,
+                uid: uid
+            }
+            await removePost(postBody);
+            // console.log('Post removed successfully');
+            Alert.alert(null,'Post removed successfully');
         } catch (error) {
             console.error('Error removing post:', error);
             throw new Error('Failed to remove post' + error);
@@ -200,8 +209,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    /*TODO: Edit logic */
-                                    // navigate.navigate("EditPost", { userInfo });
+                                    navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
                                 }}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>

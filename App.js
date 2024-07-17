@@ -32,6 +32,7 @@ import TermsOfUse from "./frontend/src/Screens/TermsOfUse";
 import ChangePassword from "./frontend/src/Screens/ChangePassword";
 import MovieDescriptionPage from "./frontend/src/Screens/MovieDescriptionPage";
 import CreatePost from "./frontend/src/Screens/CreatePost";
+import EditPost from "./frontend/src/Screens/EditPost";
 import CreateWatchlist from "./frontend/src/Screens/CreateWatchlist";
 import AddMovies from "./frontend/src/Screens/AddMovies";
 import Notifications from "./frontend/src/Screens/Notifications";
@@ -156,6 +157,18 @@ export default function App() {
                                     headerTintColor: "black",
                                 })}
                             />
+
+                            <Nav.Screen
+                                name="EditPost"
+                                component={EditPost}
+                                options={({ navigation }) => ({
+                                    title: "Edit Post",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",
+                                })}
+                            />
+                            
                             <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
                             <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings" }} />
                             <Nav.Screen name="ChangePassword" component={ChangePassword} options={{ title: "Change Password" }} />

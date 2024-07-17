@@ -3,22 +3,25 @@ import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, Fla
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
-import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
 
+import { addPost, editPost } from "../Services/PostsApiServices";
+
 export default function CreatePost({route}) {
+    const { username, uid, titleParam, thoughtsParam, imageUriParam, postId } = route.params;
+    const userInfo = { username, userId: uid };
     const [isMovieReview, setIsMovieReview] = useState(false);
-    const [title, setTitle] = useState("");
-    const [thoughts, setThoughts] = useState("");
+    const [title, setTitle] = useState(titleParam);
+    const [thoughts, setThoughts] = useState(thoughtsParam);
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
-    const [imageUri, setImageUri] = useState(null);
+    const [imageUri, setImageUri] = useState(imageUriParam);
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0); // Add state for rating
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
-    const navigation = useNavigation();
-    const { userInfo } = route.params;
+    const navigate = useNavigation();
+
     // Mock movie search results
     const movieResults = movieSearch
         ? [
@@ -78,30 +81,31 @@ export default function CreatePost({route}) {
         Alert.alert("Add Emoji", "This functionality is not implemented yet.");
     };
 
-    const handleAddPost = async () => {
+    const handleEditPost = async () => {
         const postData = {
+            postId: postId,
             postTitle: title,
             text: thoughts,
-            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 843527.0,
+            uid: uid, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             img: null,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0
         };
-        
+
         try {
-            const post = await addPost(postData);
-            console.log('Post added successfully:', post);
+            const post = await editPost(postData);
+            console.log('Post edited successfully:', post);
             setModalVisible(true);
             setTimeout(() => {
                 setModalVisible(false);
-                navigation.navigate("HomePage", { userInfo});
-            }, 1500);
-            
-        } catch(error){
-            console.error('Error adding post:', error);
-        };
-    };
+                navigate.navigate("HomePage", { userInfo });
+            }, 2000);
+        } catch (error) {
+            console.error('Error editing post:', error);
+            throw new Error('Failed to edit post' + error);
+        }
+
+    }
 
     const handleRatingPress = (value) => {
         setRating(value);
@@ -178,7 +182,7 @@ export default function CreatePost({route}) {
 
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleAddPost}>
+                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleEditPost}>
                     <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
@@ -191,7 +195,7 @@ export default function CreatePost({route}) {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Post Created Successfully</Text>
+                        <Text style={styles.modalTitle}>Post Edited Successfully</Text>
                     </View>
                 </View>
             </Modal>
@@ -317,8 +321,8 @@ const styles = StyleSheet.create({
     modalContainer: {
         width: "80%",
         backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 10,
+        padding: 18,
+        borderRadius: 6,
         alignItems: "center",
     },
     modalTitle: {
