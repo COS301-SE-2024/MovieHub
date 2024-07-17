@@ -8,7 +8,7 @@ import { useTheme } from "../styles/ThemeContext";
 import CommentsModal from "./CommentsModal";
 import { removePost } from "../Services/PostsApiServices";
 
-export default function Post({ postId, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
+export default function Post({ id, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -147,7 +147,7 @@ export default function Post({ postId, username, userHandle, userAvatar, likes, 
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <Pressable onPress={() => {handleCommentPress(postId)}}>
+                    <Pressable onPress={() => {handleCommentPress(id)}}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>

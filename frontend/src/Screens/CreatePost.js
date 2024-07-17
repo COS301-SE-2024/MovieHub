@@ -5,9 +5,8 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
-import { useNavigation } from "@react-navigation/native";
 
-export default function CreatePost({route}) {
+export default function CreatePost({navigation}) {
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [thoughts, setThoughts] = useState("");
@@ -17,9 +16,6 @@ export default function CreatePost({route}) {
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0); // Add state for rating
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
-    const navigate = useNavigation();
-    const {userInfo} = route.params;
-    console.log(userInfo);
 
     // Mock movie search results
     const movieResults = movieSearch
@@ -82,11 +78,12 @@ export default function CreatePost({route}) {
 
     const handleAddPost = async () => {
         const postData = {
-            uid: userInfo.userId,
-            movieId: 843527.0,
-            text: thoughts,
             postTitle: title,
-            img: imageUri,
+            text: thoughts,
+            userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            movieId: 310,
+            isReview: isMovieReview,
+            rating: isMovieReview ? rating : 0
         };
         
         try {
@@ -95,7 +92,7 @@ export default function CreatePost({route}) {
             setModalVisible(true);
             setTimeout(() => {
                 setModalVisible(false);
-                navigate.navigate("HomePage", {userInfo});
+                navigation.navigate("HomePage");
             }, 2000);
             
         } catch(error){
