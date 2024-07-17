@@ -6,6 +6,7 @@ import { getPopularMovies } from '../Services/TMDBApiService'; // Adjust the imp
 export default function AddMovies({ route, navigation }) {
     // Receive watchlist data passed from CreateWatchlist
     const { watchlistData } = route.params;
+    const { userInfo } = route.params;
 
     // State to hold popular movies from TMDB
     const [movies, setMovies] = useState([]);
@@ -47,7 +48,7 @@ export default function AddMovies({ route, navigation }) {
             // Call createWatchlist function to create the watchlist
             await createWatchlist(userId, finalWatchlistData);
             Alert.alert('Success', 'Watchlist created successfully!');
-            navigation.navigate('ProfilePage');
+            navigation.navigate('ProfilePage', {userInfo});
         } catch (error) {
             Alert.alert('Error', 'Failed to create watchlist.');
             console.error(error);
@@ -63,7 +64,6 @@ export default function AddMovies({ route, navigation }) {
                 source={{ uri: `https://image.tmdb.org/t/p/w500/${item.poster_path}` }}
                 style={styles.movieImage}
             />
-            <Text style={styles.movieTitle}>{item.title}</Text>
             {selectedMovies.some(selectedMovie => selectedMovie.id === item.id) && <View style={styles.tick} />}
         </TouchableOpacity>
     );
@@ -125,10 +125,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         position: "relative",
+        borderRadius: 10,
     },
     movieImage: {
         width: "100%",
-        height: 200,
+        height: "100%",
+        borderRadius: 10,
     },
     movieTitle: {
         marginTop: 8,

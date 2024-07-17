@@ -5,18 +5,18 @@ import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 
-const WatchlistTab = () => {
+const WatchlistTab = ({ userInfo }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
-
-    // Fetch user watchlists
+        // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
-                const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3'; // Replace with actual user ID fetching logic
+                const userId = userInfo.userId; // Replace with actual user ID fetching logic
                 const userWatchlists = await getUserWatchlists(userId);
+                console.log(userWatchlists);
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error('Error fetching user watchlists:', error);
@@ -58,7 +58,7 @@ const WatchlistTab = () => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-                onPress={() => navigation.navigate('CreateWatchlist')}
+                onPress={() => navigation.navigate('CreateWatchlist', { userInfo })}
             >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <View style={{ flex: 1 }} />
@@ -67,11 +67,13 @@ const WatchlistTab = () => {
             <ScrollView>
                 {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={watchlist.image} style={styles.watchlistImage} />
+                        <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
-                            <Text style={styles.watchlistPrivacy}>{watchlist.privacy}</Text>
-                            <Text style={styles.watchlistMovies}>{watchlist.movies} movies</Text>
+                            <Text style={styles.watchlistPrivacy}>
+                                        {watchlist.visibility ? 'Private' : 'Public'}
+                            </Text>
+                            <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>
                         <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
                             <MaterialIcons name="more-vert" size={24} color="black" />
@@ -80,7 +82,7 @@ const WatchlistTab = () => {
                 ))}
                 {watchlists.length === 0 && (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>No watchlists available</Text>
+                        <Text style={styles.emptyText}>Your watchlists will appear here</Text>
                     </View>
                 )}
             </ScrollView>
@@ -90,7 +92,7 @@ const WatchlistTab = () => {
                         <TouchableOpacity
                             style={styles.modalOption}
                             onPress={() => {
-                                navigation.navigate('EditWatchlist');
+                                navigation.navigate('EditWatchlist', {userInfo});
                                 closeModal();
                                 console.log(`Edit ${selectedWatchlist.name}`);
                             }}>

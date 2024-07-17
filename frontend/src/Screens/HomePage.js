@@ -21,7 +21,10 @@ import BottomHeader from "../Components/BottomHeader"
 import { useNavigation } from "@react-navigation/native";
 import {getPopularMovies, getMoviesByGenre } from '../Services/TMDBApiService';
 
-const HomePage = () => {
+const HomePage = ({route}) => {
+   // const route = useRoute();
+    //Use userInfo to personlise a users homepage
+    const {userInfo} = route.params;
 
     let [movies, setMovies] = useState([]);
     let [thrillerMovies, setThrillerMovies] = useState([]);
@@ -47,7 +50,7 @@ const HomePage = () => {
             console.error('Error fetching movies:', error);
           }
           finally {
-            console.log("fetchmovies",thrillerMovies);
+            // console.log("fetchmovies",thrillerMovies);
             // console.log('item.poster_path',movies)
           }
         };
@@ -93,7 +96,7 @@ const HomePage = () => {
             <View style={styles.container}>
                 <Text style={styles.trending}>Just for you</Text>
 
-                <ScrollView horizontal>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                      {movies.slice(0, 10).map((movie, index) => (
 
                                 <MovieCard
@@ -115,7 +118,7 @@ const HomePage = () => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movies.slice(10, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -137,7 +140,7 @@ const HomePage = () => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {thrillerMovies.slice(0, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -159,7 +162,7 @@ const HomePage = () => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {comedyMovies.slice(5, 24).map((movie, index) => (
 
                             <TrendingMovie
@@ -181,7 +184,7 @@ const HomePage = () => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {romanceMovies.slice(0, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -199,8 +202,8 @@ const HomePage = () => {
             </View>
             
         </ScrollView>
-
-        <BottomHeader/>
+{/* Add users info for bottom header */}
+            <BottomHeader userInfo={userInfo} />
 
     </View>
     );

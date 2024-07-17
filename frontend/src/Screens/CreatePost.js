@@ -1,19 +1,20 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, FlatList, Image, Alert, ScrollView } from "react-native";
+import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, FlatList, Image, Alert, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 
-export default function CreatePost() {
+export default function CreatePost({navigation}) {
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [thoughts, setThoughts] = useState("");
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
-
+    const [modalVisible, setModalVisible] = useState(false);
+    const [rating, setRating] = useState(0); // Add state for rating
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
 
     // Mock movie search results
@@ -77,19 +78,46 @@ export default function CreatePost() {
 
     const handleAddPost = async () => {
         const postData = {
-            text: "",
+            postTitle: title,
+            text: thoughts,
             userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 0,
-            isReview: false,
-            rating: 0
+            movieId: 310,
+            isReview: isMovieReview,
+            rating: isMovieReview ? rating : 0
         };
         
         try {
             const post = await addPost(postData);
-            console.log('Post added successfully:', data);
+            console.log('Post added successfully:', post);
+            setModalVisible(true);
+            setTimeout(() => {
+                setModalVisible(false);
+                navigation.navigate("HomePage");
+            }, 2000);
+            
         } catch(error){
             console.error('Error adding post:', error);
         };
+    };
+
+    const handleRatingPress = (value) => {
+        setRating(value);
+    };
+
+    const renderRatingOptions = () => {
+        const ratingOptions = [];
+        for (let i = 1; i <= 10; i++) {
+            ratingOptions.push(
+                <TouchableOpacity
+                    key={i}
+                    onPress={() => handleRatingPress(i)}
+                    style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}
+                >
+                    <Text style={styles.ratingText}>{i}</Text>
+                </TouchableOpacity>
+            );
+        }
+        return ratingOptions;
     };
 
     return (
@@ -119,6 +147,8 @@ export default function CreatePost() {
                     <Text style={styles.label}>Movie</Text>
                     <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
                     {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
+                    <Text style={styles.label}>Rating</Text>
+                    <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
                 </View>
             )}
 
@@ -145,11 +175,26 @@ export default function CreatePost() {
 
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled}>
+                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleAddPost}>
                     <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Post Created Successfully</Text>
+                    </View>
+                </View>
+            </Modal>
         </ScrollView>
+
+        
     );
 }
 
@@ -180,6 +225,8 @@ const styles = StyleSheet.create({
     },
     textArea: {
         height: 100,
+        textAlignVertical: "top",
+        paddingTop: 8,
     },
     movieResult: {
         padding: 10,
@@ -222,9 +269,10 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 35,
         borderRadius: 10,
+        opacity: 1,
     },
     postButtonDisabled: {
-        backgroundColor: "#aaa",
+        opacity: 0.7
     },
     postButtonText: {
         color: "#fff",
@@ -255,5 +303,42 @@ const styles = StyleSheet.create({
         right: 60,
         backgroundColor: colors.primary,
         borderRadius: 50,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        height: "100%",
+    },
+    modalContainer: {
+        width: "80%",
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 10,
+    },
+    ratingContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 20,
+    },
+    ratingOption: {
+        padding: 8,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 5,
+    },
+    ratingOptionSelected: {
+        backgroundColor: "#827DC3",
+        borderColor: "#4A42C0",
+    },
+    ratingText: {
+        fontSize: 16,
     },
 });

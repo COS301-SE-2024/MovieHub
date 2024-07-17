@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Button, Pressable, Text, View, ScrollView, Image, Dimensions } from 'react-native';
-import landing1 from "../../../assets/landing1.png";
-import landing2 from "../../../assets/landing2.png";
-import landing3 from "../../../assets/landing3.png";
-import landing4 from "../../../assets/landing4.png";
+import { StyleSheet, Button, Pressable, Text, View, ScrollView, Image, Dimensions, StatusBar } from 'react-native';
+import landing1 from "../../../assets/film2.jpg";
+import landing2 from "../../../assets/neon.jpg";
+import landing3 from "../../../assets/vintagefilm.jpg";
+import landing4 from "../../../assets/film.jpg";
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
@@ -20,6 +20,7 @@ const LandingPage = () => {
 
     return (
         <View style={styles.container}>
+            <StatusBar translucent backgroundColor="transparent" />
             <ScrollView
                 horizontal
                 pagingEnabled
@@ -78,38 +79,47 @@ const styles = StyleSheet.create({
         width: 10,
         marginHorizontal: 5,
         borderRadius: 10,
-        backgroundColor: '#888888'
+        backgroundColor: '#000000'
     },
     bubbleActive: {
         height: 10,
         width: 10,
         marginHorizontal: 5,
         borderRadius: 10,
-        backgroundColor: '#000000'
+        backgroundColor: '#371f76'
     },
     subTitle: {
         fontSize: 21,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: 20
+        marginTop: 20,
+        color: 'white',
+        position: 'absolute',
+        top: 20,
+        zIndex: 1,
     },
     text: {
         fontSize: 18,
         textAlign: 'center',
-        width: 350
+        width: 350,
+        color: 'white',
+        position: 'absolute'
     },
     imgContainer: {
         width,
         height: 200,
         paddingHorizontal: 10,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        position: 'relative',
+        
     },
     scrollView: {
         flexDirection: 'row',
-        padding: 10,
+        // padding: 10,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        // height: '300%',
     },
     container: {
         flex: 1,
@@ -120,18 +130,18 @@ const styles = StyleSheet.create({
         paddingVertical: 50
     },
     image: {
-        margin:50,
-        padding:10,
-        width: '70%',
-        height: 200,
-        resizeMode: 'contain',
+        // margin:50,
+        // padding:10,
+        width: '100%',
+        height: '400%',
+        resizeMode: 'cover',
     },
     create: {
         margin: 10,
         width: '70%',
         paddingVertical: 10,
         borderRadius: 10,
-        borderColor: '#000000',
+        borderColor: '#ffffff',
         backgroundColor: '#000000',
         borderWidth: 1.5
     },
