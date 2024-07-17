@@ -5,7 +5,9 @@ import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "@expo/vector-icons/MaterialIcons";
-import { signIn } from "../../../backend/src/services/authService";
+//import { signIn } from "../../../backend/src/services/authService";
+import { loginUser } from "../Services/AuthApiService";
+import * as SecureStore from "expo-secure-store";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -25,19 +27,37 @@ const LoginPage = () => {
 
     const HandleLogin = async () => {
         try {
-            await signIn(email, password);
+            // await signIn(email, password);
+            const data = await loginUser(email, password);
+            console.log("User Loggin in???");
+            await SecureStore.setItemAsync("userToken", data.data.token);
             console.log("User signed in successfully");
-            navigation.navigate("HomePage");
+            //navigate to the home page with the users info
+            const userInfo = {
+                userId: data.data.uid,
+                username: data.data.username,
+                //???     token : data.data.token
+            };
+            navigation.navigate("HomePage", { userInfo });
         } catch (error) {
+            console.log("Error", error);
+            // const regex = /\(([^)]+)\)/;
+
+            // // Use the regex to find the match
+            // const match = error.message.match(regex);
+            // console.log("some",match)
+
             let errorMessage = "Error signing in";
             if (error.code === "auth/user-not-found") {
-                errorMessage = "User not found. Please check your email";
+                errorMessage = "User not found. Please check your email address";
             } else if (error.code === "auth/wrong-password") {
                 errorMessage = "Incorrect password. Please try again";
             } else if (error.code === "auth/invalid-email") {
                 errorMessage = "Invalid email address format";
             } else if (error.code === "auth/invalid-login-credentials") {
                 errorMessage = "Incorrect email or password. Please try again";
+            } else if (!email || !password) {
+                errorMessage = "Email and password are required";
             } else {
                 errorMessage = error.message; // Default to Firebase's error message
             }
@@ -68,7 +88,7 @@ const LoginPage = () => {
                 <Pressable style={styles.button} onPress={HandleLogin}>
                     <Text style={styles.buttonText}>Login</Text>
                 </Pressable>
-                {error ? <Text style={{ color: 'red', marginTop: 10, textAlign: 'center' }}>{error}</Text> : null}
+                {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text> : null}
             </View>
             <View style={styles.forgot}>
                 <Text style={{ color: "#0f5bd1" }}>Forgot password?</Text>
@@ -117,8 +137,8 @@ const styles = StyleSheet.create({
     },
     socialLink: {
         marginHorizontal: 20,
-        height: 40,
-        width: 40,
+        height: 35,
+        width: 35,
     },
     container: {
         flex: 1,
@@ -192,7 +212,7 @@ const styles = StyleSheet.create({
     },
     passwordVisibilityButton: {
         margin: 10,
-    }
+    },
 });
 
 export default LoginPage;

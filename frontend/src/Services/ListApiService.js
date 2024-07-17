@@ -1,12 +1,11 @@
 // ListApiServices.js
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_LIST_API_URL || 'http://10.0.0.107:3000/list/';
-
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/list/'; // Update to your Expo URL
 
     export const createWatchlist = async (userId, watchlistData) => {
         try {
-            const response = await axios.post(`http://localhost:3000/list/${userId}`, watchlistData);
+            const response = await axios.post(`${API_URL}${userId}`, watchlistData);
             return response.data;
         } catch (error) {
             console.error('Error creating watchlist:', error);
@@ -16,7 +15,7 @@ const API_BASE_URL = process.env.REACT_APP_LIST_API_URL || 'http://10.0.0.107:30
 
 export const modifyWatchlist= async (watchlistId, updatedData) => {
         try {
-            const response = await axios.patch(`http://localhost:3000/list/${watchlistId}`, updatedData);
+            const response = await axios.patch(`${API_URL}${watchlistId}`, updatedData);
             return response.data;
         } catch (error) {
             console.error('Error modifying watchlist:', error);
@@ -26,7 +25,7 @@ export const modifyWatchlist= async (watchlistId, updatedData) => {
 
 export const deleteWatchlist= async (watchlistId) => {
         try {
-            await axios.delete(`http://localhost:3000/list/${watchlistId}`);
+            await axios.delete(`${API_URL}${watchlistId}`);
         } catch (error) {
             console.error('Error deleting watchlist:', error);
             throw new Error('Failed to delete watchlist.');

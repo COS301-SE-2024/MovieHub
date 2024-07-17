@@ -1,92 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import LikesTab from "../Components/LikesTab"
+import { TabView, TabBar } from "react-native-tab-view";
+import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
-import WatchlistTab from"../Components/Watchlist";
+import WatchlistTab from "../Components/Watchlist";
 import BottomHeader from "../Components/BottomHeader";
 import { getUserProfile } from "../Services/UsersApiService";
+import { useTheme } from "../styles/ThemeContext";
+import { colors, themeStyles } from "../styles/theme";
+import CommentsModal from "../Components/CommentsModal";
 
-import { colors, themeStyles } from '../styles/theme';
-import { useTheme } from '../styles/ThemeContext';
-
-function renderScene({ route }) {
-    switch (route.key) {
-        case "posts":
-            return (
-                <PostsTab/>
-            );
-        case "likes":
-            return (
-                <LikesTab/>
-            );
-        case "watchlist":
-            return (
-                <WatchlistTab/>
-            );
-    }
-} 
-
-export default function ProfilePage() {
+export default function ProfilePage({ route }) {
     const { theme } = useTheme();
     const layout = useWindowDimensions();
-    const [index, setIndex] = React.useState(0);
-    const [routes] = React.useState([
+    const [index, setIndex] = useState(0);
+    const [routes] = useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
         { key: "watchlist", title: "Watchlist" },
     ]);
 
+    const { userInfo } = route.params;
     const navigation = useNavigation();
-    const handleEditProfile = () => {
-        navigation.navigate("EditProfile");
+    const bottomSheetRef = useRef(null);
+
+    const [userProfile, setUserProfile] = useState({});
+    const [followers, setFollowers] = useState(0);
+    const [following, setFollowing] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
+    const [loading, setLoading] = useState(true); // Add this line
+    const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
+
+    const fetchData = async () => {
+        try {
+            const userId = userInfo.userId;
+            const response = await getUserProfile(userId);
+            setUserProfile(response);
+            console.log("Response:", response);
+
+            if (response.followers && response.followers.low !== undefined) {
+                setFollowers(response.followers.low);
+            }
+
+            if (response.following && response.following.low !== undefined) {
+                setFollowing(response.following.low);
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        } finally {
+            setLoading(false); // Set loading to false after data is fetched
+        }
     };
 
-    let [userProfile, setUserProfile] = useState({});
-    let [followers, setfollowers] = useState(0);
-    let [following, setfollowing] = useState(0);
-    const [refreshing, setRefreshing] = useState(false);
-
-    const fetchData = async () => {// fetching data from api
-        try {
-            const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3';
-          const response = await  getUserProfile(userId); 
-          setUserProfile(response);
-
-          if (response.followers && response.followers.low !== undefined) {
-            setfollowers(response.followers.low);
-        }
-
-        if (response.following && response.following.low !== undefined) {
-            setfollowing(response.following.low);
-        }
-          console.log("24",following);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-      
-        } finally {
-            console.log("1",userProfile);
-
-        }
-      };
-
-      const handleRefresh = () =>{
-        setRefreshing(true)
-        fetchData()
-        setRefreshing(false)
-      }
+    const handleRefresh = () => {
+        setRefreshing(true);
+        fetchData().finally(() => setRefreshing(false));
+    };
 
     useEffect(() => {
-        fetchData(); 
-    }, []); 
+        fetchData();
+    }, []);
 
-    useEffect(() => {
-        console.log("User Profile:", userProfile);
-        console.log("Followers:", followers);
-    }, [userProfile, followers, following]); 
+    const handleCommentPress = (postId) => {
+        setSelectedPostId(postId);
+        bottomSheetRef.current?.present();
+    };
 
     const styles = StyleSheet.create({
         container: {
@@ -100,6 +81,7 @@ export default function ProfilePage() {
         button: {
             backgroundColor: "#000",
             padding: 10,
+            paddingHorizontal: 20,
             borderRadius: 5,
             width: 190,
         },
@@ -147,8 +129,8 @@ export default function ProfilePage() {
             marginHorizontal: 25,
         },
         tabContainer: {
-            color: theme.gray,
             marginTop: 25,
+            height: layout.height,
         },
         tabBar: {
             backgroundColor: theme.backgroundColor,
@@ -161,54 +143,110 @@ export default function ProfilePage() {
             backgroundColor: colors.primary,
             borderRadius: 50,
         },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: theme.backgroundColor,
+        },
     });
 
+    const renderScene = ({ route }) => {
+        switch (route.key) {
+            case "posts":
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+            case "likes":
+                return <LikesTab userInfo={userInfo} userProfile={userProfile} />;
+            case "watchlist":
+                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
+            default:
+                return null;
+        }
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
+
     return (
-        // <ProfileHeader />
         <View style={{ flex: 1 }}>
-            
-            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>}>
+            <ScrollView
+                style={[styles.container, { backgroundColor: theme.backgroundColor }]}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+            >
                 <View style={styles.accountInfo}>
-                    <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} style={styles.avatar}></Image>
-                    <Text style={styles.username}>{userProfile.fullName ? userProfile.fullName : "Itumeleng Moshokoa"}</Text>
-                    <Text style={styles.userHandle}>{userProfile.username ? userProfile.username : "Joyce"}</Text>
+                    <Image
+                        source={{
+                            uri: userProfile.avatar,
+                        }}
+                        style={styles.avatar}
+                    />
+                    <Text style={styles.username}>{userProfile.name || "Itumeleng Moshokoa"}</Text>
+                    <Text style={styles.userHandle}>@{userProfile.username || "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
-                    <Text style={styles.number}>{followers ? followers : 132} </Text>
+                        <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
                     <Text>
-                        <Text style={styles.number}>{following ? following : 30} </Text>
+                        <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={themeStyles.button} onPress={handleEditProfile}>
+                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("EditProfile", { userInfo, userProfile })}>
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns ? userProfile.pronouns : "They/Them"}</Text>
-                    <Text style={{ color: theme.textColor }}>{userProfile.bio ? userProfile.bio : "No bio here because they can't know me like that"}</Text>
+                    {userProfile.pronouns !== "Prefer not to say" && (
+                        <Text style={{ color: theme.gray, paddingBottom: 5 }}>
+                            {userProfile.pronouns || "They/Them"}
+                        </Text>
+                    )}
+                    <Text style={{ color: theme.textColor }}>
+                        {userProfile.bio || "No bio here because they can't know me like that"}
+                    </Text>
                     <Text style={{ marginTop: 5 }}>
-                    <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenre ? userProfile.favouriteGenre.length >= 3 && (
-                            <Text style={{color: theme.textColor }}>{userProfile.favoriteGenres[0]}, {userProfile.favoriteGenres[1]}, {userProfile.favoriteGenres[2]}</Text>
+                        <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
+                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? (
+                            <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text>
                         ) : (
-                            <Text style={{color: theme.textColor }}>Animation, True Crime</Text>
+                            <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>
                         )}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
-                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
+                    <TabView
+                        navigationState={{ index, routes }}
+                        renderScene={renderScene}
+                        onIndexChange={setIndex}
+                        initialLayout={{ width: layout.width }}
+                        renderTabBar={(props) => (
+                            <TabBar
+                                {...props}
+                                indicatorStyle={styles.indicator}
+                                labelStyle={styles.label}
+                                style={styles.tabBar}
+                            />
+                        )}
+                    />
                 </View>
-               
             </ScrollView>
-            <BottomHeader />
+
+            <BottomHeader userInfo={userInfo} />
+            
+            <CommentsModal    
+                ref={bottomSheetRef} 
+                postId={selectedPostId} 
+                currentUser={userInfo.username}
+                currentUserAvatar={userProfile.avatar}
+            />
         </View>
     );
 }
-
-
-// export default ProfilePage;
