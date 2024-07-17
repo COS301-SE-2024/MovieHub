@@ -31,6 +31,7 @@ const fetchWithAuth = async (url, options = {}) => {
 };
 
 export const addPost = async (bodyData) => {
+    // bodyData should contain: { uid, movieId, text, postTitle, img }
     try {
         const response = await fetchWithAuth(`${API_URL}add/post`, {
             method: 'POST',
@@ -43,6 +44,7 @@ export const addPost = async (bodyData) => {
 };
 
 export const addReview = async (bodyData) => {
+    // bodyData should contain: { uid, movieId, text, rating, reviewTitle }
     try {
         const response = await fetchWithAuth(`${API_URL}add/review`, {
             method: 'POST',
@@ -55,6 +57,7 @@ export const addReview = async (bodyData) => {
 };
 
 export const addCommentToPost = async (bodyData) => {
+    // bodyData should contain: { uid, text, postId }
     try {
         const response = await fetchWithAuth(`${API_URL}comment/post`, {
             method: 'POST',
@@ -67,6 +70,7 @@ export const addCommentToPost = async (bodyData) => {
 };
 
 export const addCommentToReview = async (bodyData) => {
+    // bodyData should contain: { uid, reviewId, text }
     try {
         const response = await fetchWithAuth(`${API_URL}comment/review`, {
             method: 'POST',
@@ -79,6 +83,7 @@ export const addCommentToReview = async (bodyData) => {
 };
 
 export const addCommentToComment = async (bodyData) => {
+    // bodyData should contain: { uid, comOnId, text }
     try {
         const response = await fetchWithAuth(`${API_URL}comment/comment`, {
             method: 'POST',
@@ -91,6 +96,7 @@ export const addCommentToComment = async (bodyData) => {
 };
 
 export const editPost = async (bodyData) => {
+    // bodyData should contain: { postId, uid, text }
     try {
         const response = await fetchWithAuth(`${API_URL}edit/post`, {
             method: 'PUT',
@@ -103,6 +109,7 @@ export const editPost = async (bodyData) => {
 };
 
 export const editReview = async (bodyData) => {
+    // bodyData should contain: { reviewId, uid, text }
     try {
         const response = await fetchWithAuth(`${API_URL}edit/review`, {
             method: 'PUT',
@@ -115,6 +122,7 @@ export const editReview = async (bodyData) => {
 };
 
 export const editComment = async (bodyData) => {
+    // bodyData should contain: { commentId, uid, text }
     try {
         const response = await fetchWithAuth(`${API_URL}edit/comment`, {
             method: 'PUT',
@@ -127,6 +135,7 @@ export const editComment = async (bodyData) => {
 };
 
 export const removePost = async (bodyData) => {
+    // bodyData should contain: { postId, uid }
     try {
         await fetchWithAuth(`${API_URL}remove/post`, {
             method: 'DELETE',
@@ -139,6 +148,7 @@ export const removePost = async (bodyData) => {
 };
 
 export const removeReview = async (bodyData) => {
+    // bodyData should contain: { reviewId, uid }
     try {
         await fetchWithAuth(`${API_URL}remove/review`, {
             method: 'DELETE',
@@ -151,6 +161,7 @@ export const removeReview = async (bodyData) => {
 };
 
 export const removeComment = async (bodyData) => {
+    // bodyData should contain: { commentId, uid }
     try {
         await fetchWithAuth(`${API_URL}remove/comment`, {
             method: 'DELETE',
@@ -163,6 +174,7 @@ export const removeComment = async (bodyData) => {
 };
 
 export const getPostsOfMovie = async (movieId) => {
+    // movieId should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}movie/${movieId}/posts`, {
             method: 'GET',
@@ -174,6 +186,7 @@ export const getPostsOfMovie = async (movieId) => {
 };
 
 export const getReviewsOfMovie = async (movieId) => {
+    // movieId should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}movie/${movieId}/reviews`, {
             method: 'GET',
@@ -185,6 +198,7 @@ export const getReviewsOfMovie = async (movieId) => {
 };
 
 export const getCommentsOfPost = async (postId) => {
+    // postId should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}post/${postId}/comments`, {
             method: 'GET',
@@ -196,6 +210,7 @@ export const getCommentsOfPost = async (postId) => {
 };
 
 export const getCommentsOfReview = async (reviewId) => {
+    // reviewId should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}review/${reviewId}/comments`, {
             method: 'GET',
@@ -207,6 +222,7 @@ export const getCommentsOfReview = async (reviewId) => {
 };
 
 export const getPostsOfUser = async (uid) => {
+    // uid should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}user/${uid}/posts`, {
             method: 'GET',
@@ -218,6 +234,7 @@ export const getPostsOfUser = async (uid) => {
 };
 
 export const getReviewsOfUser = async (uid) => {
+    // uid should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}user/${uid}/reviews`, {
             method: 'GET',
@@ -229,6 +246,7 @@ export const getReviewsOfUser = async (uid) => {
 };
 
 export const getCommentsOfUser = async (uid) => {
+    // uid should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}user/${uid}/comments`, {
             method: 'GET',
@@ -240,6 +258,7 @@ export const getCommentsOfUser = async (uid) => {
 };
 
 export const getAverageRating = async (movieId) => {
+    // movieId should be a string
     try {
         const response = await fetchWithAuth(`${API_URL}movie/${movieId}/rating`, {
             method: 'GET',
@@ -250,3 +269,26 @@ export const getAverageRating = async (movieId) => {
     }
 };
 
+export const getCountCommentsOfPost = async (postId) => {
+    // postId should be a string
+    try {
+        const response = await fetchWithAuth(`${API_URL}post/${postId}/comment/count`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to fetch comment count on post: ' + error.message);
+    }
+};
+
+export const getCountCommentsOfReview = async (reviewId) => {
+    // reviewId should be a string
+    try {
+        const response = await fetchWithAuth(`${API_URL}review/${reviewId}/comment/count`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to fetch comment count on review: ' + error.message);
+    }
+};

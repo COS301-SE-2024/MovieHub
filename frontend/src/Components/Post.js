@@ -6,6 +6,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import CommentsModal from "./CommentsModal";
+import { removePost } from "../Services/PostsApiServices";
 
 export default function Post({ id, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
     const { theme } = useTheme();
@@ -174,6 +175,7 @@ export default function Post({ id, username, userHandle, userAvatar, likes, comm
                                 style={styles.modalOption}
                                 onPress={() => {
                                     /* TODO: Delete logic */
+                                    removePost(id)
                                 }}>
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>

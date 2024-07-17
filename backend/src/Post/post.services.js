@@ -450,3 +450,41 @@ exports.getAverageRating = async (movieId) => {
         await session.close();
     }
 };
+
+exports.getCountCommentsOfPost = async (postId) => {
+    console.log("In Services: getTotalCommentsOfPost");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (c:Comment {postId: $postId})
+             RETURN count(c) AS totalComments`,
+            { postId }
+        );
+        const totalComments = result.records[0].get('totalComments').toInt();
+        return totalComments;
+    } catch (error) {
+        console.error("Error getting total comments of post: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getCountCommentsOfReview = async (reviewId) => {
+    console.log("In Services: getTotalCommentsOfReview");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (c:Comment {reviewId: $reviewId})
+             RETURN count(c) AS totalComments`,
+            { reviewId }
+        );
+        const totalComments = result.records[0].get('totalComments').toInt();
+        return totalComments;
+    } catch (error) {
+        console.error("Error getting total comments of review: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};

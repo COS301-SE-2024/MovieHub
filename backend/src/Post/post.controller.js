@@ -194,3 +194,23 @@ exports.getAverageRating = async (req, res) => {
         responseHandler(res, 400, error.message);
     }
 };
+
+exports.getCountCommentsOfPost = async (req, res) => {
+    try {
+        const postId = req.params.postId;
+        const postCommentCount = await postService.getCountCommentsOfPost(postId);
+                   responseHandler(res, 200, 'Post comment count fetched successfully', { postCommentCount });
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getCountCommentsOfReview = async (req, res) => {
+    try {
+        const reviewId = req.params.reviewId;
+        const reviewCommentCount = await postService.getCountCommentsOfReview(reviewId);
+                   responseHandler(res, 200, 'Review comment count fetched successfully', { reviewCommentCount });
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
