@@ -17,9 +17,9 @@ exports.addPost = async (req, res) => {
 };
 
 exports.addReview = async (req, res) => {
-    const { uId, movieId, text, rating, reviewTitle } = req.body;
+    const { uid, movieId, text, rating, reviewTitle } = req.body;
     try {
-        const review = await postService.addReview(uId, movieId, text, rating, reviewTitle);
+        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle);
         if (review)
             responseHandler(res, 201, 'Review added successfully', review);
         else 
@@ -27,16 +27,6 @@ exports.addReview = async (req, res) => {
     } catch (error) {
         console.error('Error adding review:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
-
-exports.addReview = async (req, res) => {
-    const { uid, movieId, text, rating, reviewTitle } = req.body;
-    try {
-        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle);
-        responseHandler(res, 201, 'Review added successfully', review);
-    } catch (error) {
-        responseHandler(res, 400, error.message);
     }
 };
 
@@ -215,16 +205,6 @@ exports.getCommentsOfReview = async (req, res) => {
             res.status(400).json({ message: 'Error fetching comments' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
-
-exports.getCommentsOfReview = async (req, res) => {
-    try {
-        const reviewId = req.params.reviewId;
-        const comments = await postService.getCommentsOfReview(reviewId);
-        responseHandler(res, 200, 'Comments fetched successfully', comments);
-    } catch (error) {
-        responseHandler(res, 400, error.message);
     }
 };
 

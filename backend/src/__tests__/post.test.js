@@ -19,7 +19,7 @@ describe('POST /posts/add/post', () => {
     });
 
     it('should add a new post', async () => {
-        const newPost = { userId: '1', movieId: '1', text: 'Great movie!', postTitle: 'My Review', img: 'image.jpg' };
+        const newPost = { uid: '1', movieId: '1', text: 'Great movie!', postTitle: 'My Review', img: 'image.jpg' };
         const addedPost = { ...newPost, id: '1' };
 
         postService.addPost.mockResolvedValueOnce(addedPost);
@@ -31,7 +31,7 @@ describe('POST /posts/add/post', () => {
     });
 
     it('should return 400 if there is an error adding the post', async () => {
-        const newPost = { userId: '1', movieId: '1', text: 'Great movie!', postTitle: 'My Review', img: 'image.jpg' };
+        const newPost = { uid: '1', movieId: '1', text: 'Great movie!', postTitle: 'My Review', img: 'image.jpg' };
 
         postService.addPost.mockResolvedValueOnce(null);
 
@@ -42,7 +42,7 @@ describe('POST /posts/add/post', () => {
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const newPost = { userId: '1', movieId: '1', text: 'Great movie!', postTitle: 'My Review', img: 'image.jpg' };
+        const newPost = { uid: '1', movieId: '1', text: 'Great movie!', postTitle: 'My Review', img: 'image.jpg' };
         const errorMessage = 'Internal server error';
 
         postService.addPost.mockRejectedValueOnce(new Error(errorMessage));
@@ -60,7 +60,7 @@ describe('POST /posts/add/review', () => {
     });
 
     it('should add a new review', async () => {
-        const newReview = { userId: '1', movieId: '1', text: 'Amazing!', rating: 5, reviewTitle: 'Fantastic' };
+        const newReview = { uid: '1', movieId: '1', text: 'Amazing!', rating: 5, reviewTitle: 'Fantastic' };
         const addedReview = { ...newReview, id: '1' };
 
         postService.addReview.mockResolvedValueOnce(addedReview);
@@ -72,7 +72,7 @@ describe('POST /posts/add/review', () => {
     });
 
     it('should return 400 if there is an error adding the review', async () => {
-        const newReview = { userId: '1', movieId: '1', text: 'Amazing!', rating: 5, reviewTitle: 'Fantastic' };
+        const newReview = { uid: '1', movieId: '1', text: 'Amazing!', rating: 5, reviewTitle: 'Fantastic' };
 
         postService.addReview.mockResolvedValueOnce(null);
 
@@ -83,7 +83,7 @@ describe('POST /posts/add/review', () => {
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const newReview = { userId: '1', movieId: '1', text: 'Amazing!', rating: 5, reviewTitle: 'Fantastic' };
+        const newReview = { uid: '1', movieId: '1', text: 'Amazing!', rating: 5, reviewTitle: 'Fantastic' };
         const errorMessage = 'Internal server error';
 
         postService.addReview.mockRejectedValueOnce(new Error(errorMessage));
@@ -101,7 +101,7 @@ describe('POST /posts/comment/post', () => {
     });
 
     it('should add a comment to a post', async () => {
-        const newComment = { userId: '1', text: 'Nice post!', postId: '1' };
+        const newComment = { uid: '1', text: 'Nice post!', postId: '1' };
         const addedComment = { ...newComment, id: '1' };
 
         postService.addCommentToPost.mockResolvedValueOnce(addedComment);
@@ -113,7 +113,7 @@ describe('POST /posts/comment/post', () => {
     });
 
     it('should return 400 if there is an error adding the comment', async () => {
-        const newComment = { userId: '1', text: 'Nice post!', postId: '1' };
+        const newComment = { uid: '1', text: 'Nice post!', postId: '1' };
 
         postService.addCommentToPost.mockResolvedValueOnce(null);
 
@@ -124,7 +124,7 @@ describe('POST /posts/comment/post', () => {
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const newComment = { userId: '1', text: 'Nice post!', postId: '1' };
+        const newComment = { uid: '1', text: 'Nice post!', postId: '1' };
         const errorMessage = 'Internal server error';
 
         postService.addCommentToPost.mockRejectedValueOnce(new Error(errorMessage));
@@ -142,7 +142,7 @@ describe('POST /posts/comment/review', () => {
     });
 
     it('should add a comment to a review', async () => {
-        const newComment = { userId: '1', text: 'Nice review!', reviewId: '1' };
+        const newComment = { uid: '1', text: 'Nice review!', reviewId: '1' };
         const addedComment = { ...newComment, id: '1' };
 
         postService.addCommentToReview.mockResolvedValueOnce(addedComment);
@@ -154,7 +154,7 @@ describe('POST /posts/comment/review', () => {
     });
 
     it('should return 400 if there is an error adding the comment', async () => {
-        const newComment = { userId: '1', text: 'Nice review!', reviewId: '1' };
+        const newComment = { uid: '1', text: 'Nice review!', reviewId: '1' };
 
         postService.addCommentToReview.mockResolvedValueOnce(null);
 
@@ -165,7 +165,7 @@ describe('POST /posts/comment/review', () => {
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const newComment = { userId: '1', text: 'Nice review!', reviewId: '1' };
+        const newComment = { uid: '1', text: 'Nice review!', reviewId: '1' };
         const errorMessage = 'Internal server error';
 
         postService.addCommentToReview.mockRejectedValueOnce(new Error(errorMessage));
@@ -183,7 +183,7 @@ describe('POST /posts/comment/comment', () => {
     });
 
     it('should add a comment to a comment', async () => {
-        const newComment = { userId: '1', text: 'Nice comment!', comOnId: '1' };
+        const newComment = { uid: '1', text: 'Nice comment!', comOnId: '1' };
         const addedComment = { ...newComment, id: '1' };
 
         postService.addCommentToComment.mockResolvedValueOnce(addedComment);
@@ -195,7 +195,7 @@ describe('POST /posts/comment/comment', () => {
     });
 
     it('should return 400 if there is an error adding the comment', async () => {
-        const newComment = { userId: '1', text: 'Nice comment!', comOnId: '1' };
+        const newComment = { uid: '1', text: 'Nice comment!', comOnId: '1' };
 
         postService.addCommentToComment.mockResolvedValueOnce(null);
 
@@ -206,7 +206,7 @@ describe('POST /posts/comment/comment', () => {
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const newComment = { userId: '1', text: 'Nice comment!', comOnId: '1' };
+        const newComment = { uid: '1', text: 'Nice comment!', comOnId: '1' };
         const errorMessage = 'Internal server error';
 
         postService.addCommentToComment.mockRejectedValueOnce(new Error(errorMessage));
@@ -628,35 +628,35 @@ describe('GET /posts/user/:uid/posts', () => {
     });
 
     it('should get posts of a user', async () => {
-        const userId = '1';
+        const uid = '1';
         const posts = [{ id: '1', text: 'User post!' }];
 
         postService.getPostsOfUser.mockResolvedValueOnce(posts);
 
-        const res = await request(app).get(`/posts/user/${userId}/posts`);
+        const res = await request(app).get(`/posts/user/${uid}/posts`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Posts fetched successfully', data: posts });
     });
 
     it('should return 400 if there is an error fetching posts', async () => {
-        const userId = '1';
+        const uid = '1';
 
         postService.getPostsOfUser.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/user/${userId}/posts`);
+        const res = await request(app).get(`/posts/user/${uid}/posts`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching posts' });
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const userId = '1';
+        const uid = '1';
         const errorMessage = 'Internal server error';
 
         postService.getPostsOfUser.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/user/${userId}/posts`);
+        const res = await request(app).get(`/posts/user/${uid}/posts`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
@@ -669,35 +669,35 @@ describe('GET /posts/user/:uid/comments', () => {
     });
 
     it('should get comments of a user', async () => {
-        const userId = '1';
+        const uid = '1';
         const comments = [{ id: '1', text: 'User comment!' }];
 
         postService.getCommentsOfUser.mockResolvedValueOnce(comments);
 
-        const res = await request(app).get(`/posts/user/${userId}/comments`);
+        const res = await request(app).get(`/posts/user/${uid}/comments`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Comments fetched successfully', data: comments });
     });
 
     it('should return 400 if there is an error fetching comments', async () => {
-        const userId = '1';
+        const uid = '1';
 
         postService.getCommentsOfUser.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/user/${userId}/comments`);
+        const res = await request(app).get(`/posts/user/${uid}/comments`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching comments' });
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const userId = '1';
+        const uid = '1';
         const errorMessage = 'Internal server error';
 
         postService.getCommentsOfUser.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/user/${userId}/comments`);
+        const res = await request(app).get(`/posts/user/${uid}/comments`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
@@ -710,35 +710,35 @@ describe('GET /posts/user/:uid/reviews', () => {
     });
 
     it('should get reviews of a user', async () => {
-        const userId = '1';
+        const uid = '1';
         const reviews = [{ id: '1', text: 'User review!' }];
 
         postService.getReviewsOfUser.mockResolvedValueOnce(reviews);
 
-        const res = await request(app).get(`/posts/user/${userId}/reviews`);
+        const res = await request(app).get(`/posts/user/${uid}/reviews`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Reviews fetched successfully', data: reviews });
     });
 
     it('should return 400 if there is an error fetching reviews', async () => {
-        const userId = '1';
+        const uid = '1';
 
         postService.getReviewsOfUser.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/user/${userId}/reviews`);
+        const res = await request(app).get(`/posts/user/${uid}/reviews`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching reviews' });
     });
 
     it('should return 500 if there is an internal server error', async () => {
-        const userId = '1';
+        const uid = '1';
         const errorMessage = 'Internal server error';
 
         postService.getReviewsOfUser.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/user/${userId}/reviews`);
+        const res = await request(app).get(`/posts/user/${uid}/reviews`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
