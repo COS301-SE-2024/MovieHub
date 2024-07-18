@@ -175,7 +175,7 @@ export default function ProfilePage({ route }) {
             case "posts":
                 return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "likes":
-                return <LikesTab userInfo={userInfo} userProfile={userProfile} />;
+                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "watchlist":
                 return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
             default:

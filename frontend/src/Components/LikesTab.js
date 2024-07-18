@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import Post from "./Post";
 
-export default function LikesTab() {
+import { getUserLikedPosts } from "../Services/UsersApiService";
+
+export default function LikesTab({userInfo, userProfile, handleCommentPress}) {
 
     const posts = [
         {
@@ -56,24 +58,73 @@ export default function LikesTab() {
     ];
     const [likedPosts, setLikedPosts] = useState(posts);
 
-    /*TODO: fetch liked posts */
+
+    const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    const formatTimeAgoFromDB = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
+        const years = Math.floor(days / 365);
+
+        if (seconds < 60) return `${seconds}s ago`;
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 30) return `${days}d ago`;
+        if (months < 12) return `${months}mo ago`;
+        return `${years}y ago`;
+    };
+
+    const fetchLikedPosts = async () => {
+        console.log(userInfo.userId)
+        try {
+            const userId = userInfo.userId;
+            const response = await getUserLikedPosts(userId);
+            console.log("Fetched likes", response);
+            if (response.data === null) {
+                setLikedPosts([]);
+                return;
+            }
+            setLikedPosts(response.data);
+        } catch (error) {
+            console.log("Error fetching liked posts:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchLikedPosts();
+    }, []);
 
     return (
         <View>
             <ScrollView>
-                {posts.length === 0 ? (
+                {likedPosts.length === 0 ? (
                     <View style={styles.container}>
-                        <Text style={styles.title}>You haven't liked any reviews yet.</Text>
+                        <Text style={styles.title}>You haven't liked any posts or reviews yet.</Text>
                         <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
                     </View>
                 ) : (
-                    posts.map((post) => 
-                        <Post // TODO: update to reflect actual posts
-                            username={post.username} 
-                            userHandle={post.userHandle} 
-                            key={post.postTitle} 
-                            {...post} 
-                        />)
+                    likedPosts.map((post) => 
+                    <Post
+                        key={post.postId} // for uniqueness
+                        postId={post.postId}
+                        uid={post.uid}
+                        username={post.username}
+                        userHandle={post.userHandle}
+                        userAvatar={post.avatar}
+                        postTitle={post.postTitle}
+                        likes={getRandomNumber(0, 100)} /** TODO: get actual number of likes */
+                        comments={post.commentsCount || 0} /** Comments count */
+                        preview={post.text}
+                        saves={getRandomNumber(0, 18)}
+                        image={post.image || null}
+                        isUserPost={post.uid === userInfo.userId}
+                        handleCommentPress={handleCommentPress}
+                    />)
                 )}
             </ScrollView>
 

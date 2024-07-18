@@ -4,8 +4,10 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
-import { removePost } from "../Services/PostsApiServices";
 import { useNavigation } from "@react-navigation/native";
+
+import { removePost } from "../Services/PostsApiServices";
+import { toggleLikePost } from "../Services/LikesApiService";
 
 export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
     const { theme } = useTheme();
@@ -17,7 +19,22 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
-    const toggleLike = () => {
+
+
+
+    const toggleLike = async () => {
+        const body = {
+            postId: postId,
+            uid: uid
+        }
+
+        try {
+            await toggleLikePost(body);
+            console.log('Toggle like successful');
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
+
         setLiked(!liked);
     };
 
