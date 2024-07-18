@@ -17,6 +17,7 @@ import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
 import ProfileSetup from "./frontend/src/Screens/ProfileSetupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
+import ExplorePage from "./frontend/src/Screens/ExplorePage";
 import SearchPage from "./frontend/src/Screens/SearchPage";
 import GenrePage from "./frontend/src/Screens/GenrePage";
 import HelpCentre from "./frontend/src/Screens/HelpCentre";
@@ -85,6 +86,17 @@ export default function App() {
                                     },
                                 })}
                             />
+
+                            <Nav.Screen
+                                name="ExplorePage"
+                                component={ExplorePage}
+                                options={({ navigation }) => ({
+                                    title: "Explore",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",})}
+                            />
+
                             <Nav.Screen
                                 name="ProfilePage"
                                 component={ProfilePage}
@@ -168,7 +180,7 @@ export default function App() {
                                     headerTintColor: "black",
                                 })}
                             />
-                            
+
                             <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />
                             <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings" }} />
                             <Nav.Screen name="ChangePassword" component={ChangePassword} options={{ title: "Change Password" }} />
