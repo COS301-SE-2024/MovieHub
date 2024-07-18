@@ -1,21 +1,68 @@
-import React from "react";
-import { View, Text, Image, StyleSheet,ScrollView } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import { useState, useEffect } from "react";
-import Post from "./Post";
-import { getUserPosts } from "../Services/UsersApiService";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
+import Post from "./Post";
+import { getPostsOfUser, getCountCommentsOfPost } from "../Services/PostsApiServices";
 
-export default function PostsTab() {
+export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
-    const username = "Itumeleng Moshokoa";
-    const userHandle = "@Joyce";
-    const avatar = "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg";
-
-
+    const username = userProfile.name;
+    const userHandle = "@" + userInfo.username;
+    const avatar = userProfile.avatar;
+    const navigation = useNavigation();
 
     const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    const formatTimeAgoFromDB = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
+        const years = Math.floor(days / 365);
+
+        if (seconds < 60) return `${seconds}s ago`;
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 30) return `${days}d ago`;
+        if (months < 12) return `${months}mo ago`;
+        return `${years}y ago`;
+    };
+
+    const fetchPosts = async () => {
+        try {
+            const userId = userInfo.userId;
+            const response = await getPostsOfUser(userId);
+            // console.log("Fetched posts:", response.data); // Log the response to verify the structure
+
+            if (response.data === null) {
+                setPosts([]);
+            } else {
+                const postsWithComments = await Promise.all(response.data.map(async (post) => {
+                    const commentsResponse = await getCountCommentsOfPost(post.postId);
+                    // console.log("Comments response for post", post.postId, ":", commentsResponse); // Log to verify structure
+                    const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
+                    return { ...post, commentsCount };
+                }));
+
+                // Sort posts by createdAt in descending order (most recent first)
+                postsWithComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                setPosts(postsWithComments);
+            }
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            // Handle error state or retry logic
+        } finally {
+            setLoading(false); // Set loading to false after fetch completes
+        }
+    };
 
   const fetchPosts = async () => {
     try {
@@ -33,9 +80,6 @@ useEffect(() => {
     fetchPosts();
 }, []);
 
-useEffect(() => {
-    console.log(posts)
-}, [posts])
     const styles = StyleSheet.create({
         outerContainer: {
             backgroundColor: theme.backgroundColor,
@@ -58,32 +102,51 @@ useEffect(() => {
             color: "#0f5bd1",
             fontWeight: "600",
         },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
     });
+
+    if (loading) {
+        return (
+            <View style={{ paddingTop: 50 }}>
+                <ActivityIndicator size="large" color="#4a42c0" />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.outerContainer}>
-            <ScrollView>
             {posts.length === 0 ? (
                 <View style={styles.container}>
                     <Text style={styles.title}>Share your thoughts!</Text>
-                    <Text style={styles.subtitle}>Create your first post</Text>
+                    <Pressable onPress={() => navigation.navigate("CreatePost", { userInfo })}>
+                        <Text style={styles.subtitle}>Create your first post</Text>
+                    </Pressable>
                 </View>
             ) : (
-                posts.map((post) => <Post 
-                key={post.id}
-                username={username} 
-                userHandle={userHandle}
-                userAvatar={avatar} 
-                postTitle={post.properties.postTitle}
-              //  like = {14}
-                likes={getRandomNumber(0,100)}
-                    comments={ getRandomNumber(0, 50)}
-                    preview={post.properties.preview || post.properties.text}
-                    saves={getRandomNumber(0, 18)}
-                image={post.properties.image} 
-            />)
+                posts.map((post) => (
+                    <Post
+                        key={post.postId} // for uniqueness
+                        postId={post.postId}
+                        uid={post.uid}
+                        username={post.username}
+                        userHandle={userHandle}
+                        userAvatar={post.avatar}
+                        postTitle={post.postTitle}
+                        likes={getRandomNumber(0, 100)} /** TODO: get actual number of likes */
+                        comments={post.commentsCount || 0} /** Comments count */
+                        preview={post.text}
+                        saves={getRandomNumber(0, 18)}
+                        image={post.image || null}
+                        isUserPost={post.uid === userInfo.userId}
+                        handleCommentPress={handleCommentPress}
+                        datePosted={formatTimeAgoFromDB(post.createdAt)}
+                    />
+                ))
             )}
-            </ScrollView>
         </View>
     );
 }

@@ -3,25 +3,29 @@ import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, Fla
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
-import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
 
-export default function CreatePost({ route }) {
+import { addPost, editPost } from "../Services/PostsApiServices";
+
+export default function CreatePost({route}) {
+    const { username, uid, titleParam, thoughtsParam, imageUriParam, postId } = route.params;
+    const userInfo = { username, userId: uid };
     const [isMovieReview, setIsMovieReview] = useState(false);
-    const [title, setTitle] = useState("");
-    const [thoughts, setThoughts] = useState("");
+    const [title, setTitle] = useState(titleParam);
+    const [thoughts, setThoughts] = useState(thoughtsParam);
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
-    const [imageUri, setImageUri] = useState(null);
+    const [imageUri, setImageUri] = useState(imageUriParam);
+    const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0); // Add state for rating
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
-    const navigation = useNavigation();
-    const { userInfo } = route.params;
+    const navigate = useNavigation();
+
     // Mock movie search results
     const movieResults = movieSearch
         ? [
@@ -33,8 +37,8 @@ export default function CreatePost({ route }) {
 
     const handleAddImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== "granted") {
-            alert("Sorry, we need camera roll permissions to make this work!");
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
             return;
         }
 
@@ -51,8 +55,8 @@ export default function CreatePost({ route }) {
 
     const handleReplaceImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== "granted") {
-            alert("Sorry, we need camera roll permissions to make this work!");
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
             return;
         }
 
@@ -81,38 +85,40 @@ export default function CreatePost({ route }) {
         Alert.alert("Add Emoji", "This functionality is not implemented yet.");
     };
 
-    const handleAddPost = async () => {
+    const handleEditPost = async () => {
         const postData = {
+            postId: postId,
             postTitle: title,
             text: thoughts,
-            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 843527.0,
+            uid: uid, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             img: null,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0
         };
 
         try {
-            const post = await addPost(postData);
-            // console.log('Post added successfully:', post);
+            const post = await editPost(postData);
+            // console.log('Post edited successfully:', post);
             setFeedbackSuccess(true);
-            setFeedbackMessage("Post added successfully");
-            setFeedbackVisible(true);
+            setFeedbackMessage("Post edited successfully");
+            setFeedbackVisible(true);  
 
             setTimeout(() => {
                 setFeedbackVisible(false)
-                navigation.navigate("HomePage", { userInfo });
-            }, 1500);
+                navigate.navigate("HomePage", { userInfo });
+            }, 2000);
         } catch (error) {
-            setFeedbackMessage("Error adding post");
-            console.error("Error adding post:", error);
+            setFeedbackMessage("Error editing post");
+
+            console.error('Error editing post:', error);
+            throw new Error('Failed to edit post' + error);
         }
 
         setFeedbackVisible(true);
         setTimeout(() => {
             setFeedbackVisible(false);
         }, 3000);
-    };
+    }
 
     const handleRatingPress = (value) => {
         setRating(value);
@@ -122,7 +128,11 @@ export default function CreatePost({ route }) {
         const ratingOptions = [];
         for (let i = 1; i <= 10; i++) {
             ratingOptions.push(
-                <TouchableOpacity key={i} onPress={() => handleRatingPress(i)} style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}>
+                <TouchableOpacity
+                    key={i}
+                    onPress={() => handleRatingPress(i)}
+                    style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}
+                >
                     <Text style={styles.ratingText}>{i}</Text>
                 </TouchableOpacity>
             );
@@ -185,7 +195,7 @@ export default function CreatePost({ route }) {
 
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleAddPost}>
+                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleEditPost}>
                     <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
@@ -253,7 +263,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     allowComments: {
-        marginTop: 4,
+        marginTop: 4
     },
     footer: {
         flexDirection: "row",
@@ -273,7 +283,7 @@ const styles = StyleSheet.create({
         opacity: 1,
     },
     postButtonDisabled: {
-        opacity: 0.7,
+        opacity: 0.7
     },
     postButtonText: {
         color: "#fff",
@@ -288,14 +298,14 @@ const styles = StyleSheet.create({
         height: 400,
         borderRadius: 10,
         marginBottom: 10,
-        objectFit: "contain",
+        objectFit: "contain"
     },
     removeImageButton: {
         position: "absolute",
         top: 10,
         right: 25,
         backgroundColor: colors.primary,
-
+        
         borderRadius: 50,
     },
     replaceImageButton: {
