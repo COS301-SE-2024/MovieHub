@@ -97,7 +97,7 @@ exports.toggleLikePost = async (req, res) => {
     const postId = req.body.postId;
     try {
         const liked = await likesService.toggleLikePost(userId, postId);
-        const message = liked ? 'Movie liked successfully' : 'Like removed successfully';
+        const message = liked ? 'Post liked successfully' : 'Like removed successfully';
         responseHandler(res, 200, message);
     } catch (error) {
         responseHandler(res, 400, error.message);
