@@ -20,12 +20,10 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         setModalVisible(!modalVisible);
     };
 
-
-
     const toggleLike = async () => {
         const body = {
             postId: postId,
-            uid: uid
+            userId: uid
         }
 
         try {
