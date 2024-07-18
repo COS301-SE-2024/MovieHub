@@ -20,7 +20,7 @@ exports.addPost = async (uid, movieId, text, postTitle, img) => {
         const postId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, postTitle: $postTitle, img: $img, username : u.username, avatar : u.avatar})
+             CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, postTitle: $postTitle, img: $img, username : u.username, avatar : u.avatar, name : u.name})
              CREATE (u)-[:POSTED]->(p)-[:POSTED_ON]->(m)
              RETURN p`,
             { uid, movieId, text, postId, postTitle, img, createdAt, updatedAt }
@@ -44,7 +44,7 @@ exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
         const reviewId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar})
+             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
             { uid, movieId, text, rating, reviewId, reviewTitle, createdAt, updatedAt }
@@ -72,7 +72,7 @@ exports.addCommentToPost = async (uid, postId, text) => {
         const comOnId = -1;
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (p:Post {postId: $postId})
-             CREATE (c:Comment {comId: $comId, text: $text, movieId: p.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: $postId, reviewId: $reviewId, comOnId: $comOnId , username : u.username, avatar : u.avatar})
+             CREATE (c:Comment {comId: $comId, text: $text, movieId: p.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: $postId, reviewId: $reviewId, comOnId: $comOnId , username : u.username, avatar : u.avatar , name : u.name})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(p)
              RETURN c`,
             { uid, postId, text, comId, reviewId, comOnId, createdAt, updatedAt }
@@ -97,7 +97,7 @@ exports.addCommentToReview = async (uid, reviewId, text) => {
         const comOnId = -1;
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (r:Review {reviewId: $reviewId})
-             CREATE (c:Comment {comId: $comId, text: $text, movieId: r.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, reviewId: $reviewId, postId: $postId, comOnId: $comOnId, username : u.username, avatar : u.avatar})
+             CREATE (c:Comment {comId: $comId, text: $text, movieId: r.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, reviewId: $reviewId, postId: $postId, comOnId: $comOnId, username : u.username, avatar : u.avatar , name : u.name})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(r)
              RETURN c`,
             { uid, reviewId, text, comId, postId, comOnId, createdAt, updatedAt }
@@ -120,7 +120,7 @@ exports.addCommentToComment = async (uid, comOnId, text) => {
         const comId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (c:Comment {comId: $comOnId})
-             CREATE (n:Comment {comId: $comId, comOnId: $comOnId, text: $text, movieId: c.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: c.postId, reviewId: c.reviewId, username : u.username, avatar : u.avatar})
+             CREATE (n:Comment {comId: $comId, comOnId: $comOnId, text: $text, movieId: c.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: c.postId, reviewId: c.reviewId, username : u.username, avatar : u.avatar, name : u.name})
              CREATE (u)-[:COMMENTED]->(n)-[:COMMENTED_ON]->(c)
              RETURN n`,
             { uid, comOnId, text, comId, createdAt, updatedAt }
