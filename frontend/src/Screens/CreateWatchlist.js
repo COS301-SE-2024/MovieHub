@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useNavigation } from "@react-navigation/native";
 
-export default function CreateWatchlist({route}) {
+export default function CreateWatchlist({route,  navigation }) {
+    //Use userInfo to personlise a users homepage
+    const { userInfo } = route.params;
+
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
         description: { isVisible: false, newValue: "", tempValue: "" },
@@ -13,16 +15,6 @@ export default function CreateWatchlist({route}) {
     const [visibility, setVisibility] = useState(true);
     const [collaborative, setCollaborative] = useState(false);
     const [ranked, setRanked] = useState(false);
-    const [isFormValid, setIsFormValid] = useState(false);
-
-    const navigation = useNavigation();
-
-    const {userInfo} = route.params;
-
-    useEffect(() => {
-        const isValid = modalContent.name.newValue.trim() !== "" && modalContent.description.newValue.trim() !== "";
-        setIsFormValid(isValid);
-    }, [modalContent]);
 
     const chooseCover = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -67,11 +59,6 @@ export default function CreateWatchlist({route}) {
     };
 
     const handleNext = () => {
-        if (!isFormValid) {
-            Alert.alert("Missing Fields","Please enter both name and description.");
-            return;
-        }
-
         const watchlistData = {
             name: modalContent.name.newValue,
             description: modalContent.description.newValue,
@@ -174,7 +161,7 @@ export default function CreateWatchlist({route}) {
                 </Modal>
             ))}
 
-            <TouchableOpacity style={[styles.nextButton, !isFormValid && styles.disabledButton]} onPress={handleNext} disabled={!isFormValid}>
+            <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
                 <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
         </ScrollView>
@@ -263,15 +250,10 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 4,
         alignItems: "center",
-        marginBottom: 30,
-        opacity: 1
     },
     nextButtonText: {
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
-    },
-    disabledButton: {
-        opacity: 0.7
     },
 });

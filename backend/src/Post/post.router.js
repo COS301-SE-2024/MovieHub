@@ -28,5 +28,4 @@ router.get('/movie/:movieId/rating', postController.getAverageRating);
 router.get('/post/:postId/comment/count', postController.getCountCommentsOfPost);
 router.get('/review/:reviewId/commnet/count', postController.getCountCommentsOfReview);
 
-
 module.exports = router;

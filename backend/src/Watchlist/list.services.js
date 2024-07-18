@@ -63,7 +63,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
                 throw new Error(`Movie not found: ${movieTitle}`);
             }
             await tx.run(
-                `MERGE (m:Movie {id: $id, title: $title, releaseDate: $releaseDate, overview: $overview, posterPath: $posterPath})
+                `MERGE (m:Movie {movieId: $id, title: $title, releaseDate: $releaseDate, overview: $overview, posterPath: $posterPath})
                  RETURN m`,
                 {
                     id: movieDetails.id,
@@ -94,7 +94,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
         // Associate movies with the watchlist
         for (const movieId of movieIds) {
             await tx.run(
-                `MATCH (w:Watchlist {id: $watchlistId}), (m:Movie {id: $movieId})
+                `MATCH (w:Watchlist {id: $watchlistId}), (m:Movie {movieId: $movieId})
                  CREATE (w)-[:INCLUDES]->(m)`,
                 { watchlistId, movieId }
             );
@@ -202,6 +202,52 @@ exports.modifyWatchlist = async (watchlistId, updatedData) => {
         await session.close();
     }
 };
+
+
+// Get a particular watchlist's details
+exports.getWatchlistDetails = async (watchlistId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (w:Watchlist {id: $watchlistId})-[:INCLUDES]->(m:Movie)
+             RETURN w, m.movieId AS movieId`,
+            { watchlistId }
+        );
+
+        if (result.records.length === 0) {
+            throw new Error('Watchlist not found');
+        }
+
+        const watchlistRecord = result.records[0].get('w').properties;
+        const movieIds = result.records.map(record => record.get('movieId'));
+
+        const movieDetailsPromises = movieIds.map(id => TmdbService.getMovieDetails(id));
+        const movies = await Promise.all(movieDetailsPromises);
+
+        const movieList = movies.map(movie => ({
+            id: movie.id,
+            title: movie.title,
+            genre: movie.genres.map(genre => genre.name).join(', '),
+            duration: movie.runtime,
+            poster_path: movie.poster_path
+        }));
+
+        console.log('About to return request');
+
+        return {
+            name: watchlistRecord.name,
+            movieList
+        };
+    } catch (error) {
+        console.error('Error fetching watchlist details:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
 
 exports.deleteWatchlist = async (watchlistId) => {
     const session = driver.session();

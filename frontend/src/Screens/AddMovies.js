@@ -9,6 +9,7 @@ export default function AddMovies({ route, navigation }) {
     const { userInfo } = route.params;
 
     // State to hold popular movies from TMDB
+    const { watchlistData, userInfo } = route.params;
     const [movies, setMovies] = useState([]);
     const [selectedMovies, setSelectedMovies] = useState([]);
 
@@ -44,8 +45,8 @@ export default function AddMovies({ route, navigation }) {
         };
         console.log('Watchlist info: '+ finalWatchlistData);
         try {
-            const userId = 'pTjrHHYS2qWczf4mKExik40KgLH3';
-            // Call createWatchlist function to create the watchlist
+            console.log("This is the user Info being passed in AddMovies.js: " + JSON.stringify(userInfo));
+            const userId = userInfo.userId;
             await createWatchlist(userId, finalWatchlistData);
             Alert.alert('Success', 'Watchlist created successfully!');
             navigation.navigate('ProfilePage', {userInfo});

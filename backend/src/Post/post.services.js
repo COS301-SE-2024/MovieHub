@@ -13,6 +13,7 @@ const driver = neo4j.driver(
 
 exports.addPost = async (uid, movieId, text, postTitle, img) => {
     console.log("In Services: addPost");
+
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
@@ -34,6 +35,7 @@ exports.addPost = async (uid, movieId, text, postTitle, img) => {
         await session.close();
     }
 };
+
 
 exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
     console.log("In Services: addReview");
@@ -81,10 +83,12 @@ exports.addCommentToPost = async (uid, postId, text) => {
     } catch (error) {
         console.error("Error adding comment to post: ", error);
         throw error;
+
     } finally {
         await session.close();
     }
 };
+
 
 exports.addCommentToReview = async (uid, reviewId, text) => {
     console.log("In Services: addCommentToReview");
@@ -103,13 +107,11 @@ exports.addCommentToReview = async (uid, reviewId, text) => {
             { uid, reviewId, text, comId, postId, comOnId, createdAt, updatedAt }
         );
         return result.records[0].get('c').properties;
-    } catch (error) {
-        console.error("Error adding comment to review: ", error);
-        throw error;
     } finally {
         await session.close();
     }
 };
+
 
 exports.addCommentToComment = async (uid, comOnId, text) => {
     console.log("In Services: addCommentToComment");
@@ -160,14 +162,16 @@ exports.editPost = async (postId, uid, text) => {
 
 exports.editReview = async (reviewId, uid, text) => {
     console.log("In Services: editReview");
-    const session = driver.session();
-    const updatedAt = new Date().toISOString();
-    try {
-        const result = await session.run(
             `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
              SET r.text = $text, r.updatedAt = $updatedAt
              RETURN r`,
             { reviewId, uid, text, updatedAt }
+        );
+        return result.records[0].get('p').properties;
+    } finally {
+        await session.close();
+    }
+};
         );
         if (result.records.length === 0) {
             throw new Error("Review not found or user not authorized to edit this review");
@@ -189,6 +193,7 @@ exports.editComment = async (commentId, uid, text) => {
         const result = await session.run(
             `MATCH (c:Comment {comId: $commentId, uid: $uid})
              SET c.text = $text, c.updatedAt = $updatedAt
+
              RETURN c`,
             { commentId, uid, text, updatedAt }
         );
@@ -250,7 +255,6 @@ exports.removeReview = async (reviewId, uid) => {
         await session.close();
     }
 };
-
 
 exports.removeComment = async (commentId, uid) => {
     console.log("In Services: removeComment");
@@ -427,7 +431,6 @@ exports.getCommentsOfUser = async (uid) => {
 
 exports.getAverageRating = async (movieId) => {
     const session = driver.session();
-
     try {
         const result = await session.run(
             `

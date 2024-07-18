@@ -17,13 +17,14 @@ import { getUserProfile } from "../Services/UsersApiService";
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
     const layout = useWindowDimensions();
-    const [index, setIndex] = useState(0);
-    const [routes] = useState([
+    const [index, setIndex] = React.useState(0);
+    const [routes] = React.useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
         { key: "watchlist", title: "Watchlist" },
     ]);
 
+    //  const route = useRoute();
     const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
@@ -38,18 +39,26 @@ export default function ProfilePage({ route }) {
     const [loadingComments, setLoadingComments] = useState(false);
 
     const fetchData = async () => {
+        // fetching data from api
         try {
-            const userId = userInfo.userId;
+            // //Check Users Token
+            // const token = await SecureStore.getItemAsync('userToken');
+            // if (!token) {
+            //     throw new Error('No token found');
+            // }
+            
+            const userId = userInfo.userId;  
+            console.log("/////About to fetch data//////");
             const response = await getUserProfile(userId);
             setUserProfile(response);
             // console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
-                setFollowers(response.followers.low);
+                setfollowers(response.followers.low);
             }
 
             if (response.following && response.following.low !== undefined) {
-                setFollowing(response.following.low);
+                setfollowing(response.following.low);
             }
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -100,7 +109,6 @@ export default function ProfilePage({ route }) {
         button: {
             backgroundColor: "#000",
             padding: 10,
-            paddingHorizontal: 20,
             borderRadius: 5,
             width: 190,
         },
@@ -148,8 +156,9 @@ export default function ProfilePage({ route }) {
             marginHorizontal: 25,
         },
         tabContainer: {
+            color: theme.gray,
             marginTop: 25,
-            height: layout.height,
+            height: "110%",
         },
         tabBar: {
             backgroundColor: theme.backgroundColor,
@@ -162,14 +171,8 @@ export default function ProfilePage({ route }) {
             backgroundColor: colors.primary,
             borderRadius: 50,
         },
-        loadingContainer: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: theme.backgroundColor,
-        },
     });
-
+    
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
@@ -190,16 +193,15 @@ export default function ProfilePage({ route }) {
             </View>
         );
     }
-
     return (
+        // <ProfileHeader />
         <View style={{ flex: 1 }}>
-            <ScrollView
-                style={[styles.container, { backgroundColor: theme.backgroundColor }]}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
-            >
+            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
                 <View style={styles.accountInfo}>
                     <Image
                         source={{
+                            // uri: userProfile.profilePicture ======Getting error: No suitable URL request handler found for gs://moviehub-3ebc8.appspot.com/ProfilePictures/spiderman_point.webp=======
+                            //     ? userProfile.profilePicture
                             uri: userProfile.avatar,
                         }}
                         style={styles.avatar}
@@ -273,3 +275,5 @@ export default function ProfilePage({ route }) {
         </View>
     );
 }
+
+// export default ProfilePage;

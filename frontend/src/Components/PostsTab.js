@@ -64,19 +64,30 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
         }
     };
 
-    useEffect(() => {
-        fetchPosts();
-    }, []);
+  const fetchPosts = async () => {
+    try {
+        const userId = 0;
+        const response = await getUserPosts(userId);
+        console.log("posts", response.data); // Ensure this logs the correct data structure
+        setPosts(response.data); // Assuming response.data is an array of post objects
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        // Handle error state or retry logic
+    }
+};
+
+useEffect(() => {
+    fetchPosts();
+}, []);
 
     const styles = StyleSheet.create({
         outerContainer: {
             backgroundColor: theme.backgroundColor,
-            flex: 1,
         },
         container: {
             backgroundColor: theme.backgroundColor,
             paddingHorizontal: 35,
-            paddingTop: 55,
+            paddingTop: 35,
             textAlign: "center",
         },
         title: {

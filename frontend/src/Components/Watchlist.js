@@ -14,8 +14,10 @@ const WatchlistTab = ({ userInfo }) => {
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
+                console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
                 const userId = userInfo.userId; // Replace with actual user ID fetching logic
                 const userWatchlists = await getUserWatchlists(userId);
+                const watchlistId = userWatchlists.id;
                 console.log(userWatchlists);
                 setWatchlists(userWatchlists);
             } catch (error) {
@@ -39,6 +41,7 @@ const WatchlistTab = ({ userInfo }) => {
     };
 
     const goToWatchlistDetails = (watchlist) => {
+        console.log('About to navigate. \n Here is the watch list info: ', watchlist);
         navigation.navigate('WatchlistDetails', { watchlist });
     };
 

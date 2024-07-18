@@ -6,7 +6,6 @@ const driver = neo4j.driver(
     neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
 );
 
-
 exports.addMovie = async (movieId, overview, posterPath, releaseDate, title) => {
     const session = driver.session();
 
