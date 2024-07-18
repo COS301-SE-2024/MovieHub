@@ -1,13 +1,14 @@
-import React, { useCallback, useMemo, forwardRef, useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ActivityIndicator } from "react-native";
+import React, { useCallback, useMemo, forwardRef, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHighlight } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
+
 import { addCommentToPost } from "../Services/PostsApiServices";
 
 const CommentsModal = forwardRef((props, ref) => {
     const { postId, userId, username, currentUserAvatar, comments, loadingComments, onFetchComments } = props;
     const [message, setMessage] = useState("");
-
+    const [deleteModalState, setDeleteModalState] = useState(Array(comments.length).fill(false)); // State to manage delete modals
     const snapPoints = useMemo(() => ["30%", "50%", "75%"], []);
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
@@ -24,7 +25,6 @@ const CommentsModal = forwardRef((props, ref) => {
         return `${days}d`;
     };
 
-    // difference between this function and the one above is that this one converts the date format from the db
     const formatTimeAgoFromDB = (dateString) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -54,7 +54,7 @@ const CommentsModal = forwardRef((props, ref) => {
 
             setMessage(""); // Clear input
 
-            // TODO: **Add your comment logic here**
+            // TODO: Add your comment logic here
             try {
                 const postBody = {
                     uid: userId,
@@ -62,30 +62,41 @@ const CommentsModal = forwardRef((props, ref) => {
                     postId: postId,
                 };
                 const response = await addCommentToPost(postBody);
-                // console.log("Comment added successfully:", response.data);
                 onFetchComments(postId); // Refresh comments after adding a new one
             } catch (error) {
-                console.error(error.message);
-                throw new Error("Error adding comment:", +error.message);
+                console.error("Error adding comment:", error.message);
             }
         }
     };
 
-    // if (loadingComments) {
-    //     return (
-    //         <BottomSheetModalProvider>
-    //             <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
-    //                 <View style={styles.loadingContainer}>
-    //                     <ActivityIndicator size="large" color="#4A42C0" />
-    //                 </View>
-    //             </BottomSheetModal>
-    //         </BottomSheetModalProvider>
-    //     );
-    // }
+    const toggleDeleteModal = (index) => {
+        setDeleteModalState((prev) => {
+            const newState = [...prev];
+            newState[index] = !newState[index]; // Toggle delete modal state for the comment at index
+            return newState;
+        });
+    };
+
+    const handleDeleteComment = async (commentId) => {
+        // Implement your delete comment logic here
+        // In this example, we're just closing the modal
+        setDeleteModalState((prev) => {
+            const newState = [...prev];
+            newState[commentId] = false; // Close delete modal for the comment at index
+            return newState;
+        });
+    };
 
     return (
         <BottomSheetModalProvider>
-            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
+            <BottomSheetModal 
+                ref={ref} 
+                index={2} 
+                snapPoints={snapPoints} 
+                enablePanDownToClose={true} 
+                handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} 
+                backdropComponent={renderBackdrop}
+            >
                 <BottomSheetScrollView>
                     <View style={styles.bottomSheetContainer}>
                         <Text style={styles.bottomSheetHeader}>Comments</Text>
@@ -97,25 +108,45 @@ const CommentsModal = forwardRef((props, ref) => {
                         ) : (
                             <View style={styles.commentsSection}>
                                 {comments.map((comment, index) => (
-                                    <View key={index} style={styles.commentContainer}>
-                                        <Image source={{ uri: currentUserAvatar }} style={styles.avatar} />
-                                        <View style={styles.commentContent}>
-                                            <View style={styles.commentHeader}>
-                                                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                                    <Text style={styles.username}>{username}</Text>
-                                                    <Text style={styles.date}>{formatTimeAgoFromDB(comment.createdAt)}</Text>
+                                    <View key={index}>
+                                        <TouchableHighlight
+                                            onLongPress={() => toggleDeleteModal(index)}
+                                            underlayColor={"#f5f5f5"}
+                                        >
+                                            <View style={styles.commentContainer}>
+                                                <Image source={{ uri: currentUserAvatar }} style={styles.avatar} />
+                                                <View style={styles.commentContent}>
+                                                    <View style={styles.commentHeader}>
+                                                        <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                            <Text style={styles.username}>{username}</Text>
+                                                            <Text style={styles.date}>{formatTimeAgoFromDB(comment.createdAt)}</Text>
+                                                        </View>
+                                                        <Ionicons name="heart-outline" size={18} color="black" />
+                                                    </View>
+                                                    <Text style={styles.commentText}>{comment.text}</Text>
+                                                    <Text style={styles.replyText}>Reply</Text>
                                                 </View>
-                                                <Ionicons name="heart-outline" size={18} color="black" />
                                             </View>
-                                            <Text style={styles.commentText}>{comment.text}</Text>
-                                            <Text style={styles.replyText}>Reply</Text>
-                                        </View>
+                                        </TouchableHighlight>
+
+                                        {/* Delete Comment Modal */}
+                                        {deleteModalState[index] && (
+                                            <View style={styles.deleteModalContainer}>
+                                                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteComment(index)}>
+                                                    <Text style={{ color: "red" }}>Delete</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity style={styles.cancelButton} onPress={() => toggleDeleteModal(index)}>
+                                                    <Text>Cancel</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
                                     </View>
                                 ))}
                             </View>
                         )}
                     </View>
                 </BottomSheetScrollView>
+
                 <View style={styles.chatInput}>
                     <View style={styles.inputContainer}>
                         <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
@@ -137,12 +168,12 @@ export default CommentsModal;
 const styles = StyleSheet.create({
     bottomSheetContainer: {
         flex: 1,
-        padding: 16,
+        paddingBottom: 90
     },
     bottomSheetHeader: {
         fontSize: 20,
         fontWeight: "bold",
-        marginBottom: 16,
+        padding: 16,
     },
     noCommentsContainer: {
         flex: 1,
@@ -155,7 +186,7 @@ const styles = StyleSheet.create({
     },
     commentContainer: {
         flexDirection: "row",
-        marginBottom: 16,
+        padding: 16
     },
     avatar: {
         width: 40,
@@ -185,13 +216,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: 4,
     },
-    commentInput: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 8,
-        padding: 8,
-        marginBottom: 16,
-    },
     replyText: {
         color: "grey",
         fontSize: 12,
@@ -217,15 +241,38 @@ const styles = StyleSheet.create({
         height: 40,
     },
     sendButton: {
-        backgroundColor: "blue",
+        backgroundColor: "#4a42c0",
         borderRadius: 20,
         padding: 7,
         marginLeft: 8,
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+    deleteModalContainer: {
+        position: "absolute",
+        left: 30, // Adjust this as per your design
+        top: 90, // Adjust this as per your design
         backgroundColor: "white",
+        padding: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        zIndex: 100
+    },
+    deleteButton: {
+        padding: 8,
+        alignItems: "center",
+        paddingLeft: 15,
+        paddingRight: 40,
+    },
+    cancelButton: {
+        padding: 8,
+        alignItems: "center",
+        marginTop: 8,
+        paddingLeft: 15,
+        paddingRight: 40,
     },
 });

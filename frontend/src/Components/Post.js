@@ -2,10 +2,8 @@ import React, { useRef, useState } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
-import CommentsModal from "./CommentsModal";
 import { removePost } from "../Services/PostsApiServices";
 import { useNavigation } from "@react-navigation/native";
 

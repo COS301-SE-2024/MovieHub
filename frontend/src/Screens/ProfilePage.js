@@ -83,8 +83,8 @@ export default function ProfilePage({ route }) {
 
     const handleCommentPress = async (postId) => {
         setSelectedPostId(postId);
-        await fetchComments(postId);
-        console.log("Comments:", comments);
+        const response = await fetchComments(postId);
+        // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
 

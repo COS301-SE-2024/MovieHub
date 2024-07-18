@@ -19,6 +19,10 @@ export default function CreatePost({route}) {
     const [imageUri, setImageUri] = useState(imageUriParam);
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0); // Add state for rating
+    const [feedbackVisible, setFeedbackVisible] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState("");
+    const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
     const navigate = useNavigation();
 
@@ -94,17 +98,26 @@ export default function CreatePost({route}) {
 
         try {
             const post = await editPost(postData);
-            console.log('Post edited successfully:', post);
-            setModalVisible(true);
+            // console.log('Post edited successfully:', post);
+            setFeedbackSuccess(true);
+            setFeedbackMessage("Post edited successfully");
+            setFeedbackVisible(true);  
+
             setTimeout(() => {
-                setModalVisible(false);
+                setFeedbackVisible(false)
                 navigate.navigate("HomePage", { userInfo });
             }, 2000);
         } catch (error) {
+            setFeedbackMessage("Error editing post");
+
             console.error('Error editing post:', error);
             throw new Error('Failed to edit post' + error);
         }
 
+        setFeedbackVisible(true);
+        setTimeout(() => {
+            setFeedbackVisible(false);
+        }, 3000);
     }
 
     const handleRatingPress = (value) => {
@@ -187,21 +200,12 @@ export default function CreatePost({route}) {
                 </TouchableOpacity>
             </View>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Post Edited Successfully</Text>
-                    </View>
+            {feedbackVisible && (
+                <View style={[styles.feedbackContainer, feedbackSuccess ? styles.success : styles.error]}>
+                    <Text style={styles.feedback}>{feedbackMessage}</Text>
                 </View>
-            </Modal>
+            )}
         </ScrollView>
-
-        
     );
 }
 
@@ -311,25 +315,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
         borderRadius: 50,
     },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        height: "100%",
-    },
-    modalContainer: {
-        width: "80%",
-        backgroundColor: "#fff",
-        padding: 18,
-        borderRadius: 6,
-        alignItems: "center",
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
     ratingContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -347,5 +332,23 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: 16,
+    },
+    feedbackContainer: {
+        flexShrink: 1,
+        flexWrap: "wrap",
+        alignSelf: "center",
+        display: "flex",
+        alignItems: "center",
+        padding: 15,
+        borderRadius: 10,
+    },
+    feedback: {
+        color: "#fff",
+    },
+    success: {
+        backgroundColor: "#31B978",
+    },
+    error: {
+        backgroundColor: "#FF4C4C",
     },
 });

@@ -7,15 +7,18 @@ import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
 
-export default function CreatePost({route}) {
+export default function CreatePost({ route }) {
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [thoughts, setThoughts] = useState("");
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
-    const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0); // Add state for rating
+    const [feedbackVisible, setFeedbackVisible] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState("");
+    const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
     const navigation = useNavigation();
     const { userInfo } = route.params;
@@ -30,8 +33,8 @@ export default function CreatePost({route}) {
 
     const handleAddImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Sorry, we need camera roll permissions to make this work!');
+        if (status !== "granted") {
+            alert("Sorry, we need camera roll permissions to make this work!");
             return;
         }
 
@@ -48,8 +51,8 @@ export default function CreatePost({route}) {
 
     const handleReplaceImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Sorry, we need camera roll permissions to make this work!');
+        if (status !== "granted") {
+            alert("Sorry, we need camera roll permissions to make this work!");
             return;
         }
 
@@ -88,19 +91,27 @@ export default function CreatePost({route}) {
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0
         };
-        
+
         try {
             const post = await addPost(postData);
-            console.log('Post added successfully:', post);
-            setModalVisible(true);
+            // console.log('Post added successfully:', post);
+            setFeedbackSuccess(true);
+            setFeedbackMessage("Post added successfully");
+            setFeedbackVisible(true);
+
             setTimeout(() => {
-                setModalVisible(false);
-                navigation.navigate("HomePage", { userInfo});
+                setFeedbackVisible(false)
+                navigation.navigate("HomePage", { userInfo });
             }, 1500);
-            
-        } catch(error){
-            console.error('Error adding post:', error);
-        };
+        } catch (error) {
+            setFeedbackMessage("Error adding post");
+            console.error("Error adding post:", error);
+        }
+
+        setFeedbackVisible(true);
+        setTimeout(() => {
+            setFeedbackVisible(false);
+        }, 3000);
     };
 
     const handleRatingPress = (value) => {
@@ -111,11 +122,7 @@ export default function CreatePost({route}) {
         const ratingOptions = [];
         for (let i = 1; i <= 10; i++) {
             ratingOptions.push(
-                <TouchableOpacity
-                    key={i}
-                    onPress={() => handleRatingPress(i)}
-                    style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}
-                >
+                <TouchableOpacity key={i} onPress={() => handleRatingPress(i)} style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}>
                     <Text style={styles.ratingText}>{i}</Text>
                 </TouchableOpacity>
             );
@@ -183,21 +190,12 @@ export default function CreatePost({route}) {
                 </TouchableOpacity>
             </View>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Post Created Successfully</Text>
-                    </View>
+            {feedbackVisible && (
+                <View style={[styles.feedbackContainer, feedbackSuccess ? styles.success : styles.error]}>
+                    <Text style={styles.feedback}>{feedbackMessage}</Text>
                 </View>
-            </Modal>
+            )}
         </ScrollView>
-
-        
     );
 }
 
@@ -255,7 +253,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     allowComments: {
-        marginTop: 4
+        marginTop: 4,
     },
     footer: {
         flexDirection: "row",
@@ -275,7 +273,7 @@ const styles = StyleSheet.create({
         opacity: 1,
     },
     postButtonDisabled: {
-        opacity: 0.7
+        opacity: 0.7,
     },
     postButtonText: {
         color: "#fff",
@@ -290,14 +288,14 @@ const styles = StyleSheet.create({
         height: 400,
         borderRadius: 10,
         marginBottom: 10,
-        objectFit: "contain"
+        objectFit: "contain",
     },
     removeImageButton: {
         position: "absolute",
         top: 10,
         right: 25,
         backgroundColor: colors.primary,
-        
+
         borderRadius: 50,
     },
     replaceImageButton: {
@@ -306,25 +304,6 @@ const styles = StyleSheet.create({
         right: 60,
         backgroundColor: colors.primary,
         borderRadius: 50,
-    },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        height: "100%",
-    },
-    modalContainer: {
-        width: "80%",
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
     },
     ratingContainer: {
         flexDirection: "row",
@@ -343,5 +322,23 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: 16,
+    },
+    feedbackContainer: {
+        flexShrink: 1,
+        flexWrap: "wrap",
+        alignSelf: "center",
+        display: "flex",
+        alignItems: "center",
+        padding: 15,
+        borderRadius: 10,
+    },
+    feedback: {
+        color: "#fff",
+    },
+    success: {
+        backgroundColor: "#31B978",
+    },
+    error: {
+        backgroundColor: "#FF4C4C",
     },
 });
