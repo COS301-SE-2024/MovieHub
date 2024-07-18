@@ -6,19 +6,15 @@ const driver = neo4j.driver(
     neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
 );
 
-exports.getLikesOfUser = async (userId) => {
+exports.getLikesOfUser = async (uid) => {
     const session = driver.session();
-    console.log("getLikesOfUser", userId);
-    userId = parseInt(userId, 10);
-    if (isNaN(userId)) {
-        throw new Error('Invalid User ID');
-    }
+    console.log("getLikesOfUser", uid);
     try {
         const result = await session.run(
-            `MATCH (u)-[:LIKES]->(p:Post)
-            WHERE ID(u) = $userId
-            RETURN {post : p, id : ID(p)} as data`,
-            { userId }
+            `MATCH (u:User)-[:LIKES]->(p:Post)
+            WHERE u.uid = $uid
+            RETURN p`,
+            { uid }
         );
         console.log(result);
         const  reviews = result.records.map(record => record.get('data'));
@@ -32,17 +28,12 @@ exports.getLikesOfUser = async (userId) => {
 exports.getLikes = async ( entityType) => {
     const session = driver.session();
     console.log("getLikes", entityType);
-    // userId = parseInt(userId, 10);
-    if (isNaN(userId)) {
-        throw new Error('Invalid User ID');
-    }
-
     try {
         const result = await session.run(
-            `MATCH (u)-[:LIKES]->(e:${entityType})
-            WHERE ID(u) = $userId
-            RETURN {entity: e, id: ID(e)} as data`,
-            { userId }
+            `MATCH (u:User)-[:LIKES]->(e:${entityType})
+            WHERE u.uid = $uid
+            RETURN e`,
+            { uid }
         );
 
         console.log(result);
@@ -54,48 +45,48 @@ exports.getLikes = async ( entityType) => {
     }
 };
 
-exports.getLikesOfReview = async (userId, reviewId) => {
-    return getLikes(userId, reviewId, 'Review');
+exports.getLikesOfReview = async (uid, reviewId) => {
+    return getLikes(uid, reviewId, 'Review');
 };
 
-exports.getLikesOfComment = async(userId, commentId) => {
-    return getLikes(userId, commentId, 'Comment');
+exports.getLikesOfComment = async(uid, commentId) => {
+    return getLikes(uid, commentId, 'Comment');
 };
 
-exports.getLikesOfMovie = async (userId, movieId) => {
-    return getLikes(userId, movieId, 'Movie');
+exports.getLikesOfMovie = async (uid, movieId) => {
+    return getLikes(uid, movieId, 'Movie');
 };
 
-exports.getLikesOfPost = async (userId, postId) => {
-    return getLikes(userId, postId, 'Post');
+exports.getLikesOfPost = async (uid, postId) => {
+    return getLikes(uid, postId, 'Post');
 };
 
-async function toggleLike(userId, entityId, entityType) {
+async function toggleLike(uid, entityId, entityType) {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u), (e)
-            WHERE ID(u) = $userId AND ID(e) = $entityId
+            `MATCH (u:User) (e)
+            WHERE u.uid = $uid AND ID(e) = $entityId
             MATCH (u)-[like:LIKES]->(e)
             RETURN like`,
-            { userId, entityId }
+            { uid, entityId }
         );
 
         if (result.records.length > 0) {
             await session.run(
-                `MATCH (u), (e)
-                WHERE ID(u) = $userId AND ID(e) = $entityId
+                `MATCH (u:User) (e)
+                WHERE u.uid = $uid AND ID(e) = $entityId
                 MATCH (u)-[like:LIKES]->(e)
                 DETACH DELETE like`,
-                { userId, entityId }
+                { uid, entityId }
             );
             return false; // Like removed
         } else {
             await session.run(
-                `MATCH (u), (e)
-                WHERE ID(u) = $userId AND ID(e) = $entityId
+                `MATCH (u:User) (e)
+                WHERE u.uid = $uid AND ID(e) = $entityId
                 MERGE (u)-[:LIKES]->(e)`,
-                { userId, entityId }
+                { uid, entityId }
             );
             return true; // Entity liked
         }
@@ -107,20 +98,20 @@ async function toggleLike(userId, entityId, entityType) {
     }
 }
 
-exports.toggleLikeReview = async (userId, reviewId) => {
-    return toggleLike(userId, reviewId, 'Review');
+exports.toggleLikeReview = async (uid, reviewId) => {
+    return toggleLike(uid, reviewId, 'Review');
 };
 
-exports.toggleLikeComment = async(userId, commentId) => {
-    return toggleLike(userId, commentId, 'Comment');
+exports.toggleLikeComment = async(uid, commentId) => {
+    return toggleLike(uid, commentId, 'Comment');
 };
 
-exports.toggleLikeMovie = async (userId, movieId) => {
-    return toggleLike(userId, movieId, 'Movie');
+exports.toggleLikeMovie = async (uid, movieId) => {
+    return toggleLike(uid, movieId, 'Movie');
 };
 
-exports.toggleLikePost = async (userId, postId) => {
-    return toggleLike(userId, postId, 'Post');
+exports.toggleLikePost = async (uid, postId) => {
+    return toggleLike(uid, postId, 'Post');
 };
 
 process.on('exit', () => {
