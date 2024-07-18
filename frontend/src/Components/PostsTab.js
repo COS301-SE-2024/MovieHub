@@ -121,9 +121,9 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         key={post.postId} // for uniqueness
                         postId={post.postId}
                         uid={post.uid}
-                        username={username}
+                        username={post.username}
                         userHandle={userHandle}
-                        userAvatar={avatar}
+                        userAvatar={post.avatar}
                         postTitle={post.postTitle}
                         likes={getRandomNumber(0, 100)} /** TODO: get actual number of likes */
                         comments={post.commentsCount || 0} /** Comments count */

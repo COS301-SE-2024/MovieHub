@@ -36,7 +36,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
 
             if (response.data && response.data.length > 0) {
                 const formattedPosts = response.data.map(post => ({
-                    postId: post.elementId, // Assuming elementId is postId
+                    postId: post.postId, // Assuming elementId is postId
                     username: post.properties.username,
                     userHandle: "@" + post.properties.userHandle,
                     userAvatar: post.properties.avatar,
@@ -79,6 +79,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                             postTitle={post.postTitle}
                             likes={post.likes}
                             comments={post.comments}
+                            saves={post.saves}
                             preview={post.preview}
                             image={post.image}
                             datePosted={post.datePosted}
