@@ -171,7 +171,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>
+                    <Text style={styles.userHandle}>{userHandle} &bull; {datePosted}</Text>
                 </View>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
                     <Icon name="more-vert" size={20} />

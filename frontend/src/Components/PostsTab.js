@@ -12,57 +12,47 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
     const avatar = userProfile.avatar;
     const navigation = useNavigation();
 
-    const mockPosts = [
-        {
-            id: 1,
-            properties: {
-                postTitle: "I just love movies with cliches",
-                preview: "The Dark Knight is not just a superhero film; it's a deep, complex story about morality, chaos, and heroism. Heath Ledger's Joker is a standout performance.",
-                image: null, // No image for this post
-                userId: userInfo.userId,
-                isReview: false
-            },
-        },
-        {
-            id: 2,
-            properties: {
-                postTitle: "Inception: A Mind-Bending Thriller",
-                preview: "Inception is a sci-fi thriller that takes you on a journey through the dream world. The complex narrative and stunning visuals make it a must-watch.",
-                image: "https://images.unsplash.com/photo-1635205411883-ae35d1169f60?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGluY2VwdGlvbnxlbnwwfHwwfHx8MA%3D%3D",
-                userId: userInfo.userId
-            },
-        },
-        {
-            id: 3,
-            properties: {
-                postTitle: "Interstellar: A Journey Beyond the Stars",
-                preview: "Interstellar is a visually stunning and emotionally gripping sci-fi epic. Christopher Nolan's masterpiece explores themes of love, sacrifice, and the unknown.",
-                image: "https://plus.unsplash.com/premium_photo-1710324885138-d6b19ebaaefb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDl8fGF2YXRhciUyMG1vdmllfGVufDB8fDB8fHww",
-                userId: userInfo.userId
-            },
-        },
-    ];
-
     const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true); // Loading state
+    const [loading, setLoading] = useState(true);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    const formatTimeAgoFromDB = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
+        const years = Math.floor(days / 365);
+
+        if (seconds < 60) return `${seconds}s ago`;
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 30) return `${days}d ago`;
+        if (months < 12) return `${months}mo ago`;
+        return `${years}y ago`;
+    };
 
     const fetchPosts = async () => {
         try {
             const userId = userInfo.userId;
             const response = await getPostsOfUser(userId);
-            console.log("Fetched posts:", response.data); // Log the response to verify the structure
+            // console.log("Fetched posts:", response.data); // Log the response to verify the structure
 
             if (response.data === null) {
                 setPosts([]);
             } else {
                 const postsWithComments = await Promise.all(response.data.map(async (post) => {
                     const commentsResponse = await getCountCommentsOfPost(post.postId);
-                    console.log("Comments response for post", post.postId, ":", commentsResponse); // Log to verify structure
+                    // console.log("Comments response for post", post.postId, ":", commentsResponse); // Log to verify structure
                     const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
                     return { ...post, commentsCount };
                 }));
+
+                // Sort posts by createdAt in descending order (most recent first)
+                postsWithComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
                 setPosts(postsWithComments);
             }
@@ -142,6 +132,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         image={post.image || null}
                         isUserPost={post.uid === userInfo.userId}
                         handleCommentPress={handleCommentPress}
+                        datePosted={formatTimeAgoFromDB(post.createdAt)}
                     />
                 ))
             )}

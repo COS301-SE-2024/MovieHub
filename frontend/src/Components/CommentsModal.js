@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, forwardRef, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHighlight } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHighlight, Alert } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 
-import { addCommentToPost } from "../Services/PostsApiServices";
+import { addCommentToPost, removeComment } from "../Services/PostsApiServices";
 
 const CommentsModal = forwardRef((props, ref) => {
     const { postId, userId, username, currentUserAvatar, comments, loadingComments, onFetchComments } = props;
@@ -77,12 +77,25 @@ const CommentsModal = forwardRef((props, ref) => {
         });
     };
 
-    const handleDeleteComment = async (commentId) => {
+    const handleDeleteComment = async (comment) => {
         // Implement your delete comment logic here
+        console.log(comment);
+        try {
+            const body = {
+                uid: userId,
+                commentId: comment.comId
+            }
+            const response = await removeComment(body);
+            Alert.alert("Success", "Comment deleted successfully!");
+            onFetchComments(postId); // Refresh comments after deleting a comment
+        } catch (error) {
+            console.error("Error deleting comment:", error.message);
+            throw new Error("Failed to delete comment");
+        }
         // In this example, we're just closing the modal
         setDeleteModalState((prev) => {
             const newState = [...prev];
-            newState[commentId] = false; // Close delete modal for the comment at index
+            newState[comment.comId] = false; // Close delete modal for the comment at index
             return newState;
         });
     };
@@ -132,7 +145,7 @@ const CommentsModal = forwardRef((props, ref) => {
                                         {/* Delete Comment Modal */}
                                         {deleteModalState[index] && (
                                             <View style={styles.deleteModalContainer}>
-                                                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteComment(index)}>
+                                                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteComment(comment)}>
                                                     <Text style={{ color: "red" }}>Delete</Text>
                                                 </TouchableOpacity>
                                                 <TouchableOpacity style={styles.cancelButton} onPress={() => toggleDeleteModal(index)}>
