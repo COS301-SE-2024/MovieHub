@@ -50,7 +50,7 @@ const HomePage = ({route}) => {
             console.error('Error fetching movies:', error);
           }
           finally {
-            console.log("fetchmovies",thrillerMovies);
+            // console.log("fetchmovies",thrillerMovies);
             // console.log('item.poster_path',movies)
           }
         };
@@ -96,7 +96,7 @@ const HomePage = ({route}) => {
             <View style={styles.container}>
                 <Text style={styles.trending}>Just for you</Text>
 
-                <ScrollView horizontal>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                      {movies.slice(0, 10).map((movie, index) => (
 
                                 <MovieCard
@@ -118,7 +118,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movies.slice(10, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -140,7 +140,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {thrillerMovies.slice(0, 20).map((movie, index) => (
 
                             <TrendingMovie
@@ -162,7 +162,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {comedyMovies.slice(5, 24).map((movie, index) => (
 
                             <TrendingMovie
@@ -184,7 +184,7 @@ const HomePage = ({route}) => {
             </View>
 
 
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {romanceMovies.slice(0, 20).map((movie, index) => (
 
                             <TrendingMovie

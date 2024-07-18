@@ -49,6 +49,7 @@ export const getLikesOfPost = async (postId) => {
     return data;
 };
 
+
 export const toggleLikeReview = async (bodyData) => {
     const response = await fetch(`${API_URL}toggleLikeReview`, {
         method: 'POST',

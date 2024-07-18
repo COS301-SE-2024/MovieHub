@@ -4,8 +4,9 @@ import { createWatchlist } from '../Services/ListApiService';
 import { searchMovies } from '../Services/TMDBApiService'; // Adjust the import path as necessary
 
 export default function AddMovies({ route, navigation }) {
-    // Receive watchlistData and userInfo passed from CreateWatchlist
+
     const { watchlistData, userInfo } = route.params;
+   
 
     const [movies, setMovies] = useState([]);
     const [selectedMovies, setSelectedMovies] = useState([]);
@@ -34,19 +35,28 @@ export default function AddMovies({ route, navigation }) {
     };
 
     const handleDone = async () => {
-        const selectedMovieNames = selectedMovies.map((movie) => movie.title);
+        const moviesList = selectedMovies.map((movie) => ({
+            id: movie.id,
+            title: movie.title,
+            poster_path: movie.poster_path,
+            genre: movie.genre, 
+            duration: movie.duration,
+        }));
 
-        // Add selected movie names to watchlist data
         const finalWatchlistData = {
             ...watchlistData,
-            movies: selectedMovieNames,
+            movies: moviesList.map(movie => movie.title), // Old property to maintain backward compatibility
+            moviesList, // New property for detailed movie data
         };
 
         try {
+            console.log("This is the user Info being passed in AddMovies.js: " + JSON.stringify(userInfo));
             const userId = userInfo.userId;
             await createWatchlist(userId, finalWatchlistData);
             Alert.alert('Success', 'Watchlist created successfully!');
+
             navigation.navigate('ProfilePage', { userInfo });
+
         } catch (error) {
             Alert.alert('Error', 'Failed to create watchlist.');
             console.error(error);
