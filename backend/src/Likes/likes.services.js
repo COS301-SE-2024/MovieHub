@@ -25,40 +25,100 @@ exports.getLikesOfUser = async (uid) => {
     }
 };
 
-exports.getLikes = async ( entityType) => {
+// exports.getLikes = async ( entityType) => {
+//     const session = driver.session();
+//     console.log("getLikes", entityType);
+//     try {
+//         const result = await session.run(
+//             `MATCH (u:User)-[:LIKES]->(e:${entityType})
+//             WHERE u.uid = $uid
+//             RETURN e`,
+//             { uid }
+//         );
+
+//         console.log(result);
+//         const entities = result.records.map(record => record.get('data'));
+//         const data = await processGets(entities); // Await the processGets call if necessary
+//         return data;
+//     } finally {
+//         await session.close();
+//     }
+// };
+
+exports.getLikesOfReview = async (reviewId) => {
     const session = driver.session();
-    console.log("getLikes", entityType);
+    console.log("getLikesOfReview", reviewId);
     try {
         const result = await session.run(
-            `MATCH (u:User)-[:LIKES]->(e:${entityType})
-            WHERE u.uid = $uid
-            RETURN e`,
-            { uid }
+            `MATCH (u:User)-[:LIKES]->(r:Review)
+            WHERE r.reviewId = $reviewId
+            RETURN count(u) AS likeCount`,
+            { reviewId }
         );
 
         console.log(result);
-        const entities = result.records.map(record => record.get('data'));
-        const data = await processGets(entities); // Await the processGets call if necessary
-        return data;
+        const likeCount = result.records[0].get('likeCount').toInt();
+        return likeCount;
     } finally {
         await session.close();
     }
 };
 
-exports.getLikesOfReview = async (uid, reviewId) => {
-    return getLikes(uid, reviewId, 'Review');
+exports.getLikesOfComment = async(commentId) => {
+    const session = driver.session();
+    console.log("getLikesOfComment", commentId);
+    try {
+        const result = await session.run(
+            `MATCH (u:User)-[:LIKES]->(c:Comment)
+            WHERE c.commentId = $commentId
+            RETURN count(u) AS likeCount`,
+            { commentId }
+        );
+
+        console.log(result);
+        const likeCount = result.records[0].get('likeCount').toInt();
+        return likeCount;
+    } finally {
+        await session.close();
+    }
 };
 
-exports.getLikesOfComment = async(uid, commentId) => {
-    return getLikes(uid, commentId, 'Comment');
+exports.getLikesOfMovie = async (movieId) => {
+    const session = driver.session();
+    console.log("getLikesOfMovie", movieId);
+    try {
+        const result = await session.run(
+            `MATCH (u:User)-[:LIKES]->(m:Movie)
+            WHERE m.movieId = $movieId
+            RETURN count(u) AS likeCount`,
+            { movieId }
+        );
+
+        console.log(result);
+        const likeCount = result.records[0].get('likeCount').toInt();
+        return likeCount;
+    } finally {
+        await session.close();
+    }
 };
 
-exports.getLikesOfMovie = async (uid, movieId) => {
-    return getLikes(uid, movieId, 'Movie');
-};
+exports.getLikesOfPost = async (postId) => {
+    const session = driver.session();
+    console.log("getLikesOfPost", postId);
+    try {
+        const result = await session.run(
+            `MATCH (u:User)-[:LIKES]->(p:Post)
+            WHERE c.postId = $postId
+            RETURN count(u) AS likeCount`,
+            { postId }
+        );
 
-exports.getLikesOfPost = async (uid, postId) => {
-    return getLikes(uid, postId, 'Post');
+        console.log(result);
+        const likeCount = result.records[0].get('likeCount').toInt();
+        return likeCount;
+    } finally {
+        await session.close();
+    }
 };
 
 async function toggleLike(uid, entityId, entityType) {
