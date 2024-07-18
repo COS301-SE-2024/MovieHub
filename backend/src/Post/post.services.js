@@ -44,7 +44,7 @@ exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
         const reviewId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, , username : u.username, avatar : u.avatar})
+             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
             { uid, movieId, text, rating, reviewId, reviewTitle, createdAt, updatedAt }

@@ -17,9 +17,8 @@ exports.getLikesOfUser = async (uid) => {
             { uid }
         );
         console.log(result);
-        const  reviews = result.records.map(record => record.get('data'));
-        const data = await processGets(reviews); // Await the processGets call
-        return data;
+        const  likedPosts = result.records.map(record => record.get('p'));
+        return likedPosts;
     } finally {
         await session.close();
     }
@@ -275,7 +274,7 @@ exports.toggleLikePost = async (uid, postId) => {
         const result = await session.run(
             `MATCH (u:User), (p:Post)
             WHERE u.uid = $uid AND p.postId = $postId
-            MATCH (u)-[like:LIKES]->(r)
+            MATCH (u)-[like:LIKES]->(p)
             RETURN like`,
             { uid, postId }
         );
@@ -284,7 +283,7 @@ exports.toggleLikePost = async (uid, postId) => {
             await session.run(
                 `MATCH (u:User), (p:Post)
                 WHERE u.uid = $uid AND p.postId = $postId
-                MATCH (u)-[like:LIKES]->(r)
+                MATCH (u)-[like:LIKES]->(p)
                 DETACH DELETE like`,
                 { uid, postId }
             );
@@ -293,7 +292,7 @@ exports.toggleLikePost = async (uid, postId) => {
             await session.run(
                 `MATCH (u:User), (p:Post)
                 WHERE u.uid = $uid AND p.postId = $postId
-                MERGE (u)-[:LIKES]->(r)`,
+                MERGE (u)-[:LIKES]->(p)`,
                 { uid, postId }
             );
             return true; // Entity liked
