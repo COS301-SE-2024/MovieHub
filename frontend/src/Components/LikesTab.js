@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import Post from "./Post";
 
-import { getUserLikedPosts } from "../Services/UsersApiService";
+import { getUserLikedPosts } from "../Services/LikesApiService";
 
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
     const [likedPosts, setLikedPosts] = useState([]);
@@ -32,7 +32,6 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
             const userId = userInfo.userId;
             const response = await getUserLikedPosts(userId);
             console.log("Fetched likes", response);
-            console.log("Fetched likes", response.data[0].properties);
 
             if (response.data && response.data.length > 0) {
                 const formattedPosts = response.data.map(post => ({

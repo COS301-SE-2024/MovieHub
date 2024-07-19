@@ -8,7 +8,7 @@ import { colors } from "../styles/theme";
 export default function BottomHeader({ userInfo }) {
     const navigation = useNavigation();
     const route = useRoute();
-    console.log("The users info in BottomHeader.js: ", userInfo);
+    // console.log("The users info in BottomHeader.js: ", userInfo);
     const isActive = (screen) => route.name === screen;
 
     return (
