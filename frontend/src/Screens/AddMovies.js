@@ -5,8 +5,6 @@ import { getPopularMovies } from '../Services/TMDBApiService'; // Adjust the imp
 
 export default function AddMovies({ route, navigation }) {
     // Receive watchlist data passed from CreateWatchlist
-    const { watchlistData } = route.params;
-    const { userInfo } = route.params;
 
     // State to hold popular movies from TMDB
     const { watchlistData, userInfo } = route.params;

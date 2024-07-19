@@ -50,10 +50,11 @@ const WatchlistDetails = ({route }) => {
                             <Text style={styles.movieGenre}>{movie.genre}</Text>
                             <Text style={styles.movieDuration}>{movie.duration + ' min'}</Text>
                         </View>
-                    ))}
-                </ScrollView>
-            </View>
-        );
+                    </View>
+                ))}
+            </ScrollView>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({

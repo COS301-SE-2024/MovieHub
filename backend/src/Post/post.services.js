@@ -162,16 +162,14 @@ exports.editPost = async (postId, uid, text) => {
 
 exports.editReview = async (reviewId, uid, text) => {
     console.log("In Services: editReview");
+    const session = driver.session();
+    const updatedAt = new Date().toISOString();
+    try {
+        const result = await session.run(
             `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
              SET r.text = $text, r.updatedAt = $updatedAt
              RETURN r`,
             { reviewId, uid, text, updatedAt }
-        );
-        return result.records[0].get('p').properties;
-    } finally {
-        await session.close();
-    }
-};
         );
         if (result.records.length === 0) {
             throw new Error("Review not found or user not authorized to edit this review");
