@@ -5,9 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 
-
 const WatchlistTab = ({ userInfo }) => {
-
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
@@ -17,8 +15,8 @@ const WatchlistTab = ({ userInfo }) => {
         const fetchUserWatchlists = async () => {
             try {
                 console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
-                const userId = userInfo.userId; // Replace with actual user ID fetching logic
 
+                const userId = userInfo.userId; // Replace with actual user ID fetching logic
                 const userWatchlists = await getUserWatchlists(userId);
                 const watchlistId = userWatchlists.id;
                 console.log(userWatchlists);
@@ -64,9 +62,7 @@ const WatchlistTab = ({ userInfo }) => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-
-                onPress={() => navigation.navigate('CreateWatchlist', {userInfo})}
-
+                onPress={() => navigation.navigate('CreateWatchlist', { userInfo })}
             >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <View style={{ flex: 1 }} />

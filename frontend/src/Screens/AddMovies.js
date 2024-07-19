@@ -1,30 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Image, TextInput } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Image } from "react-native";
 import { createWatchlist } from '../Services/ListApiService';
-import { searchMovies } from '../Services/TMDBApiService'; // Adjust the import path as necessary
+import { getPopularMovies } from '../Services/TMDBApiService'; // Adjust the import path as necessary
 
 export default function AddMovies({ route, navigation }) {
-
+    // Receive watchlist data passed from CreateWatchlist
+    const { watchlistData } = route.params;
+    const { userInfo } = route.params;
     const { watchlistData, userInfo } = route.params;
-   
-
+    // State to hold popular movies from TMDB
     const [movies, setMovies] = useState([]);
     const [selectedMovies, setSelectedMovies] = useState([]);
-    const [query, setQuery] = useState('');
-    const [searching, setSearching] = useState(false);
 
-    const handleSearch = async () => {
-        if (!query) return;
-        setSearching(true);
-        try {
-            const moviesData = await searchMovies(query);
-            setMovies(moviesData);
-        } catch (error) {
-            console.error('Error searching movies:', error);
-        } finally {
-            setSearching(false);
-        }
-    };
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const moviesData = await getPopularMovies();
+                setMovies(moviesData);
+            } catch (error) {
+                console.error('Error fetching popular movies:', error);
+            }
+        };
+        fetchMovies();
+    }, []);
 
     const toggleMovieSelection = (movie) => {
         setSelectedMovies((prevSelected) =>
@@ -35,28 +33,22 @@ export default function AddMovies({ route, navigation }) {
     };
 
     const handleDone = async () => {
-        const moviesList = selectedMovies.map((movie) => ({
-            id: movie.id,
-            title: movie.title,
-            poster_path: movie.poster_path,
-            genre: movie.genre, 
-            duration: movie.duration,
-        }));
+        console.log("In handle Done");
+        // Collect selected movie names
+        const selectedMovieNames = selectedMovies.map((movie) => movie.title);
 
+        // Add selected movie names to watchlist data
         const finalWatchlistData = {
             ...watchlistData,
-            movies: moviesList.map(movie => movie.title), // Old property to maintain backward compatibility
-            moviesList, // New property for detailed movie data
+            movies: selectedMovieNames,
         };
-
+        console.log('Watchlist info: '+ finalWatchlistData);
         try {
             console.log("This is the user Info being passed in AddMovies.js: " + JSON.stringify(userInfo));
             const userId = userInfo.userId;
             await createWatchlist(userId, finalWatchlistData);
             Alert.alert('Success', 'Watchlist created successfully!');
-
-            navigation.navigate('ProfilePage', { userInfo });
-
+            navigation.navigate('ProfilePage', {userInfo});
         } catch (error) {
             Alert.alert('Error', 'Failed to create watchlist.');
             console.error(error);
@@ -82,17 +74,6 @@ export default function AddMovies({ route, navigation }) {
                 <Text style={styles.headerTitle}>Add Movies to Watchlist</Text>
                 <TouchableOpacity style={styles.nextButton} onPress={handleDone}>
                     <Text style={styles.nextButtonText}>Done</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.searchContainer}>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search for movies..."
-                    value={query}
-                    onChangeText={setQuery}
-                />
-                <TouchableOpacity style={styles.searchButton} onPress={handleSearch} disabled={searching}>
-                    <Text style={styles.searchButtonText}>{searching ? 'Searching...' : 'Search'}</Text>
                 </TouchableOpacity>
             </View>
             <FlatList
@@ -131,27 +112,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
-    searchContainer: {
-        flexDirection: "row",
-        padding: 16,
-    },
-    searchInput: {
-        flex: 1,
-        borderColor: "#ccc",
-        borderWidth: 1,
-        padding: 8,
-        borderRadius: 5,
-        marginRight: 8,
-    },
-    searchButton: {
-        backgroundColor: "black",
-        padding: 10,
-        borderRadius: 5,
-    },
-    searchButtonText: {
-        color: "#fff",
-        fontSize: 16,
-    },
     grid: {
         flexGrow: 1,
         justifyContent: "center",
@@ -171,6 +131,12 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         borderRadius: 10,
+    },
+    movieTitle: {
+        marginTop: 8,
+        fontSize: 14,
+        fontWeight: "bold",
+        textAlign: "center",
     },
     tick: {
         width: 30,

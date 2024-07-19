@@ -21,8 +21,10 @@ router.get('/movie/:movieId/posts', postController.getPostsOfMovie);
 router.get('/movie/:movieId/reviews', postController.getReviewsOfMovie);
 router.get('/post/:postId/comments', postController.getCommentsOfPost);
 router.get('/review/:reviewId/comments', postController.getCommentsOfReview);
-router.get('/user/:userId/posts', postController.getPostsOfUser);
-router.get('/user/:userId/comments', postController.getCommentsOfUser);
-router.get('/user/:userId/reviews', postController.getReviewsOfUser);
+router.get('/user/:uid/posts', postController.getPostsOfUser);
+router.get('/user/:uid/comments', postController.getCommentsOfUser);
+router.get('/user/:uid/reviews', postController.getReviewsOfUser);
+router.get('/movie/:movieId/rating', postController.getAverageRating);
+
 
 module.exports = router;

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
@@ -13,6 +13,7 @@ import * as SecureStore from "expo-secure-store";
 
 import { colors, themeStyles } from "../styles/theme";
 import { useTheme } from "../styles/ThemeContext";
+import CommentsModal from "../Components/CommentsModal";
 
 
 export default function ProfilePage({ route }) {
@@ -36,10 +37,15 @@ export default function ProfilePage({ route }) {
         navigation.navigate("EditProfile", { userInfo });
     };
 
-    let [userProfile, setUserProfile] = useState({});
-    let [followers, setfollowers] = useState(0);
-    let [following, setfollowing] = useState(0);
+    const bottomSheetRef = useRef(null);
+
+    const [userProfile, setUserProfile] = useState({});
+    const [followers, setFollowers] = useState(0);
+    const [following, setFollowing] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
+    const [loading, setLoading] = useState(true); // Add this line
+    const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
+
 
     const fetchData = async () => {
         // fetching data from api
@@ -54,6 +60,7 @@ export default function ProfilePage({ route }) {
             console.log("/////About to fetch data//////");
             const response = await getUserProfile(userId);
             setUserProfile(response);
+            console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setfollowers(response.followers.low);
@@ -62,18 +69,17 @@ export default function ProfilePage({ route }) {
             if (response.following && response.following.low !== undefined) {
                 setfollowing(response.following.low);
             }
-            // console.log("24", following);
+          
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
-            // console.log("1", userProfile);
+            setLoading(false); // Set loading to false after data is fetched
         }
     };
 
     const handleRefresh = () => {
         setRefreshing(true);
-        fetchData();
-        setRefreshing(false);
+        fetchData().finally(() => setRefreshing(false));
     };
 
     useEffect(() => {
@@ -84,6 +90,12 @@ export default function ProfilePage({ route }) {
         console.log("User Profile:", userProfile);
         console.log("Followers:", followers);
     }, [userProfile, followers, following]);
+
+    const handleCommentPress = (postId) => {
+        setSelectedPostId(postId);
+        bottomSheetRef.current?.present();
+    };
+
 
     const styles = StyleSheet.create({
         container: {
@@ -164,17 +176,23 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} />;
             case "watchlist":
                 return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
-
             default:
                 return null;
         }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
 
     return (
         // <ProfileHeader />
@@ -187,9 +205,11 @@ export default function ProfilePage({ route }) {
                             //     ? userProfile.profilePicture
                             uri: userProfile.avatar,
                         }}
+
                         style={styles.avatar}></Image>
                     <Text style={styles.username}>{userProfile.name ? userProfile.name : "Itumeleng Moshokoa"}</Text>
                     <Text style={styles.userHandle}>@{userProfile.username ? userProfile.username : "Joyce"}</Text>
+
                 </View>
                 <View style={styles.followInfo}>
                     <Text>
@@ -202,7 +222,9 @@ export default function ProfilePage({ route }) {
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={themeStyles.button} onPress={handleEditProfile}>
+
+                    <Pressable style={themeStyles.button} onPress={() => navigation.navigate("EditProfile", { userInfo, userProfile })}>
+
                         <Text style={styles.buttonText}>Edit Profile</Text>
                     </Pressable>
                 </View>
@@ -228,6 +250,13 @@ export default function ProfilePage({ route }) {
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
+            
+            <CommentsModal    
+                ref={bottomSheetRef} 
+                postId={selectedPostId} 
+                currentUser={userInfo.username}
+                currentUserAvatar={userProfile.avatar}
+            />
         </View>
     );
 }

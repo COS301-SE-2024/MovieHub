@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
+
 export default function CreateWatchlist({route,  navigation }) {
     //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
