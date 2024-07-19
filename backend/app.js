@@ -14,9 +14,6 @@ const https = require("https");
 const fs = require("fs");
 const ColorThief = require("colorthief");
 const bodyParser = require('body-parser');
-const cors = require('cors'); // since we are using more than on port
-const https = require('https');
-const fs = require('fs');
 
 
 dotenv.config();
