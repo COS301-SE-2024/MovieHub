@@ -1,5 +1,18 @@
 // src/services/LikesApiService.js
-const API_URL = process.env.REACT_APP_LIKE_API_URL || 'http://10.0.0.107:3000/like/'; // Update to your Expo URL
+const API_URL = 'http://10.0.24.139:3000/like/'; // Update to your Expo URL
+
+export const getUserLikedPosts = async (userId) => {
+    const response = await fetch(`${API_URL}${userId}/likes`);
+    if (!response.ok) {
+        console.log(response)
+        throw new Error("Failed to fetch user posts");
+    } 
+    
+    const data = await response.json();
+    console.log("data", data);
+    return data;
+};
+
 
 export const getLikesOfMovie = async (movieId) => {
     const response = await fetch(`${API_URL}movie/${movieId}`);
