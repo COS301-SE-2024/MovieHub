@@ -69,9 +69,9 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                         <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
                     </View>
                 ) : (
-                    likedPosts.map(post => (
+                    likedPosts.map((post, index) => (
                         <Post
-                            key={post.postId} // Assuming postId is unique
+                            key={index} // Assuming postId is unique
                             username={post.username}
                             userHandle={post.userHandle}
                             userAvatar={post.userAvatar}

@@ -64,30 +64,19 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
         }
     };
 
-//   const fetchPosts = async () => {
-//     try {
-//         const userId = 0;
-//         const response = await getUserPosts(userId);
-//         console.log("posts", response.data); // Ensure this logs the correct data structure
-//         setPosts(response.data); // Assuming response.data is an array of post objects
-//     } catch (error) {
-//         console.error("Error fetching posts:", error);
-//         // Handle error state or retry logic
-//     }
-// };
-
-useEffect(() => {
-    fetchPosts();
-}, []);
+    useEffect(() => {
+        fetchPosts();
+    }, []);
 
     const styles = StyleSheet.create({
         outerContainer: {
             backgroundColor: theme.backgroundColor,
+            flex: 1,
         },
         container: {
             backgroundColor: theme.backgroundColor,
             paddingHorizontal: 35,
-            paddingTop: 35,
+            paddingTop: 55,
             textAlign: "center",
         },
         title: {
@@ -127,9 +116,9 @@ useEffect(() => {
                     </Pressable>
                 </View>
             ) : (
-                posts.map((post) => (
+                posts.map((post, index) => (
                     <Post
-                        key={post.postId} // for uniqueness
+                        key={index} // for uniqueness
                         postId={post.postId}
                         uid={post.uid}
                         username={post.username}

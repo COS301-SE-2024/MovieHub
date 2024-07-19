@@ -143,7 +143,6 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             flexDirection: "row",
             alignItems: "center",
             marginRight: 20,
-            
         },
         statsNumber: {
             color: theme.textColor,
@@ -155,10 +154,10 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             fontSize: 13,
         },
         modalContainer: {
-            position: 'absolute',
+            position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: 'white',
+            backgroundColor: "white",
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -176,11 +175,11 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             paddingHorizontal: 20,
         },
         modalText: {
-            color: 'black',
+            color: "black",
             fontSize: 16,
-        }
+        },
     });
-    
+
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
@@ -197,8 +196,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5,}} onPress={toggleLike} />
+                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
@@ -235,13 +234,16 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                             </TouchableOpacity>
                         </>
                     ) : (
-                        <TouchableOpacity style={styles.modalOption} onPress={() => { /* Report logic */ }}>
+                        <TouchableOpacity
+                            style={styles.modalOption}
+                            onPress={() => {
+                                /* Report logic */
+                            }}>
                             <Text style={styles.modalText}>Report</Text>
                         </TouchableOpacity>
                     )}
                 </View>
-            )} 
+            )}
         </View>
     );
 }
-
