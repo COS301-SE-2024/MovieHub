@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/post/';
+const API_URL =  'http://192.168.8.35:3000/post/';
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
