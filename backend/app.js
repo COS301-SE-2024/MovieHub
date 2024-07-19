@@ -1,5 +1,4 @@
 // backend/index.js
-
 const express = require("express");
 const dotenv = require("dotenv");
 const userRouter = require("./src/Users/users.router");
@@ -32,7 +31,6 @@ app.use(
 
 app.use(express.json());
 
-
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/list', watchlistRouter);
@@ -41,8 +39,6 @@ app.use('/like', likesRouter);
 app.use('/movie', movieRouter);
 app.use('/actor', actorRouter);
 app.use('/genre', genreRouter);
-
-
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);

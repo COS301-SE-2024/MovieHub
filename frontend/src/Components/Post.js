@@ -1,24 +1,81 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import React, { useRef, useState } from "react";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useState } from "react";
-import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Post({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost }) {
+import { removePost } from "../Services/PostsApiServices";
+import { toggleLikePost } from "../Services/LikesApiService";
+
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false); 
-    
+    const [modalVisible, setModalVisible] = useState(false);
+    const navigation = useNavigation();
+
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
-    const toggleLike = () => {
+
+    const toggleLike = async () => {
+        const body = {
+            postId: postId,
+            userId: uid
+        }
+
+        try {
+            await toggleLikePost(body);
+            console.log('Toggle like successful');
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
+
         setLiked(!liked);
     };
+
+    const handleShare = async () => {
+        try {
+            const result = await Share.share({
+                url: '',
+                title: 'MovieHub',
+                message: "Watch Party Invite | Join my watch party at ...[link]",
+            });
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error) {
+            Alert.alert(error.message);
+        }
+    };
+    // Function to remove posts
+
+    const handleRemovePost = async (uid, postId) => {
+        try {
+            //
+            console.log('Removing post:', postId + ' by ' + uid);
+            const postBody = {
+                postId: postId,
+                uid: uid
+            }
+            await removePost(postBody);
+            // console.log('Post removed successfully');
+            Alert.alert(null,'Post removed successfully');
+        } catch (error) {
+            console.error('Error removing post:', error);
+            throw new Error('Failed to remove post' + error);
+        }
+    };
+
+    // TODO: Increment or decrement number of likes
 
     const styles = StyleSheet.create({
         container: {
@@ -130,7 +187,7 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>
+                    <Text style={styles.userHandle}>{userHandle} &bull; {datePosted}</Text>
                 </View>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
                     <Icon name="more-vert" size={20} />
@@ -145,7 +202,9 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                    <Pressable onPress={() => {handleCommentPress(postId)}}>
+                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                    </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
                 <View style={styles.stats}>
@@ -153,16 +212,25 @@ export default function Post({ username, userHandle, userAvatar, likes, comments
                     <Text style={styles.statsNumber}>{saves}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
-                <CommIcon name="share-outline" size={20} style={styles.icon} />
+                <Pressable onPress={handleShare}>
+                    <CommIcon name="share-outline" size={20} style={styles.icon} />
+                </Pressable>
             </View>
             {modalVisible && (
                 <View style={styles.modalContainer}>
                     {isUserPost ? ( // Check if the post belongs to the user
                         <>
-                            <TouchableOpacity style={styles.modalOption} onPress={() => { /* Edit logic */ }}>
+                            <TouchableOpacity
+                                style={styles.modalOption}
+                                onPress={() => {
+                                    navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
+                                }}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalOption} onPress={() => { /* Delete logic */ }}>
+                            <TouchableOpacity
+                                style={styles.modalOption}
+                                onPress={() => {handleRemovePost(uid, postId);}}
+                            >
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>
                         </>

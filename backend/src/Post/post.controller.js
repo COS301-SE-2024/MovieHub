@@ -137,6 +137,7 @@ exports.getReviewsOfMovie = async (req, res) => {
 
 exports.getCommentsOfPost = async (req, res) => {
     try {
+        console.log('Getting comments');
         const postId = req.params.postId;
         const comments = await postService.getCommentsOfPost(postId);
         responseHandler(res, 200, 'Comments fetched successfully', comments);
@@ -180,6 +181,36 @@ exports.getCommentsOfUser = async (req, res) => {
         const userId = req.params.userId;
         const comments = await postService.getCommentsOfUser(userId);
         responseHandler(res, 200, 'Comments fetched successfully', comments);
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getAverageRating = async (req, res) => {
+    try {
+        const movieId = req.params.movieId;
+        const averageRating = await postService.getAverageRating(movieId);
+                   responseHandler(res, 200, 'Average rating fetched successfully', { averageRating });
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getCountCommentsOfPost = async (req, res) => {
+    try {
+        const postId = req.params.postId;
+        const postCommentCount = await postService.getCountCommentsOfPost(postId);
+                   responseHandler(res, 200, 'Post comment count fetched successfully', { postCommentCount });
+    } catch (error) {
+        responseHandler(res, 400, error.message);
+    }
+};
+
+exports.getCountCommentsOfReview = async (req, res) => {
+    try {
+        const reviewId = req.params.reviewId;
+        const reviewCommentCount = await postService.getCountCommentsOfReview(reviewId);
+                   responseHandler(res, 200, 'Review comment count fetched successfully', { reviewCommentCount });
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
