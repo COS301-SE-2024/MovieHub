@@ -71,7 +71,7 @@ exports.getUserWatchlists = async (userId) => {
 
     try {
         const result = await session.run(
-            `MATCH (u:User {userId: $userId})-[:HAS_WATCHLIST]->(w:Watchlist)
+            `MATCH (u:User {uid: $userId})-[:HAS_WATCHLIST]->(w:Watchlist)
              RETURN w `,
             { userId }
         );

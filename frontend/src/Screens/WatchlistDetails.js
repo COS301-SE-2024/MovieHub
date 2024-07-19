@@ -50,46 +50,57 @@ const WatchlistDetails = ({route }) => {
                             <Text style={styles.movieGenre}>{movie.genre}</Text>
                             <Text style={styles.movieDuration}>{movie.duration + ' min'}</Text>
                         </View>
-                    ))}
-                </ScrollView>
-            </View>
-        );
+                    </View>
+                ))}
+            </ScrollView>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        padding: 12,
         backgroundColor: "#fff",
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    privacy: {
-        fontSize: 16,
-        color: '#666',
-        marginBottom: 8,
-    },
-    moviesCount: {
-        fontSize: 16,
-        color: '#666',
         marginBottom: 16,
         alignSelf: 'center',
     },
     movieItem: {
         flexDirection: 'row',
         marginBottom: 16,
+        alignItems: 'center',
+    },
+    imagePlaceholder: {
+        width: 110,
+        height: 150,
+        backgroundColor: '#e0e0e0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
     },
     movieImage: {
-        width: 100,
-        height: 150,
-        marginRight: 16,
+        width: '100%',
+        height: '100%',
+    },
+    movieDetails: {
+        flex: 1,
     },
     movieTitle: {
         fontSize: 18,
-        alignSelf: 'center',
+        fontWeight: 'bold',
+    },
+    movieGenre: {
+        fontSize: 14,
+        color: '#888',
+        marginBottom: 4,
+    },
+    movieDuration: {
+        fontSize: 14,
+        color: '#888',
     },
 });
 

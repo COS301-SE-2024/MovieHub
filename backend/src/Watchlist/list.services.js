@@ -80,7 +80,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
 
         const result = await tx.run(
             `CREATE (w:Watchlist {id: $watchlistId, name: $name, tags: $tags, visibility: $visibility, ranked: $ranked, description: $description, collaborative: $collaborative})
-             MERGE (u:User {userId: $userId})
+             MERGE (u:User {uid: $userId})
              CREATE (u)-[:HAS_WATCHLIST]->(w)
              RETURN w`,
             { watchlistId, name, tags, visibility, ranked, description, collaborative, userId }
