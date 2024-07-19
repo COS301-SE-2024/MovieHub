@@ -173,11 +173,13 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "watchlist":
                 return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
+
             default:
                 return null;
         }

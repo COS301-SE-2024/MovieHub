@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://10.0.0.107:3000/post/';
+const API_URL =  'http://192.168.8.35:3000/post/';
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
@@ -41,6 +41,8 @@ export const addPost = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to add post: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const addReview = async (bodyData) => {
@@ -54,6 +56,8 @@ export const addReview = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to add review: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const addCommentToPost = async (bodyData) => {
@@ -67,6 +71,8 @@ export const addCommentToPost = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to add comment to post: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const addCommentToReview = async (bodyData) => {
@@ -80,6 +86,8 @@ export const addCommentToReview = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to add comment to review: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const addCommentToComment = async (bodyData) => {
@@ -93,6 +101,8 @@ export const addCommentToComment = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to add comment to comment: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const editPost = async (bodyData) => {
@@ -106,6 +116,8 @@ export const editPost = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to edit post: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const editReview = async (bodyData) => {
@@ -119,6 +131,8 @@ export const editReview = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to edit review: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const editComment = async (bodyData) => {
@@ -132,6 +146,8 @@ export const editComment = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to edit comment: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const removePost = async (bodyData) => {
@@ -145,6 +161,7 @@ export const removePost = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to remove post: ' + error.message);
     }
+    return true;
 };
 
 export const removeReview = async (bodyData) => {
@@ -158,6 +175,7 @@ export const removeReview = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to remove review: ' + error.message);
     }
+    return true;
 };
 
 export const removeComment = async (bodyData) => {
@@ -171,6 +189,7 @@ export const removeComment = async (bodyData) => {
     } catch (error) {
         throw new Error('Failed to remove comment: ' + error.message);
     }
+    return true;
 };
 
 export const getPostsOfMovie = async (movieId) => {
@@ -183,6 +202,8 @@ export const getPostsOfMovie = async (movieId) => {
     } catch (error) {
         throw new Error('Failed to fetch posts of movie: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const getReviewsOfMovie = async (movieId) => {
@@ -195,6 +216,8 @@ export const getReviewsOfMovie = async (movieId) => {
     } catch (error) {
         throw new Error('Failed to fetch reviews of movie: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const getCommentsOfPost = async (postId) => {
@@ -207,6 +230,8 @@ export const getCommentsOfPost = async (postId) => {
     } catch (error) {
         throw new Error('Failed to fetch comments of post: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const getCommentsOfReview = async (reviewId) => {
@@ -219,6 +244,8 @@ export const getCommentsOfReview = async (reviewId) => {
     } catch (error) {
         throw new Error('Failed to fetch comments of review: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const getPostsOfUser = async (uid) => {
@@ -231,6 +258,8 @@ export const getPostsOfUser = async (uid) => {
     } catch (error) {
         throw new Error('Failed to fetch posts of user: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const getReviewsOfUser = async (uid) => {
@@ -243,6 +272,8 @@ export const getReviewsOfUser = async (uid) => {
     } catch (error) {
         throw new Error('Failed to fetch reviews of user: ' + error.message);
     }
+    const data = await response.json();
+    return data;
 };
 
 export const getCommentsOfUser = async (uid) => {

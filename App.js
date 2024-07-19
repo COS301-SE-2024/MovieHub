@@ -115,49 +115,49 @@ export default function App() {
                                 })}
                             />
 
-                            <Nav.Screen
-                                name="EditProfile"
-                                component={EditProfile}
-                                options={({ navigation }) => ({
-                                    title: "Edit Profile",
-                                    headerStyle: {
-                                        backgroundColor: "#fff",
-                                    },
-                                    headerTintColor: "#000",
-                                    headerTitleStyle: {
-                                        fontWeight: "bold",
-                                    },
-                                    headerRight: () => (
-                                        <View style={{ marginRight: 10 }}>
-                                            <Text onPress={() => navigation.navigate("CustomDrawer")}>
-                                                <Icon name="menu" size={24} />
-                                            </Text>
-                                        </View>
-                                    ),
-                                })}
-                            />
+                    <Nav.Screen
+                        name="EditProfile"
+                        component={EditProfile}
+                        options={({ navigation }) => ({
+                            title: "Edit Profile",
+                            headerStyle: {
+                                backgroundColor: "#fff",
+                            },
+                            headerTintColor: "#000",
+                            headerTitleStyle: {
+                                fontWeight: "bold",
+                            },
+                            headerRight: () => (
+                                <View style={{ marginRight: 10 }}>
+                                    <Text onPress={() => navigation.navigate("CustomDrawer")}>
+                                        <Icon name="menu" size={24} />
+                                    </Text>
+                                </View>
+                            ),
+                        })}
+                    />
 
-                            <Nav.Screen
-                                name="SearchPage"
-                                component={SearchPage}
-                                options={({ navigation }) => ({
-                                    title: "",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                            />
+                    <Nav.Screen
+                        name="SearchPage"
+                        component={SearchPage}
+                        options={({ navigation }) => ({
+                            title: "",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })}
+                    />
 
-                            <Nav.Screen
-                                name="GenrePage"
-                                component={GenrePage}
-                                options={({ navigation }) => ({
-                                    title: "",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                            />
+                    <Nav.Screen
+                        name="GenrePage"
+                        component={GenrePage}
+                        options={({ navigation }) => ({
+                            title: "",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })}
+                    />
 
                             <Nav.Screen
                                 name="CreatePost"
@@ -204,49 +204,48 @@ export default function App() {
                                 })}
                             />
 
-                            <Nav.Screen
-                                name="CreateWatchlist"
-                                component={CreateWatchlist}
-                                options={({ navigation }) => ({
-                                    title: "",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                            />
-                            <Nav.Screen
-                                name="AddMovies"
-                                component={AddMovies}
-                                options={({ navigation }) => ({
-                                    title: "",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                            />
-                            <Nav.Screen
-                                name="WatchlistDetails"
-                                component={WatchlistDetails}
-                                options={({ navigation }) => ({
-                                    title: "Watchlist Details",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                            />
+                    <Nav.Screen
+                        name="CreateWatchlist"
+                        component={CreateWatchlist}
+                        options={({ navigation }) => ({
+                            title: "",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })}
+                    />
+                    <Nav.Screen
+                        name="AddMovies"
+                        component={AddMovies}
+                        options={({ navigation }) => ({
+                            title: "",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })}
+                    />
+                    <Nav.Screen
+                        name="WatchlistDetails"
+                        component={WatchlistDetails}
+                        options={({ navigation }) => ({
+                            title: "Watchlist Details",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })}
+                    />
 
-                            <Nav.Screen
-                                name="EditWatchlist"
-                                component={EditWatchlist}
-                                options={({ navigation }) => ({
-                                    title: "Watchlist Details",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                            />
-
-                            <Nav.Screen
+                    <Nav.Screen
+                        name="EditWatchlist"
+                        component={EditWatchlist}
+                        options={({ navigation }) => ({
+                            title: "Watchlist Details",
+                            headerShadowVisible: false,
+                            headerBackTitleVisible: false,
+                            headerTintColor: "black",
+                        })}
+                    />
+                    <Nav.Screen
                                 name="WatchParty"
                                 component={WatchParty}
                                 options={({ navigation }) => ({
@@ -262,10 +261,9 @@ export default function App() {
                                 component={ViewRoom}
                                 options={{ headerShown: false }} 
                             />
-                        </Nav.Navigator>
-                    </NavigationContainer>
-                </ThemeProvider>
-            </GestureHandlerRootView>
-        // </WebSocketProvider>
+                </Nav.Navigator>
+            </NavigationContainer>
+        </ThemeProvider>
+        </GestureHandlerRootView>
     );
 }
