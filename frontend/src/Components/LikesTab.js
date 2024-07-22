@@ -72,6 +72,8 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                     likedPosts.map((post, index) => (
                         <Post
                             key={index} // Assuming postId is unique
+                            postId={post.postId}
+                            uid={post.uid}
                             username={post.username}
                             userHandle={post.userHandle}
                             userAvatar={post.userAvatar}
@@ -81,6 +83,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                             saves={post.saves}
                             preview={post.preview}
                             image={post.image}
+                            isUserPost={post.uid === userInfo.userId}
                             datePosted={post.datePosted}
                             handleCommentPress={handleCommentPress}
                         />
