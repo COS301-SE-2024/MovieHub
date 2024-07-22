@@ -13,10 +13,10 @@ exports.getLikesOfUser = async (req, res) => {
 };
 
 exports.getLikesOfMovie = async (req, res) => {
-    const { movieId } = req.params.movieId;
+    const movieId = req.params.movieId;
     try {
         const liked = await likesService.getLikesOfMovie(movieId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
+        const message = 'Likes of movie fetched successfully';
         responseHandler(res, 200, message);
     } catch (error) {
         responseHandler(res, 400, error.message);
@@ -24,21 +24,21 @@ exports.getLikesOfMovie = async (req, res) => {
 };
 
 exports.getLikesOfComment = async (req, res) => {
-    const { commentId } = req.params.commentId;
+    const commentId = req.params.commentId;
     try {
         const liked = await likesService.getLikesOfComment(commentId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
+        const message = 'Likes of comment fetched successfully';
+        responseHandler(res, 200, message, liked);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }
 };
 
 exports.getLikesOfReview = async (req, res) => {
-    const { reviewId } = req.params.reviewId;
+    const reviewId = req.params.reviewId;
     try {
         const liked = await likesService.getLikesOfReview(reviewId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
+        const message = 'Likes of review fetched successfully';
         responseHandler(res, 200, message);
     } catch (error) {
         responseHandler(res, 400, error.message);
@@ -46,11 +46,13 @@ exports.getLikesOfReview = async (req, res) => {
 };
 
 exports.getLikesOfPost = async (req, res) => {
-    const { postId } = req.params.postId;
+    const postId = req.params.postId;
+    console.log(req.params.postId);
     try {
+        console.log(postId);
         const liked = await likesService.getLikesOfPost(postId);
-        const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
+        const message = 'Likes of post fetched successfully';
+        responseHandler(res, 200, message, liked);
     } catch (error) {
         responseHandler(res, 400, error.message);
     }

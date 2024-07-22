@@ -107,7 +107,7 @@ exports.getLikesOfPost = async (postId) => {
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(p:Post)
-            WHERE c.postId = $postId
+            WHERE p.postId = $postId
             RETURN count(u) AS likeCount`,
             { postId }
         );
