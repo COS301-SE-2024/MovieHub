@@ -124,7 +124,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         key={index} // for uniqueness
                         postId={post.postId}
                         uid={post.uid}
-                        username={post.username}
+                        username={post.name}
                         userHandle={userHandle}
                         userAvatar={post.avatar}
                         postTitle={post.postTitle}
