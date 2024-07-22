@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import Post from "./Post";
 import { getPostsOfUser, getCountCommentsOfPost } from "../Services/PostsApiServices";
+import { getLikesOfPost } from "../Services/LikesApiService";
 
 export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
@@ -46,9 +47,11 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             } else {
                 const postsWithComments = await Promise.all(response.data.map(async (post) => {
                     const commentsResponse = await getCountCommentsOfPost(post.postId);
+                    const likesResponse = await getLikesOfPost(post.postId);
+                    const likesCount = likesResponse.data;
                     // console.log("Comments response for post", post.postId, ":", commentsResponse); // Log to verify structure
                     const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
-                    return { ...post, commentsCount };
+                    return { ...post, commentsCount, likesCount };
                 }));
 
                 // Sort posts by createdAt in descending order (most recent first)
@@ -125,7 +128,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         userHandle={userHandle}
                         userAvatar={post.avatar}
                         postTitle={post.postTitle}
-                        likes={getRandomNumber(0, 100)} /** TODO: get actual number of likes */
+                        likes={post.likesCount}
                         comments={post.commentsCount || 0} /** Comments count */
                         preview={post.text}
                         saves={getRandomNumber(0, 18)}
