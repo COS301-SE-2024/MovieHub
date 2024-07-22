@@ -1,8 +1,27 @@
 // src/services/LikesApiService.js
+import * as SecureStore from 'expo-secure-store';
 const API_URL = 'http://10.0.24.139:3000/like/'; // Update to your Expo URL
 
+const getToken = async () => {
+    const token = await SecureStore.getItemAsync('userToken');
+    if (!token) {
+        throw new Error('No token found');
+    }
+    return token;
+};
+
+// Middleware function for verifying Firebase token
+const verifyToken = async () => {
+    const authHeader = 'Bearer ' + await getToken();
+    return {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+    };
+};
+
 export const getUserLikedPosts = async (userId) => {
-    const response = await fetch(`${API_URL}${userId}/likes`);
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}${userId}/likes`, {headers: headers});
     if (!response.ok) {
         console.log(response)
         throw new Error("Failed to fetch user posts");
@@ -15,7 +34,8 @@ export const getUserLikedPosts = async (userId) => {
 
 
 export const getLikesOfMovie = async (movieId) => {
-    const response = await fetch(`${API_URL}movie/${movieId}`);
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}movie/${movieId}`, {headers: headers});
     if (!response.ok) {
         console.log(response)
         throw new Error("Failed to fetch movie likes");
@@ -27,7 +47,8 @@ export const getLikesOfMovie = async (movieId) => {
 };
 
 export const getLikesOfComment = async (commentId) => {
-    const response = await fetch(`${API_URL}comment/${commentId}`);
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}comment/${commentId}`, {headers: headers});
     if (!response.ok) {
         console.log(response)
         throw new Error("Failed to fetch comment likes");
@@ -39,7 +60,8 @@ export const getLikesOfComment = async (commentId) => {
 };
 
 export const getLikesOfReview = async (reviewId) => {
-    const response = await fetch(`${API_URL}review/${reviewId}`);
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}review/${reviewId}`, {headers: headers});
     if (!response.ok) {
         console.log(response)
         throw new Error("Failed to fetch review likes");
@@ -51,7 +73,8 @@ export const getLikesOfReview = async (reviewId) => {
 };
 
 export const getLikesOfPost = async (postId) => {
-    const response = await fetch(`${API_URL}post/${postId}`);
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}post/${postId}`, {headers: headers});
     if (!response.ok) {
         console.log(response)
         throw new Error("Failed to fetch post likes");
@@ -63,11 +86,10 @@ export const getLikesOfPost = async (postId) => {
 };
 
 export const toggleLikeReview = async (bodyData) => {
+    const headers = await verifyToken();
     const response = await fetch(`${API_URL}toggleLikeReview`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(bodyData),
     });
     if (!response.ok) {
@@ -78,11 +100,10 @@ export const toggleLikeReview = async (bodyData) => {
 };
 
 export const toggleLikeComment = async (bodyData) => {
+    const headers = await verifyToken();
     const response = await fetch(`${API_URL}toggleLikeComment`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(bodyData),
     });
     if (!response.ok) {
@@ -93,11 +114,10 @@ export const toggleLikeComment = async (bodyData) => {
 };
 
 export const toggleLikeMovie = async (bodyData) => {
+    const headers = await verifyToken();
     const response = await fetch(`${API_URL}toggleLikeMovie`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(bodyData),
     });
     if (!response.ok) {
@@ -108,11 +128,10 @@ export const toggleLikeMovie = async (bodyData) => {
 };
 
 export const toggleLikePost = async (bodyData) => {
+    const headers = await verifyToken();
     const response = await fetch(`${API_URL}toggleLikePost`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(bodyData),
     });
     if (!response.ok) {
