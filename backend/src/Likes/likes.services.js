@@ -11,8 +11,8 @@ exports.getLikesOfUser = async (uid) => {
     console.log("getLikesOfUser", uid);
     try {
         const result = await session.run(
-            `MATCH (u:User)-[:LIKES]->(p:Post)
-            WHERE u.uid = $uid
+            `MATCH (u:User)-[:LIKES]->(p)
+            WHERE u.uid = $uid AND (p:Post OR p:Review)
             RETURN p`,
             { uid }
         );
@@ -194,7 +194,7 @@ exports.toggleLikeReview = async (uid, reviewId) => {
     }
 };
 
-exports.toggleLikeComment = async(uid, commentId) => {
+exports.toggleLikeComment = async(uid, commentId) => { //Doesnt work
     const session = driver.session();
     try {
         const result = await session.run(

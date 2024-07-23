@@ -9,11 +9,12 @@ dotenv.config();
 // Create an instance of the app with the postRouter
 const app = express();
 app.use(express.json());
-app.use('/posts', postRouter);
+app.use('/post', postRouter);
 
 jest.mock('../Post/post.services');
 
-describe('POST /posts/add/post', () => {
+//TODO: Change all /post to /post??
+describe('POST /post/add/post', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -24,7 +25,7 @@ describe('POST /posts/add/post', () => {
 
         postService.addPost.mockResolvedValueOnce(addedPost);
 
-        const res = await request(app).post('/posts/add/post').send(newPost);
+        const res = await request(app).post('/post/add/post').send(newPost);
 
         expect(res.status).toBe(201);
         expect(res.body).toEqual({ message: 'Post added successfully', data: addedPost });
@@ -35,7 +36,7 @@ describe('POST /posts/add/post', () => {
 
         postService.addPost.mockResolvedValueOnce(null);
 
-        const res = await request(app).post('/posts/add/post').send(newPost);
+        const res = await request(app).post('/post/add/post').send(newPost);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error adding post' });
@@ -47,14 +48,14 @@ describe('POST /posts/add/post', () => {
 
         postService.addPost.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).post('/posts/add/post').send(newPost);
+        const res = await request(app).post('/post/add/post').send(newPost);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('POST /posts/add/review', () => {
+describe('POST /post/add/review', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -65,7 +66,7 @@ describe('POST /posts/add/review', () => {
 
         postService.addReview.mockResolvedValueOnce(addedReview);
 
-        const res = await request(app).post('/posts/add/review').send(newReview);
+        const res = await request(app).post('/post/add/review').send(newReview);
 
         expect(res.status).toBe(201);
         expect(res.body).toEqual({ message: 'Review added successfully', data: addedReview });
@@ -76,7 +77,7 @@ describe('POST /posts/add/review', () => {
 
         postService.addReview.mockResolvedValueOnce(null);
 
-        const res = await request(app).post('/posts/add/review').send(newReview);
+        const res = await request(app).post('/post/add/review').send(newReview);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error adding review' });
@@ -88,14 +89,14 @@ describe('POST /posts/add/review', () => {
 
         postService.addReview.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).post('/posts/add/review').send(newReview);
+        const res = await request(app).post('/post/add/review').send(newReview);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('POST /posts/comment/post', () => {
+describe('POST /post/comment/post', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -106,7 +107,7 @@ describe('POST /posts/comment/post', () => {
 
         postService.addCommentToPost.mockResolvedValueOnce(addedComment);
 
-        const res = await request(app).post('/posts/comment/post').send(newComment);
+        const res = await request(app).post('/post/comment/post').send(newComment);
 
         expect(res.status).toBe(201);
         expect(res.body).toEqual({ message: 'Comment added successfully', data: addedComment });
@@ -117,7 +118,7 @@ describe('POST /posts/comment/post', () => {
 
         postService.addCommentToPost.mockResolvedValueOnce(null);
 
-        const res = await request(app).post('/posts/comment/post').send(newComment);
+        const res = await request(app).post('/post/comment/post').send(newComment);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error adding comment' });
@@ -129,14 +130,14 @@ describe('POST /posts/comment/post', () => {
 
         postService.addCommentToPost.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).post('/posts/comment/post').send(newComment);
+        const res = await request(app).post('/post/comment/post').send(newComment);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('POST /posts/comment/review', () => {
+describe('POST /post/comment/review', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -147,7 +148,7 @@ describe('POST /posts/comment/review', () => {
 
         postService.addCommentToReview.mockResolvedValueOnce(addedComment);
 
-        const res = await request(app).post('/posts/comment/review').send(newComment);
+        const res = await request(app).post('/post/comment/review').send(newComment);
 
         expect(res.status).toBe(201);
         expect(res.body).toEqual({ message: 'Comment added successfully', data: addedComment });
@@ -158,7 +159,7 @@ describe('POST /posts/comment/review', () => {
 
         postService.addCommentToReview.mockResolvedValueOnce(null);
 
-        const res = await request(app).post('/posts/comment/review').send(newComment);
+        const res = await request(app).post('/post/comment/review').send(newComment);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error adding comment' });
@@ -170,14 +171,14 @@ describe('POST /posts/comment/review', () => {
 
         postService.addCommentToReview.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).post('/posts/comment/review').send(newComment);
+        const res = await request(app).post('/post/comment/review').send(newComment);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('POST /posts/comment/comment', () => {
+describe('POST /post/comment/comment', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -188,7 +189,7 @@ describe('POST /posts/comment/comment', () => {
 
         postService.addCommentToComment.mockResolvedValueOnce(addedComment);
 
-        const res = await request(app).post('/posts/comment/comment').send(newComment);
+        const res = await request(app).post('/post/comment/comment').send(newComment);
 
         expect(res.status).toBe(201);
         expect(res.body).toEqual({ message: 'Comment added successfully to comment', data: addedComment });
@@ -199,7 +200,7 @@ describe('POST /posts/comment/comment', () => {
 
         postService.addCommentToComment.mockResolvedValueOnce(null);
 
-        const res = await request(app).post('/posts/comment/comment').send(newComment);
+        const res = await request(app).post('/post/comment/comment').send(newComment);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error adding comment to comment' });
@@ -211,14 +212,14 @@ describe('POST /posts/comment/comment', () => {
 
         postService.addCommentToComment.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).post('/posts/comment/comment').send(newComment);
+        const res = await request(app).post('/post/comment/comment').send(newComment);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('PUT /posts/edit/post', () => {
+describe('PUT /post/edit/post', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -228,7 +229,7 @@ describe('PUT /posts/edit/post', () => {
 
         postService.editPost.mockResolvedValueOnce(updatedPost);
 
-        const res = await request(app).put('/posts/edit/post').send(updatedPost);
+        const res = await request(app).put('/post/edit/post').send(updatedPost);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Post edited successfully', data: updatedPost });
@@ -239,7 +240,7 @@ describe('PUT /posts/edit/post', () => {
 
         postService.editPost.mockResolvedValueOnce(false);
 
-        const res = await request(app).put('/posts/edit/post').send(updatedPost);
+        const res = await request(app).put('/post/edit/post').send(updatedPost);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error editing post' });
@@ -251,14 +252,14 @@ describe('PUT /posts/edit/post', () => {
 
         postService.editPost.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).put('/posts/edit/post').send(updatedPost);
+        const res = await request(app).put('/post/edit/post').send(updatedPost);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('PUT /posts/edit/review', () => {
+describe('PUT /post/edit/review', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -268,7 +269,7 @@ describe('PUT /posts/edit/review', () => {
 
         postService.editReview.mockResolvedValueOnce(updatedReview);
 
-        const res = await request(app).put('/posts/edit/review').send(updatedReview);
+        const res = await request(app).put('/post/edit/review').send(updatedReview);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Review edited successfully', data: updatedReview });
@@ -279,7 +280,7 @@ describe('PUT /posts/edit/review', () => {
 
         postService.editReview.mockResolvedValueOnce(false);
 
-        const res = await request(app).put('/posts/edit/review').send(updatedReview);
+        const res = await request(app).put('/post/edit/review').send(updatedReview);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error editing review' });
@@ -291,14 +292,14 @@ describe('PUT /posts/edit/review', () => {
 
         postService.editReview.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).put('/posts/edit/review').send(updatedReview);
+        const res = await request(app).put('/post/edit/review').send(updatedReview);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('PUT /posts/edit/comment', () => {
+describe('PUT /post/edit/comment', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -308,7 +309,7 @@ describe('PUT /posts/edit/comment', () => {
 
         postService.editComment.mockResolvedValueOnce(updatedComment);
 
-        const res = await request(app).put('/posts/edit/comment').send(updatedComment);
+        const res = await request(app).put('/post/edit/comment').send(updatedComment);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Comment edited successfully', data: updatedComment });
@@ -319,7 +320,7 @@ describe('PUT /posts/edit/comment', () => {
 
         postService.editComment.mockResolvedValueOnce(false);
 
-        const res = await request(app).put('/posts/edit/comment').send(updatedComment);
+        const res = await request(app).put('/post/edit/comment').send(updatedComment);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error editing comment' });
@@ -331,14 +332,14 @@ describe('PUT /posts/edit/comment', () => {
 
         postService.editComment.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).put('/posts/edit/comment').send(updatedComment);
+        const res = await request(app).put('/post/edit/comment').send(updatedComment);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-// describe('DELETE /posts/delete/post', () => {
+// describe('DELETE /post/delete/post', () => {
 //     beforeEach(() => {
 //         jest.clearAllMocks();
 //     });
@@ -348,7 +349,7 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.deletePost.mockResolvedValueOnce(true);
 
-//         const res = await request(app).delete(`/posts/delete/post?postId=${postId}`);
+//         const res = await request(app).delete(`/post/delete/post?postId=${postId}`);
 
 //         expect(res.status).toBe(200);
 //         expect(res.body).toEqual({ message: 'Post deleted successfully' });
@@ -359,7 +360,7 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.deletePost.mockResolvedValueOnce(false);
 
-//         const res = await request(app).delete(`/posts/delete/post?postId=${postId}`);
+//         const res = await request(app).delete(`/post/delete/post?postId=${postId}`);
 
 //         expect(res.status).toBe(400);
 //         expect(res.body).toEqual({ message: 'Error deleting post' });
@@ -371,14 +372,14 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.deletePost.mockRejectedValueOnce(new Error(errorMessage));
 
-//         const res = await request(app).delete(`/posts/delete/post?postId=${postId}`);
+//         const res = await request(app).delete(`/post/delete/post?postId=${postId}`);
 
 //         expect(res.status).toBe(500);
 //         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
 //     });
 // });
 
-// describe('DELETE /posts/delete/review', () => {
+// describe('DELETE /post/delete/review', () => {
 //     beforeEach(() => {
 //         jest.clearAllMocks();
 //     });
@@ -388,7 +389,7 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.deleteReview.mockResolvedValueOnce(true);
 
-//         const res = await request(app).delete(`/posts/delete/review?reviewId=${reviewId}`);
+//         const res = await request(app).delete(`/post/delete/review?reviewId=${reviewId}`);
 
 //         expect(res.status).toBe(200);
 //         expect(res.body).toEqual({ message: 'Review deleted successfully' });
@@ -399,7 +400,7 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.deleteReview.mockResolvedValueOnce(false);
 
-//         const res = await request(app).delete(`/posts/delete/review?reviewId=${reviewId}`);
+//         const res = await request(app).delete(`/post/delete/review?reviewId=${reviewId}`);
 
 //         expect(res.status).toBe(400);
 //         expect(res.body).toEqual({ message: 'Error deleting review' });
@@ -411,14 +412,14 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.deleteReview.mockRejectedValueOnce(new Error(errorMessage));
 
-//         const res = await request(app).delete(`/posts/delete/review?reviewId=${reviewId}`);
+//         const res = await request(app).delete(`/post/delete/review?reviewId=${reviewId}`);
 
 //         expect(res.status).toBe(500);
 //         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
 //     });
 // });
 
-// describe('DELETE /posts/remove/comment', () => {
+// describe('DELETE /post/remove/comment', () => {
 //     beforeEach(() => {
 //         jest.clearAllMocks();
 //     });
@@ -428,7 +429,7 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.removeComment.mockResolvedValueOnce(true);
 
-//         const res = await request(app).delete(`/posts/remove/comment?commentId=${commentId}`);
+//         const res = await request(app).delete(`/post/remove/comment?commentId=${commentId}`);
 
 //         expect(res.status).toBe(200);
 //         expect(res.body).toEqual({ message: 'Comment deleted successfully' });
@@ -439,7 +440,7 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.removeComment.mockResolvedValueOnce(false);
 
-//         const res = await request(app).delete(`/posts/remove/comment?commentId=${commentId}`);
+//         const res = await request(app).delete(`/post/remove/comment?commentId=${commentId}`);
 
 //         expect(res.status).toBe(400);
 //         expect(res.body).toEqual({ message: 'Error deleting comment' });
@@ -451,14 +452,14 @@ describe('PUT /posts/edit/comment', () => {
 
 //         postService.removeComment.mockRejectedValueOnce(new Error(errorMessage));
 
-//         const res = await request(app).delete(`/posts/remove/comment?commentId=${commentId}`);
+//         const res = await request(app).delete(`/post/remove/comment?commentId=${commentId}`);
 
 //         expect(res.status).toBe(500);
 //         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
 //     });
 // });
 
-describe('GET /posts/movie/:movieId/posts', () => {
+describe('GET /post/movie/:movieId/posts', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -469,7 +470,7 @@ describe('GET /posts/movie/:movieId/posts', () => {
 
         postService.getPostsOfMovie.mockResolvedValueOnce(posts);
 
-        const res = await request(app).get(`/posts/movie/${movieId}/posts`);
+        const res = await request(app).get(`/post/movie/${movieId}/posts`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Posts fetched successfully', data: posts });
@@ -480,7 +481,7 @@ describe('GET /posts/movie/:movieId/posts', () => {
 
         postService.getPostsOfMovie.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/movie/${movieId}/posts`);
+        const res = await request(app).get(`/post/movie/${movieId}/posts`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching posts' });
@@ -492,14 +493,14 @@ describe('GET /posts/movie/:movieId/posts', () => {
 
         postService.getPostsOfMovie.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/movie/${movieId}/posts`);
+        const res = await request(app).get(`/post/movie/${movieId}/posts`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('GET /posts/movie/:movieId/reviews', () => {
+describe('GET /post/movie/:movieId/reviews', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -510,7 +511,7 @@ describe('GET /posts/movie/:movieId/reviews', () => {
 
         postService.getReviewsOfMovie.mockResolvedValueOnce(reviews);
 
-        const res = await request(app).get(`/posts/movie/${movieId}/reviews`);
+        const res = await request(app).get(`/post/movie/${movieId}/reviews`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Reviews fetched successfully', data: reviews });
@@ -521,7 +522,7 @@ describe('GET /posts/movie/:movieId/reviews', () => {
 
         postService.getReviewsOfMovie.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/movie/${movieId}/reviews`);
+        const res = await request(app).get(`/post/movie/${movieId}/reviews`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching reviews' });
@@ -533,14 +534,14 @@ describe('GET /posts/movie/:movieId/reviews', () => {
 
         postService.getReviewsOfMovie.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/movie/${movieId}/reviews`);
+        const res = await request(app).get(`/post/movie/${movieId}/reviews`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('GET /posts/post/:postId/comments', () => {
+describe('GET /post/post/:postId/comments', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -551,7 +552,7 @@ describe('GET /posts/post/:postId/comments', () => {
 
         postService.getCommentsOfPost.mockResolvedValueOnce(comments);
 
-        const res = await request(app).get(`/posts/post/${postId}/comments`);
+        const res = await request(app).get(`/post/post/${postId}/comments`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Comments fetched successfully', data: comments });
@@ -562,7 +563,7 @@ describe('GET /posts/post/:postId/comments', () => {
 
         postService.getCommentsOfPost.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/post/${postId}/comments`);
+        const res = await request(app).get(`/post/post/${postId}/comments`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching comments' });
@@ -574,14 +575,14 @@ describe('GET /posts/post/:postId/comments', () => {
 
         postService.getCommentsOfPost.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/post/${postId}/comments`);
+        const res = await request(app).get(`/post/post/${postId}/comments`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('GET /posts/review/:reviewId/comments', () => {
+describe('GET /post/review/:reviewId/comments', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -592,7 +593,7 @@ describe('GET /posts/review/:reviewId/comments', () => {
 
         postService.getCommentsOfReview.mockResolvedValueOnce(comments);
 
-        const res = await request(app).get(`/posts/review/${reviewId}/comments`);
+        const res = await request(app).get(`/post/review/${reviewId}/comments`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Comments fetched successfully', data: comments });
@@ -603,7 +604,7 @@ describe('GET /posts/review/:reviewId/comments', () => {
 
         postService.getCommentsOfReview.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/review/${reviewId}/comments`);
+        const res = await request(app).get(`/post/review/${reviewId}/comments`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching comments' });
@@ -615,14 +616,14 @@ describe('GET /posts/review/:reviewId/comments', () => {
 
         postService.getCommentsOfReview.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/review/${reviewId}/comments`);
+        const res = await request(app).get(`/post/review/${reviewId}/comments`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('GET /posts/user/:uid/posts', () => {
+describe('GET /post/user/:uid/posts', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -633,7 +634,7 @@ describe('GET /posts/user/:uid/posts', () => {
 
         postService.getPostsOfUser.mockResolvedValueOnce(posts);
 
-        const res = await request(app).get(`/posts/user/${uid}/posts`);
+        const res = await request(app).get(`/post/user/${uid}/posts`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Posts fetched successfully', data: posts });
@@ -644,7 +645,7 @@ describe('GET /posts/user/:uid/posts', () => {
 
         postService.getPostsOfUser.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/user/${uid}/posts`);
+        const res = await request(app).get(`/post/user/${uid}/posts`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching posts' });
@@ -656,14 +657,14 @@ describe('GET /posts/user/:uid/posts', () => {
 
         postService.getPostsOfUser.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/user/${uid}/posts`);
+        const res = await request(app).get(`/post/user/${uid}/posts`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('GET /posts/user/:uid/comments', () => {
+describe('GET /post/user/:uid/comments', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -674,7 +675,7 @@ describe('GET /posts/user/:uid/comments', () => {
 
         postService.getCommentsOfUser.mockResolvedValueOnce(comments);
 
-        const res = await request(app).get(`/posts/user/${uid}/comments`);
+        const res = await request(app).get(`/post/user/${uid}/comments`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Comments fetched successfully', data: comments });
@@ -685,7 +686,7 @@ describe('GET /posts/user/:uid/comments', () => {
 
         postService.getCommentsOfUser.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/user/${uid}/comments`);
+        const res = await request(app).get(`/post/user/${uid}/comments`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching comments' });
@@ -697,14 +698,14 @@ describe('GET /posts/user/:uid/comments', () => {
 
         postService.getCommentsOfUser.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/user/${uid}/comments`);
+        const res = await request(app).get(`/post/user/${uid}/comments`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('GET /posts/user/:uid/reviews', () => {
+describe('GET /post/user/:uid/reviews', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -715,7 +716,7 @@ describe('GET /posts/user/:uid/reviews', () => {
 
         postService.getReviewsOfUser.mockResolvedValueOnce(reviews);
 
-        const res = await request(app).get(`/posts/user/${uid}/reviews`);
+        const res = await request(app).get(`/post/user/${uid}/reviews`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Reviews fetched successfully', data: reviews });
@@ -726,7 +727,7 @@ describe('GET /posts/user/:uid/reviews', () => {
 
         postService.getReviewsOfUser.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/user/${uid}/reviews`);
+        const res = await request(app).get(`/post/user/${uid}/reviews`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching reviews' });
@@ -738,14 +739,14 @@ describe('GET /posts/user/:uid/reviews', () => {
 
         postService.getReviewsOfUser.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/user/${uid}/reviews`);
+        const res = await request(app).get(`/post/user/${uid}/reviews`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
     });
 });
 
-describe('GET /posts/movie/:movieId/rating', () => {
+describe('GET /post/movie/:movieId/rating', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -756,7 +757,7 @@ describe('GET /posts/movie/:movieId/rating', () => {
 
         postService.getAverageRating.mockResolvedValueOnce(averageRating);
 
-        const res = await request(app).get(`/posts/movie/${movieId}/rating`);
+        const res = await request(app).get(`/post/movie/${movieId}/rating`);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Average rating fetched successfully', data: averageRating });
@@ -767,7 +768,7 @@ describe('GET /posts/movie/:movieId/rating', () => {
 
         postService.getAverageRating.mockResolvedValueOnce(null);
 
-        const res = await request(app).get(`/posts/movie/${movieId}/rating`);
+        const res = await request(app).get(`/post/movie/${movieId}/rating`);
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ message: 'Error fetching average rating' });
@@ -779,7 +780,7 @@ describe('GET /posts/movie/:movieId/rating', () => {
 
         postService.getAverageRating.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app).get(`/posts/movie/${movieId}/rating`);
+        const res = await request(app).get(`/post/movie/${movieId}/rating`);
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });

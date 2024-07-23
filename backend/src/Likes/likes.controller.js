@@ -6,42 +6,60 @@ exports.getLikesOfUser = async (req, res) => {
         const userId = req.params.userId;
         console.log(`Fetching user likes for ID: ${userId}`);
         const likes = await likesService.getLikesOfUser(userId);
-        responseHandler(res, 200, 'Likes fetched successfully', likes);
+        if (likes){
+            responseHandler(res, 200, 'Likes fetched successfully', likes);
+        } else
+            res.status(400).json({ message: 'Error fetching likes' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error fetching likes:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
 exports.getLikesOfMovie = async (req, res) => {
-    const movieId = req.params.movieId;
+    const movieIdStr = req.params.movieId;
+    const movieId = parseFloat(movieIdStr);
+    if (isNaN(movieId)) {
+        return res.status(400).send({ error: 'Invalid movieId' });
+    }
     try {
-        const liked = await likesService.getLikesOfMovie(movieId);
-        const message = 'Likes of movie fetched successfully';
-        responseHandler(res, 200, message);
+        const likes = await likesService.getLikesOfMovie(movieId);
+        console.log("response: ", likes);
+        if (likes >= 0)
+            responseHandler(res, 200, 'Likes fetched successfully', likes);
+        else
+            res.status(400).json({ message: 'Error fetching likes' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error fetching likes:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
 exports.getLikesOfComment = async (req, res) => {
     const commentId = req.params.commentId;
     try {
-        const liked = await likesService.getLikesOfComment(commentId);
-        const message = 'Likes of comment fetched successfully';
-        responseHandler(res, 200, message, liked);
+        const likes = await likesService.getLikesOfComment(commentId);
+        if (likes >= 0)
+            responseHandler(res, 200, 'Likes fetched successfully', likes);
+        else
+            res.status(400).json({ message: 'Error fetching likes' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error fetching likes:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
 exports.getLikesOfReview = async (req, res) => {
     const reviewId = req.params.reviewId;
     try {
-        const liked = await likesService.getLikesOfReview(reviewId);
-        const message = 'Likes of review fetched successfully';
-        responseHandler(res, 200, message);
+        const likes = await likesService.getLikesOfReview(reviewId);
+        if (likes >= 0)
+            responseHandler(res, 200, 'Likes fetched successfully', likes);
+        else
+            res.status(400).json({ message: 'Error fetching likes' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error fetching likes:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
@@ -50,11 +68,14 @@ exports.getLikesOfPost = async (req, res) => {
     console.log(req.params.postId);
     try {
         console.log(postId);
-        const liked = await likesService.getLikesOfPost(postId);
-        const message = 'Likes of post fetched successfully';
-        responseHandler(res, 200, message, liked);
+        const likes = await likesService.getLikesOfPost(postId);
+        if (likes >= 0)
+            responseHandler(res, 200, 'Likes fetched successfully', likes);
+        else
+            res.status(400).json({ message: 'Error fetching likes' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error fetching likes:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
@@ -64,9 +85,13 @@ exports.toggleLikeReview = async (req, res) => {
     try {
         const liked = await likesService.toggleLikeReview(userId, reviewId);
         const message = liked ? 'Review liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
+        if (liked !== null)
+            responseHandler(res, 200, message);
+        else
+            res.status(400).json({ message: 'Error toggling like' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error toggling like:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
@@ -76,9 +101,13 @@ exports.toggleLikeComment = async (req, res) => {
     try {
         const liked = await likesService.toggleLikeComment(userId, commentId);
         const message = liked ? 'Comment liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
+        if (liked !== null)
+            responseHandler(res, 200, message);
+        else
+            res.status(400).json({ message: 'Error toggling like' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error toggling like:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
@@ -88,9 +117,13 @@ exports.toggleLikeMovie = async (req, res) => {
     try {
         const liked = await likesService.toggleLikeMovie(userId, movieId);
         const message = liked ? 'Movie liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
+        if (liked !== null)
+            responseHandler(res, 200, message);
+        else
+            res.status(400).json({ message: 'Error toggling like' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error toggling like:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
@@ -100,8 +133,12 @@ exports.toggleLikePost = async (req, res) => {
     try {
         const liked = await likesService.toggleLikePost(userId, postId);
         const message = liked ? 'Post liked successfully' : 'Like removed successfully';
-        responseHandler(res, 200, message);
+        if (liked !== null)
+            responseHandler(res, 200, message);
+        else
+            res.status(400).json({ message: 'Error toggling like' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        // console.error('Error toggling like:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
