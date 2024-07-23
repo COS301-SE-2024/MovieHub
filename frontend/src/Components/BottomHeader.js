@@ -1,21 +1,43 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import movie2 from "../../../assets/Assassin_movie.jpg";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
-export default function BottomHeader() {
+import { colors } from "../styles/theme";
+
+export default function BottomHeader({ userInfo }) {
     const navigation = useNavigation();
+    const route = useRoute();
+    console.log("The users info in BottomHeader.js: ", userInfo);
+    const isActive = (screen) => route.name === screen;
+
     return (
+        ///// add user info parameter to other pages as necessary /////////
         <View style={styles.header}>
             <View style={styles.iconRow}>
-                <TouchableOpacity onPress={() => navigation.navigate("HomePage")}>
-                    <Icon name="home" size={30} paddingLeft={10} style={styles.icon} />
+                <TouchableOpacity onPress={() => navigation.navigate("HomePage", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="home" size={30} style={[styles.icon, isActive("HomePage") && styles.activeIcon]} />
+                    {isActive("HomePage") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <Icon name="notifications" size={30} style={styles.icon} />
-                <Icon name="chat" size={30} style={styles.icon} />
-                <TouchableOpacity onPress={() => navigation.navigate("ProfilePage")}>
-                    <Image source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} size={30} style={styles.Image} />
+                <TouchableOpacity onPress={() => navigation.navigate("Notifications", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="notifications" size={30} style={[styles.icon, isActive("Notifications") && styles.activeIcon]} />
+                    {isActive("Notifications") && <View style={styles.activeIndicator} />}
+                </TouchableOpacity>
+                
+                <TouchableOpacity onPress={() => navigation.navigate("CreatePost", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="add-circle-outline" size={30} style={[styles.icon, isActive("CreatePost") && styles.activeIcon]} />
+                    {isActive("CreatePost") && <View style={styles.activeIndicator} />}
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("People", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="people" size={32} style={[styles.icon, isActive("People") && styles.activeIcon]} />
+                    {isActive("People") && <View style={styles.activeIndicator} />}
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("ProfilePage", { userInfo })} style={styles.iconContainer}>
+                    <Image 
+                        source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} 
+                        style={[styles.image, isActive("ProfilePage") && styles.activeImage]} 
+                    />
+                    {isActive("ProfilePage") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
             </View>
         </View>
@@ -25,28 +47,41 @@ export default function BottomHeader() {
 const styles = StyleSheet.create({
     header: {
         height: 65,
-        paddingBottom: 10,
-        backgroundColor: "#fff",
+        backgroundColor: colors.white,
         justifyContent: "center",
         alignItems: "center",
+        borderTopWidth: 1,
+        borderTopColor: "#e0e0e0",
     },
     iconRow: {
         flexDirection: "row",
-        justifyContent: "space-between",
+        justifyContent: "space-around",
         width: "100%",
-        paddingRight: 20,
-        paddingleft: 30,
-        
+    },
+    iconContainer: {
+        justifyContent: "center",
+        alignItems: "center",
     },
     icon: {
-        textAlign: "center",
-        paddingTop: 6,
+        color: colors.black,
     },
-
-    Image: {
+    activeIcon: {
+        color: colors.primary,
+    },
+    image: {
         height: 40,
         width: 40,
         borderRadius: 20,
-        paddingTop: 20,
+    },
+    activeImage: {
+        borderColor: colors.primary,
+        borderWidth: 2,
+    },
+    activeIndicator: {
+        width: 5,
+        height: 5,
+        backgroundColor: colors.primary,
+        borderRadius: 2.5,
+        marginTop: 4,
     },
 });

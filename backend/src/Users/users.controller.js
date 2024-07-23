@@ -4,6 +4,7 @@
 const userService = require('./users.services');
 
 let userProfileData;
+let watchlistsData;
 
 // exports.getUserProfile = async (req, res) => {
 //     const userId = req.params.userId;
@@ -19,7 +20,7 @@ let userProfileData;
 // };
 
 exports.getUserProfile = async (req, res) => {
-    console.log('getUserProfile called');
+    console.log('getUserProfile called in user.controller');
     try {
         const userId = req.params.id;
         console.log(`Fetching user profile for ID: ${userId}`);
@@ -39,7 +40,7 @@ exports.getUserProfile = async (req, res) => {
     }
 };
 
-console.log('User profile username ' + userProfileData);
+//console.log('User profile username: ' + userProfileData);
 
 exports.updateUserProfile = async (req, res) => {
     const userId = req.params.id;
@@ -72,5 +73,25 @@ exports.deleteUserProfile = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: 'Error deleting user profile', error: error.message });
+    }
+};
+
+
+exports.getUserWatchlists = async (req, res) => {
+    const userId  = req.params.id;
+
+    try {
+        const watchlists = await userService.getUserWatchlists(userId);
+        if (watchlists) {
+            watchlistsData = watchlists
+
+            console.log('Watchlists' + watchlists.name);
+            res.status(200).json(watchlists);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+      //  res.status(200).json(watchlists);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
