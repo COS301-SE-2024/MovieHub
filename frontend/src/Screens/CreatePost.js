@@ -5,17 +5,23 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
+import { useNavigation } from "@react-navigation/native";
 
-export default function CreatePost({navigation}) {
+export default function CreatePost({ route }) {
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [thoughts, setThoughts] = useState("");
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
-    const [modalVisible, setModalVisible] = useState(false);
-    const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
+    const [rating, setRating] = useState(0); // Add state for rating
+    const [feedbackVisible, setFeedbackVisible] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState("");
+    const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
+    const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
+    const navigation = useNavigation();
+    const { userInfo } = route.params;
     // Mock movie search results
     const movieResults = movieSearch
         ? [
@@ -27,8 +33,8 @@ export default function CreatePost({navigation}) {
 
     const handleAddImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Sorry, we need camera roll permissions to make this work!');
+        if (status !== "granted") {
+            alert("Sorry, we need camera roll permissions to make this work!");
             return;
         }
 
@@ -38,15 +44,15 @@ export default function CreatePost({navigation}) {
             quality: 1,
         });
 
-        if (!result.cancelled) {
+        if (!result.canceled) {
             setImageUri(result.assets[0].uri);
         }
     };
 
     const handleReplaceImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Sorry, we need camera roll permissions to make this work!');
+        if (status !== "granted") {
+            alert("Sorry, we need camera roll permissions to make this work!");
             return;
         }
 
@@ -78,25 +84,50 @@ export default function CreatePost({navigation}) {
     const handleAddPost = async () => {
         const postData = {
             postTitle: title,
-            text: "heres a new post",
-            userId: 0, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 310,
-            isReview: false,
-            rating: 3
+            text: thoughts,
+            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            movieId: 843527.0,
+            img: null,
+            isReview: isMovieReview,
+            rating: isMovieReview ? rating : 0
         };
-        
+
         try {
             const post = await addPost(postData);
-            console.log('Post added successfully:', post);
-            setModalVisible(true);
+            // console.log('Post added successfully:', post);
+            setFeedbackSuccess(true);
+            setFeedbackMessage("Post added successfully");
+            setFeedbackVisible(true);
+
             setTimeout(() => {
-                setModalVisible(false);
-                navigation.navigate("HomePage");
-            }, 2000);
-            
-        } catch(error){
-            console.error('Error adding post:', error);
-        };
+                setFeedbackVisible(false)
+                navigation.navigate("HomePage", { userInfo });
+            }, 1500);
+        } catch (error) {
+            setFeedbackMessage("Error adding post");
+            console.error("Error adding post:", error);
+        }
+
+        setFeedbackVisible(true);
+        setTimeout(() => {
+            setFeedbackVisible(false);
+        }, 3000);
+    };
+
+    const handleRatingPress = (value) => {
+        setRating(value);
+    };
+
+    const renderRatingOptions = () => {
+        const ratingOptions = [];
+        for (let i = 1; i <= 10; i++) {
+            ratingOptions.push(
+                <TouchableOpacity key={i} onPress={() => handleRatingPress(i)} style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}>
+                    <Text style={styles.ratingText}>{i}</Text>
+                </TouchableOpacity>
+            );
+        }
+        return ratingOptions;
     };
 
     return (
@@ -126,6 +157,8 @@ export default function CreatePost({navigation}) {
                     <Text style={styles.label}>Movie</Text>
                     <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
                     {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
+                    <Text style={styles.label}>Rating</Text>
+                    <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
                 </View>
             )}
 
@@ -157,22 +190,12 @@ export default function CreatePost({navigation}) {
                 </TouchableOpacity>
             </View>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Post Created Successfully</Text>
-                
-                    </View>
+            {feedbackVisible && (
+                <View style={[styles.feedbackContainer, feedbackSuccess ? styles.success : styles.error]}>
+                    <Text style={styles.feedback}>{feedbackMessage}</Text>
                 </View>
-            </Modal>
+            )}
         </ScrollView>
-
-        
     );
 }
 
@@ -230,7 +253,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     allowComments: {
-        marginTop: 4
+        marginTop: 4,
     },
     footer: {
         flexDirection: "row",
@@ -247,9 +270,10 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 35,
         borderRadius: 10,
+        opacity: 1,
     },
     postButtonDisabled: {
-        backgroundColor: "#aaa",
+        opacity: 0.7,
     },
     postButtonText: {
         color: "#fff",
@@ -264,14 +288,14 @@ const styles = StyleSheet.create({
         height: 400,
         borderRadius: 10,
         marginBottom: 10,
-        objectFit: "contain"
+        objectFit: "contain",
     },
     removeImageButton: {
         position: "absolute",
         top: 10,
         right: 25,
         backgroundColor: colors.primary,
-        
+
         borderRadius: 50,
     },
     replaceImageButton: {
@@ -281,23 +305,40 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
         borderRadius: 50,
     },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        height: "100%",
+    ratingContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 20,
     },
-    modalContainer: {
-        width: "80%",
-        backgroundColor: "#fff",
-        padding: 20,
+    ratingOption: {
+        padding: 8,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 5,
+    },
+    ratingOptionSelected: {
+        backgroundColor: "#827DC3",
+        borderColor: "#4A42C0",
+    },
+    ratingText: {
+        fontSize: 16,
+    },
+    feedbackContainer: {
+        flexShrink: 1,
+        flexWrap: "wrap",
+        alignSelf: "center",
+        display: "flex",
+        alignItems: "center",
+        padding: 15,
         borderRadius: 10,
-        alignItems: "center",
     },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
+    feedback: {
+        color: "#fff",
+    },
+    success: {
+        backgroundColor: "#31B978",
+    },
+    error: {
+        backgroundColor: "#FF4C4C",
     },
 });

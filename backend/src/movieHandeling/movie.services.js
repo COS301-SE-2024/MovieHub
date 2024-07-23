@@ -7,8 +7,27 @@ const driver = neo4j.driver(
 );
 
 
-exports.addMovie = async (movieId) => {
+exports.addMovie = async (movieId, overview, posterPath, releaseDate, title) => {
+    const session = driver.session();
 
+    try {
+        await session.run(
+            `
+            CREATE (m:Movie {
+                movieId: $movieId,
+                overview: $overview,
+                posterPath: $posterPath,
+                releaseDate: $releaseDate,
+                title: $title
+            })
+            RETURN m
+            `,
+            { movieId, overview, posterPath, releaseDate, title }
+        );
+        return true;
+    } finally {
+        await session.close();
+    }
 };
 
 exports.movieExists = async (movieId) => {
