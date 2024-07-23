@@ -1,6 +1,6 @@
 // src/services/LikesApiService.js
 import * as SecureStore from 'expo-secure-store';
-const API_URL = 'http://10.0.24.139:3000/like/'; // Update to your Expo URL
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.39.101:3000/like/'; // Update to your Expo URL
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
@@ -31,7 +31,6 @@ export const getUserLikedPosts = async (userId) => {
     console.log("data", data);
     return data;
 };
-
 
 export const getLikesOfMovie = async (movieId) => {
     const headers = await verifyToken();
