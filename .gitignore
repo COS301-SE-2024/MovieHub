@@ -37,5 +37,3 @@ yarn-error.*
 
 # Jest
 /jest.config.js
-
-package-lock.json
