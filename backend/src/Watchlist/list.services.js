@@ -63,7 +63,8 @@ exports.createWatchlist = async (userId, watchlistData) => {
                 throw new Error(`Movie not found: ${movieTitle}`);
             }
             await tx.run(
-                `MERGE (m:Movie {movieId: $id, title: $title, releaseDate: $releaseDate, overview: $overview, posterPath: $posterPath})
+                `MERGE (m:Movie {movieId: $id})
+                 ON CREATE SET m.title = $title, m.releaseDate = $releaseDate, m.overview = $overview, m.posterPath = $posterPath
                  RETURN m`,
                 {
                     id: movieDetails.id,
@@ -95,7 +96,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
         for (const movieId of movieIds) {
             await tx.run(
                 `MATCH (w:Watchlist {id: $watchlistId}), (m:Movie {movieId: $movieId})
-                 CREATE (w)-[:INCLUDES]->(m)`,
+                 MERGE (w)-[:INCLUDES]->(m)`,
                 { watchlistId, movieId }
             );
         }
@@ -114,6 +115,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
         await session.close();
     }
 };
+
 
 // exports.addMovieToWatchlist = async (watchlistId, movieId) => {
 //     const session = driver.session();
