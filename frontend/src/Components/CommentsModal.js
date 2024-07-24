@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHi
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 
-import { addCommentToPost, removeComment } from "../Services/PostsApiServices";
+import { addCommentToPost, addCommentToReview, removeComment } from "../Services/PostsApiServices";
 
 const CommentsModal = forwardRef((props, ref) => {
-    const { postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
+    const { isPost, postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
+    // console.log(isPost);
     const [message, setMessage] = useState("");
     const [deleteModalState, setDeleteModalState] = useState(Array(comments.length).fill(false)); // State to manage delete modals
     const snapPoints = useMemo(() => ["30%", "50%", "75%"], []);
@@ -56,13 +57,24 @@ const CommentsModal = forwardRef((props, ref) => {
 
             // TODO: Add your comment logic here
             try {
-                const postBody = {
-                    uid: userId,
-                    text: message,
-                    postId: postId,
-                };
-                const response = await addCommentToPost(postBody);
-                onFetchComments(postId); // Refresh comments after adding a new one
+                if (isPost) {
+                    const postBody = {
+                        uid: userId,
+                        text: message,
+                        postId: postId,
+                    };
+                    const response = await addCommentToPost(postBody);
+                    onFetchComments(postId); // Refresh comments after adding a new one
+                } else {
+                    const postBody = {
+                        uid: userId,
+                        text: message,
+                        reviewId: postId,
+                    }
+                    const response = await addCommentToReview(postBody);
+                    onFetchComments(postId); // Refresh comments after adding a new one
+                }
+                console.log("Comment added successfully!");
             } catch (error) {
                 console.error("Error adding comment:", error.message);
             }
@@ -83,8 +95,8 @@ const CommentsModal = forwardRef((props, ref) => {
         try {
             const body = {
                 uid: userId,
-                commentId: comment.comId
-            }
+                commentId: comment.comId,
+            };
             const response = await removeComment(body);
             Alert.alert("Success", "Comment deleted successfully!");
             onFetchComments(postId); // Refresh comments after deleting a comment
@@ -102,14 +114,7 @@ const CommentsModal = forwardRef((props, ref) => {
 
     return (
         <BottomSheetModalProvider>
-            <BottomSheetModal 
-                ref={ref} 
-                index={2} 
-                snapPoints={snapPoints} 
-                enablePanDownToClose={true} 
-                handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} 
-                backdropComponent={renderBackdrop}
-            >
+            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
                 <BottomSheetScrollView>
                     <View style={styles.bottomSheetContainer}>
                         <Text style={styles.bottomSheetHeader}>Comments</Text>
@@ -122,10 +127,7 @@ const CommentsModal = forwardRef((props, ref) => {
                             <View style={styles.commentsSection}>
                                 {comments.map((comment, index) => (
                                     <View key={index}>
-                                        <TouchableHighlight
-                                            onLongPress={() => toggleDeleteModal(index)}
-                                            underlayColor={"#f5f5f5"}
-                                        >
+                                        <TouchableHighlight onLongPress={() => toggleDeleteModal(index)} underlayColor={"#f5f5f5"}>
                                             <View style={styles.commentContainer}>
                                                 <Image source={{ uri: currentUserAvatar }} style={styles.avatar} />
                                                 <View style={styles.commentContent}>
@@ -181,7 +183,7 @@ export default CommentsModal;
 const styles = StyleSheet.create({
     bottomSheetContainer: {
         flex: 1,
-        paddingBottom: 90
+        paddingBottom: 90,
     },
     bottomSheetHeader: {
         fontSize: 20,
@@ -199,7 +201,7 @@ const styles = StyleSheet.create({
     },
     commentContainer: {
         flexDirection: "row",
-        padding: 16
+        padding: 16,
     },
     avatar: {
         width: 40,
@@ -273,7 +275,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-        zIndex: 100
+        zIndex: 100,
     },
     deleteButton: {
         padding: 8,

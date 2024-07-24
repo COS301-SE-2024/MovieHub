@@ -40,7 +40,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
             } else {
                 const postsWithComments = await Promise.all(
                     response.data.map(async (post) => {
-                        console.log("post", post);
+                        // console.log("post", post);
                         const commentsResponse = await getCountCommentsOfPost(post.properties.postId);
                         const likesResponse = await getLikesOfPost(post.properties.postId);
                         const likesCount = likesResponse.data;
@@ -77,7 +77,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                     </View>
                 ) : (
                     likedPosts.map((post, index) => (
-                        post.labels[0] === "Post" ?(
+                        post.labels[0] === "Post" ? (
                             <Post
                                 key={index} // for uniqueness
                                 postId={post.properties.postId}
@@ -112,7 +112,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                                 isUserPost={post.properties.uid === userInfo.userId}
                                 handleCommentPress={handleCommentPress}
                                 datePosted={formatTimeAgoFromDB(post.properties.createdAt)}
-                                movieName={post.properties.movieName}
+                                movieName={post.properties.movieTitle}
                                 rating={post.properties.rating}
                             />
                         )

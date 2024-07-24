@@ -154,7 +154,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                             reviewId={item.reviewId}
                             uid={item.uid}
                             username={item.name}
-                            userHandle={userHandle}
+                            userHandle={item.username}
                             userAvatar={item.avatar}
                             likes={item.likesCount}
                             comments={item.commentsCount ? item.commentsCount : 0} /** Comments count */
@@ -165,7 +165,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                             dateReviewed={formatTimeAgoFromDB(item.createdAt)}
                             isUserReview={item.uid === userInfo.userId}
                             handleCommentPress={handleCommentPress}
-                            movieName={item.movieName}
+                            movieName={item.movieTitle}
                             rating={item.rating}
                         />
                     )

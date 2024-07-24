@@ -36,6 +36,7 @@ export default function ProfilePage({ route }) {
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [isPost, setIsPost] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -96,6 +97,7 @@ export default function ProfilePage({ route }) {
 
     const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
+        setIsPost(!isReview);
         const response = await fetchComments(postId, isReview);
         // console.log("Comments:", response);
         bottomSheetRef.current?.present();
@@ -276,6 +278,7 @@ export default function ProfilePage({ route }) {
             
             <CommentsModal    
                 ref={bottomSheetRef} 
+                isPost={isPost}
                 postId={selectedPostId} 
                 userId={userInfo.userId}
                 username={userInfo.username}

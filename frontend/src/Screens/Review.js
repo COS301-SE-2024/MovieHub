@@ -13,7 +13,6 @@ import { colors } from "../styles/theme";
 export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
-    const [saved, setSaved] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
 
@@ -42,7 +41,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             const result = await Share.share({
                 url: "",
                 title: "MovieHub",
-                message: "Watch Party Invite | Join my watch party at ...[link]",
+                message: "Check this movie review out on MovieHub: " + reviewTitle,
             });
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {
@@ -137,7 +136,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             objectFit: "cover",
         },
         reviewTitle: {
-            fontWeight: "bold",
+            fontWeight: "600",
             fontSize: 18,
             marginTop: 10,
             color: theme.textColor,
@@ -220,7 +219,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
                 <Text style={styles.reviewButtonText}>Review</Text>
             </View>
 
-            {image && <Image source={{ uri: image }} style={styles.reviewImage} />}
+            {image ? <Image source={{ uri: image }} style={styles.reviewImage} /> : null}
 
             <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 20, marginTop: 10, color: theme.textColor }}>{movieName}</Text>
@@ -264,7 +263,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    navigation.navigate("EditReview", { username, uid, titleParam: reviewTitle, thoughtsParam: preview, imageUriParam: image, reviewId });
+                                    navigation.navigate("EditReview", { username, uid, titleParam: reviewTitle, thoughtsParam: preview, imageUriParam: image, reviewId, ratingParam: rating, movieName });
                                 }}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>

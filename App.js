@@ -34,6 +34,7 @@ import ChangePassword from "./frontend/src/Screens/ChangePassword";
 import MovieDescriptionPage from "./frontend/src/Screens/MovieDescriptionPage";
 import CreatePost from "./frontend/src/Screens/CreatePost";
 import EditPost from "./frontend/src/Screens/EditPost";
+import EditReview from "./frontend/src/Screens/EditReview";
 import CreateWatchlist from "./frontend/src/Screens/CreateWatchlist";
 import AddMovies from "./frontend/src/Screens/AddMovies";
 import Notifications from "./frontend/src/Screens/Notifications";
@@ -179,6 +180,17 @@ export default function App() {
                                     headerBackTitleVisible: false,
                                     headerTintColor: "black",
                                 })}
+                            />
+
+                            <Nav.Screen 
+                                name="EditReview"
+                                component={EditReview}
+                                options={({ navigation }) => ({
+                                    title: "Edit Review",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",
+                                })} 
                             />
 
                             <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />

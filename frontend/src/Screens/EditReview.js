@@ -3,25 +3,29 @@ import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, Fla
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
-import { addPost, addReview } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
 
-export default function CreatePost({ route }) {
-    const [isMovieReview, setIsMovieReview] = useState(false);
-    const [title, setTitle] = useState("");
-    const [thoughts, setThoughts] = useState("");
-    const [movieSearch, setMovieSearch] = useState("");
+import { editReview } from "../Services/PostsApiServices";
+
+export default function EditReview({ route }) {
+    const { username, uid, titleParam, thoughtsParam, imageUriParam, reviewId, ratingParam, movieName } = route.params;
+    const userInfo = { username, userId: uid };
+    const [isMovieReview, setIsMovieReview] = useState(true);
+    const [title, setTitle] = useState(titleParam);
+    const [thoughts, setThoughts] = useState(thoughtsParam);
+    const [movieSearch, setMovieSearch] = useState(movieName);
     const [allowComments, setAllowComments] = useState(true);
-    const [imageUri, setImageUri] = useState(null);
-    const [rating, setRating] = useState(0); // Add state for rating
+    const [imageUri, setImageUri] = useState(imageUriParam);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [rating, setRating] = useState(ratingParam); // Add state for rating
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
-    const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
-    const navigation = useNavigation();
-    const { userInfo } = route.params;
+    const isReviewButtonDisabled = title.trim() === "" || thoughts.trim() === "";
+    const navigate = useNavigation();
+
     // Mock movie search results
     const movieResults = movieSearch
         ? [
@@ -81,66 +85,33 @@ export default function CreatePost({ route }) {
         Alert.alert("Add Emoji", "This functionality is not implemented yet.");
     };
 
-    const handleAddPost = async () => {
-        const postData = {
-            postTitle: title,
-            text: thoughts,
-            uid: userInfo.userId, 
-            movieId: 843527.0,
-            img: null,
-            isReview: isMovieReview,
-            rating: isMovieReview ? rating : 0
-        };
-
-        try {
-            const post = await addPost(postData);
-            // console.log('Post added successfully:', post);
-            setFeedbackSuccess(true);
-            setFeedbackMessage("Post added successfully");
-            setFeedbackVisible(true);
-
-            setTimeout(() => {
-                setFeedbackVisible(false)
-                navigation.navigate("HomePage", { userInfo });
-            }, 1500);
-        } catch (error) {
-            setFeedbackMessage("Error adding post");
-            console.error("Error adding post:", error);
-        }
-
-        setFeedbackVisible(true);
-        setTimeout(() => {
-            setFeedbackVisible(false);
-        }, 3000);
-    };
-
-    const handleAddReview = async () => {
+    const handleEditReview = async () => {
         const reviewData = {
-            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 843527.0,
+            reviewId: reviewId,
             reviewTitle: title,
             text: thoughts,
+            uid: uid, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             img: null,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0,
-            movieTitle: movieSearch,
         };
 
         try {
-            const review = await addReview(reviewData);
-            console.log('review added successfully:', review);
+            const review = await editReview(reviewData);
+            // console.log('Review edited successfully:', review);
             setFeedbackSuccess(true);
-            setFeedbackMessage("Review added successfully");
+            setFeedbackMessage("Review edited successfully");
             setFeedbackVisible(true);
 
             setTimeout(() => {
-                setFeedbackVisible(false)
-                navigation.navigate("HomePage", { userInfo });
-            }, 1500);
+                setFeedbackVisible(false);
+                navigate.navigate("HomePage", { userInfo });
+            }, 2000);
         } catch (error) {
-            setFeedbackMessage("Error adding review");
-            console.error("Error adding review:", error);
-            return;
+            setFeedbackMessage("Error editing review");
+
+            console.error("Error editing review:", error);
+            throw new Error("Failed to edit review" + error);
         }
 
         setFeedbackVisible(true);
@@ -148,7 +119,6 @@ export default function CreatePost({ route }) {
             setFeedbackVisible(false);
         }, 3000);
     };
-
 
     const handleRatingPress = (value) => {
         setRating(value);
@@ -168,11 +138,6 @@ export default function CreatePost({ route }) {
 
     return (
         <ScrollView style={styles.container}>
-            <View style={styles.toggleContainer}>
-                <Text style={styles.label}>Is this a movie review?</Text>
-                <Switch value={isMovieReview} onValueChange={setIsMovieReview} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={isMovieReview ? "#4A42C0" : "#fff"} />
-            </View>
-
             {imageUri && (
                 <View style={styles.imagePreviewContainer}>
                     <Image source={{ uri: imageUri }} style={styles.imagePreview} />
@@ -188,15 +153,13 @@ export default function CreatePost({ route }) {
             <Text style={styles.label}>Title</Text>
             <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
 
-            {isMovieReview && (
-                <View>
-                    <Text style={styles.label}>Movie</Text>
-                    <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
-                    {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
-                    <Text style={styles.label}>Rating</Text>
-                    <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
-                </View>
-            )}
+            <View>
+                <Text style={styles.label}>Movie</Text>
+                <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
+                {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
+                <Text style={styles.label}>Rating</Text>
+                <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
+            </View>
 
             <Text style={styles.label}>Thoughts</Text>
             <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor="#000" />
@@ -221,23 +184,16 @@ export default function CreatePost({ route }) {
 
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity 
-                    style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} 
-                    disabled={isPostButtonDisabled} 
-                    onPress={isMovieReview ? handleAddReview : handleAddPost} // add review or post
-                >
-                    <Text style={styles.postButtonText}>{isMovieReview ? "Review" : "Post"}</Text>
+                <TouchableOpacity style={[styles.reviewButton, isReviewButtonDisabled && styles.reviewButtonDisabled]} disabled={isReviewButtonDisabled} onPress={handleEditReview}>
+                    <Text style={styles.reviewButtonText}>Save</Text>
                 </TouchableOpacity>
             </View>
 
-            <Modal visible={feedbackVisible} transparent animationType="fade" onRequestClose={() => setFeedbackVisible(false)}>
-                <View style={styles.modalContainer}>
-                    <View style={[styles.modalContent, feedbackSuccess ? styles.modalSuccess : styles.modalError]}>
-                        <Text style={styles.modalText}>{feedbackMessage}</Text>
-                    </View>
+            {feedbackVisible && (
+                <View style={[styles.feedbackContainer, feedbackSuccess ? styles.success : styles.error]}>
+                    <Text style={styles.feedback}>{feedbackMessage}</Text>
                 </View>
-            </Modal>
-
+            )}
         </ScrollView>
     );
 }
@@ -308,17 +264,17 @@ const styles = StyleSheet.create({
         color: "#0f5bd1",
         fontWeight: "600",
     },
-    postButton: {
+    reviewButton: {
         backgroundColor: colors.primary,
         paddingVertical: 10,
-        paddingHorizontal: 30,
+        paddingHorizontal: 35,
         borderRadius: 10,
         opacity: 1,
     },
-    postButtonDisabled: {
+    reviewButtonDisabled: {
         opacity: 0.7,
     },
-    postButtonText: {
+    reviewButtonText: {
         color: "#fff",
         fontWeight: "bold",
     },
@@ -366,37 +322,22 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: 16,
     },
-    modalContainer: {
-        flex: 1,
-        justifyContent: "center",
+    feedbackContainer: {
+        flexShrink: 1,
+        flexWrap: "wrap",
+        alignSelf: "center",
+        display: "flex",
         alignItems: "center",
-        // backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    modalContent: {
-        width: 300,
-        padding: 20,
+        padding: 15,
         borderRadius: 10,
-        alignItems: "center",
     },
-    modalSuccess: {
-        backgroundColor: "rgb(72, 209, 204)",
-    },
-    modalError: {
-        backgroundColor: "green",
-    },
-    modalText: {
+    feedback: {
         color: "#fff",
-        fontSize: 16,
-        textAlign: "center",
     },
-    modalButton: {
-        backgroundColor: "#4A42C0",
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 4,
+    success: {
+        backgroundColor: "#31B978",
     },
-    modalButtonText: {
-        color: "#fff",
-        fontWeight: "bold",
+    error: {
+        backgroundColor: "#FF4C4C",
     },
 });
