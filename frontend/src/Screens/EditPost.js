@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import { addPost, editPost } from "../Services/PostsApiServices";
 
-export default function CreatePost({route}) {
+export default function EditPost({route}) {
     const { username, uid, titleParam, thoughtsParam, imageUriParam, postId } = route.params;
     const userInfo = { username, userId: uid };
     const [isMovieReview, setIsMovieReview] = useState(false);
@@ -196,7 +196,7 @@ export default function CreatePost({route}) {
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
                 <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleEditPost}>
-                    <Text style={styles.postButtonText}>Post</Text>
+                    <Text style={styles.postButtonText}>Save</Text>
                 </TouchableOpacity>
             </View>
 

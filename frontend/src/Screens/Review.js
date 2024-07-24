@@ -1,15 +1,16 @@
 import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 
-import { removePost } from "../Services/PostsApiServices";
-import { toggleLikePost } from "../Services/LikesApiService";
+import { removeReview } from "../Services/PostsApiServices";
+import { toggleLikeReview } from "../Services/LikesApiService";
+import { colors } from "../styles/theme";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
+export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -22,15 +23,15 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
 
     const toggleLike = async () => {
         const body = {
-            postId: postId,
-            userId: uid
-        }
+            reviewId: reviewId,
+            userId: uid,
+        };
 
         try {
-            await toggleLikePost(body);
-            console.log('Toggle like successful');
+            await toggleLikeReview(body);
+            console.log("Toggle like successful");
         } catch (error) {
-            console.error('Error toggling like:', error);
+            console.error("Error toggling like:", error);
         }
 
         setLiked(!liked);
@@ -39,8 +40,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const handleShare = async () => {
         try {
             const result = await Share.share({
-                url: '',
-                title: 'MovieHub',
+                url: "",
+                title: "MovieHub",
                 message: "Watch Party Invite | Join my watch party at ...[link]",
             });
             if (result.action === Share.sharedAction) {
@@ -56,23 +57,22 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             Alert.alert(error.message);
         }
     };
-    // Function to remove posts
+    // Function to remove reviews
 
-    const handleRemovePost = async (uid, postId) => {
+    const handleRemoveReview = async (uid, reviewId) => {
         try {
             //
-            console.log('Removing post:', postId + ' by ' + uid);
-            const postBody = {
-                postId: postId,
-                uid: uid
-            }
-            await removePost(postBody);
-            toggleModal();
-            // console.log('Post removed successfully');
-            Alert.alert(null,'Post removed successfully');
+            console.log("Removing review:", reviewId + " by " + uid);
+            const reviewBody = {
+                reviewId: reviewId,
+                uid: uid,
+            };
+            await removeReview(reviewBody);
+            // console.log('Review removed successfully');
+            Alert.alert(null, "Review removed successfully");
         } catch (error) {
-            console.error('Error removing post:', error);
-            throw new Error('Failed to remove post' + error);
+            console.error("Error removing review:", error);
+            throw new Error("Failed to remove review" + error);
         }
     };
 
@@ -109,25 +109,40 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         userHandle: {
             color: theme.gray,
         },
+        reviewButton: {
+            backgroundColor: colors.primary,
+            padding: 8,
+            borderRadius: 55,
+            marginTop: 10,
+            width: 90,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        reviewButtonText: {
+            color: "white",
+            fontWeight: "bold",
+            // fontSize: 16,
+        },
         profileInfo: {
             alignItems: "center",
             display: "flex",
             flexDirection: "row",
         },
-        postImage: {
+        reviewImage: {
             width: "100%",
             height: 300,
             marginTop: 10,
             borderRadius: 10,
             objectFit: "cover",
         },
-        postTitle: {
+        reviewTitle: {
             fontWeight: "bold",
             fontSize: 18,
             marginTop: 10,
             color: theme.textColor,
         },
-        postPreview: {
+        reviewPreview: {
             color: theme.gray,
             marginVertical: 10,
             marginTop: 5,
@@ -179,6 +194,12 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             color: "black",
             fontSize: 16,
         },
+        star: {
+            // shadowOpacity: 2,
+            // textShadowRadius: 6,
+            // textShadowOffset: { width: 1, height: 1 },
+            marginRight: 5,
+        },
     });
 
     return (
@@ -187,22 +208,42 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>{userHandle} &bull; {datePosted}</Text>
+                    <Text style={styles.userHandle}>
+                        {userHandle} &bull; {dateReviewed}
+                    </Text>
                 </View>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
                     <Icon name="more-vert" size={20} />
                 </Pressable>
             </View>
-            {image && <Image source={{ uri: image }} style={styles.postImage} />}
-            <Text style={styles.postTitle}>{postTitle}</Text>
-            <Text style={styles.postPreview}>{preview}</Text>
+            <View style={styles.reviewButton}>
+                <Text style={styles.reviewButtonText}>Review</Text>
+            </View>
+
+            {image && <Image source={{ uri: image }} style={styles.reviewImage} />}
+
+            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ fontWeight: "bold", fontSize: 20, marginTop: 10, color: theme.textColor }}>{movieName}</Text>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center", marginLeft: "auto" }}>
+                    <Text style={styles.star}>
+                        <Icon name="star" size={22} color={"gold"} />
+                    </Text>
+                    <Text>{rating}</Text>
+                </View>
+            </View>
+
+            <Text style={styles.reviewTitle}>{reviewTitle}</Text>
+            <Text style={styles.reviewPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
                     <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <Pressable onPress={() => {handleCommentPress(postId, false)}}>
+                    <Pressable
+                        onPress={() => {
+                            handleCommentPress(reviewId, true);
+                        }}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
@@ -218,19 +259,20 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             </View>
             {modalVisible && (
                 <View style={styles.modalContainer}>
-                    {isUserPost ? ( // Check if the post belongs to the user
+                    {isUserReview ? ( // Check if the review belongs to the user
                         <>
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
+                                    navigation.navigate("EditReview", { username, uid, titleParam: reviewTitle, thoughtsParam: preview, imageUriParam: image, reviewId });
                                 }}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={styles.modalOption}
-                                onPress={() => {handleRemovePost(uid, postId);}}
-                            >
+                                onPress={() => {
+                                    handleRemoveReview(uid, reviewId);
+                                }}>
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>
                         </>

@@ -11,7 +11,7 @@ import BottomHeader from "../Components/BottomHeader";
 import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
-import { getCommentsOfPost } from "../Services/PostsApiServices";
+import { getCommentsOfPost, getCommentsOfReview } from "../Services/PostsApiServices";
 import { getUserProfile } from "../Services/UsersApiService";
 
 export default function ProfilePage({ route }) {
@@ -58,17 +58,30 @@ export default function ProfilePage({ route }) {
         }
     };
 
-    const fetchComments = async (postId) => {
+    const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
-        try {
-            const response = await getCommentsOfPost(postId);
-            // console.log("Fetched comments:", response.data);
-            setComments(response.data);
-        } catch (error) {
-            console.error("Error fetching comments of post:", error.message);
-            throw new Error("Failed to fetch comments of post");
-        } finally {
-            setLoadingComments(false);
+        if (isReview) {
+            try {
+                const response = await getCommentsOfReview(postId);
+                setComments(response.data);
+                // console.log("Fetched comments:", response.data);
+            } catch (error) {
+                console.error("Error fetching comments of review:", error.message);
+                throw new Error("Failed to fetch comments of review");
+            } finally {
+                setLoadingComments(false);
+            }
+        } else {
+            try {
+                const response = await getCommentsOfPost(postId);
+                setComments(response.data);
+                // console.log("Fetched comments:", response.data);
+            } catch (error) {
+                console.error("Error fetching comments of post:", error.message);
+                throw new Error("Failed to fetch comments of post");
+            } finally {
+                setLoadingComments(false);
+            }
         }
     };
 
@@ -81,9 +94,9 @@ export default function ProfilePage({ route }) {
         fetchData();
     }, []);
 
-    const handleCommentPress = async (postId) => {
+    const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
-        const response = await fetchComments(postId);
+        const response = await fetchComments(postId, isReview);
         // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
@@ -173,8 +186,7 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress}/>;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "watchlist":

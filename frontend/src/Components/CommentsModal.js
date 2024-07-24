@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { addCommentToPost, removeComment } from "../Services/PostsApiServices";
 
 const CommentsModal = forwardRef((props, ref) => {
-    const { postId, userId, username, currentUserAvatar, comments, loadingComments, onFetchComments } = props;
+    const { postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
     const [message, setMessage] = useState("");
     const [deleteModalState, setDeleteModalState] = useState(Array(comments.length).fill(false)); // State to manage delete modals
     const snapPoints = useMemo(() => ["30%", "50%", "75%"], []);

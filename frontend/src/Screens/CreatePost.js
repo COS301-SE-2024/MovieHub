@@ -3,7 +3,7 @@ import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, Fla
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
-import { addPost } from "../Services/PostsApiServices";
+import { addPost, addReview } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
 
@@ -85,7 +85,7 @@ export default function CreatePost({ route }) {
         const postData = {
             postTitle: title,
             text: thoughts,
-            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            uid: userInfo.userId, 
             movieId: 843527.0,
             img: null,
             isReview: isMovieReview,
@@ -113,6 +113,42 @@ export default function CreatePost({ route }) {
             setFeedbackVisible(false);
         }, 3000);
     };
+
+    const handleAddReview = async () => {
+        const reviewData = {
+            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            movieId: 843527.0,
+            reviewTitle: title,
+            text: thoughts,
+            img: null,
+            isReview: isMovieReview,
+            rating: isMovieReview ? rating : 0,
+            movieName: movieSearch,
+        };
+
+        try {
+            const review = await addReview(reviewData);
+            console.log('review added successfully:', review);
+            setFeedbackSuccess(true);
+            setFeedbackMessage("Review added successfully");
+            setFeedbackVisible(true);
+
+            setTimeout(() => {
+                setFeedbackVisible(false)
+                navigation.navigate("HomePage", { userInfo });
+            }, 1500);
+        } catch (error) {
+            setFeedbackMessage("Error adding review");
+            console.error("Error adding review:", error);
+            return;
+        }
+
+        setFeedbackVisible(true);
+        setTimeout(() => {
+            setFeedbackVisible(false);
+        }, 3000);
+    };
+
 
     const handleRatingPress = (value) => {
         setRating(value);
@@ -185,16 +221,23 @@ export default function CreatePost({ route }) {
 
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleAddPost}>
-                    <Text style={styles.postButtonText}>Post</Text>
+                <TouchableOpacity 
+                    style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} 
+                    disabled={isPostButtonDisabled} 
+                    onPress={isMovieReview ? handleAddReview : handleAddPost} // add review or post
+                >
+                    <Text style={styles.postButtonText}>{isMovieReview ? "Review" : "Post"}</Text>
                 </TouchableOpacity>
             </View>
 
-            {feedbackVisible && (
-                <View style={[styles.feedbackContainer, feedbackSuccess ? styles.success : styles.error]}>
-                    <Text style={styles.feedback}>{feedbackMessage}</Text>
+            <Modal visible={feedbackVisible} transparent animationType="fade" onRequestClose={() => setFeedbackVisible(false)}>
+                <View style={styles.modalContainer}>
+                    <View style={[styles.modalContent, feedbackSuccess ? styles.modalSuccess : styles.modalError]}>
+                        <Text style={styles.modalText}>{feedbackMessage}</Text>
+                    </View>
                 </View>
-            )}
+            </Modal>
+
         </ScrollView>
     );
 }
@@ -268,7 +311,7 @@ const styles = StyleSheet.create({
     postButton: {
         backgroundColor: colors.primary,
         paddingVertical: 10,
-        paddingHorizontal: 35,
+        paddingHorizontal: 30,
         borderRadius: 10,
         opacity: 1,
     },
@@ -323,22 +366,38 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: 16,
     },
-    feedbackContainer: {
-        flexShrink: 1,
-        flexWrap: "wrap",
-        alignSelf: "center",
-        display: "flex",
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
         alignItems: "center",
-        padding: 15,
+        // backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+        width: 300,
+        padding: 20,
         borderRadius: 10,
+        alignItems: "center",
     },
-    feedback: {
+    modalSuccess: {
+        backgroundColor: "rgb(72, 209, 204)",
+    },
+    modalError: {
+        backgroundColor: "green",
+    },
+    modalText: {
         color: "#fff",
+        fontSize: 16,
+        marginBottom: 20,
+        textAlign: "center",
     },
-    success: {
-        backgroundColor: "#31B978",
+    modalButton: {
+        backgroundColor: "#4A42C0",
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 4,
     },
-    error: {
-        backgroundColor: "#FF4C4C",
+    modalButtonText: {
+        color: "#fff",
+        fontWeight: "bold",
     },
 });
