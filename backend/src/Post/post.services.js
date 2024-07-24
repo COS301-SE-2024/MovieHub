@@ -215,8 +215,7 @@ exports.removePost = async (postId, uid) => {
     try {
         const result = await session.run(
             `MATCH (p:Post {postId: $postId, uid: $uid})
-             DETACH DELETE p
-             RETURN p`,
+             DETACH DELETE p`,
             { postId, uid }
         );
         if (result.records.length === 0) {
@@ -235,11 +234,12 @@ exports.removePost = async (postId, uid) => {
 exports.removeReview = async (reviewId, uid) => {
     console.log("In Services: removeReview");
     const session = driver.session();
+    console.log("Review ID: ", reviewId);
+    console.log("User ID: ", uid);
     try {
         const result = await session.run(
             `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
-             DETACH DELETE r
-             RETURN r`,
+             DETACH DELETE r`,
             { reviewId, uid }
         );
         if (result.records.length === 0) {
@@ -260,8 +260,7 @@ exports.removeComment = async (commentId, uid) => {
     try {
         const result = await session.run(
             `MATCH (c:Comment {comId: $commentId, uid: $uid})
-             DETACH DELETE c
-             RETURN c`,
+             DETACH DELETE c`,
             { commentId, uid }
         );
         if (result.records.length === 0) {
