@@ -17,9 +17,9 @@ exports.addPost = async (req, res) => {
 };
 
 exports.addReview = async (req, res) => {
-    const { uid, movieId, text, rating, reviewTitle } = req.body;
+    const { uid, movieId, text, rating, reviewTitle, movieTitle } = req.body;
     try {
-        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle);
+        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle, movieTitle);
         if (review)
             responseHandler(res, 201, 'Review added successfully', review);
         else 

@@ -37,7 +37,7 @@ exports.addPost = async (uid, movieId, text, postTitle, img) => {
 };
 
 
-exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
+exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle) => {
     console.log("In Services: addReview");
     const session = driver.session();
     const createdAt = new Date().toISOString();
@@ -46,10 +46,10 @@ exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
         const reviewId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name, movieTitle: m.title})
+             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name, movieTitle: $movieTitle})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
-            { uid, movieId, text, rating, reviewId, reviewTitle, createdAt, updatedAt }
+            { uid, movieId, text, rating, reviewId, reviewTitle, movieTitle, createdAt, updatedAt }
         );
         console.log("The Result: ", result.summary);
         return result.records[0].get('r').properties;
