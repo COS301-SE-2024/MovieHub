@@ -46,7 +46,7 @@ export const addPost = async (bodyData) => {
 };
 
 export const addReview = async (bodyData) => {
-    // bodyData should contain: { uid, movieId, text, rating, reviewTitle }
+    // bodyData should contain: { uid, movieId, text, rating, reviewTitle, movieTitle }
     try {
         const response = await fetchWithAuth(`${API_URL}add/review`, {
             method: 'POST',
