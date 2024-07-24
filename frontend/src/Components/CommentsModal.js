@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHi
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 
-import { addCommentToPost, addCommentToReview, removeComment } from "../Services/PostsApiServices";
+import { addCommentToPost, addCommentToReview, removeComment, addCommentToComment } from "../Services/PostsApiServices";
 
 const CommentsModal = forwardRef((props, ref) => {
     const { isPost, postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
     // console.log(isPost);
     const [message, setMessage] = useState("");
+    const [replyTo, setReplyTo] = useState(null);
     const [deleteModalState, setDeleteModalState] = useState(Array(comments.length).fill(false)); // State to manage delete modals
     const snapPoints = useMemo(() => ["30%", "50%", "75%"], []);
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
@@ -51,37 +52,31 @@ const CommentsModal = forwardRef((props, ref) => {
                 userAvatar: currentUserAvatar,
                 datePosted: formatTimeAgo(new Date()), // Replace with formatted date
                 text: message,
+                replyTo: replyTo ? replyTo.commentId : null, // Add replyTo field if replying to a comment
             };
 
             setMessage(""); // Clear input
+            setReplyTo(null); // Clear reply target
 
-            // TODO: Add your comment logic here
             try {
-                if (isPost) {
-                    const postBody = {
-                        uid: userId,
-                        text: message,
-                        postId: postId,
-                    };
-                    const response = await addCommentToPost(postBody);
-                    onFetchComments(postId, false); // Refresh comments after adding a new one
-                } else {
-                    const postBody = {
-                        uid: userId,
-                        text: message,
-                        reviewId: postId,
-                    }
-                    console.log(postId);
-                    const response = await addCommentToReview(postBody);
-                    console.log("Response:", response);
-                    onFetchComments(postId, true); // Refresh comments after adding a new one
-                }
-                console.log("Comment added successfully!");
+                const postBody = {
+                    uid: userId,
+                    text: message,
+                    postId: postId,
+                    replyTo: replyTo ? replyTo.commentId : null, // Include replyTo in the request body
+                };
+                const response = isPost ? await addCommentToPost(postBody) : await addCommentToReview({ ...postBody, reviewId: postId });
+
+                onFetchComments(postId, !isPost); // Refresh comments after adding a new one
             } catch (error) {
                 console.error("Error adding comment:", error.message);
             }
         }
     };
+
+    const handleAddReply = (comment) => {
+        
+    }
 
     const toggleDeleteModal = (index) => {
         setDeleteModalState((prev) => {
@@ -114,9 +109,23 @@ const CommentsModal = forwardRef((props, ref) => {
         });
     };
 
+    const handleModalChange = (index) => {
+        if (index === -1) {
+            setReplyTo(null); // Reset replyTo state when modal is closed
+        }
+    };
+
     return (
         <BottomSheetModalProvider>
-            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
+            <BottomSheetModal 
+                ref={ref} 
+                index={2} 
+                snapPoints={snapPoints} 
+                enablePanDownToClose={true} 
+                handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} 
+                backdropComponent={renderBackdrop}
+                onChange={handleModalChange}
+            >
                 <BottomSheetScrollView>
                     <View style={styles.bottomSheetContainer}>
                         <Text style={styles.bottomSheetHeader}>Comments</Text>
@@ -131,20 +140,40 @@ const CommentsModal = forwardRef((props, ref) => {
                                     <View key={index}>
                                         <TouchableHighlight onLongPress={() => toggleDeleteModal(index)} underlayColor={"#f5f5f5"}>
                                             <View style={styles.commentContainer}>
-                                                <Image source={{ uri: currentUserAvatar }} style={styles.avatar} />
+                                                <Image source={{ uri: comment.avatar }} style={styles.avatar} />
                                                 <View style={styles.commentContent}>
                                                     <View style={styles.commentHeader}>
                                                         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                                            <Text style={styles.username}>{username}</Text>
+                                                            <Text style={styles.username}>{comment.username}</Text>
                                                             <Text style={styles.date}>{formatTimeAgoFromDB(comment.createdAt)}</Text>
                                                         </View>
                                                         <Ionicons name="heart-outline" size={18} color="black" />
                                                     </View>
                                                     <Text style={styles.commentText}>{comment.text}</Text>
-                                                    <Text style={styles.replyText}>Reply</Text>
+                                                    <Text style={styles.replyText} onPress={() => setReplyTo(comment)}>
+                                                        Reply
+                                                    </Text>
                                                 </View>
                                             </View>
                                         </TouchableHighlight>
+
+                                        {/* Display nested replies */}
+                                        {comment.replies &&
+                                            comment.replies.map((reply, replyIndex) => (
+                                                <View key={replyIndex} style={styles.replyContainer}>
+                                                    <Image source={{ uri: reply.userAvatar }} style={styles.avatar} />
+                                                    <View style={styles.commentContent}>
+                                                        <View style={styles.commentHeader}>
+                                                            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                                <Text style={styles.username}>{reply.username}</Text>
+                                                                <Text style={styles.date}>{formatTimeAgoFromDB(reply.createdAt)}</Text>
+                                                            </View>
+                                                            <Ionicons name="heart-outline" size={18} color="black" />
+                                                        </View>
+                                                        <Text style={styles.commentText}>{reply.text}</Text>
+                                                    </View>
+                                                </View>
+                                            ))}
 
                                         {/* Delete Comment Modal */}
                                         {deleteModalState[index] && (
@@ -165,15 +194,25 @@ const CommentsModal = forwardRef((props, ref) => {
                 </BottomSheetScrollView>
 
                 <View style={styles.chatInput}>
-                    <View style={styles.inputContainer}>
-                        <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
-                        <TouchableOpacity>
-                            <Ionicons name="happy" size={24} color="black" />
+                    {replyTo && (
+                        <View style={styles.replyToContainer}>
+                            <Text style={styles.replyToText}>Replying to {replyTo.username}</Text>
+                            <TouchableOpacity onPress={() => setReplyTo(null)}>
+                                <Ionicons name="close-circle" size={20} color="gray" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <View style={styles.inputContainer}>
+                            <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
+                            <TouchableOpacity>
+                                <Ionicons name="happy" size={24} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity style={styles.sendButton} onPress={handleSendComment}>
+                            <Ionicons name="send" size={24} color="white" />
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.sendButton} onPress={handleSendComment}>
-                        <Ionicons name="send" size={24} color="white" />
-                    </TouchableOpacity>
                 </View>
             </BottomSheetModal>
         </BottomSheetModalProvider>
@@ -236,9 +275,10 @@ const styles = StyleSheet.create({
     replyText: {
         color: "grey",
         fontSize: 12,
+        marginTop: 5
     },
     chatInput: {
-        flexDirection: "row",
+        flexDirection: "col",
         alignItems: "center",
         padding: 16,
         borderTopWidth: 1,
@@ -291,5 +331,24 @@ const styles = StyleSheet.create({
         marginTop: 8,
         paddingLeft: 15,
         paddingRight: 40,
+    },
+    replyToContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        backgroundColor: "#f1f1f1",
+        borderRadius: 20,
+        marginBottom: 12,
+        alignSelf: "flex-start",
+    },
+    replyToText: {
+        fontWeight: "bold",
+        marginRight: 8,
+    },
+    replyContainer: {
+        flexDirection: "row",
+        padding: 16,
+        paddingLeft: 40, // Indent replies
     },
 });

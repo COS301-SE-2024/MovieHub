@@ -8,6 +8,7 @@ import Review from "../Screens/Review";
 
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
     const [likedPosts, setLikedPosts] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
