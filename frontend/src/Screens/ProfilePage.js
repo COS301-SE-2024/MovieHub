@@ -65,7 +65,7 @@ export default function ProfilePage({ route }) {
             try {
                 const response = await getCommentsOfReview(postId);
                 setComments(response.data);
-                // console.log("Fetched comments:", response.data);
+                console.log("Fetched comments of reviews:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of review:", error.message);
                 throw new Error("Failed to fetch comments of review");
@@ -76,7 +76,7 @@ export default function ProfilePage({ route }) {
             try {
                 const response = await getCommentsOfPost(postId);
                 setComments(response.data);
-                // console.log("Fetched comments:", response.data);
+                console.log("Fetched comments:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of post:", error.message);
                 throw new Error("Failed to fetch comments of post");

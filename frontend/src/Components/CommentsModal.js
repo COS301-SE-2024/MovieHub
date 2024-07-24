@@ -64,15 +64,17 @@ const CommentsModal = forwardRef((props, ref) => {
                         postId: postId,
                     };
                     const response = await addCommentToPost(postBody);
-                    onFetchComments(postId); // Refresh comments after adding a new one
+                    onFetchComments(postId, false); // Refresh comments after adding a new one
                 } else {
                     const postBody = {
                         uid: userId,
                         text: message,
                         reviewId: postId,
                     }
+                    console.log(postId);
                     const response = await addCommentToReview(postBody);
-                    onFetchComments(postId); // Refresh comments after adding a new one
+                    console.log("Response:", response);
+                    onFetchComments(postId, true); // Refresh comments after adding a new one
                 }
                 console.log("Comment added successfully!");
             } catch (error) {
@@ -99,7 +101,7 @@ const CommentsModal = forwardRef((props, ref) => {
             };
             const response = await removeComment(body);
             Alert.alert("Success", "Comment deleted successfully!");
-            onFetchComments(postId); // Refresh comments after deleting a comment
+            isPost ? onFetchComments(postId, false) : onFetchComments(postId, true); // Refresh comments after deleting a comment
         } catch (error) {
             console.error("Error deleting comment:", error.message);
             throw new Error("Failed to delete comment");
