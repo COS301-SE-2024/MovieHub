@@ -95,3 +95,39 @@ exports.getUserWatchlists = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Follow a user
+exports.followUser = async (req, res) => {
+    const { followerId, followeeId } = req.body;
+    try {
+        const response = await userService.followUser(followerId, followeeId);
+        res.status(200).json(response);
+    } catch (error) {
+        console.error('Error following user:', error);
+        res.status(500).json({ message: 'Error following user', error: error.message });
+    }
+};
+
+// Unfollow a user
+exports.unfollowUser = async (req, res) => {
+    const { followerId, followeeId } = req.body;
+    try {
+        const response = await userService.unfollowUser(followerId, followeeId);
+        res.status(200).json(response);
+    } catch (error) {
+        console.error('Error unfollowing user:', error);
+        res.status(500).json({ message: 'Error unfollowing user', error: error.message });
+    }
+};
+
+// Get friends of a user
+exports.getFriends = async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const friends = await userService.getFriends(userId);
+        res.status(200).json(friends);
+    } catch (error) {
+        console.error('Error fetching friends:', error);
+        res.status(500).json({ message: 'Error fetching friends', error: error.message });
+    }
+};
