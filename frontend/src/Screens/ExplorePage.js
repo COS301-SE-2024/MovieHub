@@ -8,7 +8,9 @@ import ExploreHub from '../Components/ExploreHub';
 import { Ionicons } from '@expo/vector-icons';
 
 
-export default function ExplorePage({userInfo}) {
+export default function ExplorePage({route}) {
+
+  const { userInfo } = route.params;
 
     const navigation = useNavigation();
 
@@ -43,7 +45,7 @@ export default function ExplorePage({userInfo}) {
 
                 </ScrollView>
                 <View style={styles.postsContainer}>
-                    <NonFollowerPost />
+                    <NonFollowerPost userInfo={userInfo} />
                     <NonFollowerPost />
                     <NonFollowerPost />
                     <NonFollowerPost />

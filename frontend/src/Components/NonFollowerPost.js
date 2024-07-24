@@ -6,8 +6,9 @@ import { useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
+import { useNavigation } from "@react-navigation/native";
 
-export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted }) {
+export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -17,6 +18,12 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     };
     const toggleLike = () => {
         setLiked(!liked);
+    };
+
+    const navigation = useNavigation();
+
+    const handlePress = () => {
+        navigation.navigate("Profile", {userInfo, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted});
     };
 
     const [isFollowing, setIsFollowing] = useState(false);
@@ -158,7 +165,9 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
+                <TouchableOpacity onPress={handlePress}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
+                </TouchableOpacity>
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>
