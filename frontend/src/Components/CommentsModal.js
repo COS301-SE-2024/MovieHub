@@ -1,15 +1,17 @@
-import React, { useCallback, useMemo, forwardRef, useState } from "react";
+import React, { useCallback, useMemo, forwardRef, useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHighlight, Alert } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 
-import { addCommentToPost, addCommentToReview, removeComment, addCommentToComment } from "../Services/PostsApiServices";
+import { addCommentToPost, addCommentToReview, removeComment, addCommentToComment, getCommentsOfComment } from "../Services/PostsApiServices";
 
 const CommentsModal = forwardRef((props, ref) => {
     const { isPost, postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
     // console.log(isPost);
     const [message, setMessage] = useState("");
     const [replyTo, setReplyTo] = useState(null);
+    const [replies, setReplies] = useState({});
+    const [expandedReplies, setExpandedReplies] = useState({});
     const [deleteModalState, setDeleteModalState] = useState(Array(comments.length).fill(false)); // State to manage delete modals
     const snapPoints = useMemo(() => ["30%", "50%", "75%"], []);
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
@@ -52,7 +54,7 @@ const CommentsModal = forwardRef((props, ref) => {
                 userAvatar: currentUserAvatar,
                 datePosted: formatTimeAgo(new Date()), // Replace with formatted date
                 text: message,
-                replyTo: replyTo ? replyTo.commentId : null, // Add replyTo field if replying to a comment
+                replyTo: replyTo ? replyTo.comId : null, // Add replyTo field if replying to a comment
             };
 
             setMessage(""); // Clear input
@@ -63,20 +65,20 @@ const CommentsModal = forwardRef((props, ref) => {
                     uid: userId,
                     text: message,
                     postId: postId,
-                    replyTo: replyTo ? replyTo.commentId : null, // Include replyTo in the request body
+                    replyTo: replyTo ? replyTo.comId : null, // Include replyTo in the request body
                 };
-                const response = isPost ? await addCommentToPost(postBody) : await addCommentToReview({ ...postBody, reviewId: postId });
-
+                if (replyTo) {
+                    const response = await addCommentToComment({ ...postBody, comOnId: replyTo.comId });
+                    console.log("Response CommentsModal:", response);
+                } else {
+                    const response = isPost ? await addCommentToPost(postBody) : await addCommentToReview({ ...postBody, reviewId: postId });
+                }
                 onFetchComments(postId, !isPost); // Refresh comments after adding a new one
             } catch (error) {
                 console.error("Error adding comment:", error.message);
             }
         }
     };
-
-    const handleAddReply = (comment) => {
-        
-    }
 
     const toggleDeleteModal = (index) => {
         setDeleteModalState((prev) => {
@@ -115,17 +117,38 @@ const CommentsModal = forwardRef((props, ref) => {
         }
     };
 
+    const fetchReplies = async (commentId) => {
+        // console.log("Fetching replies for comment:", commentId);
+        try {
+            const response = await getCommentsOfComment(commentId);
+            setReplies((prevReplies) => ({
+                ...prevReplies,
+                [commentId]: response.data, // Assuming response.data contains the list of replies
+            }));
+            console.log("Replies fetched:", response.data);
+        } catch (error) {
+            console.error("Error fetching replies:", error.message);
+        }
+    };
+
+    const toggleReplies = (commentId) => {
+        setExpandedReplies((prev) => ({
+            ...prev,
+            [commentId]: !prev[commentId],
+        }));
+    };
+
+    useEffect(() => {
+        comments.forEach((comment) => {
+            if (comment) {
+                fetchReplies(comment.comId);
+            }
+        });
+    }, [comments]);
+
     return (
         <BottomSheetModalProvider>
-            <BottomSheetModal 
-                ref={ref} 
-                index={2} 
-                snapPoints={snapPoints} 
-                enablePanDownToClose={true} 
-                handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} 
-                backdropComponent={renderBackdrop}
-                onChange={handleModalChange}
-            >
+            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop} onChange={handleModalChange}>
                 <BottomSheetScrollView>
                     <View style={styles.bottomSheetContainer}>
                         <Text style={styles.bottomSheetHeader}>Comments</Text>
@@ -158,22 +181,39 @@ const CommentsModal = forwardRef((props, ref) => {
                                         </TouchableHighlight>
 
                                         {/* Display nested replies */}
-                                        {comment.replies &&
-                                            comment.replies.map((reply, replyIndex) => (
-                                                <View key={replyIndex} style={styles.replyContainer}>
-                                                    <Image source={{ uri: reply.userAvatar }} style={styles.avatar} />
-                                                    <View style={styles.commentContent}>
-                                                        <View style={styles.commentHeader}>
-                                                            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                                                <Text style={styles.username}>{reply.username}</Text>
-                                                                <Text style={styles.date}>{formatTimeAgoFromDB(reply.createdAt)}</Text>
+                                        {replies[comment.comId] && (
+                                            <>
+                                                {replies[comment.comId].length > 1 && (
+                                                    <Text style={styles.viewRepliesText} onPress={() => toggleReplies(comment.comId)}>
+                                                        {expandedReplies[comment.comId] ? "Hide replies" : `View ${replies[comment.comId].length} more replies`}
+                                                    </Text>
+                                                )}
+                                                {replies[comment.comId].length === 1 && !expandedReplies[comment.comId] && (
+                                                    <Text style={styles.viewRepliesText} onPress={() => toggleReplies(comment.comId)}>
+                                                        {`View 1 more reply`}
+                                                    </Text>
+                                                )}
+                                                {expandedReplies[comment.comId] &&
+                                                    replies[comment.comId].map((reply, replyIndex) => (
+                                                        <View key={replyIndex} style={styles.replyContainer}>
+                                                            <Image source={{ uri: reply.avatar }} style={styles.replyAvatar} />
+                                                            <View style={styles.commentContent}>
+                                                                <View style={styles.commentHeader}>
+                                                                    <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                                        <Text style={styles.username}>{reply.username}</Text>
+                                                                        <Text style={styles.date}>{formatTimeAgoFromDB(reply.createdAt)}</Text>
+                                                                    </View>
+                                                                    <Ionicons name="heart-outline" size={18} color="black" />
+                                                                </View>
+                                                                <Text style={styles.commentText}>{reply.text}</Text>
+                                                                <Text style={styles.replyText} onPress={() => setReplyTo(reply)}>
+                                                                    Reply
+                                                                </Text>
                                                             </View>
-                                                            <Ionicons name="heart-outline" size={18} color="black" />
                                                         </View>
-                                                        <Text style={styles.commentText}>{reply.text}</Text>
-                                                    </View>
-                                                </View>
-                                            ))}
+                                                    ))}
+                                            </>
+                                        )}
 
                                         {/* Delete Comment Modal */}
                                         {deleteModalState[index] && (
@@ -250,6 +290,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginRight: 10,
     },
+    replyAvatar: {
+        width: 35,
+        height: 35,
+        borderRadius: 20,
+        marginRight: 10,
+    },
     commentContent: {
         flex: 1,
     },
@@ -275,7 +321,18 @@ const styles = StyleSheet.create({
     replyText: {
         color: "grey",
         fontSize: 12,
-        marginTop: 5
+        marginTop: 4,
+    },
+    viewRepliesText: {
+        color: "#4A42C0",
+        marginLeft: 67,
+        marginBottom: 8,
+        fontSize: 12,
+    },
+    replyContainer: {
+        flexDirection: "row",
+        marginBottom: 16,
+        marginLeft: 52,
     },
     chatInput: {
         flexDirection: "col",

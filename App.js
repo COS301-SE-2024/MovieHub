@@ -10,7 +10,9 @@ import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomDrawer from "./frontend/src/Screens/ProfileDrawer";
 import HomePage from "./frontend/src/Screens/HomePage";
+import Home from "./frontend/src/Screens/Home";
 import MainHeader from "./frontend/src/Components/MainHeader";
+import HomeHeader from "./frontend/src/Components/HomeHeader";
 import SearchHeader from "./frontend/src/Components/SearchHeader";
 import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
@@ -73,6 +75,8 @@ export default function App() {
                             <Nav.Screen name="ProfileSetup" component={ProfileSetup} options={{ headerShown: false }} />
                             <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
                             <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader /> }} />
+                            <Nav.Screen name="Home" component={Home} options={{ headerShown: false }} />
+
                             <Nav.Screen
                                 name="MovieDescriptionPage"
                                 component={MovieDescriptionPage}

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-nati
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import Post from "./Post";
-import Review from "../Screens/Review";
+import Review from "./Review";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost } from "../Services/PostsApiServices";
 import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 
@@ -45,24 +45,28 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
 
             let postsWithComments = [];
             if (postsResponse.data) {
-                postsWithComments = await Promise.all(postsResponse.data.map(async (post) => {
-                    const commentsResponse = await getCountCommentsOfPost(post.postId);
-                    const likesResponse = await getLikesOfPost(post.postId);
-                    const likesCount = likesResponse.data;
-                    const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
-                    return { ...post, commentsCount, likesCount, type: "post" };
-                }));
+                postsWithComments = await Promise.all(
+                    postsResponse.data.map(async (post) => {
+                        const commentsResponse = await getCountCommentsOfPost(post.postId);
+                        const likesResponse = await getLikesOfPost(post.postId);
+                        const likesCount = likesResponse.data;
+                        const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
+                        return { ...post, commentsCount, likesCount, type: "post" };
+                    })
+                );
             }
 
             let reviewsWithComments = [];
             if (reviewsResponse.data) {
-                reviewsWithComments = await Promise.all(reviewsResponse.data.map(async (review) => {
-                    const commentsResponse = await getCountCommentsOfPost(review.reviewId);
-                    const likesResponse = await getLikesOfReview(review.reviewId);
-                    const likesCount = likesResponse.data;
-                    const commentsCount = commentsResponse.data.reviewCommentCount; // Adjust according to the actual structure
-                    return { ...review, commentsCount, likesCount, type: "review" };
-                }));
+                reviewsWithComments = await Promise.all(
+                    reviewsResponse.data.map(async (review) => {
+                        const commentsResponse = await getCountCommentsOfPost(review.reviewId);
+                        const likesResponse = await getLikesOfReview(review.reviewId);
+                        const likesCount = likesResponse.data;
+                        const commentsCount = commentsResponse.data.reviewCommentCount; // Adjust according to the actual structure
+                        return { ...review, commentsCount, likesCount, type: "review" };
+                    })
+                );
             }
 
             // Combine posts and reviews and sort by date
@@ -129,7 +133,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                     </Pressable>
                 </View>
             ) : (
-                posts.map((item, index) => (
+                posts.map((item, index) =>
                     item.type === "post" ? (
                         <Post
                             key={index} // for uniqueness
@@ -169,7 +173,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                             rating={item.rating}
                         />
                     )
-                ))
+                )
             )}
         </View>
     );

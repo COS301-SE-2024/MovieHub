@@ -358,14 +358,14 @@ exports.getCommentsOfReview = async (reviewId) => {
     }
 };
 
-exports.getCommentsOfComment = async (commnetId) => {
+exports.getCommentsOfComment = async (commentId) => {
     console.log("In Services: getCommentsOfComment");
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (c:Comment {comOnId: $commnetId)
+            `MATCH (c:Comment {comOnId: $commentId})
              RETURN c`,
-            { commnetId }
+            { commentId }
         );
         if (result.records.length === 0) {
             return result.records;

@@ -214,7 +214,8 @@ exports.getCommentsOfReview = async (req, res) => {
 
 exports.getCommentsOfComment = async (req, res) => {
     try {
-        const commentId = req.params.reviewId;
+        // console.log('Getting comments', req.params);
+        const commentId = req.params.commentId;
         const comments = await postService.getCommentsOfComment(commentId);
         if (comments)
             responseHandler(res, 200, 'Comments fetched successfully', comments);
