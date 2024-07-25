@@ -121,7 +121,7 @@ export const editPost = async (bodyData) => {
 };
 
 export const editReview = async (bodyData) => {
-    // bodyData should contain: { reviewId, uid, text }
+    // bodyData should contain: { reviewId, uid, text, reviewTitle ,rating }
     try {
         const response = await fetchWithAuth(`${API_URL}edit/review`, {
             method: 'PUT',
