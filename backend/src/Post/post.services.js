@@ -358,6 +358,27 @@ exports.getCommentsOfReview = async (reviewId) => {
     }
 };
 
+exports.getCommentsOfComment = async (commnetId) => {
+    console.log("In Services: getCommentsOfComment");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (c:Comment {comOnId: $commnetId)
+             RETURN c`,
+            { commnetId }
+        );
+        if (result.records.length === 0) {
+            return result.records;
+        }
+        return result.records.map(record => record.get('c').properties);
+    } catch (error) {
+        console.error("Error getting comments of review: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 exports.getPostsOfUser = async (uid) => {
     console.log("In Services: getPostsOfUser");
     const session = driver.session();

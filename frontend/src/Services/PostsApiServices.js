@@ -248,6 +248,20 @@ export const getCommentsOfReview = async (reviewId) => {
     return data;
 };
 
+export const getCommentsOfComment = async (commentId) => {
+    // commentId should be a string
+    try {
+        const response = await fetchWithAuth(`${API_URL}comment/${commentId}/comments`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to fetch comments of comment: ' + error.message);
+    }
+    const data = await response.json();
+    return data;
+};
+
 export const getPostsOfUser = async (uid) => {
     // uid should be a string
     try {

@@ -212,6 +212,19 @@ exports.getCommentsOfReview = async (req, res) => {
     }
 };
 
+exports.getCommentsOfComment = async (req, res) => {
+    try {
+        const commentId = req.params.reviewId;
+        const comments = await postService.getCommentsOfComment(commentId);
+        if (comments)
+            responseHandler(res, 200, 'Comments fetched successfully', comments);
+        else
+            res.status(400).json({ message: 'Error fetching comments' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
 exports.getPostsOfUser = async (req, res) => {
     try {
         const uid = req.params.uid;
