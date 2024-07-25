@@ -12,7 +12,7 @@ import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
 import { getCommentsOfPost } from "../Services/PostsApiServices";
-import { getUserProfile } from "../Services/UsersApiService";
+import { getUserProfile, followUser, unfollowUser } from "../Services/UsersApiService";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function FollowersProfilePage({ route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) {
@@ -99,8 +99,20 @@ export default function FollowersProfilePage({ route,username, userHandle, userA
 
     const [isFollowing, setIsFollowing] = useState(false);
 
-    const handlePress = () => {
-        setIsFollowing(!isFollowing);
+    const handlePress = async () => {
+        try {
+            if (isFollowing) {
+                await unfollowUser(userInfo.userId, userProfile.id);
+                setIsFollowing(false);
+                setFollowers(prev => prev - 1);
+            } else {
+                await followUser(userInfo.userId, userProfile.id);
+                setIsFollowing(true);
+                setFollowers(prev => prev + 1);
+            }
+        } catch (error) {
+            console.error("Error updating follow status:", error);
+        }
     };
 
     
