@@ -4,13 +4,13 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { colors, themeStyles } from '../styles/theme';
 
-export default function HomeHeader() {
+export default function HomeHeader({ userInfo }) {
     const navigation = useNavigation(); // Access the navigation prop using the hook
 
     return (
         <View style={styles.header}>
             <Text style={styles.logo}>movieHub.</Text>
-            <Pressable style={styles.icon} onPress={() => navigation.navigate('SearchPage')}>
+            <Pressable style={styles.icon} onPress={() => navigation.navigate('SearchPage', { userInfo })}>
                 <Icon name='search' size={30} color={"white"} style={styles.iconShadow} />
             </Pressable>
         </View>

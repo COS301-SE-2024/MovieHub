@@ -9,8 +9,6 @@ import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
 import Svg, { Rect } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
-
-import { getPopularMovies, getMoviesByGenre } from "../Services/TMDBApiService";
 import Post from "../Components/Post";
 import HomeHeader from "../Components/HomeHeader";
 
@@ -72,6 +70,19 @@ const Backdrop = ({ movies, scrollX }) => {
     );
 };
 
+const VirtualizedList = ({children}) => {
+    return (
+        <FlatList
+            data={[]}
+            keyExtractor={() => "key"}
+            renderItem={null}
+            ListHeaderComponent={
+                <>{children}</>
+            }
+        />
+    )
+}
+
 const Home = ({ route }) => {
     //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
@@ -96,9 +107,10 @@ const Home = ({ route }) => {
     }
 
     return (
-        <View style={{ flex: 1 }}>
-            <ScrollView style={styles.container}>
-                <HomeHeader />
+        <VirtualizedList style={{ flex: 1 }}>
+
+            <View style={styles.container}>
+                <HomeHeader userInfo={userInfo} />
                 <Backdrop movies={movies} scrollX={scrollX} />
                 <StatusBar hidden />
                 <Animated.FlatList
@@ -168,14 +180,14 @@ const Home = ({ route }) => {
                 />
                 {/* Posts */}
                 <View>
-                    <Text style={{ fontSize: 24, fontWeight: "bold", paddingLeft: 16, paddingBottom: 10, textAlign: "center", fontFamily: "Roboto" }}>Latest Posts</Text>
+                    <Text style={{ fontSize: 24, fontWeight: "bold", paddingLeft: 16, paddingBottom: 10, textAlign: "center" }}>Latest Posts</Text>
                     <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
                     <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
                     <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
                 </View>
-            </ScrollView>
+            </View>
             <BottomHeader userInfo={userInfo} />
-        </View>
+        </VirtualizedList>
     );
 };
 
