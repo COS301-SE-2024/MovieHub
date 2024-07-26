@@ -15,9 +15,9 @@ export default function BottomHeader({ userInfo }) {
         ///// add user info parameter to other pages as necessary /////////
         <View style={styles.header}>
             <View style={styles.iconRow}>
-                <TouchableOpacity onPress={() => navigation.navigate("HomePage", { userInfo })} style={styles.iconContainer}>
-                    <Icon name="home" size={30} style={[styles.icon, isActive("HomePage") && styles.activeIcon]} />
-                    {isActive("HomePage") && <View style={styles.activeIndicator} />}
+                <TouchableOpacity onPress={() => navigation.navigate("Home", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="home" size={30} style={[styles.icon, isActive("Home") && styles.activeIcon]} />
+                    {isActive("Home") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Notifications", { userInfo })} style={styles.iconContainer}>
                     <Icon name="notifications" size={30} style={[styles.icon, isActive("Notifications") && styles.activeIcon]} />

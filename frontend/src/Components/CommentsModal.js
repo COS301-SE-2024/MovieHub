@@ -69,7 +69,7 @@ const CommentsModal = forwardRef((props, ref) => {
                 };
                 if (replyTo) {
                     const response = await addCommentToComment({ ...postBody, comOnId: replyTo.comId });
-                    console.log("Response CommentsModal:", response);
+                    // console.log("Response CommentsModal:", response);
                 } else {
                     const response = isPost ? await addCommentToPost(postBody) : await addCommentToReview({ ...postBody, reviewId: postId });
                 }
@@ -90,7 +90,6 @@ const CommentsModal = forwardRef((props, ref) => {
 
     const handleDeleteComment = async (comment) => {
         // Implement your delete comment logic here
-        console.log(comment);
         try {
             const body = {
                 uid: userId,
@@ -125,7 +124,6 @@ const CommentsModal = forwardRef((props, ref) => {
                 ...prevReplies,
                 [commentId]: response.data, // Assuming response.data contains the list of replies
             }));
-            console.log("Replies fetched:", response.data);
         } catch (error) {
             console.error("Error fetching replies:", error.message);
         }
@@ -188,9 +186,9 @@ const CommentsModal = forwardRef((props, ref) => {
                                                         {expandedReplies[comment.comId] ? "Hide replies" : `View ${replies[comment.comId].length} more replies`}
                                                     </Text>
                                                 )}
-                                                {replies[comment.comId].length === 1 && !expandedReplies[comment.comId] && (
+                                                {replies[comment.comId].length === 1 && (
                                                     <Text style={styles.viewRepliesText} onPress={() => toggleReplies(comment.comId)}>
-                                                        {`View 1 more reply`}
+                                                        {expandedReplies[comment.comId] ? "Hide replies" : `View ${replies[comment.comId].length} more reply`}
                                                     </Text>
                                                 )}
                                                 {expandedReplies[comment.comId] &&

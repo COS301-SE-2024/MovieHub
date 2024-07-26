@@ -4,14 +4,14 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { colors, themeStyles } from '../styles/theme';
 
-export default function MainHeader() {
+export default function HomeHeader() {
     const navigation = useNavigation(); // Access the navigation prop using the hook
 
     return (
         <View style={styles.header}>
             <Text style={styles.logo}>movieHub.</Text>
             <Pressable style={styles.icon} onPress={() => navigation.navigate('SearchPage')}>
-                <Icon name='search' size={30} />
+                <Icon name='search' size={30} color={"white"} style={styles.iconShadow} />
             </Pressable>
         </View>
     );
@@ -19,22 +19,27 @@ export default function MainHeader() {
 
 const styles = StyleSheet.create({
     header: { 
-        height: 90,
-        paddingTop: 20,
-        backgroundColor: 'transparent',
+        paddingVertical: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        zIndex: 1,
     },
     logo: {
-        paddingLeft: 15,
-        paddingTop: 20,
+        paddingLeft: 20,
         fontFamily: 'Roboto',
-        color: colors.primary,
+        color: "white",
         fontSize: 20,
         fontWeight: 'bold',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: {width: -1, height: 0.4},
+        textShadowRadius: 12
     },
     icon: {
-        paddingTop: 17,
         paddingRight: 15,
+    },
+    iconShadow: {
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 3,
     }
 });
