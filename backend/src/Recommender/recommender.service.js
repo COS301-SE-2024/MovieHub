@@ -10,7 +10,7 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
     try {
         const tmdbMovie = await getMovieDetails(tmdbId);
         const genreQuery = tmdbMovie.genres.map(genre => genre.id);
-
+        console.log("About to make use of elastic search client");
         const { body } = await client.search({
             index: 'movies',
             body: {
@@ -19,15 +19,19 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
                 },
                 size: 100 // Adjust size as needed
             },
+        }).catch(error => {
+            console.error('Error during Elasticsearch search:', error);
+            throw error;
         });
-
+        console.log("Awaited client...");
         const allMovies = body.hits.hits.map(hit => hit._source);
         const tmdbMovieFeatures = combineFeatures(tmdbMovie);
         const allMoviesFeatures = allMovies.map(combineFeatures);
         const combinedFeatures = [tmdbMovieFeatures, ...allMoviesFeatures];
-
+        console.log("The combined featues: ", combinedFeatures);
         const movieVectors = vectorizeMovies(combinedFeatures);
         const [tmdbMovieVector, ...allMoviesVectors] = movieVectors;
+        console.log("Movie Vectors: ", movieVectors);
         const cosineSimilarities = allMoviesVectors.map((vector, index) => ({
             movie: allMovies[index],
             similarity: cosineSimilarity(tmdbMovieVector, vector)

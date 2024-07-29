@@ -3,6 +3,6 @@ const express = require('express');
 const { getRecommendations } = require('./recommender.controller');
 const router = express.Router();
 
-router.get('/recommend/:tmdbId', getRecommendations);
+router.get('/:tmdbId', getRecommendations);
 
 module.exports = router;
