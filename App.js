@@ -47,6 +47,9 @@ import WatchParty from "./frontend/src/Screens/WatchParty";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
+import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage"
+import FollowersPage from "./frontend/src/Screens/FollowersPage"
+import FollowingPage from "./frontend/src/Screens/FollowingPage"
 
 const Nav = createNativeStackNavigator();
 
@@ -101,7 +104,33 @@ export default function App() {
                                     headerBackTitleVisible: false,
                                     headerTintColor: "black",})}
                             />
-
+                            <Nav.Screen
+                                name="FollowersPage"
+                                component={FollowersPage}
+                                options={({ navigation }) => ({
+                                    title: "Followers",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",})}
+                            />
+                            <Nav.Screen
+                                name="FollowingPage"
+                                component={FollowingPage}
+                                options={({ navigation }) => ({
+                                    title: "Following",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",})}
+                            />
+                            <Nav.Screen
+                                name="Profile"
+                                component={FollowersProfilePage}
+                                options={({ navigation }) => ({
+                                    title: "Profile",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",})}
+                            />
                             <Nav.Screen
                                 name="ProfilePage"
                                 component={ProfilePage}

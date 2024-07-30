@@ -9,7 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { removePost } from "../Services/PostsApiServices";
 import { toggleLikePost } from "../Services/LikesApiService";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -59,22 +59,14 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     // Function to remove posts
 
     const handleRemovePost = async (uid, postId) => {
-        try {
-            //
-            console.log('Removing post:', postId + ' by ' + uid);
-            const postBody = {
-                postId: postId,
-                uid: uid
-            }
-            await removePost(postBody);
-            toggleModal();
-            // console.log('Post removed successfully');
-            Alert.alert(null,'Post removed successfully');
-        } catch (error) {
-            console.error('Error removing post:', error);
-            throw new Error('Failed to remove post' + error);
-        }
+        onDelete(postId);
+        toggleModal();
     };
+
+    const handleEditPost = () => {
+        toggleModal();
+        navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
+    }
 
     // TODO: Increment or decrement number of likes
 
@@ -224,9 +216,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                         <>
                             <TouchableOpacity
                                 style={styles.modalOption}
-                                onPress={() => {
-                                    navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
-                                }}>
+                                onPress={handleEditPost}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
                             <TouchableOpacity

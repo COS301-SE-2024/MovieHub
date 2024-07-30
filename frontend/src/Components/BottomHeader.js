@@ -28,9 +28,9 @@ export default function BottomHeader({ userInfo }) {
                     <Icon name="add-circle-outline" size={30} style={[styles.icon, isActive("CreatePost") && styles.activeIcon]} />
                     {isActive("CreatePost") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("People", { userInfo })} style={styles.iconContainer}>
-                    <Icon name="people" size={32} style={[styles.icon, isActive("People") && styles.activeIcon]} />
-                    {isActive("People") && <View style={styles.activeIndicator} />}
+                <TouchableOpacity onPress={() => navigation.navigate("ExplorePage", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="people" size={32} style={[styles.icon, isActive("ExplorePage") && styles.activeIcon]} />
+                    {isActive("ExplorePage") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("ProfilePage", { userInfo })} style={styles.iconContainer}>
                     <Image 

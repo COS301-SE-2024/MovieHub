@@ -70,18 +70,9 @@ const Backdrop = ({ movies, scrollX }) => {
     );
 };
 
-const VirtualizedList = ({children}) => {
-    return (
-        <FlatList
-            data={[]}
-            keyExtractor={() => "key"}
-            renderItem={null}
-            ListHeaderComponent={
-                <>{children}</>
-            }
-        />
-    )
-}
+const VirtualizedList = ({ children }) => {
+    return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} />;
+};
 
 const Home = ({ route }) => {
     //Use userInfo to personlise a users homepage
@@ -107,87 +98,88 @@ const Home = ({ route }) => {
     }
 
     return (
-        <VirtualizedList style={{ flex: 1 }}>
+        <View style={styles.container}>
+            <VirtualizedList style={{ flex: 1 }}>
+                <View style={styles.container}>
+                    <HomeHeader userInfo={userInfo} />
+                    <Backdrop movies={movies} scrollX={scrollX} />
+                    <StatusBar hidden />
+                    <Animated.FlatList
+                        showsHorizontalScrollIndicator={false}
+                        data={movies}
+                        keyExtractor={(item) => item.key}
+                        horizontal
+                        bounces={false}
+                        decelerationRate={Platform.OS === "ios" ? 0 : 0.98}
+                        renderToHardwareTextureAndroid
+                        contentContainerStyle={{ alignItems: "center", paddingBottom: 30 }}
+                        snapToInterval={ITEM_SIZE}
+                        snapToAlignment="start"
+                        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false })}
+                        scrollEventThrottle={16}
+                        renderItem={({ item, index }) => {
+                            if (!item.poster) {
+                                return <View style={{ width: EMPTY_ITEM_SIZE }} />;
+                            }
 
-            <View style={styles.container}>
-                <HomeHeader userInfo={userInfo} />
-                <Backdrop movies={movies} scrollX={scrollX} />
-                <StatusBar hidden />
-                <Animated.FlatList
-                    showsHorizontalScrollIndicator={false}
-                    data={movies}
-                    keyExtractor={(item) => item.key}
-                    horizontal
-                    bounces={false}
-                    decelerationRate={Platform.OS === "ios" ? 0 : 0.98}
-                    renderToHardwareTextureAndroid
-                    contentContainerStyle={{ alignItems: "center", paddingBottom: 30 }}
-                    snapToInterval={ITEM_SIZE}
-                    snapToAlignment="start"
-                    onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false })}
-                    scrollEventThrottle={16}
-                    renderItem={({ item, index }) => {
-                        if (!item.poster) {
-                            return <View style={{ width: EMPTY_ITEM_SIZE }} />;
-                        }
+                            const inputRange = [(index - 2) * ITEM_SIZE, (index - 1) * ITEM_SIZE, index * ITEM_SIZE];
 
-                        const inputRange = [(index - 2) * ITEM_SIZE, (index - 1) * ITEM_SIZE, index * ITEM_SIZE];
+                            const translateY = scrollX.interpolate({
+                                inputRange,
+                                outputRange: [55, 0, 55],
+                                extrapolate: "clamp",
+                            });
 
-                        const translateY = scrollX.interpolate({
-                            inputRange,
-                            outputRange: [55, 0, 55],
-                            extrapolate: "clamp",
-                        });
+                            const movieDetails = {
+                                movieId: item.key,
+                                imageUrl: item.poster,
+                                title: item.title,
+                                rating: item.rating,
+                                overview: item.description,
+                                date: new Date(item.releaseDate).getFullYear(),
+                            };
 
-                        const movieDetails = {
-                            movieId: item.key,
-                            imageUrl: item.poster,
-                            title: item.title,
-                            rating: item.rating,
-                            overview: item.description,
-                            date: new Date(item.releaseDate).getFullYear(),
-                        };
-
-                        return (
-                            <View style={{ width: ITEM_SIZE, paddingBottom:0 }}>
-                                <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
-                                    <Animated.View
-                                        style={{
-                                            marginHorizontal: SPACING,
-                                            padding: SPACING * 2,
-                                            alignItems: "center",
-                                            transform: [{ translateY }],
-                                            backgroundColor: "white",
-                                            borderRadius: 34,
-                                        }}>
-                                        <Image source={{ uri: item.poster }} style={styles.posterImage} />
-                                        <Text style={{ fontSize: 24 }} numberOfLines={1}>
-                                            {item.title}
-                                        </Text>
-                                        <Rating rating={item.rating} />
-                                        <Genres genres={item.genres} />
-                                        <Text style={{ fontSize: 12 }} numberOfLines={3}>
-                                            {item.description}
-                                        </Text>
-                                        <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
-                                            <Text style={{ fontSize: 12, fontWeight: "500", color: "blue" }}>Read more</Text>
-                                        </Pressable>
-                                    </Animated.View>
-                                </Pressable>
-                            </View>
-                        );
-                    }}
-                />
-                {/* Posts */}
-                <View>
-                    <Text style={{ fontSize: 24, fontWeight: "bold", paddingLeft: 16, paddingBottom: 10, textAlign: "center" }}>Latest Posts</Text>
-                    <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
-                    <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
-                    <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
+                            return (
+                                <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                        <Animated.View
+                                            style={{
+                                                marginHorizontal: SPACING,
+                                                padding: SPACING * 2,
+                                                alignItems: "center",
+                                                transform: [{ translateY }],
+                                                backgroundColor: "white",
+                                                borderRadius: 34,
+                                            }}>
+                                            <Image source={{ uri: item.poster }} style={styles.posterImage} />
+                                            <Text style={{ fontSize: 24 }} numberOfLines={1}>
+                                                {item.title}
+                                            </Text>
+                                            <Rating rating={item.rating} />
+                                            <Genres genres={item.genres} />
+                                            <Text style={{ fontSize: 12 }} numberOfLines={3}>
+                                                {item.description}
+                                            </Text>
+                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                                <Text style={{ fontSize: 12, fontWeight: "500", color: "blue" }}>Read more</Text>
+                                            </Pressable>
+                                        </Animated.View>
+                                    </Pressable>
+                                </View>
+                            );
+                        }}
+                    />
+                    {/* Posts */}
+                    <View>
+                        <Text style={{ fontSize: 24, fontWeight: "bold", paddingLeft: 16, paddingBottom: 10, textAlign: "center" }}>Latest Posts</Text>
+                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
+                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
+                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
+                    </View>
                 </View>
-            </View>
+            </VirtualizedList>
             <BottomHeader userInfo={userInfo} />
-        </VirtualizedList>
+        </View>
     );
 };
 

@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import Post from "./Post";
 
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
-import { getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices";
+import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import Review from "./Review";
 
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
@@ -47,7 +47,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                             commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data.postCommentCount;
                             likesCount = (await getLikesOfPost(item.properties.postId)).data;
                         } else if (item.labels[0] === "Review") {
-                            console.log(item.properties.reviewId);
+                            console.log("item",item);
                             commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data.reviewCommentCount;
                             likesCount = (await getLikesOfReview(item.properties.reviewId)).data;
                         }
@@ -59,7 +59,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
 
                 // Sort posts by createdAt in descending order (most recent first)
                 postsWithComments.sort((a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt));
-                console.log("postWithComments", postsWithComments);
+                // console.log("postWithComments", postsWithComments);
                 setLikedPosts(postsWithComments);
             }
         } catch (error) {
@@ -73,6 +73,26 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
     useEffect(() => {
         fetchLikedPosts();
     }, []);
+
+    const handleDeletePost = async (postId) => {
+        try {
+            await removePost({ postId, uid: userInfo.userId });
+            setLikedPosts(likedPosts.filter(post => post.postId !== postId));
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            Alert.alert("Error", "Failed to delete post");
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        try {
+            await removeReview({ postId: reviewId, uid: userInfo.userId });
+            setLikedPosts(likedPosts.filter(review => review.reviewId !== reviewId));
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            Alert.alert("Error", "Failed to delete review");
+        }
+    };
 
     return (
         <View style={{ flex: 1 }}>
@@ -101,6 +121,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                                 isUserPost={item.properties.uid === userInfo.userId}
                                 handleCommentPress={handleCommentPress}
                                 datePosted={formatTimeAgoFromDB(item.properties.createdAt)}
+                                onDelete={handleDeletePost}
                             />
                         ) : (
                             <Review
@@ -116,11 +137,12 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                                 preview={item.properties.text}
                                 saves={getRandomNumber(0, 18)}
                                 image={item.properties.image || null}
-                                isUserPost={item.properties.uid === userInfo.userId}
+                                isUserReview={item.properties.uid === userInfo.userId}
                                 handleCommentPress={handleCommentPress}
-                                datePosted={formatTimeAgoFromDB(item.properties.createdAt)}
+                                dateReviewed={formatTimeAgoFromDB(item.properties.createdAt)}
                                 movieName={item.properties.movieTitle}
                                 rating={item.properties.rating}
+                                onDelete={handleDeleteReview}
                             />
                         )
                     )
