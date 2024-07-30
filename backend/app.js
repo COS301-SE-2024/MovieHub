@@ -10,6 +10,7 @@ const movieRouter = require('./src/movieHandeling/movie.router');
 const actorRouter = require('./src/actorHandeling/actor.router');
 const genreRouter = require('./src/genreHandeling/genre.router');
 const roomRouter = require('./src/Room/room.router'); // Import the room router
+const { firebaseAdmin } = require('./src/Firebase/firebaseConnection');
 const cors = require("cors"); // since we are using more than on port
 const https = require("https");
 const fs = require("fs");
@@ -22,13 +23,6 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://moviehub-3ebc8-default-rtdb.europe-west1.firebasedatabase.app"
-    });
-}
 
 app.use(
     cors({

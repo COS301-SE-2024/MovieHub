@@ -1,4 +1,5 @@
 const neo4j = require('neo4j-driver');
+require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 
 // Initialize Neo4j driver using environment variables
