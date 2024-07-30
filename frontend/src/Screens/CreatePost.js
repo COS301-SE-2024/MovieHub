@@ -6,6 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 import { addPost } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
+import {uploadImage} from '../Services/imageHandeling.services';
 
 export default function CreatePost({ route }) {
     const [isMovieReview, setIsMovieReview] = useState(false);
@@ -47,7 +48,7 @@ export default function CreatePost({ route }) {
 
         if (!result.canceled) {
             setImageUri(result.assets[0].uri);
-            setImageFile(result);
+            setImageFile(result.assets[0]);
         }
     };
 
@@ -84,12 +85,13 @@ export default function CreatePost({ route }) {
     };
 
     const handleAddPost = async () => {
+        const imgageHandeled = await uploadImage(imageFile);
         const postData = {
             postTitle: title,
             text: thoughts,
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             movieId: 843527.0,
-            img: imageFile,
+            img: imgageHandeled,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0
         };
