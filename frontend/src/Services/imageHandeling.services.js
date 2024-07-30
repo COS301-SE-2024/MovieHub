@@ -1,13 +1,16 @@
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../../backend/src/Firebase/firebase.config";
 exports.uploadImage = async (file) => {
-    if (!file) {
+  console.log('in the file_________________________________________________________________');
+ console.log(file);
+  if (!file) {
+      
       console.error('No file provided');
       return;
     }
     try {
       // Create a storage reference
-      const storageRef = ref(storage, 'images/' + file.name);
+      const storageRef = ref(storage, 'Posts/' + file.name);
   
       // Upload the file
       const snapshot = await uploadBytes(storageRef, file);
