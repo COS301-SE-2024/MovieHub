@@ -27,6 +27,6 @@ router.get('/user/:uid/comments', postController.getCommentsOfUser);
 router.get('/user/:uid/reviews', postController.getReviewsOfUser);
 router.get('/movie/:movieId/rating', postController.getAverageRating);
 router.get('/post/:postId/comment/count', postController.getCountCommentsOfPost);
-router.get('/review/:reviewId/commnet/count', postController.getCountCommentsOfReview);
+router.get('/review/:reviewId/comment/count', postController.getCountCommentsOfReview);
 
 module.exports = router;
