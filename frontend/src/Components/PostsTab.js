@@ -1,10 +1,12 @@
+// PostsTab.js
+
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import Post from "./Post";
 import Review from "./Review";
-import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost } from "../Services/PostsApiServices";
+import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 
 export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
@@ -60,7 +62,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             if (reviewsResponse.data) {
                 reviewsWithComments = await Promise.all(
                     reviewsResponse.data.map(async (review) => {
-                        const commentsResponse = await getCountCommentsOfPost(review.reviewId);
+                        const commentsResponse = await getCountCommentsOfReview(review.reviewId);
                         const likesResponse = await getLikesOfReview(review.reviewId);
                         const likesCount = likesResponse.data;
                         const commentsCount = commentsResponse.data.reviewCommentCount; // Adjust according to the actual structure
@@ -84,6 +86,27 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
     useEffect(() => {
         fetchPostsAndReviews();
     }, []);
+
+    // Function to handle post deletion and state update
+    const handleDeletePost = async (postId) => {
+        try {
+            await removePost({ postId, uid: userInfo.userId });
+            setPosts(posts.filter(post => post.postId !== postId));
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            Alert.alert("Error", "Failed to delete post");
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        try {
+            await removeReview({ postId: reviewId, uid: userInfo.userId });
+            setPosts(posts.filter(review => review.reviewId !== reviewId));
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            Alert.alert("Error", "Failed to delete review");
+        }
+    };
 
     const styles = StyleSheet.create({
         outerContainer: {
@@ -151,6 +174,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                             isUserPost={item.uid === userInfo.userId}
                             handleCommentPress={handleCommentPress}
                             datePosted={formatTimeAgoFromDB(item.createdAt)}
+                            onDelete={handleDeletePost} // Pass handleDeletePost function
                         />
                     ) : (
                         <Review
@@ -171,6 +195,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                             handleCommentPress={handleCommentPress}
                             movieName={item.movieTitle}
                             rating={item.rating}
+                            onDelete={handleDeleteReview}
                         />
                     )
                 )

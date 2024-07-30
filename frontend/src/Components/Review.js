@@ -10,7 +10,7 @@ import { removeReview } from "../Services/PostsApiServices";
 import { toggleLikeReview } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
-export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating }) {
+export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
@@ -59,20 +59,8 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
     // Function to remove reviews
 
     const handleRemoveReview = async (uid, reviewId) => {
-        try {
-            //
-            console.log("Removing review:", reviewId + " by " + uid);
-            const reviewBody = {
-                reviewId: reviewId,
-                uid: uid,
-            };
-            await removeReview(reviewBody);
-            // console.log('Review removed successfully');
-            Alert.alert(null, "Review removed successfully");
-        } catch (error) {
-            console.error("Error removing review:", error);
-            throw new Error("Failed to remove review" + error);
-        }
+        onDelete(reviewId);
+        toggleModal();
     };
 
     // TODO: Increment or decrement number of likes
