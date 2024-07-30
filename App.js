@@ -10,7 +10,9 @@ import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomDrawer from "./frontend/src/Screens/ProfileDrawer";
 import HomePage from "./frontend/src/Screens/HomePage";
+import Home from "./frontend/src/Screens/Home";
 import MainHeader from "./frontend/src/Components/MainHeader";
+import HomeHeader from "./frontend/src/Components/HomeHeader";
 import SearchHeader from "./frontend/src/Components/SearchHeader";
 import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
@@ -34,6 +36,7 @@ import ChangePassword from "./frontend/src/Screens/ChangePassword";
 import MovieDescriptionPage from "./frontend/src/Screens/MovieDescriptionPage";
 import CreatePost from "./frontend/src/Screens/CreatePost";
 import EditPost from "./frontend/src/Screens/EditPost";
+import EditReview from "./frontend/src/Screens/EditReview";
 import CreateWatchlist from "./frontend/src/Screens/CreateWatchlist";
 import AddMovies from "./frontend/src/Screens/AddMovies";
 import Notifications from "./frontend/src/Screens/Notifications";
@@ -75,6 +78,8 @@ export default function App() {
                             <Nav.Screen name="ProfileSetup" component={ProfileSetup} options={{ headerShown: false }} />
                             <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
                             <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader /> }} />
+                            <Nav.Screen name="Home" component={Home} options={{ headerShown: false }} />
+
                             <Nav.Screen
                                 name="MovieDescriptionPage"
                                 component={MovieDescriptionPage}
@@ -208,6 +213,17 @@ export default function App() {
                                     headerBackTitleVisible: false,
                                     headerTintColor: "black",
                                 })}
+                            />
+
+                            <Nav.Screen 
+                                name="EditReview"
+                                component={EditReview}
+                                options={({ navigation }) => ({
+                                    title: "Edit Review",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",
+                                })} 
                             />
 
                             <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={{ title: "Settings and Activity" }} />

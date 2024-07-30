@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import Post from "./Post";
 
-import { getUserLikedPosts, getLikesOfPost } from "../Services/LikesApiService";
-import { getCountCommentsOfPost } from "../Services/PostsApiServices";
+import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
+import { getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices";
+import Review from "./Review";
 
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
     const [likedPosts, setLikedPosts] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -30,25 +32,34 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
 
     const fetchLikedPosts = async () => {
         try {
+            setLoading(true); // Set loading to true before fetch starts
             const userId = userInfo.userId;
             const response = await getUserLikedPosts(userId);
-            console.log("Fetched likes", response); 
 
             if (response.data === null) {
                 setLikedPosts([]);
             } else {
-                const postsWithComments = await Promise.all(response.data.map(async (post) => {
-                    const commentsResponse = await getCountCommentsOfPost(post.properties.postId);
-                    const likesResponse = await getLikesOfPost(post.properties.postId);
-                    const likesCount = likesResponse.data;
-                    const commentsCount = commentsResponse.data.postCommentCount;
-                    const userHandle = "@" + post.properties.username;
-                    return { ...post, commentsCount, likesCount, userHandle };
-                }));
+                const postsWithComments = await Promise.all(
+                    response.data.map(async (item) => {
+                        let commentsCount;
+                        let likesCount;
+                        if (item.labels[0] === "Post") {
+                            commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data.postCommentCount;
+                            likesCount = (await getLikesOfPost(item.properties.postId)).data;
+                        } else if (item.labels[0] === "Review") {
+                            console.log(item.properties.reviewId);
+                            commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data.reviewCommentCount;
+                            likesCount = (await getLikesOfReview(item.properties.reviewId)).data;
+                        }
+
+                        const userHandle = "@" + item.properties.username;
+                        return { ...item, commentsCount, likesCount, userHandle };
+                    })
+                );
 
                 // Sort posts by createdAt in descending order (most recent first)
-                postsWithComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
+                postsWithComments.sort((a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt));
+                console.log("postWithComments", postsWithComments);
                 setLikedPosts(postsWithComments);
             }
         } catch (error) {
@@ -68,29 +79,51 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
             <ScrollView>
                 {likedPosts.length === 0 ? (
                     <View style={styles.container}>
-                        <Text style={styles.title}>You havent liked any posts or reviews yet.</Text>
+                        <Text style={styles.title}>You haven't liked any posts or reviews yet.</Text>
                         <Text style={styles.subtitle}>Start exploring and find reviews that resonate with you!</Text>
                     </View>
                 ) : (
-                    likedPosts.map((post, index) => (
-                        <Post
-                            key={index} // for uniqueness
-                            postId={post.properties.postId}
-                            uid={post.properties.uid}
-                            username={post.properties.name}
-                            userHandle={post.userHandle}
-                            userAvatar={post.properties.avatar}
-                            postTitle={post.properties.postTitle}
-                            likes={post.likesCount}
-                            comments={post.commentsCount}
-                            preview={post.properties.text}
-                            saves={getRandomNumber(0, 18)}
-                            image={post.properties.image || null}
-                            isUserPost={post.properties.uid === userInfo.userId}
-                            handleCommentPress={handleCommentPress}
-                            datePosted={formatTimeAgoFromDB(post.properties.createdAt)}
-                        />
-                    ))
+                    likedPosts.map((item, index) =>
+                        item.labels[0] === "Post" ? (
+                            <Post
+                                key={index} // for uniqueness
+                                postId={item.properties.postId}
+                                uid={item.properties.uid}
+                                username={item.properties.name}
+                                userHandle={item.userHandle}
+                                userAvatar={item.properties.avatar}
+                                postTitle={item.properties.postTitle}
+                                likes={item.likesCount}
+                                comments={item.commentsCount}
+                                preview={item.properties.text}
+                                saves={getRandomNumber(0, 18)}
+                                image={item.properties.image || null}
+                                isUserPost={item.properties.uid === userInfo.userId}
+                                handleCommentPress={handleCommentPress}
+                                datePosted={formatTimeAgoFromDB(item.properties.createdAt)}
+                            />
+                        ) : (
+                            <Review
+                                key={index} // for uniqueness
+                                reviewId={item.properties.reviewId}
+                                uid={item.properties.uid}
+                                username={item.properties.name}
+                                userHandle={item.userHandle}
+                                userAvatar={item.properties.avatar}
+                                reviewTitle={item.properties.reviewTitle}
+                                likes={item.likesCount}
+                                comments={item.commentsCount}
+                                preview={item.properties.text}
+                                saves={getRandomNumber(0, 18)}
+                                image={item.properties.image || null}
+                                isUserPost={item.properties.uid === userInfo.userId}
+                                handleCommentPress={handleCommentPress}
+                                datePosted={formatTimeAgoFromDB(item.properties.createdAt)}
+                                movieName={item.properties.movieTitle}
+                                rating={item.properties.rating}
+                            />
+                        )
+                    )
                 )}
             </ScrollView>
         </View>
