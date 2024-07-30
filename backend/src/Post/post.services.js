@@ -389,7 +389,7 @@ exports.getPostsOfUser = async (uid) => {
             { uid }
         );
         if (result.records.length === 0) {
-            return ;
+            return result.records;
         }
         return result.records.map(record => record.get('p').properties);
     } catch (error) {
