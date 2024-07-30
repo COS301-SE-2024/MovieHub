@@ -3,6 +3,7 @@ import responseHandler from '../utils/responseHandler';
 
 exports.addLog = async (req, res) => {
     const { uid, movieId, date } = req.body;
+    console.log(`Adding log`);
     try {
         const log = await logService.addLog(uid, movieId, date);
         if (log) {
@@ -17,9 +18,9 @@ exports.addLog = async (req, res) => {
 } // adds log with movie and date
 
 exports.editLog = async (req, res) => {
-    const { uid, movieId, date, desc } = req.body;
+    const { uid, logId, date, description } = req.body;
     try {
-        const log = await logService.editLog(uid, movieId, date, desc);
+        const log = await logService.editLog(uid, logId, date, description);
         if (log) {
             responseHandler(res, 200, 'Log updated successfully', log);
         } else {
@@ -32,9 +33,9 @@ exports.editLog = async (req, res) => {
 } // can update date and description
 
 exports.removeLog = async (req, res) => {
-    const { uid, movieId, date, desc } = req.body;
+    const { uid, logId } = req.body;
     try {
-        const log = await logService.removeLog(uid, movieId, date, desc);
+        const log = await logService.removeLog(uid, logId);
         if (log) {
             responseHandler(res, 200, 'Log removed successfully');
         } else {
