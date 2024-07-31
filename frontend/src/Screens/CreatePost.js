@@ -293,8 +293,8 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     label: {
-        fontSize: 16,
-        fontWeight: "600",
+        fontSize: 14,
+        fontWeight: "800",
         paddingBottom: 10,
     },
     input: {

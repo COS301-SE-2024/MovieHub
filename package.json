@@ -20,6 +20,7 @@
     "@react-native-community/cli-server-api": "^13.6.9",
     "@react-native-firebase/app": "^20.1.0",
     "@react-native-firebase/auth": "^20.1.0",
+    "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
     "axios": "^1.7.2",
