@@ -19,15 +19,16 @@ exports.createRoom = async (req, res) => {
 exports.joinRoom = async (req, res) => {
     try {
         const { code, userId } = req.body;
-        const roomId = await roomService.joinRoom(code, userId);
+        const result = await roomService.joinRoom(code, userId);
 
-        if (roomId) {
-            res.status(200).json({ roomId });
+        if (result.success) {
+            res.status(200).json({ roomId: result.roomId });
         } else {
-            res.status(404).json({ error: 'Room not found' });
+            res.status(400).json({ error: result.message });
         }
     } catch (error) {
         console.error('Error in joinRoom controller:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+

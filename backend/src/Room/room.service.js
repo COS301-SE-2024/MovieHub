@@ -85,19 +85,43 @@ exports.createRoom = async (userId, roomData) => {
 };
 
 exports.joinRoom = async (code, userId) => {
+    const session = driver.session();
+
     try {
         const result = await session.run(
-            'MATCH (r:Room {code: $code}) RETURN r.id AS roomId',
+            'MATCH (r:Room {roomId: $code}) RETURN r, size((r)<-[:PARTICIPATES_IN]-(:User)) AS currentParticipants',
             { code }
         );
 
         if (result.records.length > 0) {
-            const roomId = result.records[0].get('roomId');
-            // Optionally add user to the room participants list
-            return roomId;
+            const room = result.records[0].get('r').properties;
+            const currentParticipants = result.records[0].get('currentParticipants');
+
+            // Check if the user can join the room based on the access level
+            if (room.accessLevel === 'invite' || room.accessLevel === 'followers') {
+                // Implement your logic for checking user access
+                // This is a placeholder for actual access check logic
+                const hasAccess = await checkUserAccess(userId, room.accessLevel);
+                if (!hasAccess) {
+                    return { success: false, message: 'Access denied' };
+                }
+            }
+
+            // Check if the room has reached its maximum participant limit
+            if (currentParticipants >= room.maxParticipants) {
+                return { success: false, message: 'Room is full' };
+            }
+
+            // Add the user to the room
+            await session.run(
+                'MATCH (r:Room {roomId: $code}), (u:User {uid: $userId}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
+                { code, userId }
+            );
+
+            return { success: true, roomId: room.roomId };
         }
 
-        return null;
+        return { success: false, message: 'Room not found' };
     } catch (error) {
         console.error('Error joining room:', error);
         throw error;
@@ -106,6 +130,44 @@ exports.joinRoom = async (code, userId) => {
     }
 };
 
+//function to check user access
+async function checkUserAccess(userId, room) {
+    const session = driver.session();
+    const { roomId, accessLevel, createdBy } = room;
+
+    try {
+        if (accessLevel === 'everyone') {
+            // Public room, no restrictions
+            return true;
+        } else if (accessLevel === 'invite') {
+            // Check if the user has been invited
+            const inviteResult = await session.run(
+                `MATCH (u:User {uid: $userId})-[:INVITED_TO]->(r:Room {roomId: $roomId})
+                 RETURN u`,
+                { userId, roomId }
+            );
+
+            return inviteResult.records.length > 0;
+        } else if (accessLevel === 'friends') {
+            // Check if the user is friends with the room admin
+            const friendResult = await session.run(
+                `MATCH (u:User {uid: $userId})-[:FRIENDS_WITH]-(a:User {uid: $adminId})
+                 RETURN u`,
+                { userId, adminId: createdBy }
+            );
+
+            return friendResult.records.length > 0;
+        }
+
+        // If access level is unrecognized, deny access
+        return false;
+    } catch (error) {
+        console.error('Error checking user access:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+}
 // Ensure the driver is closed on application exit
 process.on('exit', async () => {
     await driver.close();
