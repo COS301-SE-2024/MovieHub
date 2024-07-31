@@ -4,7 +4,7 @@ const roomController = require('./room.controller');
 const router = express.Router();
 
 // Route to create a new room
-router.post('/create', roomController.createRoom);
+router.post('/create/:userId', roomController.createRoom);
 
 // Route to join an existing room
 router.post('/join', roomController.joinRoom);

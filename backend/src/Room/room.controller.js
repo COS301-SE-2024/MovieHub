@@ -1,13 +1,18 @@
 const roomService = require('./room.service');
 
 exports.createRoom = async (req, res) => {
+    const userId = req.params.userId;
+    const roomData = req.body;
+    console.log("In createRoom controller");
     try {
-        const { hostId } = req.body;
-        const { roomId, watchPartyCode } = await roomService.createRoom(hostId);
-        res.status(201).json({ roomId, watchPartyCode });
+        console.log("Creating room for user " + userId);
+        const room = await roomService.createRoom(userId, roomData);
+        console.log(room);
+        res.status(201).json(room);
+        console.log("The response " + res);
     } catch (error) {
         console.error('Error in createRoom controller:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ message: error.message });
     }
 };
 

@@ -10,19 +10,74 @@ const driver = neo4j.driver(
 
 const session = driver.session();
 
-exports.createRoom = async (hostId) => {
+exports.createRoom = async (userId, roomData) => {
+    console.log("In room.service");
+
+    // Ensure all required parameters are present
+    const requiredParams = ['roomName', 'accessLevel', 'maxParticipants', 'roomDescription'];
+    for (const param of requiredParams) {
+        if (!(param in roomData)) {
+            console.error(`Missing required parameter: ${param}`);
+            throw new Error(`Expected parameter(s): ${requiredParams.join(', ')}`);
+        }
+    }
+
+    const session = driver.session();
     const roomId = uuidv4();
-    const watchPartyCode = uuidv4();
+    const { roomName, accessLevel, maxParticipants, roomDescription } = roomData;
+    const createdAt = new Date().toISOString();
+    const updatedAt = createdAt;
+    const isActive = true;
 
     try {
-        await session.run(
-            'CREATE (r:Room {id: $roomId, hostId: $hostId, code: $watchPartyCode, createdAt: timestamp()})',
-            { roomId, hostId, watchPartyCode }
+        console.log("All parameters are present. Proceeding with database query.");
+
+        // Start a transaction
+        const tx = session.beginTransaction();
+
+        const result = await tx.run(
+            `CREATE (r:Room {
+                roomId: $roomId,
+                roomName: $roomName,
+                accessLevel: $accessLevel,
+                createdBy: $createdBy,
+                createdAt: $createdAt,
+                updatedAt: $updatedAt,
+                maxParticipants: $maxParticipants,
+                roomDescription: $roomDescription,
+                isActive: $isActive
+             })
+             MERGE (u:User {uid: $userId})
+             CREATE (u)-[:CREATED]->(r)
+             RETURN r`,
+            {
+                roomId,
+                roomName,
+                accessLevel,
+                createdBy: userId,
+                createdAt,
+                updatedAt,
+                maxParticipants,
+                roomDescription,
+                isActive,
+                userId
+            }
         );
 
-        return { roomId, watchPartyCode };
+        console.log("Database query executed.");
+        if (result.records.length === 0) {
+            throw new Error("Failed to create room.");
+        }
+
+        // Commit the transaction
+        await tx.commit();
+
+        console.log("Room created successfully.");
+
+        return { roomId, ...roomData, createdBy: userId, createdAt, updatedAt, isActive };
     } catch (error) {
-        console.error('Error creating room:', error);
+        console.error("Error creating room:", error);
+        if (tx) await tx.rollback();
         throw error;
     } finally {
         await session.close();
