@@ -85,7 +85,7 @@ export default function CreatePost({ route }) {
     };
 
     const handleAddPost = async () => {
-        const imgageHandeled = await uploadImage(imageFile);
+        const imgageHandeled = await uploadImage(imageFile,imageFile.fileName);
         const postData = {
             postTitle: title,
             text: thoughts,
