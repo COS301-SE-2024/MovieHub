@@ -168,6 +168,59 @@ async function checkUserAccess(userId, room) {
         await session.close();
     }
 }
+
+// Function to invite a user to a room
+exports.inviteUserToRoom = async (adminId, userId, roomId) => {
+    const session = driver.session();
+    try {
+        // Check if the room is invite-only and the admin is the creator
+        const roomCheck = await session.run(
+            `MATCH (r:Room {roomId: $roomId, accessLevel: 'invite', createdBy: $adminId})
+             RETURN r`,
+            { roomId, adminId }
+        );
+
+        if (roomCheck.records.length === 0) {
+            throw new Error('Room is not invite-only or admin is not authorized.');
+        }
+
+        // Create an INVITED_TO relationship
+        await session.run(
+            `MATCH (u:User {uid: $userId}), (r:Room {roomId: $roomId})
+             MERGE (u)-[:INVITED_TO]->(r)`,
+            { userId, roomId }
+        );
+
+        console.log(`User ${userId} invited to room ${roomId} by admin ${adminId}.`);
+        return true;
+    } catch (error) {
+        console.error('Error inviting user to room:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Function to decline a room invite
+exports.declineRoomInvite = async (userId, roomId) => {
+    const session = driver.session();
+    try {
+        // Delete the INVITED_TO relationship
+        await session.run(
+            `MATCH (u:User {uid: $userId})-[i:INVITED_TO]->(r:Room {roomId: $roomId})
+             DELETE i`,
+            { userId, roomId }
+        );
+
+        console.log(`User ${userId} declined invite to room ${roomId}.`);
+    } catch (error) {
+        console.error('Error declining room invite:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 // Ensure the driver is closed on application exit
 process.on('exit', async () => {
     await driver.close();

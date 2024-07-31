@@ -32,3 +32,24 @@ exports.joinRoom = async (req, res) => {
     }
 };
 
+exports.inviteUserToRoom = async (req, res) => {
+    const { adminId, userId, roomId } = req.body;
+    try {
+        await roomService.inviteUserToRoom(adminId, userId, roomId);
+        res.status(200).json({ message: `User ${userId} invited to room ${roomId}` });
+    } catch (error) {
+        console.error('Error inviting user to room:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.declineRoomInvite = async (req, res) => {
+    const { userId, roomId } = req.body;
+    try {
+        await roomService.declineRoomInvite(userId, roomId);
+        res.status(200).json({ message: `User ${userId} declined invite to room ${roomId}` });
+    } catch (error) {
+        console.error('Error declining room invite:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
