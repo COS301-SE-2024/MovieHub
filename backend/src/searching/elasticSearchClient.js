@@ -1,4 +1,4 @@
-const { Client } = require('@elastic/elasticsearch');
+import { Client }  from '@elastic/elasticsearch';
 
 const client = new Client({
   node: 'http://localhost:9200', // Replace with your instance URL
