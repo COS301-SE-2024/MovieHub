@@ -37,7 +37,7 @@ exports.fetchFriendsContent = async (userId) => {
 exports.fetchFriendsOfFriendsContent = async (userId) => {
     const query = `
       MATCH (u:User)-[:FOLLOWS]->(friend:User)-[:FOLLOWS]->(fof:User)
-      WHERE u.uid = $userId
+      WHERE u.uid = $userId AND NOT (u)-[:FOLLOWS]->(fof)
       OPTIONAL MATCH (fof)-[:POSTED]->(post:Post)
       OPTIONAL MATCH (post)-[:HAS_REVIEW]->(review:Review)
       RETURN fof, post, review
@@ -56,6 +56,7 @@ exports.fetchFriendsOfFriendsContent = async (userId) => {
         throw new Error('Failed to fetch friends of friends content');
     }
 };
+
 
 // Fetch random users' posts
 exports.fetchRandomUsersContent = async () => {
