@@ -17,28 +17,22 @@ export default function ExplorePage({ route }) {
     const [selectedCategory, setSelectedCategory] = useState('');
 
     useEffect(() => {
-        // Fetch friends of friends' content
-        const fetchFriendsOfFriendsContent = async () => {
+   
+        const fetchContent = async () => {
             try {
-                const content = await getFriendsOfFriendsContent(userInfo);
-                setFriendsOfFriendsContent(content);
+                // Fetch friends of friends' content
+                const friendsContent = await getFriendsOfFriendsContent(userInfo);
+                setFriendsOfFriendsContent(friendsContent);
+
+                // Now fetch random users' content after the first call completes
+                const randomContent = await getRandomUsersContent(userInfo);
+                setRandomUsersContent(randomContent);
             } catch (error) {
-                console.error('Error fetching friends of friends content:', error);
+                console.error('Error fetching content:', error);
             }
         };
 
-        // Fetch random users' content
-        // const fetchRandomUsersContent = async () => {
-        //     try {
-        //         const content = await getRandomUsersContent(userInfo);
-        //         setRandomUsersContent(content);
-        //     } catch (error) {
-        //         console.error('Error fetching random users content:', error);
-        //     }
-        // };
-
-        fetchFriendsOfFriendsContent();
-       // fetchRandomUsersContent();
+        fetchContent();
     }, [userInfo]);
 
     return (
@@ -83,10 +77,11 @@ export default function ExplorePage({ route }) {
                             datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
                         />
                     ))}
-                    {/* {randomUsersContent.map((item, index) => (
+                    {randomUsersContent.map((item, index) => (
                         <NonFollowerPost
                             key={`random-${index}`}
-                            userInfo={item.user}
+                            userInfo={userInfo} // Current user's info
+                            otherUserInfo={item.user}
                             username={item.user.username}
                             userHandle={item.user.userHandle}
                             userAvatar={item.user.userAvatar}
@@ -94,11 +89,11 @@ export default function ExplorePage({ route }) {
                             comments={item.post ? item.post.comments : 0}
                             saves={item.post ? item.post.saves : 0}
                             image={item.post ? item.post.image : null}
-                            postTitle={item.post ? item.post.title : 'No Title'}
-                            preview={item.post ? item.post.preview : 'No Preview'}
-                            datePosted={item.post ? item.post.datePosted : 'Unknown Date'}
+                            postTitle={item.post ? item.post.postTitle : 'No Title'}
+                            preview={item.post ? item.post.text : 'No Preview'}
+                            datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
                         />
-                    ))} */}
+                    ))}
                 </View>
             </ScrollView>
             <BottomHeader userInfo={userInfo} />

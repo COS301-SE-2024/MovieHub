@@ -36,7 +36,8 @@ exports.getFriendsOfFriendsContent = async (req, res) => {
 // Fetch random users' posts
 exports.getRandomUsersContent = async (req, res) => {
     try {
-        const content = await ExploreService.fetchRandomUsersContent();
+        const userId = req.headers['x-user-id'] || req.query.userId; // Accept user ID from header or query parameter
+        const content = await ExploreService.fetchRandomUsersContent(userId);
         res.status(200).json(content);
     } catch (error) {
         console.error('Error fetching random users\' content:', error);

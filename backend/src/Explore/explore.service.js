@@ -59,16 +59,22 @@ exports.fetchFriendsOfFriendsContent = async (userId) => {
 
 
 // Fetch random users' posts
-exports.fetchRandomUsersContent = async () => {
+exports.fetchRandomUsersContent = async (userId) => {
     const query = `
+      MATCH (currentUser:User {uid: $userId})
       MATCH (u:User)-[:POSTED]->(post:Post)
+      WHERE NOT u = currentUser
+      AND NOT (currentUser)-[:FOLLOWS]->(u)
+      AND NOT EXISTS {
+        MATCH (currentUser)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u)
+      }
       RETURN u, post
       ORDER BY rand()
       LIMIT 10
     `;
 
     try {
-        const result = await session.run(query);
+        const result = await session.run(query, { userId });
         const randomUsersContent = result.records.map(record => ({
             user: record.get('u').properties,
             post: record.get('post').properties,
@@ -79,6 +85,7 @@ exports.fetchRandomUsersContent = async () => {
         throw new Error('Failed to fetch random users content');
     }
 };
+
 
 // Find other users
 exports.findOtherUsers = async (userId) => {
