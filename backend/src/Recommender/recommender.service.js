@@ -3,27 +3,18 @@ const { Client } = require('@elastic/elasticsearch');
 const { getMovieDetails } = require('../services/tmdb.service');
 const vectorizeMovies = require('../utils/vectorizeMovies');
 const cosineSimilarity = require('compute-cosine-similarity');
-const setupIndex = require('../scripts/setUpElastic');
+const setupIndex = require('../scripts/setupElastic');
 const indexMovies = require('../scripts/indexMovies');
 
 const client = new Client({ node: 'http://localhost:9200' });
 
 const checkAndSetupIndex = async () => {
-    const indexName = 'movies';
-    const { body: exists } = await client.indices.exists({ index: indexName });
-
-    if (!exists) {
-        console.log(`Index '${indexName}' does not exist. Setting up the index.`);
-        await setupIndex();
-        await indexMovies();
-    } else {
-        console.log(`Index '${indexName}' already exists. Skipping setup.`);
-    }
+    await setupIndex();
+    await indexMovies(); // Ensure movies are indexed after setup
 };
 
 const recommendMoviesByTMDBId = async (tmdbId) => {
     try {
-        // Ensure Elasticsearch is set up (index is created) if necessary
         await checkAndSetupIndex();
 
         const tmdbMovie = await getMovieDetails(tmdbId);

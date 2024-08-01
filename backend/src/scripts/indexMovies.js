@@ -54,4 +54,4 @@ const genresMap = {
     37: 'Western'
 };
 
-indexMovies().catch(console.error);
+module.exports = indexMovies;

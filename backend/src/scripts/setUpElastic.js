@@ -1,15 +1,17 @@
+// backend/src/scripts/setupElasticsearch.js
 const { Client } = require('@elastic/elasticsearch');
 require('dotenv').config();
 
 const client = new Client({ node: 'http://localhost:9200' });
 
 const setupIndex = async () => {
-    const indexName = 'movies';
+    const indexName = 'test-movies';
 
     // Check if the index already exists
-    const indexExists = await client.indices.exists({ index: indexName });
+    const { body: exists } = await client.indices.exists({ index: indexName });
 
-    if (!indexExists.body) { // Modify based on Elasticsearch client version
+    if (!exists) {
+        console.log(`Creating index '${indexName}'...`);
         await client.indices.create({
             index: indexName,
             body: {
@@ -23,10 +25,10 @@ const setupIndex = async () => {
                 }
             }
         });
-        console.log(`Index '${indexName}' created successfully.`);
+        console.log(`Index '${indexName}' created.`);
     } else {
-        console.log(`Index '${indexName}' already exists.`);
+        console.log(`Index '${indexName}' already exists. Skipping creation.`);
     }
 };
 
-setupIndex().catch(console.error);
+module.exports = setupIndex;
