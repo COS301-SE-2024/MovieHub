@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity,StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRoute } from '@react-navigation/native';
-import RatingStars from './RatingStars';
-import { Ionicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import RatingStars from '../Components/RatingStars';
+import { Ionicons } from '@expo/vector-icons';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const LogBookScreen = () => {
@@ -15,11 +15,21 @@ const LogBookScreen = () => {
     const route = useRoute();
     const { title } = route.params;
     const [rating, setRating] = useState(0);
-    
+    const navigation = useNavigation();
 
     useEffect(() => {
         loadLogEntries();
     }, []);
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={viewLogEntries} style={styles.headerButton}>
+                    <Ionicons name="book-outline" size={24} color="black" />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation, logEntries]);
 
     const showDatePicker = () => {
         setDatePickerVisibility(true);
@@ -54,25 +64,32 @@ const LogBookScreen = () => {
     };
 
     const addLogEntry = () => {
-        const newEntry = { movieRating, review };
+        const newEntry = {
+            movieTitle: title,
+            movieRating: rating,
+            review,
+            dateWatched: dateWatched ? dateWatched.toDateString() : "Not specified",
+        };
         const updatedEntries = [...logEntries, newEntry];
         setLogEntries(updatedEntries);
         saveLogEntries(updatedEntries);
-        setMovieTitle('');
         setMovieRating('');
         setReview('');
         setDateWatched('');
     };
 
+    const viewLogEntries = () => {
+        navigation.navigate('LogEntriesScreen', { logEntries });
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.heading}>Log Your Movie</Text>
-            
 
             <Text style={styles.movieTitle}>{title}</Text>
 
             <TouchableOpacity onPress={showDatePicker} style={styles.datePickerButton}>
-                <Ionicons name="calendar-outline" size={50} color="black" />
+                <Ionicons name="calendar-outline" size={24} color="black" />
                 <Text style={styles.dateText}>
                     {dateWatched ? dateWatched.toDateString() : "Select Date Watched"}
                 </Text>
@@ -86,33 +103,20 @@ const LogBookScreen = () => {
             />
 
             <Text style={styles.subtitle}>Rate the movie:</Text>
-
             <RatingStars rating={rating} setRating={setRating} />
-            
-            <Text style={styles.subtitle}>Write a review</Text>
-            <TextInput style={[styles.input, styles.textArea]}  selectionColor="#000"value={review} onChangeText={setReview} placeholder="Add your thoughts" />
 
-            
-            
+            <Text style={styles.subtitle}>Write a review</Text>
+            <TextInput
+                style={[styles.input, styles.textArea]}
+                selectionColor="#000"
+                value={review}
+                onChangeText={setReview}
+                placeholder="Add your thoughts"
+            />
+
             <TouchableOpacity style={styles.entryButton} onPress={addLogEntry}>
                 <Text style={styles.entryButtonText}>Log Entry</Text>
             </TouchableOpacity>
-
-            {/* <FlatList
-                data={logEntries}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.logEntry}>
-                        <Text style={styles.logText}>Title: {item.movieTitle}</Text>
-                        <View style={styles.logText}>
-                            <Text>Rating: </Text>
-                            <RatingStars rating={item.movieRating} />
-                        </View>
-                        <Text style={styles.logText}>Review: {item.review}</Text>
-                        <Text style={styles.logText}>Date Watched: {item.dateWatched}</Text>
-                    </View>
-                )}
-            /> */}
         </View>
     );
 };
@@ -121,6 +125,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+        backgroundColor: "#fff"
     },
     textArea: {
         height: 100,
@@ -132,7 +137,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
-        marginTop:50,
         borderBottomWidth: 1,
         borderBottomColor: "#7b7b7b",
         outlineStyle: "none",
