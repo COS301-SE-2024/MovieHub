@@ -7,7 +7,8 @@ import Cast from "../Components/Cast";
 import axios from "axios";
 import { Ionicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
 
-const MovieDescriptionPage = () => {
+export default function MovieDescriptionPage({ userInfo }) { 
+
     const route = useRoute();
     const { movieId, imageUrl, title, rating, overview, date } = route.params;
     const [colors, setColors] = useState(['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 1)']);
@@ -21,7 +22,7 @@ const MovieDescriptionPage = () => {
 
     const handleReviewPress = () => {
         setIsReviewed(true);
-        navigation.navigate('CreatePost');
+        navigation.navigate("CreatePost", { userInfo });
     };
 
     const handleAddPress = () => {
@@ -33,10 +34,12 @@ const MovieDescriptionPage = () => {
     };
 
     const handleCreateNewWatchlist = () => {
+        navigation.navigate("CreateWatchlist", { userInfo });
         setIsModalVisible(false);
     };
 
     const handleAddToExistingWatchlist = () => {
+        navigation.navigate("EditWatchlist", { userInfo });
         setIsModalVisible(false);
     };
 
@@ -153,13 +156,14 @@ const MovieDescriptionPage = () => {
                     </View>
                 </ScrollView>
             </LinearGradient>
+
             <Modal animationType="slide" transparent={true} visible={isModalVisible} onRequestClose={() => setIsModalVisible(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Choose an option:</Text>
-                        <Button title="Create a new watchlist" onPress={handleCreateNewWatchlist} />
-                        <Button title="Add to existing watchlist" onPress={handleAddToExistingWatchlist} />
-                        <Button title="Cancel" onPress={() => setIsModalVisible(false)} />
+                        
+                        <Button title="Create a new watchlist" onPress={handleCreateNewWatchlist} color= "#000"/>
+                        <Button title="Add to existing watchlist" onPress={handleAddToExistingWatchlist} color="#000" />
+                        <Button title="Cancel" onPress={() => setIsModalVisible(false)} color="#f44336"/>
                     </View>
                 </View>
             </Modal>
@@ -328,8 +332,14 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         textAlign: "center",
         fontSize: 18,
-        fontWeight: "bold"
-    }
+        fontWeight: "bold",
+        color: "#000",
+        textDecorationColor: "#000"
+    },
+    buttonText: {
+        color: "#0f5bd1",
+        textAlign: "center",
+    },
 });
 
-export default MovieDescriptionPage;
+
