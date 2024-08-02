@@ -1,6 +1,6 @@
 // src/services/LikesApiService.js
 import * as SecureStore from 'expo-secure-store';
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.39.101:3000/like/'; // Update to your Expo URL
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.225.19:3000/like/'; // Update to your Expo URL
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
