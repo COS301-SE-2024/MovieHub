@@ -69,17 +69,20 @@ const HubScreen = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {ownsRoom && (
+            {!ownsRoom && (
                 // TODO: replace with userRoomDetails
                 <View>
-                    <UserRoomCard movieTitle="Interstellar" roomName="Asa's Room" users={0} live />
+                    <UserRoomCard movieTitle="Interstellar" roomName="Asa's Room" users={0} live handlePress={() => navigation.navigate("ViewRoom", { userInfo })} />
                     <View style={styles.divider} />
                 </View>
             )}
 
             {sections.map((section, index) => (
                 <View key={index} style={styles.section}>
-                    <Text style={styles.sectionTitle}>{section.movieTitle}</Text>
+                    <TouchableOpacity style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>{section.movieTitle}</Text>
+                        <MatIcon name="chevron-right" size={24} style={{ marginBottom: 5, marginLeft: 6 }} />
+                    </TouchableOpacity>
                     <FlatList horizontal data={section.data} renderItem={({ item }) => <Card {...item} />} keyExtractor={(item, index) => index.toString()} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardRow} />
                 </View>
             ))}
@@ -142,8 +145,8 @@ const Card = ({ movieTitle, roomName, users, live }) => (
     </TouchableOpacity>
 );
 
-const UserRoomCard = ({ movieTitle, roomName, users, live }) => (
-    <TouchableOpacity style={styles.userRoomCard}>
+const UserRoomCard = ({ movieTitle, roomName, users, live, handlePress }) => (
+    <TouchableOpacity style={styles.userRoomCard} onPress={handlePress} >
         {live && (
             <Text style={styles.liveText}>
                 ● Live - <Text>{movieTitle}</Text>
@@ -188,6 +191,11 @@ const styles = StyleSheet.create({
     section: {
         marginBottom: 25,
         paddingLeft: 16,
+    },
+    sectionHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 5,
     },
     sectionTitle: {
         fontSize: 18,

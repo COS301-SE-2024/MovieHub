@@ -1,9 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import FAIcon from "react-native-vector-icons/FontAwesome";
 import ViewRoomHeader from "../Components/ViewRoomHeader";
+import { useNavigation } from "@react-navigation/native";
 
-const ViewRoom = () => {
+const ViewRoom = ({ route }) => {
+    const navigation = useNavigation();
+
     const requests = [
         { name: "Joyce Moshokoa", status: null },
         { name: "John Cena", status: "You can't see me" },
@@ -15,7 +19,13 @@ const ViewRoom = () => {
 
     return (
         <ScrollView style={styles.container}>
-            <ViewRoomHeader roomName={roomName ? roomName : "Default Room"} />
+            <View style={styles.header}>
+                <View style={{ flexDirection: "row", alignItems: "center" }} >
+                    <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()}/>
+                    <Text style={styles.roomName}>{roomName ? roomName : "Asa's Room"}</Text>
+                </View>
+                <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
+            </View>
 
             <View style={styles.videoContainer}>
                 <View style={styles.videoPlaceholder} />
@@ -24,7 +34,7 @@ const ViewRoom = () => {
                         <Text style={styles.enterText}>Enter</Text>
                     </TouchableOpacity>
                     <View style={styles.participants}>
-                        <Icon name="people" size={22} />
+                        <FAIcon name="users" size={16} />
                         <Text style={styles.participantsText}>5</Text>
                     </View>
                 </View>
@@ -58,6 +68,8 @@ const ViewRoom = () => {
                     </View>
                 ))}
             </View>
+
+            
         </ScrollView>
     );
 };
@@ -69,14 +81,17 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
     },
     header: {
+        height: 50,
+        marginBottom: 30,
+        backgroundColor: "#fff",
         flexDirection: "row",
-        justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 16,
+        justifyContent: "space-between",
     },
     roomName: {
-        fontSize: 22,
-        fontWeight: "bold",
+        marginLeft: 35,
+        fontSize: 20,
+        fontWeight: "500",
     },
     moreOptions: {
         padding: 8,
@@ -90,7 +105,7 @@ const styles = StyleSheet.create({
     videoPlaceholder: {
         width: "100%",
         height: 200,
-        backgroundColor: "#ccc",
+        backgroundColor: "#e0e0e0",
         marginBottom: 8,
     },
     enterButton: {
