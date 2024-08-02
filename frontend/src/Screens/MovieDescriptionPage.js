@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-
 import { getMovieCredits } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import Cast from "../Components/Cast";
 import axios from "axios";
-import { Ionicons,Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
+import { Ionicons, Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
 
 export default function MovieDescriptionPage({ userInfo }) { 
-
 
     const route = useRoute();
     const { movieId, imageUrl, title, rating, overview, date } = route.params;
@@ -30,8 +28,7 @@ export default function MovieDescriptionPage({ userInfo }) {
 
     const handleReviewPress = () => {
         setIsReviewed(true);
-
-        navigation.navigate("CreatePost", { userInfo });
+        navigation.navigate('CreatePost', { userInfo });
     };
 
     const handleAddPress = () => {
@@ -43,14 +40,13 @@ export default function MovieDescriptionPage({ userInfo }) {
     };
 
     const handleCreateNewWatchlist = () => {
-        navigation.navigate("CreateWatchlist", { userInfo });
+        navigation.navigate('CreateWatchlist', { userInfo });
         setIsModalVisible(false);
     };
 
     const handleAddToExistingWatchlist = () => {
-        navigation.navigate("EditWatchlist", { userInfo });
+        navigation.navigate('EditWatchlist', { userInfo });
         setIsModalVisible(false);
-
     };
 
     useEffect(() => {
@@ -65,7 +61,7 @@ export default function MovieDescriptionPage({ userInfo }) {
         const fetchColors = async () => {
             try {
                 const response = await axios.post(
-                    `http://10.0.13.253:3000/extract-colors`,
+                    `http://192.168.225.19:3000/extract-colors`,
                     { imageUrl },
                     {
                         headers: {
@@ -75,8 +71,6 @@ export default function MovieDescriptionPage({ userInfo }) {
                 );
                 // Convert RGB arrays to rgba strings
                 const convertedColors = response.data.colors.slice(0, 3).map((color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`);
-
-
                 setColors(convertedColors);
             } catch (error) {
                 console.error("Error fetching colors:", error);
@@ -99,15 +93,14 @@ export default function MovieDescriptionPage({ userInfo }) {
     }
 
     // round of rating to 1 decimal place
-    roundedRating = Math.round(rating * 10) / 10;
+    const roundedRating = Math.round(rating * 10) / 10;
 
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" />
 
             <LinearGradient colors={colors} style={styles.content}>
-
-                <ScrollView>
+                <ScrollView contentContainerStyle={styles.scrollContent}>
                     <View style={styles.wholecontainer}>
                         <View style={styles.card}>
                             <Image source={{ uri: imageUrl }} style={styles.image} />
@@ -124,8 +117,7 @@ export default function MovieDescriptionPage({ userInfo }) {
                             <Text style={styles.movietitle2}> 2h </Text>
                         </View>
                         <View style={styles.icons}>
-
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.icons}>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.iconsContent}>
                                 <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
                                     <View style={styles.iconTextContainer}>
                                         <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
@@ -173,7 +165,7 @@ export default function MovieDescriptionPage({ userInfo }) {
                             </Text>
                         </View>
                         <Text style={styles.moviecast}> Cast</Text>
-                        <ScrollView horizontal>
+                        <ScrollView horizontal contentContainerStyle={styles.castContainer}>
                             {credits.cast.slice(0, 5).map((member, index) => (
                                 <Cast key={index} imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`} name={member.name} />
                             ))}
@@ -185,10 +177,9 @@ export default function MovieDescriptionPage({ userInfo }) {
             <Modal animationType="slide" transparent={true} visible={isModalVisible} onRequestClose={() => setIsModalVisible(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
-                        
-                        <Button title="Create a new watchlist" onPress={handleCreateNewWatchlist} color= "#000"/>
+                        <Button title="Create a new watchlist" onPress={handleCreateNewWatchlist} color="#000" />
                         <Button title="Add to existing watchlist" onPress={handleAddToExistingWatchlist} color="#000" />
-                        <Button title="Cancel" onPress={() => setIsModalVisible(false)} color="#f44336"/>
+                        <Button title="Cancel" onPress={() => setIsModalVisible(false)} color="#f44336" />
                     </View>
                 </View>
             </Modal>
@@ -199,14 +190,15 @@ export default function MovieDescriptionPage({ userInfo }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-
         width: '100%',
     },
     content: {
         flex: 1,
         paddingTop: StatusBar.currentHeight + 80,
         width: '100%',
-
+    },
+    scrollContent: {
+        flexGrow: 1,
     },
     activityIndicator: {
         flex: 1,
@@ -219,18 +211,18 @@ const styles = StyleSheet.create({
         paddingBottom: 50,
     },
     iconTextContainer: {
-
         width: 79,
         alignItems: 'center',
-
     },
     icons: {
-        flexDirection: "row",
         paddingTop: 30,
         paddingLeft: 8,
         paddingBottom: 10,
-        justifyContent: "space-evenly", // replaces block styling
+        justifyContent: "space-evenly",
         alignItems: "center",
+    },
+    iconsContent: {
+        flexDirection: "row",
     },
     icon: {
         paddingLeft: 0,
@@ -240,22 +232,6 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: "bold",
     },
-    // block1: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
-    // block2: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
-    // block3: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
-    // block4: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
     card: {
         paddingTop: 20,
         padding: 10,
@@ -270,7 +246,6 @@ const styles = StyleSheet.create({
             width: 0,
             height: 3,
         },
-
         shadowOpacity: 0.5,
         shadowRadius: 3.84,
         elevation: 5,
@@ -317,15 +292,8 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         color: "white",
     },
-    cast: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        width: 170,
-        height: 250,
-        paddingRight: 15,
-        paddingLeft: 15,
-        backgroundColor: "#000",
+    castContainer: {
+        flexDirection: 'row',
     },
     moviecast: {
         paddingTop: 20,
@@ -360,18 +328,4 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5
     },
-    modalText: {
-        marginBottom: 15,
-        textAlign: "center",
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#000",
-        textDecorationColor: "#000"
-    },
-    buttonText: {
-        color: "#0f5bd1",
-        textAlign: "center",
-    },
 });
-
-
