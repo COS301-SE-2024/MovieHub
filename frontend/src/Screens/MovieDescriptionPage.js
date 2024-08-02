@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
+
 import { getMovieCredits } from "../Services/TMDBApiService";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 import Cast from "../Components/Cast";
 import axios from "axios";
-import { Ionicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
+import { Ionicons,Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
 
 export default function MovieDescriptionPage({ userInfo }) { 
 
+
     const route = useRoute();
     const { movieId, imageUrl, title, rating, overview, date } = route.params;
-    const [colors, setColors] = useState(['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 1)']);
+
+    const [colors, setColors] = useState([
+        "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
+        "rgba(0, 0, 0, 0.7)",
+        "rgba(0, 0, 0, 0.7)",
+    ]); // Initial state with three colors, can be replaced with initial color values
+
     const [credits, setCredits] = useState({ cast: [], crew: [] });
     const [loading, setLoading] = useState(true);
     const [isAddedToList, setIsAddedToList] = useState(false);
@@ -22,6 +30,7 @@ export default function MovieDescriptionPage({ userInfo }) {
 
     const handleReviewPress = () => {
         setIsReviewed(true);
+
         navigation.navigate("CreatePost", { userInfo });
     };
 
@@ -41,6 +50,7 @@ export default function MovieDescriptionPage({ userInfo }) {
     const handleAddToExistingWatchlist = () => {
         navigation.navigate("EditWatchlist", { userInfo });
         setIsModalVisible(false);
+
     };
 
     useEffect(() => {
@@ -54,13 +64,22 @@ export default function MovieDescriptionPage({ userInfo }) {
     useEffect(() => {
         const fetchColors = async () => {
             try {
-                const response = await axios.post(`http://192.168.225.19:3000/extract-colors`, { imageUrl }, {
-                    headers: { 'Content-Type': "application/json" },
-                });
-                const convertedColors = response.data.colors.slice(0, 3).map(color => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`);
+                const response = await axios.post(
+                    `http://10.0.13.253:3000/extract-colors`,
+                    { imageUrl },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+                // Convert RGB arrays to rgba strings
+                const convertedColors = response.data.colors.slice(0, 3).map((color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`);
+
+
                 setColors(convertedColors);
             } catch (error) {
-                console.error('Error fetching colors:', error);
+                console.error("Error fetching colors:", error);
             } finally {
                 setLoading(false);
             }
@@ -79,10 +98,15 @@ export default function MovieDescriptionPage({ userInfo }) {
         );
     }
 
+    // round of rating to 1 decimal place
+    roundedRating = Math.round(rating * 10) / 10;
+
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" />
+
             <LinearGradient colors={colors} style={styles.content}>
+
                 <ScrollView>
                     <View style={styles.wholecontainer}>
                         <View style={styles.card}>
@@ -92,7 +116,7 @@ export default function MovieDescriptionPage({ userInfo }) {
                     <View style={styles.moviedes}>
                         <View style={styles.movieinfo}>
                             <Text style={styles.movietitle}>{title}</Text>
-                            <Text style={styles.movieRating}>{rating}/10</Text>
+                            <Text style={styles.movieRating}>{roundedRating}/10</Text>
                         </View>
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
@@ -100,6 +124,7 @@ export default function MovieDescriptionPage({ userInfo }) {
                             <Text style={styles.movietitle2}> 2h </Text>
                         </View>
                         <View style={styles.icons}>
+
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.icons}>
                                 <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
                                     <View style={styles.iconTextContainer}>
@@ -174,57 +199,63 @@ export default function MovieDescriptionPage({ userInfo }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+
         width: '100%',
     },
     content: {
         flex: 1,
         paddingTop: StatusBar.currentHeight + 80,
         width: '100%',
+
     },
     activityIndicator: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     wholecontainer: {
         alignItems: "center",
-        paddingTop: 30,
+        paddingTop: 5,
         paddingBottom: 50,
     },
     iconTextContainer: {
+
         width: 79,
         alignItems: 'center',
+
     },
     icons: {
-        flexDirection: 'row',
+        flexDirection: "row",
         paddingTop: 30,
-        paddingLeft: 0,
+        paddingLeft: 8,
         paddingBottom: 10,
+        justifyContent: "space-evenly", // replaces block styling
+        alignItems: "center",
     },
     icon: {
         paddingLeft: 0,
     },
     text: {
         paddingLeft: 0,
-        color: 'white',
+        color: "white",
         fontWeight: "bold",
     },
-    block1: {
-        alignItems: 'center',
-        marginHorizontal: 9,
-    },
-    block2: {
-        alignItems: 'center',
-        marginHorizontal: 9,
-    },
-    block3: {
-        alignItems: 'center',
-        marginHorizontal: 9,
-    },
-    block4: {
-        alignItems: 'center',
-        marginHorizontal: 9,
-    },
+    // block1: {
+    //     alignItems: "center",
+    //     marginHorizontal: 9,
+    // },
+    // block2: {
+    //     alignItems: "center",
+    //     marginHorizontal: 9,
+    // },
+    // block3: {
+    //     alignItems: "center",
+    //     marginHorizontal: 9,
+    // },
+    // block4: {
+    //     alignItems: "center",
+    //     marginHorizontal: 9,
+    // },
     card: {
         paddingTop: 20,
         padding: 10,
@@ -239,6 +270,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: 3,
         },
+
         shadowOpacity: 0.5,
         shadowRadius: 3.84,
         elevation: 5,
@@ -259,7 +291,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "left",
         color: "white",
-        width: "70%"
+        width: "70%",
     },
     movieRating: {
         fontSize: 23,
