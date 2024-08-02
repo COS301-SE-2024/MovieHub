@@ -179,6 +179,28 @@ export default function App() {
                         />
 
                         <Nav.Screen
+                            name="CreateWatchlist"
+                            component={CreateWatchlist}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
+                        <Nav.Screen
+                            name="EditWatchlist"
+                            component={EditWatchlist}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
+                        <Nav.Screen
                             name="SearchPage"
                             component={SearchPage}
                             options={({ navigation }) => ({
