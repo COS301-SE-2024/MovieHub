@@ -48,6 +48,7 @@ import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage"
 import FollowersPage from "./frontend/src/Screens/FollowersPage"
 import FollowingPage from "./frontend/src/Screens/FollowingPage"
 import LogBookScreen from "./frontend/src/Screens/LogBookScreen"
+import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 
 const Nav = createNativeStackNavigator();
 
@@ -295,7 +296,24 @@ export default function App() {
                             <Nav.Screen
                                 name="LogBookScreen"
                                 component={LogBookScreen}
-                                options={{ headerShown: false }} 
+                                options={({ navigation }) => ({
+                                    title: "",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",
+                                })}
+                                
+                            />
+                            <Nav.Screen
+                                name="LogEntriesScreen"
+                                component={LogEntriesScreen}
+                                options={({ navigation }) => ({
+                                    title: "",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",
+                                })}
+                               
                             />
                 </Nav.Navigator>
             </NavigationContainer>
