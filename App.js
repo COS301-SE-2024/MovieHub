@@ -48,9 +48,11 @@ import CreateRoom from "./frontend/src/Screens/CreateRoom";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
-import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage";
-import FollowersPage from "./frontend/src/Screens/FollowersPage";
-import FollowingPage from "./frontend/src/Screens/FollowingPage";
+import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage"
+import FollowersPage from "./frontend/src/Screens/FollowersPage"
+import FollowingPage from "./frontend/src/Screens/FollowingPage"
+import LogBookScreen from "./frontend/src/Screens/LogBookScreen"
+import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 
 const Nav = createNativeStackNavigator();
 
@@ -254,65 +256,38 @@ export default function App() {
                             })}
                         />
 
-                        <Nav.Screen
-                            name="CreateWatchlist"
-                            component={CreateWatchlist}
-                            options={({ navigation }) => ({
-                                title: "",
-                                headerShadowVisible: false,
-                                headerBackTitleVisible: false,
-                                headerTintColor: "black",
-                            })}
-                        />
-                        <Nav.Screen
-                            name="AddMovies"
-                            component={AddMovies}
-                            options={({ navigation }) => ({
-                                title: "",
-                                headerShadowVisible: false,
-                                headerBackTitleVisible: false,
-                                headerTintColor: "black",
-                            })}
-                        />
-                        <Nav.Screen
-                            name="WatchlistDetails"
-                            component={WatchlistDetails}
-                            options={({ navigation }) => ({
-                                title: "Watchlist Details",
-                                headerShadowVisible: false,
-                                headerBackTitleVisible: false,
-                                headerTintColor: "black",
-                            })}
-                        />
+                            <Nav.Screen
+                                name="ViewRoom"
+                                component={ViewRoom}
+                                options={{ headerShown: false }} 
+                            />
 
-                        <Nav.Screen
-                            name="EditWatchlist"
-                            component={EditWatchlist}
-                            options={({ navigation }) => ({
-                                title: "Watchlist Details",
-                                headerShadowVisible: false,
-                                headerBackTitleVisible: false,
-                                headerTintColor: "black",
-                            })}
-                        />
-                        <Nav.Screen
-                            name="WatchParty"
-                            component={WatchParty}
-                            options={({ navigation }) => ({
-                                title: "Watch Party",
-                                headerShadowVisible: false,
-                                headerBackTitleVisible: false,
-                                headerTintColor: "black",
-                            })}
-                        />
+                            <Nav.Screen
+                                name="LogBookScreen"
+                                component={LogBookScreen}
+                                options={({ navigation }) => ({
+                                    title: "",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",
+                                })}
+                                
+                            />
+                            <Nav.Screen
+                                name="LogEntriesScreen"
+                                component={LogEntriesScreen}
+                                options={({ navigation }) => ({
+                                    title: "",
+                                    headerShadowVisible: false,
+                                    headerBackTitleVisible: false,
+                                    headerTintColor: "black",
+                                })}
+                               
+                            />
+                </Nav.Navigator>
+            </NavigationContainer>
+        </ThemeProvider>
 
-                        <Nav.Screen name="HubScreen" component={HubScreen} options={{ headerShown: false }} />
-                        <Nav.Screen name="CreateRoom" component={CreateRoom} options={{ headerShown: false }} />
-                        <Nav.Screen name="ViewRoom" component={ViewRoom} options={{ headerShown: false }} />
-
-                    </Nav.Navigator>
-                </NavigationContainer>
-            </ThemeProvider>
         </GestureHandlerRootView>
     );
 }
