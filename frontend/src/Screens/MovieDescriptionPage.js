@@ -29,7 +29,7 @@ const MovieDescriptionPage = () => {
     };
 
     const handleLogBookPress = () => {
-        navigation.navigate('LogBookScreen');
+        navigation.navigate('LogBookScreen', { title });
     };
 
     const handleCreateNewWatchlist = () => {
