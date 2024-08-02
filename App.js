@@ -80,7 +80,12 @@ export default function App() {
                         <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                         <Nav.Screen name="ProfileSetup" component={ProfileSetup} options={{ headerShown: false }} />
                         <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
-                        <Nav.Screen name="HomePage" component={HomePage} options={{ header: () => <MainHeader /> }} />
+                        <Nav.Screen name="HomePage" component={HomePage} options={({ navigation }) => ({
+                                title: "Explore",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })} />
                         <Nav.Screen name="Home" component={Home} options={{ headerShown: false }} />
 
                         <Nav.Screen
