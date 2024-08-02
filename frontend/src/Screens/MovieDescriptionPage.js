@@ -34,12 +34,10 @@ const MovieDescriptionPage = () => {
 
     const handleCreateNewWatchlist = () => {
         setIsModalVisible(false);
-        // Logic to create a new watchlist
     };
 
     const handleAddToExistingWatchlist = () => {
         setIsModalVisible(false);
-        // Logic to add to an existing watchlist
     };
 
     useEffect(() => {
@@ -99,39 +97,40 @@ const MovieDescriptionPage = () => {
                             <Text style={styles.movietitle2}> 2h </Text>
                         </View>
                         <View style={styles.icons}>
-                            {/* <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
-                                <View style={styles.iconTextContainer}>
-                                    <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
-                                    <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
-                                </View>
-                            </TouchableOpacity> */}
-                            <TouchableOpacity onPress={() => setIsWatched(!isWatched)} style={styles.block2}>
-                                <View style={styles.iconTextContainer}>
-                                    <FontAwesome name="check-circle" size={24} color={isWatched ? 'green' : 'white'} style={styles.icon} />
-                                    <Text style={styles.text}>{isWatched ? 'Watched' : 'Watch'}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
-                                <View style={styles.iconTextContainer}>
-                                    <Ionicons name="star-outline" size={24} color={isReviewed ? 'gold' : 'white'} style={styles.icon} />
-                                    <Text style={styles.text}>{isReviewed ? 'Reviewed' : 'Review'}</Text>
-                                </View>
-                            </TouchableOpacity>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.icons}>
+                                <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
+                                    <View style={styles.iconTextContainer}>
+                                        <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
+                                        <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setIsWatched(!isWatched)} style={styles.block2}>
+                                    <View style={styles.iconTextContainer}>
+                                        <FontAwesome name="check-circle" size={24} color={isWatched ? 'green' : 'white'} style={styles.icon} />
+                                        <Text style={styles.text}>{isWatched ? 'Watched' : 'Watch'}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
+                                    <View style={styles.iconTextContainer}>
+                                        <Ionicons name="star-outline" size={24} color={isReviewed ? 'gold' : 'white'} style={styles.icon} />
+                                        <Text style={styles.text}>{isReviewed ? 'Reviewed' : 'Review'}</Text>
+                                    </View>
+                                </TouchableOpacity>
 
+                                <TouchableOpacity style={styles.block4}>
+                                    <View style={styles.iconTextContainer}>
+                                        <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
+                                        <Text style={styles.text}>Watch Party</Text>
+                                    </View>
+                                </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.block4}>
-                                <View style={styles.iconTextContainer}>
-                                    <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
-                                    <Text style={styles.text}>Watch Party</Text>
-                                </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
-                                <View style={styles.iconTextContainer}>
-                                    <Ionicons name="book-outline" size={24} color="white" style={styles.icon}/>
-                                    <Text style={styles.text}>Log Movie</Text>
-                                </View>
-                            </TouchableOpacity>
+                                <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
+                                    <View style={styles.iconTextContainer}>
+                                        <Ionicons name="book-outline" size={24} color="white" style={styles.icon}/>
+                                        <Text style={styles.text}>Log Movie</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </ScrollView>
                         </View>
                         
                         <View style={styles.moviebio}>
