@@ -14,9 +14,9 @@ exports.fetchFriendsContent = async (userId) => {
     const query = `
       MATCH (u:User)-[:FOLLOWS]->(friend:User)
       WHERE u.uid = $userId
+      OPTIONAL MATCH (friend)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
       OPTIONAL MATCH (friend)-[:POSTED]->(post:Post)
-      OPTIONAL MATCH (post)-[:HAS_REVIEW]->(review:Review)
-      RETURN friend, post, review
+      RETURN friend, post, review, movie
     `;
 
     try {
@@ -25,6 +25,7 @@ exports.fetchFriendsContent = async (userId) => {
             friend: record.get('friend').properties,
             post: record.get('post') ? record.get('post').properties : null,
             review: record.get('review') ? record.get('review').properties : null,
+            movie: record.get('movie') ? record.get('movie').properties : null
         }));
         return friendsContent;
     } catch (error) {
@@ -38,9 +39,9 @@ exports.fetchFriendsOfFriendsContent = async (userId) => {
     const query = `
       MATCH (u:User)-[:FOLLOWS]->(friend:User)-[:FOLLOWS]->(fof:User)
       WHERE u.uid = $userId AND NOT (u)-[:FOLLOWS]->(fof)
+      OPTIONAL MATCH (fof)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
       OPTIONAL MATCH (fof)-[:POSTED]->(post:Post)
-      OPTIONAL MATCH (post)-[:HAS_REVIEW]->(review:Review)
-      RETURN fof, post, review
+      RETURN fof, post, review, movie
     `;
 
     try {
@@ -49,6 +50,7 @@ exports.fetchFriendsOfFriendsContent = async (userId) => {
             fof: record.get('fof').properties,
             post: record.get('post') ? record.get('post').properties : null,
             review: record.get('review') ? record.get('review').properties : null,
+            movie: record.get('movie') ? record.get('movie').properties : null
         }));
         return friendsOfFriendsContent;
     } catch (error) {
@@ -56,7 +58,6 @@ exports.fetchFriendsOfFriendsContent = async (userId) => {
         throw new Error('Failed to fetch friends of friends content');
     }
 };
-
 
 // Fetch random users' posts
 exports.fetchRandomUsersContent = async (userId) => {
@@ -130,17 +131,18 @@ exports.fetchLatestPosts = async () => {
 // Fetch top reviews
 exports.fetchTopReviews = async () => {
     const query = `
-      MATCH (post:Post)-[:HAS_REVIEW]->(review:Review)
-      RETURN post, review
-      ORDER BY review.rating DESC
+      MATCH (u:User)-[:REVIEWED]->(r:Review)-[:REVIEWED_ON]->(m:Movie)
+      RETURN r, u, m
+      ORDER BY r.rating DESC
       LIMIT 10
     `;
 
     try {
         const result = await session.run(query);
         const topReviews = result.records.map(record => ({
-            post: record.get('post').properties,
-            review: record.get('review').properties,
+            review: record.get('r').properties,
+            user: record.get('u').properties,
+            movie: record.get('m').properties,
         }));
         return topReviews;
     } catch (error) {
