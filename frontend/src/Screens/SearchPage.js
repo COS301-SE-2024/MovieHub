@@ -90,16 +90,16 @@ const SearchPage = ({ route }) => {
                 const genreId = genres[genre];
 
                 const top10 = await getMoviesByGenre(genreId, 'popularity.desc');
-                const mostWatched = await getMoviesByGenre(genreId, 'popularity.desc');
+                const mostWatched = await getTopPicksForToday(genreId);
                 const newMovies = await getNewMovies(genreId);
                 const topPicks = await getTopPicksForToday(genreId);
                 const classicMovies = await fetchClassicMovies(genreId);
 
                 genreDataTemp[genre] = {
                     top10: top10.slice(0, 10),
-                    mostWatched: mostWatched.slice(0, 10),
-                    newMovies: newMovies.slice(0, 10),
-                    topPicks: topPicks.slice(0, 10),
+                    mostWatched: mostWatched.slice(0, 20),
+                    newMovies: newMovies.slice(0, 20),
+                    topPicks: topPicks.slice(0, 20),
                     classics: classicMovies
                 };
             }
