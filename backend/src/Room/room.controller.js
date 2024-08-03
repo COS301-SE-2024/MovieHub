@@ -53,3 +53,54 @@ exports.declineRoomInvite = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// New function to add a message to a room
+exports.addMessageToRoom = async (req, res) => {
+    const { roomId, userId, message } = req.body;
+    try {
+        await roomService.addMessageToRoom(roomId, userId, message);
+        res.status(201).json({ message: 'Message sent' });
+    } catch (error) {
+        console.error('Error adding message to room:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+// New function to get messages from a room
+exports.getMessagesFromRoom = async (req, res) => {
+    const roomId = req.params.roomId;
+    try {
+        const messages = await roomService.getMessagesFromRoom(roomId);
+        res.status(200).json(messages);
+    } catch (error) {
+        console.error('Error getting messages from room:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+// Function to listen for messages
+exports.listenForMessages = (req, res) => {
+    const roomId = req.params.roomId;
+    try {
+        roomService.listenForMessages(roomId, (messages) => {
+            res.status(200).json(messages);
+        });
+    } catch (error) {
+        console.error('Error listening for messages:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+// Function to send notifications to users in a room
+exports.sendNotification = async (req, res) => {
+    const { roomId, message } = req.body;
+
+    try {
+        await roomService.sendNotificationToUsers(roomId, message);
+        res.status(200).json({ message: 'Notification sent successfully' });
+    } catch (error) {
+        console.error('Error sending notification:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};

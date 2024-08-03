@@ -5,6 +5,7 @@
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 import { initializeApp } from 'firebase/app';
+import { getDatabase } from 'firebase/database';
 import admin from "firebase-admin";
 require('dotenv').config();
 
@@ -42,4 +43,6 @@ export const firebase = admin.apps.length
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 
+// Initialize Realtime Database and get a reference to the service
+export const database = getDatabase(app);
 //export default app;

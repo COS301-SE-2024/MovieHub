@@ -1,6 +1,13 @@
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
+const base62 = require('base62/lib/ascii');
+
+//Helper functions:
+function generateShortCode(uuid) {
+    const base62Code = base62.encode(Buffer.from(uuid.replace(/-/g, ''), 'hex').readBigUInt64BE());
+    return base62Code.substring(0, 6); // Shorten to 6 characters
+}
 
 // Initialize Neo4j driver using environment variables
 const driver = neo4j.driver(
@@ -24,6 +31,7 @@ exports.createRoom = async (userId, roomData) => {
 
     const session = driver.session();
     const roomId = uuidv4();
+    const shortCode = generateShortCode(roomId); // Generate short code
     const { roomName, accessLevel, maxParticipants, roomDescription } = roomData;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
@@ -38,6 +46,7 @@ exports.createRoom = async (userId, roomData) => {
         const result = await tx.run(
             `CREATE (r:Room {
                 roomId: $roomId,
+                shortCode: $shortCode, 
                 roomName: $roomName,
                 accessLevel: $accessLevel,
                 createdBy: $createdBy,
@@ -52,6 +61,7 @@ exports.createRoom = async (userId, roomData) => {
              RETURN r`,
             {
                 roomId,
+                shortCode,
                 roomName,
                 accessLevel,
                 createdBy: userId,
@@ -74,7 +84,7 @@ exports.createRoom = async (userId, roomData) => {
 
         console.log("Room created successfully.");
 
-        return { roomId, ...roomData, createdBy: userId, createdAt, updatedAt, isActive };
+        return { roomId, shortCode, ...roomData, createdBy: userId, createdAt, updatedAt, isActive };
     } catch (error) {
         console.error("Error creating room:", error);
         if (tx) await tx.rollback();
@@ -84,12 +94,13 @@ exports.createRoom = async (userId, roomData) => {
     }
 };
 
+
 exports.joinRoom = async (code, userId) => {
     const session = driver.session();
 
     try {
         const result = await session.run(
-            'MATCH (r:Room {roomId: $code}) RETURN r, size((r)<-[:PARTICIPATES_IN]-(:User)) AS currentParticipants',
+            'MATCH (r:Room {shortCode: $code}) RETURN r, size((r)<-[:PARTICIPATES_IN]-(:User)) AS currentParticipants',
             { code }
         );
 
@@ -99,9 +110,7 @@ exports.joinRoom = async (code, userId) => {
 
             // Check if the user can join the room based on the access level
             if (room.accessLevel === 'invite' || room.accessLevel === 'followers') {
-                // Implement your logic for checking user access
-                // This is a placeholder for actual access check logic
-                const hasAccess = await checkUserAccess(userId, room.accessLevel);
+                const hasAccess = await checkUserAccess(userId, room);
                 if (!hasAccess) {
                     return { success: false, message: 'Access denied' };
                 }
@@ -114,7 +123,7 @@ exports.joinRoom = async (code, userId) => {
 
             // Add the user to the room
             await session.run(
-                'MATCH (r:Room {roomId: $code}), (u:User {uid: $userId}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
+                'MATCH (r:Room {shortCode: $code}), (u:User {uid: $userId}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
                 { code, userId }
             );
 
@@ -129,6 +138,7 @@ exports.joinRoom = async (code, userId) => {
         await session.close();
     }
 };
+
 
 //function to check user access
 async function checkUserAccess(userId, room) {
@@ -221,6 +231,84 @@ exports.declineRoomInvite = async (userId, roomId) => {
     }
 };
 
+// Add a message to the chat room
+exports.addMessageToRoom = async (roomId, userId, message) => {
+    try {
+        const messageRef = ref(database, `rooms/${roomId}/messages`);
+        const newMessageRef = push(messageRef);
+        await set(newMessageRef, {
+            userId,
+            message,
+            timestamp: new Date().toISOString(),
+        });
+
+        console.log(`Message added to room ${roomId} by user ${userId}.`);
+    } catch (error) {
+        console.error('Error adding message to room:', error);
+        throw error;
+    }
+};
+
+// Retrieve messages from the chat room
+exports.getMessagesFromRoom = async (roomId) => {
+    try {
+        const messagesRef = ref(database, `rooms/${roomId}/messages`);
+        const snapshot = await get(messagesRef);
+
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error('Error retrieving messages from room:', error);
+        throw error;
+    }
+};
+
+// Function to listen for new messages in a room
+exports.listenForMessages = (roomId, callback) => {
+    const db = getDatabase();
+    const messageRef = ref(db, `rooms/${roomId}/messages`);
+
+    onValue(messageRef, (snapshot) => {
+        const messages = snapshot.val();
+        callback(messages);
+    });
+};
+
+// Function to send notification to users
+exports.sendNotificationToUsers = async (roomId, message) => {
+    const db = getDatabase();
+    const roomUsersRef = ref(db, `rooms/${roomId}/users`);
+    const snapshot = await roomUsersRef.once('value');
+    const users = snapshot.val();
+
+    const tokens = []; // Array to hold user tokens
+
+    for (const userId in users) {
+        if (users[userId].token) {
+            tokens.push(users[userId].token);
+        }
+    }
+
+    if (tokens.length > 0) {
+        const messaging = getMessaging();
+        const payload = {
+            notification: {
+                title: 'New Message',
+                body: message,
+            },
+        };
+
+        try {
+            await messaging.sendToDevice(tokens, payload);
+            console.log('Notification sent to users');
+        } catch (error) {
+            console.error('Error sending notification:', error);
+        }
+    }
+};
 // Ensure the driver is closed on application exit
 process.on('exit', async () => {
     await driver.close();
