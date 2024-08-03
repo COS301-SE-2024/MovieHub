@@ -83,3 +83,29 @@ export const findUsers = async (userInfo) => {
     const data = await response.json();
     return data;
 };
+
+// Function to fetch the latest posts
+export const getLatestPosts = async () => {
+//    const headers = await createHeadersWithUserId(userInfo);
+    const response = await fetch(`${API_URL}/latest-posts`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch the latest posts");
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+// Function to fetch top reviews
+export const getTopReviews = async () => {
+   // const headers = await createHeadersWithUserId(userInfo);
+    const response = await fetch(`${API_URL}/top-reviews`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch top reviews");
+    }
+
+    const data = await response.json();
+    return data;
+};
