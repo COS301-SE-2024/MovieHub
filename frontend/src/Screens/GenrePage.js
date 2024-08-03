@@ -31,8 +31,6 @@ const GenrePage = () => {
     const [loading, setLoading] = useState(true);
     const { top10 = [], mostWatched = [], newMovies = [], topPicks = [] } = genreData;
 
-    console.log("hello",genreData);
-
     const getRandomMovie = (movies) => {
         if (movies.length === 0) return null;
         const randomIndex = Math.floor(Math.random() * movies.length);
@@ -69,7 +67,7 @@ const GenrePage = () => {
     }, [top10]);
 
 
-    if (loading) {
+    if (loading || !genreData || typeof genreData !== 'object') {
         return (
             <SafeAreaView style={styles.container}>
                 <ActivityIndicator size="large" color="#4A42C0" style={styles.activityIndicator} />
@@ -80,7 +78,7 @@ const GenrePage = () => {
 
     const renderMovies = (movies) => (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
-            {movies.slice(2, 10).map((movie, index) => (
+            {movies.slice(2, 15).map((movie, index) => (
                 <TrendingMovie
                     key={index}
                     movieId={movie.id}
@@ -130,15 +128,15 @@ const GenrePage = () => {
                 <Text style={styles.subtitle}>Most Watched</Text>
                 {renderMovies(mostWatched)}
 
-                <Text style={styles.subtitle}>New on movieHub</Text>
+                <Text style={styles.subtitle}>The Classics</Text>
                 {renderMovies(newMovies)}
+
 
                 <Text style={styles.subtitle}>Today's Top Picks for You</Text>
                 {renderMovies(topPicks)}
                 </LinearGradient>
             </ScrollView>
             </LinearGradient>
-            <BottomHeader style={styles.bottomHeader} />
             </LinearGradient>
         </View>
     );
@@ -160,6 +158,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         paddingTop: 100,
         color: "white",
+        textAlign: 'center',
     },
     subtitle: {
         fontSize: 22,
