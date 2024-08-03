@@ -60,3 +60,25 @@ exports.findUsers = async (req, res) => {
         res.status(500).json({ error: 'Failed to find users' });
     }
 };
+
+// Fetch latest posts
+exports.getLatestPosts = async (req, res) => {
+    try {
+        const latestPosts = await ExploreService.fetchLatestPosts();
+        res.status(200).json(latestPosts);
+    } catch (error) {
+        console.error('Error fetching latest posts:', error);
+        res.status(500).json({ error: 'Failed to fetch latest posts' });
+    }
+};
+
+// Fetch top reviews
+exports.getTopReviews = async (req, res) => {
+    try {
+        const topReviews = await ExploreService.fetchTopReviews();
+        res.status(200).json(topReviews);
+    } catch (error) {
+        console.error('Error fetching top reviews:', error);
+        res.status(500).json({ error: 'Failed to fetch top reviews' });
+    }
+};

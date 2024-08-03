@@ -104,3 +104,47 @@ exports.findOtherUsers = async (userId) => {
         throw new Error('Failed to find other users');
     }
 };
+
+// Fetch latest posts
+exports.fetchLatestPosts = async () => {
+    const query = `
+      MATCH (u:User)-[:POSTED]->(post:Post)
+      RETURN u, post
+      ORDER BY post.createdAt DESC
+      LIMIT 10
+    `;
+
+    try {
+        const result = await session.run(query);
+        const latestPosts = result.records.map(record => ({
+            user: record.get('u').properties,
+            post: record.get('post').properties,
+        }));
+        return latestPosts;
+    } catch (error) {
+        console.error('Error fetching latest posts:', error);
+        throw new Error('Failed to fetch latest posts');
+    }
+};
+
+// Fetch top reviews
+exports.fetchTopReviews = async () => {
+    const query = `
+      MATCH (post:Post)-[:HAS_REVIEW]->(review:Review)
+      RETURN post, review
+      ORDER BY review.rating DESC
+      LIMIT 10
+    `;
+
+    try {
+        const result = await session.run(query);
+        const topReviews = result.records.map(record => ({
+            post: record.get('post').properties,
+            review: record.get('review').properties,
+        }));
+        return topReviews;
+    } catch (error) {
+        console.error('Error fetching top reviews:', error);
+        throw new Error('Failed to fetch top reviews');
+    }
+};
