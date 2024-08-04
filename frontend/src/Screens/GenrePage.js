@@ -14,9 +14,9 @@ const GenrePage = () => {
 
     if (!genreData || typeof genreData !== 'object') {
         return (
-            <View style={styles.container}>
-                <Text style={styles.title}>No data available for {genreName}</Text>
-            </View>
+            <SafeAreaView style={styles.container}>
+                <ActivityIndicator size="large" color="#4A42C0" style={styles.activityIndicator} />
+            </SafeAreaView>
         );
     }
 
@@ -78,7 +78,7 @@ const GenrePage = () => {
 
     const renderMovies = (movies) => (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
-            {movies.slice(2, 15).map((movie, index) => (
+            {movies.slice(0, 15).map((movie, index) => (
                 <TrendingMovie
                     key={index}
                     movieId={movie.id}
@@ -121,7 +121,7 @@ const GenrePage = () => {
             <LinearGradient
                 colors={["rgba(0, 0, 0, 0)", "black"]}>
             <Text style={styles.title}>{genreName}</Text>
-                {renderPop(top10)}
+
                 <Text style={styles.subtitle}>Top 10</Text>
                 {renderMovies(top10)}
                 
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         paddingTop: 100,
         color: "white",
-        textAlign: 'center',
+        paddingBottom: 40,
     },
     subtitle: {
         fontSize: 22,
