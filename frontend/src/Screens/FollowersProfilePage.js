@@ -15,7 +15,8 @@ import { getCommentsOfPost } from "../Services/PostsApiServices";
 import { getUserProfile, followUser, unfollowUser } from "../Services/UsersApiService";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-export default function FollowersProfilePage({ route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) {
+export default function FollowersProfilePage({ route }) {
+    console.log("Other User Info:", otherUserInfo);
     const { theme } = useTheme();
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);
@@ -25,9 +26,18 @@ export default function FollowersProfilePage({ route,username, userHandle, userA
         { key: "watchlist", title: "Watchlist" },
     ]);
 
-    const { userInfo } = route.params;
+    // const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
+    
+
+    
+
+    const { userInfo, otherUserInfo } = route.params;
+    // console.log("hai User Info:", otherUserInfo);
+    const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
+
+    console.log("Other User Info:", otherUserInfo);
 
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
@@ -48,10 +58,11 @@ export default function FollowersProfilePage({ route,username, userHandle, userA
 
     const fetchData = async () => {
         try {
-            const userId = userInfo.userId;
+            const userId = otherUserInfo.uid;
+            console.log("Other User Info:", userId);
             const response = await getUserProfile(userId);
             setUserProfile(response);
-            // console.log("Response:", response);
+            console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);
@@ -102,7 +113,7 @@ export default function FollowersProfilePage({ route,username, userHandle, userA
     const handlePress = async () => {
         try {
             if (isFollowing) {
-                await unfollowUser(userInfo.userId, userProfile.id);
+                await unfollowUser(otherUserInfo.userId, userProfile.id);
                 setIsFollowing(false);
                 setFollowers(prev => prev - 1);
             } else {
@@ -203,11 +214,11 @@ export default function FollowersProfilePage({ route,username, userHandle, userA
         switch (route.key) {
             case "posts":
 
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
+                return <PostsTab userInfo={otherUserInfo} userProfile={userProfile} />;
             case "likes":
-                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+                return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "watchlist":
-                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
+                return <WatchlistTab userInfo={otherUserInfo} userProfile={userProfile} />;
 
             default:
                 return null;
@@ -236,7 +247,7 @@ export default function FollowersProfilePage({ route,username, userHandle, userA
                         style={styles.avatar}
                     />
                     <Text style={styles.username}>{userProfile.name || "Itumeleng Moshokoa"}</Text>
-                    <Text style={styles.userHandle}>@{userProfile.username || "Joyce"}</Text>
+                    <Text style={styles.userHandle}>@{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
                 <TouchableOpacity onPress={handlePressFollowers}>
@@ -300,8 +311,8 @@ export default function FollowersProfilePage({ route,username, userHandle, userA
             <CommentsModal    
                 ref={bottomSheetRef} 
                 postId={selectedPostId} 
-                userId={userInfo.userId}
-                username={userInfo.username}
+                userId={otherUserInfo.userId}
+                username={otherUserInfo.username}
                 currentUserAvatar={userProfile.avatar}
                 comments={comments}
                 loadingComments={loadingComments}
