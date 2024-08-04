@@ -21,7 +21,7 @@ fs.createReadStream(inputCSVFile)
     const document = {
       title: row['title'],
       keywords: row['keywords'],
-      description: row['description'],
+      overview: row['overview'],
       adult: row['adult'] === 'true', // Convert 'true'/'false' strings to boolean
       tagline: row['tagline'],
       spokenLanguages: row['spoken_languages'],

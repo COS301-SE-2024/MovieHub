@@ -20,41 +20,33 @@ async function checkConnection() {
   }
 };
 
+
   exports.searchMoviesFuzzy = async (query) => {
-  try {
-    console.log("_____________________________________________________________________");
-    //checkConnection();
-    
-    //console.log(client);
-    console.log("_____________________________________________________________________");
-
- 
-
-   const response = await client.search({
-      index: 'movies', // Assuming your index is named 'movies'
-      body:{
-        query: {
-          multi_match: {
-            query: query,
-            fields: [
-              'title^2',
-              'tagline',
-              'keywords',
-              'spokenLanguages',
-              'genre'
-            ],
-            fuzziness: 'AUTO',
-            type: 'best_fields'
+    try {
+      const response = await client.search({
+        index: 'movies', // Assuming your index is named 'movies'
+        body: {
+          query: {
+            multi_match: {
+              query: query,
+              fields: [
+                'title^2',
+                'tagline',
+                'keywords',
+                'overview',
+                'spokenLanguages',
+                'genre'
+              ],
+              fuzziness: 'AUTO',
+            }
           }
         }
-      }
-    });
-    console.log("++++++++++++++++++++++++++++++++++++++++++++");
-    console.log(response.body);
-    console.log("++++++++++++++++++++++++++++++++++++++++++++");
-    return response.body.hits.hits.map(hit => hit._source);
-  } catch (error) {
-    console.error('Error searching for movies:', error);
-    throw error;
-  }
-};
+      });
+
+     // Extract and return the relevant data
+     return response.body.hits.hits.map(hit => hit);
+    } catch (error) {
+      console.error('Error searching for movies:', error.meta.body.error); // More detailed error log
+      throw error;
+    }
+  };
