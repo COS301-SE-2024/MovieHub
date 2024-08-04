@@ -8,6 +8,8 @@ import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { followUser, unfollowUser } from '../Services/UsersApiService';
+import { removePost } from "../Services/PostsApiServices";
+import { toggleLikePost } from "../Services/LikesApiService";
 
 export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid }) {
     const { theme } = useTheme();
@@ -24,10 +26,17 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
 
     const navigation = useNavigation();
 
+    console.log("yayy User Info:", otherUserInfo);
+
     const handlePress = () => {
-        navigation.navigate("Profile", {userInfo, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted});
+        navigation.navigate("Profile", {
+            userInfo,
+            otherUserInfo
+        });
     };
 
+    
+ 
     const toggleFollow = async () => {
         try {
             console.log("This is the current users info: ", userInfo);
@@ -62,7 +71,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     const styles = StyleSheet.create({
         container: {
             backgroundColor: theme.backgroundColor,
-            paddingHorizontal: 25,
+            paddingHorizontal: 10,
             paddingVertical: 15,
             shadowColor: "#000",
             shadowOffset: {
@@ -75,6 +84,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             // elevation: 5,
             borderTopWidth: 0, 
             borderBottomWidth: 0.3, 
+            borderTopWidth: 0.3,
         },
         avatar: {
             width: 50,
@@ -91,6 +101,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             fontSize: 18,
             fontWeight: "bold",
             color: theme.textColor,
+            marginRight: 10,
         },
         userHandle: {
             color: theme.gray,
@@ -180,6 +191,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             width: 90, 
             alignItems: 'center',
             justifyContent: 'center',
+            
         },
         followingText: {
             color: 'white',
