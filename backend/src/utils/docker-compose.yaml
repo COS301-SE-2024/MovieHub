@@ -87,21 +87,3 @@ volumes:
   es-data-es02:
   es-data-es03:
 
- st-agent:
-    image: sematext/agent:latest
-    privileged: true
-    environment:
-      - INFRA_TOKEN=244e67b0-4f6e-40fb-8a53-ac45ca953408
-      - REGION=EU
-    cap_add:
-      - SYS_ADMIN
-    restart: always
-    volumes:
-      - /:/hostfs:ro
-      - /etc/passwd:/etc/passwd:ro
-      - /etc/group:/etc/group:ro
-      - /var/run/:/var/run
-      - /sys/kernel/debug:/sys/kernel/debug
-      - /sys:/host/sys:ro
-      - /dev:/hostfs/dev:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
