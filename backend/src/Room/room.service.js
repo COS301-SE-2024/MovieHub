@@ -248,6 +248,93 @@ exports.declineRoomInvite = async (userId, roomId) => {
     }
 };
 
+// Function to leave a room
+exports.leaveRoom = async (roomId, userId) => {
+    const session = driver.session();
+    try {
+        // Check if the user is the creator of the room
+        const userIsCreatorResult = await session.run(
+            `MATCH (u:User {uid: $userId})-[:CREATED]->(r:Room {roomId: $roomId})
+             RETURN u`,
+            { roomId, userId }
+        );
+
+        if (userIsCreatorResult.records.length > 0) {
+            // If the user is the creator, find a new admin
+            const newAdminResult = await session.run(
+                `MATCH (r:Room {roomId: $roomId})<-[:PARTICIPATES_IN]-(u:User)
+                 WHERE u.uid <> $userId
+                 RETURN u LIMIT 1`,
+                { roomId, userId }
+            );
+
+            if (newAdminResult.records.length > 0) {
+                const newAdminId = newAdminResult.records[0].get('u').properties.uid;
+                await session.run(
+                    `MATCH (newAdmin:User {uid: $newAdminId}), (r:Room {roomId: $roomId})
+                     MERGE (newAdmin)-[:CREATED]->(r)`,
+                    { newAdminId, roomId }
+                );
+            } else {
+                // If no other participants, deactivate the room
+                await session.run(
+                    `MATCH (r:Room {roomId: $roomId})
+                     SET r.isActive = false`,
+                    { roomId }
+                );
+            }
+        }
+
+        // Remove the user from the room
+        await session.run(
+            `MATCH (u:User {uid: $userId})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+             DELETE p`,
+            { roomId, userId }
+        );
+
+        console.log(`User ${userId} left the room ${roomId}.`);
+    } catch (error) {
+        console.error('Error leaving room:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Function to kick a user from the room
+exports.kickUserFromRoom = async (roomId, adminId, userId) => {
+    const session = driver.session();
+    try {
+        // Check if the admin has the right to kick users
+        const adminCheckResult = await session.run(
+            `MATCH (admin:User {uid: $adminId})-[:CREATED|PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+             WHERE (admin)-[:CREATED]->(r) OR (admin)-[:PARTICIPATES_IN]->(r)
+             RETURN admin`,
+            { roomId, adminId }
+        );
+
+        if (adminCheckResult.records.length === 0) {
+            return { success: false, message: 'Admin is not authorized to kick users.' };
+        }
+
+        // Remove the user from the room
+        await session.run(
+            `MATCH (u:User {uid: $userId})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+             DELETE p`,
+            { roomId, userId }
+        );
+
+        console.log(`User ${userId} was kicked from the room ${roomId} by admin ${adminId}.`);
+        return { success: true, message: 'User kicked successfully.' };
+    } catch (error) {
+        console.error('Error kicking user from room:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
 // Add a message to the chat room
 exports.addMessageToRoom = async (roomId, userId, message) => {
     try {

@@ -53,6 +53,34 @@ exports.declineRoomInvite = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+// Controller to leave a room
+exports.leaveRoom = async (req, res) => {
+    const { roomId, userId } = req.body;
+    try {
+        await roomService.leaveRoom(roomId, userId);
+        res.status(200).json({ message: `User ${userId} left the room ${roomId}.` });
+    } catch (error) {
+        console.error('Error leaving room:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Controller to kick a user from a room
+exports.kickUserFromRoom = async (req, res) => {
+    const { roomId, adminId, userId } = req.body;
+    try {
+        const result = await roomService.kickUserFromRoom(roomId, adminId, userId);
+        if (result.success) {
+            res.status(200).json({ message: result.message });
+        } else {
+            res.status(403).json({ error: result.message });
+        }
+    } catch (error) {
+        console.error('Error kicking user from room:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 // New function to add a message to a room
 exports.addMessageToRoom = async (req, res) => {

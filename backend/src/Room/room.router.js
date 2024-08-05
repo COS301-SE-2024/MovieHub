@@ -15,6 +15,12 @@ router.post('/invite', roomController.inviteUserToRoom);
 // Route to decline a room invite
 router.post('/decline', roomController.declineRoomInvite);
 
+// Route to leave a room
+router.post('/leave', roomController.leaveRoom);
+
+// Route to kick a user from a room
+router.post('/kick', roomController.kickUserFromRoom);
+
 // New route to add a message to a room
 router.post('/message', roomController.addMessageToRoom);
 
