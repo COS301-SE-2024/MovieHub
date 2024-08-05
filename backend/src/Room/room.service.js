@@ -2,6 +2,8 @@ const neo4j = require('neo4j-driver');
 require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 const base62 = require('base62/lib/ascii');
+const { getDatabase, ref, push, set, get, onValue } = require('firebase/database');
+
 
 // Helper function
 function generateShortCode(uuid) {
@@ -338,6 +340,7 @@ exports.kickUserFromRoom = async (roomId, adminId, userId) => {
 // Add a message to the chat room
 exports.addMessageToRoom = async (roomId, userId, message) => {
     try {
+        const database = getDatabase(); // Get the database instance
         const messageRef = ref(database, `rooms/${roomId}/messages`);
         const newMessageRef = push(messageRef);
         await set(newMessageRef, {
@@ -356,6 +359,7 @@ exports.addMessageToRoom = async (roomId, userId, message) => {
 // Retrieve messages from the chat room
 exports.getMessagesFromRoom = async (roomId) => {
     try {
+        const database = getDatabase(); // Get the database instance
         const messagesRef = ref(database, `rooms/${roomId}/messages`);
         const snapshot = await get(messagesRef);
 
