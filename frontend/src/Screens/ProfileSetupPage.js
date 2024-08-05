@@ -3,8 +3,9 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable, ScrollV
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
+import { uploadImage } from "../Services/ImageHandelingService";
 import { updateUserProfile } from "../Services/UsersApiService";
+import firebase from "../../../backend/src/Firebase/firebase.config"
 
 const pronounsOptions = ["He/Him", "She/Her", "They/Them", "Prefer not to say"];
 const genreOptions = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"];
@@ -23,18 +24,50 @@ const ProfileSetupPage = ({ route }) => {
     const navigation = useNavigation();
 
     const selectImage = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (permissionResult.granted === false) {
-            alert("Permission to access camera roll is required!");
-            return;
-        }
+        try {
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (permissionResult.granted === false) {
+                alert("Permission to access camera roll is required!");
+                return;
+            }
 
-        const pickerResult = await ImagePicker.launchImageLibraryAsync();
-        if (pickerResult.canceled === true) {
-            return;
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+            });
+
+            if (pickerResult.canceled === true) {
+                return;
+            } 
+
+            const response = await fetch(pickerResult.uri);
+            const blob = await response.blob();
+
+            const ref = firebase.storage().ref().child(`ProfilePictures/${new Date().getTime()}.jpg`);
+            const snapshot = await ref.put(blob);
+        
+            const downloadURL = await snapshot.ref.getDownloadURL();
+            console.log('Uploaded a blob or file!', downloadURL);
+            setAvatar(downloadURL);
+            handleSubmit;
+            
+            // console.log("Uploading image");
+            // const avatarUrl = await uploadImage(pickerResult);
+            // console.log("Uploaded", avatarUrl);
+            // setAvatar(pickerResult.assets[0].uri);
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image. Please try again.');
         }
-        setAvatar(pickerResult.assets[0].uri);
     };
+
+    async function downloadImage(imageName) {
+        const ref = firebase.storage().ref().child(`images/${imageName}`);
+        const url = await ref.getDownloadURL();
+        console.log('File available at', url);
+    }
 
     const removeImage = () => {
         setAvatar(defaultAvatar);

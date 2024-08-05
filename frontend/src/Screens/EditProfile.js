@@ -5,6 +5,7 @@ import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../backend/src/Firebase/firebase.config';
+import { uploadImage } from "../Services/ImageHandelingService";
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
@@ -121,32 +122,47 @@ export default function EditProfile({ route }) {
     };
 
     const selectImage = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (permissionResult.granted === false) {
-            alert("Permission to access camera roll is required!");
-            return;
-        }
+        try {
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (permissionResult.granted === false) {
+                alert("Permission to access camera roll is required!");
+                return;
+            }
 
-        const pickerResult = await ImagePicker.launchImageLibraryAsync();
-        if (pickerResult.canceled === true) {
-            return;
-        }
-        const { uri } = pickerResult.assets[0];
-        setAvatar(uri);
-
-        const response = await fetch(uri);
-        const blob = await response.blob();
-        const storageRef = ref(storage, `ProfilePictures/${userInfo.userId}.jpg`);
-
-        uploadBytes(storageRef, blob)
-            .then((snapshot) => {
-                getDownloadURL(snapshot.ref).then((downloadURL) => {
-                    updateUserProfile(userInfo.userId, { profilePicture: downloadURL });
-                });
-            })
-            .catch((error) => {
-                console.error('Error uploading image: ', error);
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
             });
+            if (pickerResult.canceled === true) {
+                return;
+            }
+            // const { uri } = pickerResult.assets[0];
+
+            console.log("Picker Result:", pickerResult);
+            const avatarUrl = await uploadImage(pickerResult);
+            if (avatarUrl) {
+                console.log("Uploaded", avatarUrl);
+                setAvatar(pickerResult.assets[0].uri);
+            }
+            // const response = await fetch(uri);
+            // const blob = await response.blob();
+            // const storageRef = ref(storage, `ProfilePictures/${userInfo.userId}.jpg`);
+
+            // uploadBytes(storageRef, blob)
+            //     .then((snapshot) => {
+            //         getDownloadURL(snapshot.ref).then((downloadURL) => {
+            //             updateUserProfile(userInfo.userId, { profilePicture: downloadURL });
+            //         });
+            //     })
+            //     .catch((error) => {
+            //         console.error('Error uploading image: ', error);
+            //     });
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image. Please try again.');
+        }
     };
 
     return (
