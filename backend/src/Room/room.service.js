@@ -20,7 +20,6 @@ const driver = neo4j.driver(
 );
 
 const session = driver.session();
-
 exports.createRoom = async (userId, roomData) => {
     console.log("In room.service");
 
@@ -34,15 +33,30 @@ exports.createRoom = async (userId, roomData) => {
     }
 
     const session = driver.session();
-    const roomId = uuidv4();
-    const shortCode = generateShortCode(roomId); // Generate short code
     const { roomName, accessLevel, maxParticipants, roomDescription } = roomData;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
     const isActive = true;
 
     try {
-        console.log("All parameters are present. Proceeding with database query.");
+        console.log("All parameters are present. Checking for room name uniqueness.");
+
+        // Check if a room with the same name already exists
+        const roomNameCheckResult = await session.run(
+            `MATCH (r:Room {roomName: $roomName})
+             RETURN r`,
+            { roomName }
+        );
+
+        if (roomNameCheckResult.records.length > 0) {
+            console.error("Room name already exists.");
+            return { success: false, message: "Room name already exists." };
+        }
+
+        console.log("Room name is unique. Proceeding with database query.");
+
+        const roomId = uuidv4();
+        const shortCode = generateShortCode(roomId); // Generate short code
 
         // Start a transaction
         const tx = session.beginTransaction();
@@ -88,7 +102,7 @@ exports.createRoom = async (userId, roomData) => {
 
         console.log("Room created successfully.");
 
-        return { roomId, shortCode, ...roomData, createdBy: userId, createdAt, updatedAt, isActive };
+        return { success: true, roomId, shortCode, ...roomData, createdBy: userId, createdAt, updatedAt, isActive };
     } catch (error) {
         console.error("Error creating room:", error);
         if (tx) await tx.rollback();
@@ -97,6 +111,7 @@ exports.createRoom = async (userId, roomData) => {
         await session.close();
     }
 };
+
 
 
 exports.joinRoom = async (code, userId) => {
