@@ -3,9 +3,11 @@ require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 const base62 = require('base62/lib/ascii');
 
-//Helper functions:
+// Helper function
 function generateShortCode(uuid) {
-    const base62Code = base62.encode(Buffer.from(uuid.replace(/-/g, ''), 'hex').readBigUInt64BE());
+    const buffer = Buffer.from(uuid.replace(/-/g, ''), 'hex');
+    const bigIntValue = buffer.readBigUInt64BE();
+    const base62Code = base62.encode(bigIntValue.toString()); // Convert BigInt to string
     return base62Code.substring(0, 6); // Shorten to 6 characters
 }
 
@@ -99,14 +101,28 @@ exports.joinRoom = async (code, userId) => {
     const session = driver.session();
 
     try {
+        // Check if the user is already participating in the room
+        const userInRoomResult = await session.run(
+            `MATCH (u:User {uid: $userId})-[:PARTICIPATES_IN]->(r:Room {shortCode: $code})
+             RETURN u`,
+            { code, userId }
+        );
+
+        if (userInRoomResult.records.length > 0) {
+            return { success: false, message: 'User is already participating in the room' };
+        }
+
+        // Fetch room details and current participants count
         const result = await session.run(
-            'MATCH (r:Room {shortCode: $code}) RETURN r, size((r)<-[:PARTICIPATES_IN]-(:User)) AS currentParticipants',
+            `MATCH (r:Room {shortCode: $code})
+             OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(:User)
+             RETURN r, COUNT(*) AS currentParticipants`,
             { code }
         );
 
         if (result.records.length > 0) {
             const room = result.records[0].get('r').properties;
-            const currentParticipants = result.records[0].get('currentParticipants');
+            const currentParticipants = result.records[0].get('currentParticipants').toInt();
 
             // Check if the user can join the room based on the access level
             if (room.accessLevel === 'invite' || room.accessLevel === 'followers') {
@@ -126,7 +142,7 @@ exports.joinRoom = async (code, userId) => {
                 'MATCH (r:Room {shortCode: $code}), (u:User {uid: $userId}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
                 { code, userId }
             );
-
+            console.log("User has been added to room: ", room.roomName)
             return { success: true, roomId: room.roomId };
         }
 
@@ -138,6 +154,7 @@ exports.joinRoom = async (code, userId) => {
         await session.close();
     }
 };
+
 
 
 //function to check user access
@@ -305,7 +322,7 @@ exports.sendNotificationToUsers = async (roomId, message) => {
             await messaging.sendToDevice(tokens, payload);
             console.log('Notification sent to users');
         } catch (error) {
-            console.error('Error sending notification:', error);
+            console.error('Error sending notification:2', error);
         }
     }
 };
