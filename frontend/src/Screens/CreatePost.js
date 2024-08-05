@@ -118,7 +118,7 @@ export default function CreatePost({ route }) {
                             setRating(0);
                             setMovieSearch("");
                             
-                            navigation.navigate("HomePage", { userInfo });
+                            navigation.navigate("Home", { userInfo });
                         },
                     },
                 ],
@@ -158,7 +158,7 @@ export default function CreatePost({ route }) {
                             setRating(0);
                             setMovieSearch("");
 
-                            navigation.navigate("HomePage", { userInfo });
+                            navigation.navigate("Home", { userInfo });
                         },
                     },
                 ],
@@ -258,7 +258,6 @@ export default function CreatePost({ route }) {
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.saveDrafts}>Save to drafts</Text>
                 <TouchableOpacity
                     style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
                     disabled={isPostButtonDisabled}
@@ -347,10 +346,12 @@ const styles = StyleSheet.create({
     },
     postButton: {
         backgroundColor: colors.primary,
-        paddingVertical: 10,
-        paddingHorizontal: 30,
         borderRadius: 10,
         opacity: 1,
+        width: "100%",
+        padding: 15,
+        borderRadius: 5,
+        alignItems: "center",
     },
     postButtonDisabled: {
         opacity: 0.7,

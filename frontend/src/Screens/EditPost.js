@@ -24,7 +24,7 @@ export default function EditPost({route}) {
     const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
-    const navigate = useNavigation();
+    const navigation = useNavigation();
 
     // Mock movie search results
     const movieResults = movieSearch
@@ -99,25 +99,29 @@ export default function EditPost({route}) {
         try {
             const post = await editPost(postData);
             // console.log('Post edited successfully:', post);
-            setFeedbackSuccess(true);
-            setFeedbackMessage("Post edited successfully");
-            setFeedbackVisible(true);  
-
-            setTimeout(() => {
-                setFeedbackVisible(false)
-                navigate.navigate("HomePage", { userInfo });
-            }, 2000);
+            Alert.alert(
+                "Success",
+                "Post edited successfully",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => {
+                            // clear all inputs 
+                            setTitle("");
+                            setThoughts("");
+                            setRating(0);
+                            setMovieSearch("");
+                            
+                            navigation.navigate("Home", { userInfo });
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
         } catch (error) {
-            setFeedbackMessage("Error editing post");
-
-            console.error('Error editing post:', error);
-            throw new Error('Failed to edit post' + error);
+            Alert.alert("Error", "Error editing post", [{ text: "OK" }], { cancelable: false });
+            console.error("Error editiing post:", error);
         }
-
-        setFeedbackVisible(true);
-        setTimeout(() => {
-            setFeedbackVisible(false);
-        }, 3000);
     }
 
     const handleRatingPress = (value) => {

@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 const MovieDescriptionPage = () => {
     const route = useRoute();
     const { movieId, imageUrl, title, rating, overview, date } = route.params;
+    const { userInfo } = route.params;
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",
@@ -29,7 +30,7 @@ const MovieDescriptionPage = () => {
 
     const handleReviewPress = () => {
         setIsReviewed(true);
-        navigation.navigate("CreatePost"); // Make sure 'PostsPage' is the correct route name
+        navigation.navigate("CreatePost", {userInfo}); // Make sure 'PostsPage' is the correct route name
     };
 
     useEffect(() => {
@@ -45,7 +46,7 @@ const MovieDescriptionPage = () => {
         const fetchColors = async () => {
             try {
                 const response = await axios.post(
-                    `http://10.0.13.253:3000/extract-colors`,
+                    `http://10.0.17.125:3000/extract-colors`,
                     { imageUrl },
                     {
                         headers: {

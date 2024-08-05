@@ -16,12 +16,13 @@ const HubScreen = ({ route }) => {
     const [ownsRoom, setOwnsRoom] = useState(false);
     const [userRoomDetails, setUserRoomDetails] = useState({});
 
+    // TODO: replace with real data
     const sections = [
         {
             movieTitle: "People You Follow",
             data: [
                 { roomName: "feel like ranting?", users: 372 },
-                { movieTitle: "Another Room", roomName: "Another Room", users: 128 },
+                { movieTitle: "My Little Pony", roomName: "Another Room", users: 128 },
             ],
         },
         {
@@ -69,10 +70,16 @@ const HubScreen = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {!ownsRoom && (
+            {ownsRoom && (
                 // TODO: replace with userRoomDetails
                 <View>
-                    <UserRoomCard movieTitle="Interstellar" roomName="Asa's Room" users={0} live handlePress={() => navigation.navigate("ViewRoom", { userInfo })} />
+                    <UserRoomCard 
+                        movieTitle="Interstellar" 
+                        roomName="Asa's Room" 
+                        users={0} 
+                        live 
+                        handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true /** TODO: Replace true with 'room.uId==userInfo.userID' */ })} 
+                    />
                     <View style={styles.divider} />
                 </View>
             )}
@@ -83,53 +90,23 @@ const HubScreen = ({ route }) => {
                         <Text style={styles.sectionTitle}>{section.movieTitle}</Text>
                         <MatIcon name="chevron-right" size={24} style={{ marginBottom: 5, marginLeft: 6 }} />
                     </TouchableOpacity>
-                    <FlatList horizontal data={section.data} renderItem={({ item }) => <Card {...item} />} keyExtractor={(item, index) => index.toString()} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardRow} />
+                    <FlatList 
+                        horizontal 
+                        data={section.data} 
+                        renderItem={({ item }) => <Card {...item} handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false })}/>} 
+                        keyExtractor={(item, index) => index.toString()} 
+                        showsHorizontalScrollIndicator={false} 
+                        contentContainerStyle={styles.cardRow} 
+                    />
                 </View>
             ))}
 
-            <Modal visible={modalVisible} transparent={true} animationType="slide">
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Create Room</Text>
-                            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                                <MatIcon name="close" size={22} color="black" style={{ position: "absolute", right: -10, top: -5 }} />
-                            </TouchableOpacity>
-                        </View>
-
-                        <Text style={styles.label}>Room Name</Text>
-                        <TextInput style={styles.input} placeholder="Title" value={roomTitle} onChangeText={setRoomTitle} />
-
-                        <Text style={styles.label}>Access Level</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker selectedValue={accessLevel} style={styles.picker} onValueChange={(itemValue) => setAccessLevel(itemValue)}>
-                                <Picker.Item label="Everyone" value="Everyone" />
-                                <Picker.Item label="Invite only" value="Invite only" />
-                                <Picker.Item label="Followers" value="Followers" />
-                            </Picker>
-                        </View>
-
-                        <Text style={styles.label}>Room Type</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker selectedValue={roomType} style={styles.picker} onValueChange={(itemValue) => setRoomType(itemValue)}>
-                                <Picker.Item label="Chat-only" value="Chat-only" />
-                                <Picker.Item label="Audio and chat" value="Audio and chat" />
-                            </Picker>
-                        </View>
-                        {/** add watch party switch */}
-
-                        <TouchableOpacity style={styles.createButton} onPress={handleCreateRoom}>
-                            <Text style={styles.createButtonText}>Create</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
         </ScrollView>
     );
 };
 
-const Card = ({ movieTitle, roomName, users, live }) => (
-    <TouchableOpacity style={styles.card}>
+const Card = ({ movieTitle, roomName, users, live, handlePress }) => (
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
         {live && (
             <Text style={styles.liveText}>
                 ● Live - <Text>{movieTitle}</Text>
@@ -258,65 +235,6 @@ const styles = StyleSheet.create({
     },
     userCount: {
         marginLeft: 8,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    modalHeader: {
-        marginBottom: 20,
-        position: "relative",
-        width: "100%",
-    },
-    modalContent: {
-        width: 300,
-        padding: 20,
-        backgroundColor: "white",
-        borderRadius: 10,
-        // alignItems: "center",
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    input: {
-        width: "100%",
-        padding: 10,
-        backgroundColor: "#D9D9D9",
-        borderRadius: 5,
-        marginBottom: 15,
-    },
-    pickerContainer: {
-        width: "100%",
-        borderRadius: 5,
-        overflow: "hidden", // Ensures that the border radius is applied correctly
-        backgroundColor: "#D9D9D9", // Matches your input and picker background
-        marginBottom: 15,
-    },
-    picker: {
-        width: "100%",
-        height: 50,
-    },
-    createButton: {
-        width: "100%",
-        padding: 15,
-        backgroundColor: "black",
-        borderRadius: 5,
-        alignItems: "center",
-        marginVertical: 10,
-    },
-    createButtonText: {
-        color: "white",
-        fontWeight: "bold",
-    },
-    closeButton: {
-        position: "absolute",
-        top: 10,
-        right: 10,
-        zIndex: 1,
     },
 });
 
