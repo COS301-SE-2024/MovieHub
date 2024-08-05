@@ -133,10 +133,11 @@ const styles = StyleSheet.create({
     genreText: {
         fontSize: 18,
         color: "white",
-        lineHeight: 94,
         fontWeight: "bold",
         textAlign: "center",
         backgroundColor: "#00000080",
+        flex: 1,
+        textAlignVertical: "center",
     },
 });
 
