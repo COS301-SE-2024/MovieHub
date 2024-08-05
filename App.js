@@ -48,10 +48,10 @@ import CreateRoom from "./frontend/src/Screens/CreateRoom";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
-import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage"
-import FollowersPage from "./frontend/src/Screens/FollowersPage"
-import FollowingPage from "./frontend/src/Screens/FollowingPage"
-import LogBookScreen from "./frontend/src/Screens/LogBookScreen"
+import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage";
+import FollowersPage from "./frontend/src/Screens/FollowersPage";
+import FollowingPage from "./frontend/src/Screens/FollowingPage";
+import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 
 const Nav = createNativeStackNavigator();
@@ -64,7 +64,7 @@ export default function App() {
         // <WebSocketProvider>
         <GestureHandlerRootView>
             <ThemeProvider>
-                <NavigationContainer 
+                <NavigationContainer
                     ref={(nav) => {
                         if (nav) setNavigationState(nav);
                     }}>
@@ -80,12 +80,16 @@ export default function App() {
                         <Nav.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }} />
                         <Nav.Screen name="ProfileSetup" component={ProfileSetup} options={{ headerShown: false }} />
                         <Nav.Screen name="LoginPage" component={LoginPage} options={{ headerShown: false }} />
-                        <Nav.Screen name="HomePage" component={HomePage} options={({ navigation }) => ({
+                        <Nav.Screen
+                            name="HomePage"
+                            component={HomePage}
+                            options={({ navigation }) => ({
                                 title: "Explore",
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
                                 headerTintColor: "black",
-                            })} />
+                            })}
+                        />
                         <Nav.Screen name="Home" component={Home} options={{ headerShown: false }} />
 
                         <Nav.Screen
@@ -260,54 +264,29 @@ export default function App() {
                             })}
                         />
 
-                        <Nav.Screen name="CustomDrawer" component={CustomDrawer} options={({ navigation }) => ({
-                                    title: "Settings and Activity",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })} />
-                        <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black", }} />
+                        <Nav.Screen
+                            name="CustomDrawer"
+                            component={CustomDrawer}
+                            options={({ navigation }) => ({
+                                title: "Settings and Activity",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+                        <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
 
-                        <Nav.Screen name="ChangePassword" component={ChangePassword} options={{ title: "Change Password",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black", }} />
-                        <Nav.Screen name="PrivacyPolicy" component={PrivacyPolicy} options={{ title: "Privacy Policy" ,
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",}} />
-                        <Nav.Screen name="TermsOfUse" component={TermsOfUse} options={{ title: "Terms of Use",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black", }} />
-                        <Nav.Screen name="HelpCentre" component={HelpCentre} options={{ title: "Help Centre",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black", }} />
-                        <Nav.Screen name="AccountManagement" component={AccountManagement} options={{ title: "Account Management",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black", }} />
-                        <Nav.Screen name="GettingStarted" component={GettingStarted} options={{ title: "Getting Started",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black", }} />
-                        <Nav.Screen name="CommunityGuidelines" component={CommunityGuidelines} options={{ title: "Community Guidelines",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black", }} />
-                        <Nav.Screen name="SocialFeatures" component={SocialFeatures} options={{ title: "Social Features" ,
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",}} />
-                        <Nav.Screen name="UsingMovieHub" component={UsingMovieHub} options={{ title: "Using MovieHub" ,
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",}} />
+                        <Nav.Screen name="ChangePassword" component={ChangePassword} options={{ title: "Change Password", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="PrivacyPolicy" component={PrivacyPolicy} options={{ title: "Privacy Policy", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="TermsOfUse" component={TermsOfUse} options={{ title: "Terms of Use", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="HelpCentre" component={HelpCentre} options={{ title: "Help Centre", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="AccountManagement" component={AccountManagement} options={{ title: "Account Management", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="GettingStarted" component={GettingStarted} options={{ title: "Getting Started", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="CommunityGuidelines" component={CommunityGuidelines} options={{ title: "Community Guidelines", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="SocialFeatures" component={SocialFeatures} options={{ title: "Social Features", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
+                        <Nav.Screen name="UsingMovieHub" component={UsingMovieHub} options={{ title: "Using MovieHub", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
                         <Nav.Screen name="FAQs" component={FAQs} />
+                        <Nav.Screen name="ViewRoom" component={ViewRoom} options={{ headerShown: false }} />
                         <Nav.Screen
                             name="Notifications"
                             component={Notifications}
@@ -319,38 +298,64 @@ export default function App() {
                             })}
                         />
 
-                            <Nav.Screen
-                                name="ViewRoom"
-                                component={ViewRoom}
-                                options={{ headerShown: false }} 
-                            />
+                        <Nav.Screen
+                            name="AddMovies"
+                            component={AddMovies}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
 
-                            <Nav.Screen
-                                name="LogBookScreen"
-                                component={LogBookScreen}
-                                options={({ navigation }) => ({
-                                    title: "",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                                
-                            />
-                            <Nav.Screen
-                                name="LogEntriesScreen"
-                                component={LogEntriesScreen}
-                                options={({ navigation }) => ({
-                                    title: "",
-                                    headerShadowVisible: false,
-                                    headerBackTitleVisible: false,
-                                    headerTintColor: "black",
-                                })}
-                               
-                            />
-                </Nav.Navigator>
-            </NavigationContainer>
-        </ThemeProvider>
+                        <Nav.Screen 
+                            name="HubScreen"
+                            component={HubScreen}
+                            options={({ navigation }) => ({
+                                headerShown: false
+                            })} 
+                        />
 
+                        <Nav.Screen 
+                            name="CreateRoom"
+                            component={CreateRoom}
+                            options={({ navigation }) => ({
+                                headerShown: false
+                            })}
+                        />
+
+                        <Nav.Screen 
+                            name="WatchParty"
+                            component={WatchParty}
+                            options={({ navigation }) => ({
+                                headerShown: false
+                            })}
+                        />
+
+                        <Nav.Screen
+                            name="LogBookScreen"
+                            component={LogBookScreen}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+                        <Nav.Screen
+                            name="LogEntriesScreen"
+                            component={LogEntriesScreen}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+                    </Nav.Navigator>
+                </NavigationContainer>
+            </ThemeProvider>
         </GestureHandlerRootView>
     );
 }

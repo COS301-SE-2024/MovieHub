@@ -83,7 +83,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             // shadowOpacity: 0.45,
             // shadowRadius: 3.84,
             // elevation: 5,
-            borderBottomWidth: 1,
+            borderBottomWidth: 0.5,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
