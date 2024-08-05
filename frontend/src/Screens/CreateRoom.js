@@ -7,6 +7,7 @@ import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
 const CreateRoomScreen = ({ route }) => {
     const navigation = useNavigation();
     const { onRoomCreate } = route.params;
+    const { userInfo } = route.params;
     const [roomTitle, setRoomTitle] = useState("");
     const [accessLevel, setAccessLevel] = useState("Everyone");
     const [roomType, setRoomType] = useState("Chat-only");
@@ -69,7 +70,7 @@ const CreateRoomScreen = ({ route }) => {
                 />
             </View>
 
-            <TouchableOpacity style={styles.createButton} onPress={handleCreateRoom}>
+            <TouchableOpacity style={[styles.createButton, roomTitle === "" ? styles.disabledButton : null]} onPress={handleCreateRoom} disabled={roomTitle === ""}>
                 <Text style={styles.createButtonText}>Create</Text>
             </TouchableOpacity>
         </View>
@@ -131,6 +132,9 @@ const styles = StyleSheet.create({
     createButtonText: {
         color: "white",
         fontWeight: "bold",
+    },
+    disabledButton: {
+        opacity: 0.75,
     },
 });
 

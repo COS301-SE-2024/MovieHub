@@ -24,7 +24,7 @@ export default function EditReview({ route }) {
     const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
     const isReviewButtonDisabled = title.trim() === "" || thoughts.trim() === "";
-    const navigate = useNavigation();
+    const navigation = useNavigation();
 
     // Mock movie search results
     const movieResults = movieSearch
@@ -99,25 +99,30 @@ export default function EditReview({ route }) {
         try {
             const review = await editReview(reviewData);
             // console.log('Review edited successfully:', review);
-            setFeedbackSuccess(true);
-            setFeedbackMessage("Review edited successfully");
-            setFeedbackVisible(true);
-
-            setTimeout(() => {
-                setFeedbackVisible(false);
-                navigate.navigate("HomePage", { userInfo });
-            }, 2000);
+            Alert.alert(
+                "Success",
+                "Review edited successfully",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => {
+                            // clear all inputs 
+                            setTitle("");
+                            setThoughts("");
+                            setRating(0);
+                            setMovieSearch("");
+                            
+                            navigation.navigate("Home", { userInfo });
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
         } catch (error) {
-            setFeedbackMessage("Error editing review");
-
+            Alert.alert("Error", "Error editing review", [{ text: "OK" }], { cancelable: false });
             console.error("Error editing review:", error);
-            throw new Error("Failed to edit review" + error);
         }
 
-        setFeedbackVisible(true);
-        setTimeout(() => {
-            setFeedbackVisible(false);
-        }, 3000);
     };
 
     const handleRatingPress = (value) => {
@@ -156,7 +161,15 @@ export default function EditReview({ route }) {
             <View>
                 <Text style={styles.label}>Movie</Text>
                 <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
-                {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
+                {movieResults.length > 0 && 
+                    <FlatList 
+                        data={movieResults} 
+                        keyExtractor={(item) => item.id} 
+                        renderItem={({ item }) => 
+                            <Text style={styles.movieResult}>{item.title}</Text>
+                        } 
+                    />
+                }
                 <Text style={styles.label}>Rating</Text>
                 <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
             </View>
@@ -178,7 +191,12 @@ export default function EditReview({ route }) {
                 </View>
                 <View style={styles.allowCommentsContainer}>
                     <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
-                    <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
+                    <Switch 
+                        value={allowComments} 
+                        onValueChange={setAllowComments} 
+                        trackColor={{ false: "#767577", true: "#827DC3" }} 
+                        thumbColor={allowComments ? "#4A42C0" : "#fff"} 
+                    />
                 </View>
             </View>
 

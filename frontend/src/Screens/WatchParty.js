@@ -55,7 +55,7 @@ const WatchParty = ({ route }) => {
         }, [navigation])
     );
 
-
+    // TODO: replace with real data
     const friends = [
         { id: "1", name: "Rebecca Malope" },
         { id: "2", name: "Ant Man" },
@@ -115,7 +115,12 @@ const WatchParty = ({ route }) => {
                     <Ionicons name="send" size={24} color="white" />
                 </TouchableOpacity>
             </View>
-            <InviteModal ref={bottomSheetRef} friends={friends} title="Invite Friends" userInfo={userInfo} />
+            <InviteModal 
+                ref={bottomSheetRef} 
+                friends={friends} 
+                title="Invite Friends" 
+                userInfo={userInfo} 
+            />
         </View>
     );
 };
