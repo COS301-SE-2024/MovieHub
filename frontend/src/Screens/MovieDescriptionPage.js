@@ -1,36 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity } from "react-native";
-import { useRoute } from "@react-navigation/native";
+import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button } from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import { getMovieCredits } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import Cast from "../Components/Cast";
 import axios from "axios";
-import { Ionicons } from "@expo/vector-icons";
-import { Octicons } from "@expo/vector-icons";
-import { FontAwesome6 } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
-import { SimpleLineIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { Ionicons, Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
 
-const MovieDescriptionPage = () => {
+export default function MovieDescriptionPage({ userInfo }) { 
+
     const route = useRoute();
     const { movieId, imageUrl, title, rating, overview, date } = route.params;
-    const { userInfo } = route.params;
+
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",
         "rgba(0, 0, 0, 0.7)",
     ]); // Initial state with three colors, can be replaced with initial color values
+
     const [credits, setCredits] = useState({ cast: [], crew: [] });
-    const [loading, setLoading] = useState(true); // State to track loading
+    const [loading, setLoading] = useState(true);
     const [isAddedToList, setIsAddedToList] = useState(false);
     const [isWatched, setIsWatched] = useState(false);
     const [isReviewed, setIsReviewed] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const navigation = useNavigation();
 
     const handleReviewPress = () => {
         setIsReviewed(true);
-        navigation.navigate("CreatePost", {userInfo}); // Make sure 'PostsPage' is the correct route name
+        navigation.navigate('CreatePost', { userInfo });
+    };
+
+    const handleAddPress = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleLogBookPress = () => {
+        navigation.navigate('LogBookScreen', { title });
+    };
+
+    const handleCreateNewWatchlist = () => {
+        navigation.navigate('CreateWatchlist', { userInfo });
+        setIsModalVisible(false);
+    };
+
+    const handleAddToExistingWatchlist = () => {
+        navigation.navigate('EditWatchlist', { userInfo });
+        setIsModalVisible(false);
     };
 
     useEffect(() => {
@@ -38,7 +54,6 @@ const MovieDescriptionPage = () => {
             const data = await getMovieCredits(movieId);
             setCredits(data);
         };
-
         fetchCredits();
     }, [movieId]);
 
@@ -46,7 +61,7 @@ const MovieDescriptionPage = () => {
         const fetchColors = async () => {
             try {
                 const response = await axios.post(
-                    `http://10.0.17.125:3000/extract-colors`,
+                    `http://192.168.225.19:3000/extract-colors`,
                     { imageUrl },
                     {
                         headers: {
@@ -56,23 +71,18 @@ const MovieDescriptionPage = () => {
                 );
                 // Convert RGB arrays to rgba strings
                 const convertedColors = response.data.colors.slice(0, 3).map((color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`);
-
                 setColors(convertedColors);
             } catch (error) {
                 console.error("Error fetching colors:", error);
             } finally {
-                setLoading(false); // Set loading to false after fetching colors
+                setLoading(false);
             }
         };
-
         fetchColors();
     }, [imageUrl]);
 
     const director = credits.crew.find((person) => person.job === "Director");
-    const cast = credits.cast
-        .slice(0, 5)
-        .map((person) => person.name)
-        .join(", ");
+    const cast = credits.cast.slice(0, 5).map((person) => person.name).join(", ");
 
     if (loading) {
         return (
@@ -83,16 +93,14 @@ const MovieDescriptionPage = () => {
     }
 
     // round of rating to 1 decimal place
-    roundedRating = Math.round(rating * 10) / 10;
+    const roundedRating = Math.round(rating * 10) / 10;
 
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" />
-            <LinearGradient
-                colors={colors}
-                // locations={[0, 0.5, 1]}
-                style={styles.content}>
-                <ScrollView>
+
+            <LinearGradient colors={colors} style={styles.content}>
+                <ScrollView contentContainerStyle={styles.scrollContent}>
                     <View style={styles.wholecontainer}>
                         <View style={styles.card}>
                             <Image source={{ uri: imageUrl }} style={styles.image} />
@@ -109,31 +117,42 @@ const MovieDescriptionPage = () => {
                             <Text style={styles.movietitle2}> 2h </Text>
                         </View>
                         <View style={styles.icons}>
-                            <TouchableOpacity onPress={() => setIsAddedToList(!isAddedToList)} style={styles.block1}>
-                                <View style={styles.iconTextContainer}>
-                                    <FontAwesome6 name={isAddedToList ? "check" : "add"} size={24} color="white" style={styles.icon} />
-                                    <Text style={styles.text}>{isAddedToList ? "Added" : "Add to list"}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setIsWatched(!isWatched)} style={styles.block2}>
-                                <View style={styles.iconTextContainer}>
-                                    <FontAwesome name="check-circle" size={24} color={isWatched ? "green" : "white"} style={styles.icon} />
-                                    <Text style={styles.text}>{isWatched ? "Watched" : "Watch"}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
-                                <View style={styles.iconTextContainer}>
-                                    <Ionicons name="star-outline" size={24} color={isReviewed ? "gold" : "white"} style={styles.icon} />
-                                    <Text style={styles.text}>{isReviewed ? "Reviewed" : "Review"}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.block4}>
-                                <View style={styles.iconTextContainer}>
-                                    <SimpleLineIcons name="screen-desktop" size={24} color="white" style={styles.icon} />
-                                    <Text style={styles.text}>Watch Party</Text>
-                                </View>
-                            </TouchableOpacity>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.iconsContent}>
+                                <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
+                                    <View style={styles.iconTextContainer}>
+                                        <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
+                                        <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setIsWatched(!isWatched)} style={styles.block2}>
+                                    <View style={styles.iconTextContainer}>
+                                        <FontAwesome name="check-circle" size={24} color={isWatched ? 'green' : 'white'} style={styles.icon} />
+                                        <Text style={styles.text}>{isWatched ? 'Watched' : 'Watch'}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
+                                    <View style={styles.iconTextContainer}>
+                                        <Ionicons name="star-outline" size={24} color={isReviewed ? 'gold' : 'white'} style={styles.icon} />
+                                        <Text style={styles.text}>{isReviewed ? 'Reviewed' : 'Review'}</Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={styles.block4}>
+                                    <View style={styles.iconTextContainer}>
+                                        <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
+                                        <Text style={styles.text}>Watch Party</Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
+                                    <View style={styles.iconTextContainer}>
+                                        <Ionicons name="book-outline" size={24} color="white" style={styles.icon}/>
+                                        <Text style={styles.text}>Log Movie</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </ScrollView>
                         </View>
+                        
                         <View style={styles.moviebio}>
                             <Text style={styles.moviebiotext}>{overview}</Text>
                         </View>
@@ -146,7 +165,7 @@ const MovieDescriptionPage = () => {
                             </Text>
                         </View>
                         <Text style={styles.moviecast}> Cast</Text>
-                        <ScrollView horizontal>
+                        <ScrollView horizontal contentContainerStyle={styles.castContainer}>
                             {credits.cast.slice(0, 5).map((member, index) => (
                                 <Cast key={index} imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`} name={member.name} />
                             ))}
@@ -154,6 +173,16 @@ const MovieDescriptionPage = () => {
                     </View>
                 </ScrollView>
             </LinearGradient>
+
+            <Modal animationType="slide" transparent={true} visible={isModalVisible} onRequestClose={() => setIsModalVisible(false)}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalView}>
+                        <Button title="Create a new watchlist" onPress={handleCreateNewWatchlist} color="#000" />
+                        <Button title="Add to existing watchlist" onPress={handleAddToExistingWatchlist} color="#000" />
+                        <Button title="Cancel" onPress={() => setIsModalVisible(false)} color="#f44336" />
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -161,13 +190,15 @@ const MovieDescriptionPage = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        width: "100%",
-        // backgroundColor: "#ffffff",
+        width: '100%',
     },
     content: {
         flex: 1,
-        paddingTop: 55, // Adjust 56 if your header height is different
-        width: "100%",
+        paddingTop: StatusBar.currentHeight + 80,
+        width: '100%',
+    },
+    scrollContent: {
+        flexGrow: 1,
     },
     activityIndicator: {
         flex: 1,
@@ -180,16 +211,18 @@ const styles = StyleSheet.create({
         paddingBottom: 50,
     },
     iconTextContainer: {
-        width: 79, // Adjust this width to fit your needs
-        alignItems: "center",
+        width: 79,
+        alignItems: 'center',
     },
     icons: {
-        flexDirection: "row",
         paddingTop: 30,
         paddingLeft: 8,
         paddingBottom: 10,
-        justifyContent: "space-evenly", // replaces block styling
+        justifyContent: "space-evenly",
         alignItems: "center",
+    },
+    iconsContent: {
+        flexDirection: "row",
     },
     icon: {
         paddingLeft: 0,
@@ -199,24 +232,7 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: "bold",
     },
-    // block1: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
-    // block2: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
-    // block3: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
-    // block4: {
-    //     alignItems: "center",
-    //     marginHorizontal: 9,
-    // },
     card: {
-        // width: "75%",
         paddingTop: 20,
         padding: 10,
         height: 430,
@@ -230,7 +246,6 @@ const styles = StyleSheet.create({
             width: 0,
             height: 3,
         },
-
         shadowOpacity: 0.5,
         shadowRadius: 3.84,
         elevation: 5,
@@ -277,15 +292,8 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         color: "white",
     },
-    cast: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        width: 170,
-        height: 250,
-        paddingRight: 15,
-        paddingLeft: 15,
-        backgroundColor: "#000",
+    castContainer: {
+        flexDirection: 'row',
     },
     moviecast: {
         paddingTop: 20,
@@ -299,6 +307,25 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: "white",
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.5)"
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
 });
-
-export default MovieDescriptionPage;

@@ -19,15 +19,18 @@ export default function HomeHeader({ userInfo }) {
 
 const styles = StyleSheet.create({
     header: { 
+        height: 90,
+        paddingTop: 38,
         paddingVertical: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
         zIndex: 1,
+        
     },
     logo: {
         paddingLeft: 20,
         fontFamily: 'Roboto',
-        color: "white",
+        color: colors.primary,
         fontSize: 20,
         fontWeight: 'bold',
         textShadowColor: 'rgba(0, 0, 0, 0.75)',
