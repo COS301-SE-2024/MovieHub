@@ -10,6 +10,7 @@ const movieRouter = require('./src/movieHandeling/movie.router');
 const actorRouter = require('./src/actorHandeling/actor.router');
 const genreRouter = require('./src/genreHandeling/genre.router');
 const logRouter = require('./src/Log/log.router');
+const exploreRouter = require('./src/Explore/explore.router');
 const cors = require("cors"); // since we are using more than on port
 const https = require("https");
 const fs = require("fs");
@@ -41,6 +42,7 @@ app.use('/movie', movieRouter);
 app.use('/actor', actorRouter);
 app.use('/genre', genreRouter);
 app.use('/log', logRouter);
+app.use('/explore', exploreRouter);
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);
