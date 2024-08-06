@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.39.101:3000/post/'; // Update to your Expo URL
+const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.225.19:3000/post/'; // Update to your Expo URL
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
@@ -46,7 +46,7 @@ export const addPost = async (bodyData) => {
 };
 
 export const addReview = async (bodyData) => {
-    // bodyData should contain: { uid, movieId, text, rating, reviewTitle }
+    // bodyData should contain: { uid, movieId, text, rating, reviewTitle, movieTitle }
     try {
         const response = await fetchWithAuth(`${API_URL}add/review`, {
             method: 'POST',
@@ -121,7 +121,7 @@ export const editPost = async (bodyData) => {
 };
 
 export const editReview = async (bodyData) => {
-    // bodyData should contain: { reviewId, uid, text }
+    // bodyData should contain: { reviewId, uid, text, reviewTitle ,rating }
     try {
         const response = await fetchWithAuth(`${API_URL}edit/review`, {
             method: 'PUT',
@@ -243,6 +243,20 @@ export const getCommentsOfReview = async (reviewId) => {
         return response;
     } catch (error) {
         throw new Error('Failed to fetch comments of review: ' + error.message);
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const getCommentsOfComment = async (commentId) => {
+    // commentId should be a string
+    try {
+        const response = await fetchWithAuth(`${API_URL}comment/${commentId}/comments`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to fetch comments of comment: ' + error.message);
     }
     const data = await response.json();
     return data;

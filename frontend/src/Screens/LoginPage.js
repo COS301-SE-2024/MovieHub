@@ -38,7 +38,7 @@ const LoginPage = () => {
                 username: data.data.username,
                 //???     token : data.data.token
             };
-            navigation.navigate("HomePage", { userInfo });
+            navigation.navigate("Home", { userInfo });
         } catch (error) {
             console.log("Error", error);
             // const regex = /\(([^)]+)\)/;

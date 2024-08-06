@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
-export default function CreateWatchlist({route,  navigation }) {
+export default function CreateWatchlist({ route, navigation }) {
     //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
 
@@ -66,29 +66,23 @@ export default function CreateWatchlist({route,  navigation }) {
             visibility,
             collaborative,
             ranked,
-           // cover,
+            // cover,
         };
 
-        navigation.navigate('AddMovies', { watchlistData, userInfo });
+        navigation.navigate("AddMovies", { watchlistData, userInfo });
     };
 
     return (
         <ScrollView style={styles.container}>
             <TouchableOpacity style={styles.coverContainer} onPress={chooseCover}>
-                {cover ? (
-                    <Image source={{ uri: cover }} style={styles.coverImage} />
-                ) : (
-                    <Text style={styles.coverText}>Choose cover</Text>
-                )}
+                {cover ? <Image source={{ uri: cover }} style={styles.coverImage} /> : <Text style={styles.coverText}>Choose cover</Text>}
             </TouchableOpacity>
 
             {Object.keys(modalContent).map((field, index) => (
                 <View key={index}>
                     <TouchableOpacity onPress={() => handleFieldPress(field)}>
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>
-                                {field.charAt(0).toUpperCase() + field.slice(1)}
-                            </Text>
+                            <Text style={styles.sectionTitle}>{field.charAt(0).toUpperCase() + field.slice(1)}</Text>
                             <Text style={styles.sectionValue}>{modalContent[field].newValue}</Text>
                         </View>
                     </TouchableOpacity>
@@ -134,26 +128,17 @@ export default function CreateWatchlist({route,  navigation }) {
                             ...modalContent,
                             [field]: { ...modalContent[field], isVisible: false },
                         })
-                    }
-                >
+                    }>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>
-                                Change {field.charAt(0).toUpperCase() + field.slice(1)}
-                            </Text>
-                            <TextInput
-                                style={styles.input}
-                                autoFocus={true}
-                                placeholder={modalContent[field].newValue}
-                                value={modalContent[field].tempValue}
-                                onChangeText={(text) => handleInputChange(field, text)}
-                            />
+                            <Text style={styles.modalTitle}>Add {field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                            <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
                             <View style={styles.buttonContainer}>
                                 <Text style={styles.buttonText} onPress={handleCancelChanges}>
                                     Cancel
                                 </Text>
                                 <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                    Apply Changes
+                                    Save
                                 </Text>
                             </View>
                         </View>
@@ -161,9 +146,11 @@ export default function CreateWatchlist({route,  navigation }) {
                 </Modal>
             ))}
 
-            <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                <Text style={styles.nextButtonText}>Next</Text>
-            </TouchableOpacity>
+            <View style={{ marginBottom: 20 }}>
+                <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                    <Text style={styles.nextButtonText}>Next</Text>
+                </TouchableOpacity>
+            </View>
         </ScrollView>
     );
 }

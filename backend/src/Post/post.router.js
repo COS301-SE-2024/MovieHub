@@ -21,11 +21,12 @@ router.get('/movie/:movieId/posts', postController.getPostsOfMovie);
 router.get('/movie/:movieId/reviews', postController.getReviewsOfMovie);
 router.get('/post/:postId/comments', postController.getCommentsOfPost);
 router.get('/review/:reviewId/comments', postController.getCommentsOfReview);
+router.get('/comment/:commentId/comments', postController.getCommentsOfComment);
 router.get('/user/:uid/posts', postController.getPostsOfUser);
 router.get('/user/:uid/comments', postController.getCommentsOfUser);
 router.get('/user/:uid/reviews', postController.getReviewsOfUser);
 router.get('/movie/:movieId/rating', postController.getAverageRating);
 router.get('/post/:postId/comment/count', postController.getCountCommentsOfPost);
-router.get('/review/:reviewId/commnet/count', postController.getCountCommentsOfReview);
+router.get('/review/:reviewId/comment/count', postController.getCountCommentsOfReview);
 
 module.exports = router;

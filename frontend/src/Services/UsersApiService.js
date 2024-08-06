@@ -1,7 +1,8 @@
 // src/services/UsersApiService.js
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://10.32.146.210:3000/users' || 'http://localhost:3000/users';// enter what url your expo is running on + our port 3000
+const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://192.168.225.19:3000/users';// enter what url your expo is running on + our port 3000
+
 
 // Helper function to get the token from SecureStore
 const getToken = async () => {

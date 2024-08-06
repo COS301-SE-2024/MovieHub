@@ -6,24 +6,24 @@ import * as ImagePicker from "expo-image-picker";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
 
-import { addPost, editPost } from "../Services/PostsApiServices";
+import { editReview } from "../Services/PostsApiServices";
 
-export default function EditPost({route}) {
-    const { username, uid, titleParam, thoughtsParam, imageUriParam, postId } = route.params;
+export default function EditReview({ route }) {
+    const { username, uid, titleParam, thoughtsParam, imageUriParam, reviewId, ratingParam, movieName } = route.params;
     const userInfo = { username, userId: uid };
-    const [isMovieReview, setIsMovieReview] = useState(false);
+    const [isMovieReview, setIsMovieReview] = useState(true);
     const [title, setTitle] = useState(titleParam);
     const [thoughts, setThoughts] = useState(thoughtsParam);
-    const [movieSearch, setMovieSearch] = useState("");
+    const [movieSearch, setMovieSearch] = useState(movieName);
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(imageUriParam);
     const [modalVisible, setModalVisible] = useState(false);
-    const [rating, setRating] = useState(0); // Add state for rating
+    const [rating, setRating] = useState(ratingParam); // Add state for rating
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
-    const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
+    const isReviewButtonDisabled = title.trim() === "" || thoughts.trim() === "";
     const navigate = useNavigation();
 
     // Mock movie search results
@@ -37,8 +37,8 @@ export default function EditPost({route}) {
 
     const handleAddImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Sorry, we need camera roll permissions to make this work!');
+        if (status !== "granted") {
+            alert("Sorry, we need camera roll permissions to make this work!");
             return;
         }
 
@@ -55,8 +55,8 @@ export default function EditPost({route}) {
 
     const handleReplaceImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Sorry, we need camera roll permissions to make this work!');
+        if (status !== "granted") {
+            alert("Sorry, we need camera roll permissions to make this work!");
             return;
         }
 
@@ -85,40 +85,40 @@ export default function EditPost({route}) {
         Alert.alert("Add Emoji", "This functionality is not implemented yet.");
     };
 
-    const handleEditPost = async () => {
-        const postData = {
-            postId: postId,
-            postTitle: title,
+    const handleEditReview = async () => {
+        const reviewData = {
+            reviewId: reviewId,
+            reviewTitle: title,
             text: thoughts,
             uid: uid, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             img: null,
             isReview: isMovieReview,
-            rating: isMovieReview ? rating : 0
+            rating: isMovieReview ? rating : 0,
         };
 
         try {
-            const post = await editPost(postData);
-            // console.log('Post edited successfully:', post);
+            const review = await editReview(reviewData);
+            // console.log('Review edited successfully:', review);
             setFeedbackSuccess(true);
-            setFeedbackMessage("Post edited successfully");
-            setFeedbackVisible(true);  
+            setFeedbackMessage("Review edited successfully");
+            setFeedbackVisible(true);
 
             setTimeout(() => {
-                setFeedbackVisible(false)
+                setFeedbackVisible(false);
                 navigate.navigate("HomePage", { userInfo });
             }, 2000);
         } catch (error) {
-            setFeedbackMessage("Error editing post");
+            setFeedbackMessage("Error editing review");
 
-            console.error('Error editing post:', error);
-            throw new Error('Failed to edit post' + error);
+            console.error("Error editing review:", error);
+            throw new Error("Failed to edit review" + error);
         }
 
         setFeedbackVisible(true);
         setTimeout(() => {
             setFeedbackVisible(false);
         }, 3000);
-    }
+    };
 
     const handleRatingPress = (value) => {
         setRating(value);
@@ -128,11 +128,7 @@ export default function EditPost({route}) {
         const ratingOptions = [];
         for (let i = 1; i <= 10; i++) {
             ratingOptions.push(
-                <TouchableOpacity
-                    key={i}
-                    onPress={() => handleRatingPress(i)}
-                    style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}
-                >
+                <TouchableOpacity key={i} onPress={() => handleRatingPress(i)} style={[styles.ratingOption, rating === i && styles.ratingOptionSelected]}>
                     <Text style={styles.ratingText}>{i}</Text>
                 </TouchableOpacity>
             );
@@ -142,11 +138,6 @@ export default function EditPost({route}) {
 
     return (
         <ScrollView style={styles.container}>
-            <View style={styles.toggleContainer}>
-                <Text style={styles.label}>Is this a movie review?</Text>
-                <Switch value={isMovieReview} onValueChange={setIsMovieReview} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={isMovieReview ? "#4A42C0" : "#fff"} />
-            </View>
-
             {imageUri && (
                 <View style={styles.imagePreviewContainer}>
                     <Image source={{ uri: imageUri }} style={styles.imagePreview} />
@@ -162,15 +153,13 @@ export default function EditPost({route}) {
             <Text style={styles.label}>Title</Text>
             <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
 
-            {isMovieReview && (
-                <View>
-                    <Text style={styles.label}>Movie</Text>
-                    <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
-                    {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
-                    <Text style={styles.label}>Rating</Text>
-                    <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
-                </View>
-            )}
+            <View>
+                <Text style={styles.label}>Movie</Text>
+                <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
+                {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
+                <Text style={styles.label}>Rating</Text>
+                <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
+            </View>
 
             <Text style={styles.label}>Thoughts</Text>
             <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor="#000" />
@@ -195,8 +184,8 @@ export default function EditPost({route}) {
 
             <View style={styles.footer}>
                 <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleEditPost}>
-                    <Text style={styles.postButtonText}>Save</Text>
+                <TouchableOpacity style={[styles.reviewButton, isReviewButtonDisabled && styles.reviewButtonDisabled]} disabled={isReviewButtonDisabled} onPress={handleEditReview}>
+                    <Text style={styles.reviewButtonText}>Save</Text>
                 </TouchableOpacity>
             </View>
 
@@ -263,7 +252,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     allowComments: {
-        marginTop: 4
+        marginTop: 4,
     },
     footer: {
         flexDirection: "row",
@@ -275,17 +264,17 @@ const styles = StyleSheet.create({
         color: "#0f5bd1",
         fontWeight: "600",
     },
-    postButton: {
+    reviewButton: {
         backgroundColor: colors.primary,
         paddingVertical: 10,
         paddingHorizontal: 35,
         borderRadius: 10,
         opacity: 1,
     },
-    postButtonDisabled: {
-        opacity: 0.7
+    reviewButtonDisabled: {
+        opacity: 0.7,
     },
-    postButtonText: {
+    reviewButtonText: {
         color: "#fff",
         fontWeight: "bold",
     },
@@ -298,14 +287,14 @@ const styles = StyleSheet.create({
         height: 400,
         borderRadius: 10,
         marginBottom: 10,
-        objectFit: "contain"
+        objectFit: "contain",
     },
     removeImageButton: {
         position: "absolute",
         top: 10,
         right: 25,
         backgroundColor: colors.primary,
-        
+
         borderRadius: 50,
     },
     replaceImageButton: {
