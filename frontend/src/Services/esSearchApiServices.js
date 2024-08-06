@@ -41,3 +41,16 @@ export const searchMoviesFuzzy = async (query) => {
         throw new Error('Failed to search movies: ' + error.message);
     }
 };
+
+export const getMovieByQuote = async (quote) => {
+    try {
+        const response = await fetchWithAuth(`${API_URL}getMovieByQuote`, {
+            method: 'GET',
+            body: JSON.stringify({ quote }),
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to search movies: ' + error.message);
+    }
+};
+
