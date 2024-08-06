@@ -33,7 +33,7 @@ const fetchWithAuth = async (url, options = {}) => {
 export const searchMoviesFuzzy = async (query) => {
     try {
         const response = await fetchWithAuth(`${API_URL}movies/search`, {
-            method: 'POST',
+            method: 'GET',
             body: JSON.stringify({ query }),
         });
         return response;
