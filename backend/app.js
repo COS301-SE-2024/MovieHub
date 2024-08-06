@@ -12,6 +12,7 @@ const genreRouter = require('./src/genreHandeling/genre.router');
 const searchMovieRouter = require('./src/searching/searching.router');
 const logRouter = require('./src/Log/log.router');
 
+
 const cors = require("cors"); // since we are using more than on port
 const https = require("https");
 const fs = require("fs");
