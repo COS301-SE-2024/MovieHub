@@ -19,29 +19,43 @@ exports.register = async (req, res) => {
         console.log("Custom Token:", customToken);
 
         responseHandler(res, 201, 'User registered successfully', { uid: userRecord.uid, username, token: customToken });
-        console.log("User registration successful");
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+    if (!email || !password) {
+        responseHandler(res, 400, 'Missing required fields: email, password');
+        return;
+    }
     try {
         const { user, customToken } = await authService.loginUser(email, password);
+        if (!user || !customToken) {
+            responseHandler(res, 400, 'Invalid email or password');
+            return;
+        }
         res.cookie('session', customToken, { httpOnly: true, secure: true, maxAge: 60 * 60 * 24 * 5 * 1000 });
         responseHandler(res, 200, 'User logged in successfully', { uid: user.uid, username: user.displayName, token: customToken });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
 exports.logout = async (req, res) => {
     try {
-        await authService.logoutUser();
+        const logoutResult = await authService.logoutUser();
+        if (!logoutResult) {
+            responseHandler(res, 400, 'Logout unsuccessful');
+            return;
+        }
         res.clearCookie('session');
         responseHandler(res, 200, 'User logged out successfully');
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
