@@ -30,7 +30,7 @@ async function checkConnection() {
             multi_match: {
               query: query,
               fields: [
-                'title^2',
+                'title',
                 'tagline',
                 'keywords',
                 'overview',

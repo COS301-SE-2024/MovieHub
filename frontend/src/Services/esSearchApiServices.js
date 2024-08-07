@@ -30,11 +30,11 @@ const fetchWithAuth = async (url, options = {}) => {
     return response.json();
 };
 
+
 export const searchMoviesFuzzy = async (query) => {
     try {
-        const response = await fetchWithAuth(`${API_URL}movies/search`, {
-            method: 'POST',
-            body: JSON.stringify({ query }),
+        const response = await fetchWithAuth(`${API_URL}movies/search/${query}`, {
+            method: 'GET',
         });
         return response;
     } catch (error) {
@@ -44,9 +44,8 @@ export const searchMoviesFuzzy = async (query) => {
 
 export const getMovieByQuote = async (quote) => {
     try {
-        const response = await fetchWithAuth(`${API_URL}getMovieByQuote`, {
-            method: 'POST',
-            body: JSON.stringify({ quote }),
+        const response = await fetchWithAuth(`${API_URL}getMovieByQuote/${quote}`, {
+            method: 'GET',
         });
         return response;
     } catch (error) {

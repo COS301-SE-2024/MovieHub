@@ -4,7 +4,8 @@ import {  getMovieByQuote } from "./quoteSearching.services";
 
   exports.searchMoviesFuzzy = async (req, res) => {
     try {
-        const { query } = req.body;
+     
+        const query = req.params.query;
       const movies = await searchMoviesFuzzy(query);
       res.status(200).json({ message: 'Movies fetched successfully', movies });
     } catch (error) {
@@ -14,7 +15,7 @@ import {  getMovieByQuote } from "./quoteSearching.services";
 
   exports.getMovieByQuote = async (req, res) => {
     try {
-        const { quote } = req.body;
+      const quote = req.params.quote;
       const movies = await getMovieByQuote(quote);
       res.status(200).json({ message: 'Movies fetched successfully', movies });
     } catch (error) {
