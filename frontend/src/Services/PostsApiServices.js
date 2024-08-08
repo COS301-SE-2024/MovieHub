@@ -36,7 +36,7 @@ const fetchWithAuth = async (url, options = {}) => {
 export const addPost = async (bodyData) => {
     // bodyData should contain: { uid, movieId, text, postTitle, img }
     console.log(bodyData.img);
-    bodyData.img = uploadImage(bodyData.img,'posts');
+    bodyData.img = await uploadImage(bodyData.img,'posts');
     try {
         const response = await fetchWithAuth(`${API_URL}add/post`, {
             method: 'POST',

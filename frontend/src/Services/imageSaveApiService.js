@@ -46,6 +46,32 @@
 
 // const dotenv = require("dotenv")
 // dotenv.config()
+
+// import { S3Client } from '@aws-sdk/client-s3';
+
+// const client = new S3Client({
+//   forcePathStyle: true,
+//   region: 'us-east-1',
+//   endpoint: 'https://smpxgyiogmxexcsfkkuz.supabase.co/storage/v1/s3',
+//   credentials: {
+//     accessKeyId: 'fbda5559291f4be546669f46015e4b31',
+//     secretAccessKey: '68dde53943a8167782c2184b963d75e6db754e45e10cb33399d75061b3368c13',
+//   }
+// })
+
+
+// const file = fs.createReadStream('path/to/file')
+
+// const uploadCommand = new PutObjectCommand({
+//   Bucket: 'bucket-name',
+//   Key: 'path/to/file',
+//   Body: file,
+//   ContentType: 'image/jpeg',
+// })
+
+// await s3Client.send(uploadCommand)
+
+
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = "https://smpxgyiogmxexcsfkkuz.supabase.co";
@@ -54,34 +80,56 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 
 exports.uploadImage = async (file,folderPath) =>{
-    console.log("Uploading file function :" + file);
-    console.log(file);
+
+    console.log("Uploading");
+
     const fileName = `${Date.now()}-${file.fileName}` // Create a unique file name
+
     console.log(fileName);
-    const filePath = `${folderPath}/${fileName}` // Combine folder path and file name
-    console.log(filePath);
-    const { data, error } = await supabase
-        .storage
-        .from('images')
-        .upload(filePath, file.file)
-    console.log("------------------------------------------------------------------------");
 
-    if (error) {
-        console.error('Error uploading file:', error)
-        return null
-    }
-    console.log("------------------------------------------------------------------------");
-    // Step 4: Return the URL of the uploaded image
-    const { publicURL, error: urlError } = supabase
-        .storage
-        .from('images')
-        .getPublicUrl(filePath)
+    const type = file.type; // Get the file type
 
-    if (urlError) {
-        console.error('Error getting public URL:', urlError)
-        return null
-    }
+    console.log(type);
 
-    return publicURL
-};
+    const uri = file.uri;
 
+    console.log(uri);
+
+    try {
+
+      const response = await fetch(uri);
+
+        console.log("response: ");
+        console.log(response);
+
+        const blob = await response.blob();
+
+        console.log("__________________");
+        console.log(blob);
+        console.log("__________________");
+
+        const filePath = `${folderPath}/${fileName}`; // Specify the subfolder path
+
+        console.log(filePath);
+
+        const { data, error } = await supabase.storage
+          .from('images') // Replace with your bucket name
+          .upload(filePath, blob, {
+            cacheControl: 'no-store, no-cache, must-revalidate', // Prevent caching at all levels
+            upsert: false, 
+        });
+
+
+          console.log("__________________");
+        if (error) {
+          console.log('Error uploading image:', error.message);
+          return null;
+        }
+    
+        console.log('Image uploaded successfully:', data.Key);
+        return data.Key;
+      } catch (error) {
+        console.log('Error:', error.message);
+        return null;
+      }
+    };
