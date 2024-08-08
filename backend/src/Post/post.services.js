@@ -1,5 +1,4 @@
 
-import {uploadImage} from '../services/imageHandeling.services';
 const { v4: uuidv4 } = require('uuid');
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
@@ -14,12 +13,9 @@ const driver = neo4j.driver(
 exports.addPost = async (uid, movieId, text, postTitle, img) => {
     console.log("In Services: addPost");
     if(img == null){
-        img = "empty";
+       img = "empty";
     }
-    else{
-        img = uploadImage(img);
-    }
-    const session = driver.session();
+      const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
     try {

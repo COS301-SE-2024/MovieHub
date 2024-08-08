@@ -11,6 +11,7 @@ const actorRouter = require('./src/actorHandeling/actor.router');
 const genreRouter = require('./src/genreHandeling/genre.router');
 const searchMovieRouter = require('./src/searching/searching.router');
 const logRouter = require('./src/Log/log.router');
+const imgSaveRouter = require('./src/imageStore/imageStore.router');
 
 const cors = require("cors"); // since we are using more than on port
 const https = require("https");
@@ -44,6 +45,7 @@ app.use('/actor', actorRouter);
 app.use('/genre', genreRouter);
 app.use('/searchMovie', searchMovieRouter);
 app.use('/log', logRouter);
+app.use('/saveImage', imgSaveRouter);
 
 
 app.use((req, res, next) => {

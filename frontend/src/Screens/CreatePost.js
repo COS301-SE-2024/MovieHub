@@ -14,6 +14,7 @@ export default function CreatePost({ route }) {
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
     const [rating, setRating] = useState(0); // Add state for rating
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -46,6 +47,7 @@ export default function CreatePost({ route }) {
 
         if (!result.canceled) {
             setImageUri(result.assets[0].uri);
+            setImageFile(result.assets[0]);
         }
     };
 
@@ -65,6 +67,7 @@ export default function CreatePost({ route }) {
 
         if (!result.canceled) {
             setImageUri(result.assets[0].uri);
+            setImageFile(result.assets[0]);
         } else {
         }
     };
@@ -87,7 +90,7 @@ export default function CreatePost({ route }) {
             text: thoughts,
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             movieId: 843527.0,
-            img: null,
+            img: imageFile,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0
         };
