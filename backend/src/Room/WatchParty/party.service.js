@@ -9,14 +9,11 @@ const driver = neo4j.driver(
     neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
 );
 
-// WebSocket server URL or endpoint
 const WS_SERVER_URL = process.env.WS_SERVER_URL;
-
-// Hyperbeam API URL and key
-const HYPERBEAM_API_URL = process.env.HYPERBEAM_API_URL;
+const HYPERBEAM_API_URL = 'https://engine.hyperbeam.com/v0/vm';
 const HYPERBEAM_API_KEY = process.env.HYPERBEAM_API_KEY;
 
-// Function to schedule a watch party (Needs to be revisted)
+// Function to schedule a watch party (Needs to be revisited)
 exports.scheduleWatchParty = async (userId, partyData) => {
     const session = driver.session();
     const partyId = uuidv4();
@@ -67,9 +64,12 @@ exports.createWatchParty = async (userId, partyData) => {
     const session = driver.session();
     const partyId = uuidv4();
     const createdAt = new Date().toISOString();
-    const { partyName, movieId, startTime, streamingPlatform } = partyData;
+    const { partyName, startTime, streamingPlatform } = partyData;
 
     try {
+        // Create a Hyperbeam session
+        const hyperbeamSession = await createHyperbeamSession(streamingPlatform);
+
         // Start a transaction
         const tx = session.beginTransaction();
 
@@ -78,11 +78,12 @@ exports.createWatchParty = async (userId, partyData) => {
             `CREATE (p:WatchParty {
                 partyId: $partyId,
                 partyName: $partyName,
-                movieId: $movieId,
                 startTime: $startTime,
                 streamingPlatform: $streamingPlatform,
                 createdBy: $createdBy,
-                createdAt: $createdAt
+                createdAt: $createdAt,
+                hyperbeamSessionUrl: $hyperbeamSessionUrl,
+                hyperbeamEmbedUrl: $hyperbeamEmbedUrl
              })
              MERGE (u:User {uid: $userId})
              CREATE (u)-[:HOSTS]->(p)
@@ -90,11 +91,12 @@ exports.createWatchParty = async (userId, partyData) => {
             {
                 partyId,
                 partyName,
-                movieId,
                 startTime,
                 streamingPlatform,
                 createdBy: userId,
                 createdAt,
+                hyperbeamSessionUrl: hyperbeamSession.session_id,
+                hyperbeamEmbedUrl: hyperbeamSession.embed_url,
                 userId
             }
         );
@@ -106,11 +108,8 @@ exports.createWatchParty = async (userId, partyData) => {
         // Commit the transaction
         await tx.commit();
 
-        // Create a Hyperbeam session
-        const hyperbeamSession = await createHyperbeamSession(streamingPlatform, movieId);
-
         // Sync watch party data with the extension
-        await syncWithExtension(partyId, { partyName, movieId, startTime, createdAt, hyperbeamSession });
+      //  await syncWithExtension(partyId, { partyName, startTime, createdAt, hyperbeamSession });
 
         return { partyId, ...partyData, createdBy: userId, createdAt, hyperbeamSession };
     } catch (error) {
@@ -123,14 +122,13 @@ exports.createWatchParty = async (userId, partyData) => {
 };
 
 // Function to create a Hyperbeam session
-async function createHyperbeamSession(streamingPlatform, movieId) {
+async function createHyperbeamSession(streamingPlatform) {
     try {
-        // Mapping of supported streaming platforms to their URLs
         const platformUrls = {
-            'Netflix': `https://www.netflix.com/watch/${movieId}`,
-            'Hulu': `https://www.hulu.com/watch/${movieId}`,
-            'DisneyPlus': `https://www.disneyplus.com/video/${movieId}`,
-            'AmazonPrime': `https://www.amazon.com/dp/${movieId}`,
+            'Netflix': `https://www.netflix.com`,
+            'Hulu': `https://www.hulu.com/watch`,
+            'DisneyPlus': `https://www.disneyplus.com/video`,
+            'AmazonPrime': `https://www.amazon.com/dp`,
             // Add other platforms as needed
         };
 
@@ -139,21 +137,40 @@ async function createHyperbeamSession(streamingPlatform, movieId) {
         if (!websiteUrl) {
             throw new Error('Unsupported streaming platform');
         }
+        console.log('Starting Hyperbeam session with URL:', websiteUrl);
 
-        const response = await axios.post(`${HYPERBEAM_API_URL}/sessions`, {
-            website: websiteUrl
+        const response = await axios.post(HYPERBEAM_API_URL, {
+            start_url: websiteUrl,
+            offline_timeout: 300,
+            control_disable_default: true //If true, users cannot control the browser by default, and need to be manually granted access by an admin user(in this case our host)
         }, {
             headers: {
-                'Authorization': `Bearer ${HYPERBEAM_API_KEY}`
+                'Authorization': `Bearer ${HYPERBEAM_API_KEY}`,
+                'Content-Type': 'application/json'
             }
         });
-
+        console.log("Here's the sessions info: ", response.data);
         return response.data;
     } catch (error) {
         console.error('Error creating Hyperbeam session:', error);
         throw error;
     }
 }
+
+// Function to end a Hyperbeam session
+exports.endHyperbeamSession = async (sessionId) => {
+    try {
+        await axios.delete(`${HYPERBEAM_API_URL}/${sessionId}`, {
+            headers: {
+                'Authorization': `Bearer ${HYPERBEAM_API_KEY}`
+            }
+        });
+        console.log('Hyperbeam session ended.');
+    } catch (error) {
+        console.error('Error ending Hyperbeam session:', error);
+        throw error;
+    }
+};
 
 // Function to sync watch party data with the Chrome extension
 async function syncWithExtension(partyId, data) {

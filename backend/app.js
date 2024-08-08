@@ -10,6 +10,8 @@ const movieRouter = require('./src/movieHandeling/movie.router');
 const actorRouter = require('./src/actorHandeling/actor.router');
 const genreRouter = require('./src/genreHandeling/genre.router');
 const roomRouter = require('./src/Room/room.router'); // Import the room router
+// Import and use the party router
+const partyRouter = require('./src/Room/WatchParty/party.router');
 const { firebaseAdmin } = require('./src/Firebase/firebaseConnection');
 const cors = require("cors"); // since we are using more than on port
 const https = require("https");
@@ -43,6 +45,7 @@ app.use('/movie', movieRouter);
 app.use('/actor', actorRouter);
 app.use('/genre', genreRouter);
 app.use('/rooms', roomRouter); // Add the room routes
+app.use('/party', partyRouter);
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);

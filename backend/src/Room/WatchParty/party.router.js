@@ -7,5 +7,7 @@ const router = express.Router();
 router.post('/schedule/:userId', partyController.scheduleWatchParty);
 // Route to create a new watch party
 router.post('/create/:userId', partyController.createWatchParty);
+// Route to end a Hyperbeam session
+router.delete('/end-session/:sessionId', partyController.endHyperbeamSession);
 
 module.exports = router;
