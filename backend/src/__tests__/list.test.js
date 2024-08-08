@@ -1,198 +1,225 @@
 const request = require('supertest');
 const express = require('express');
 const dotenv = require('dotenv');
-const logRouter = require('../Log/log.router');
-const logService = require('../Log/log.services');
+const watchlistRouter = require('../Watchlist/list.router');
+const watchlistService = require('../Watchlist/list.services');
 
 dotenv.config();
 
-// Create an instance of the app with the logRouter
 const app = express();
 app.use(express.json());
-app.use('/log', logRouter);
+app.use('/list', watchlistRouter);
 
-jest.mock('../Log/log.services');
+jest.mock('../Watchlist/list.services');
 
-describe('POST /log/add', () => {
+describe('Watchlist API', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    it('should add a log successfully', async () => {
-        const logData = { uid: 'testUser', movieId: 'testMovie', date: '2024-08-07' };
-        const addedLog = { ...logData, logId: 'testLogId' };
+    describe('POST /list/:userid', () => {
+        it('should create a watchlist for a valid user ID', async () => {
+            const userId = 'testUser';
+            const watchlistData = {
+                name: 'My Watchlist',
+                tags: ['action', 'drama'],
+                visibility: 'public',
+                ranked: true,
+                description: 'My favorite movies',
+                collaborative: false,
+                movies: ['Inception', 'The Matrix']
+            };
+            const createdWatchlist = { id: '1', ...watchlistData };
 
-        logService.addLog.mockResolvedValueOnce(addedLog);
+            watchlistService.createWatchlist.mockResolvedValueOnce(createdWatchlist);
 
-        const res = await request(app)
-            .post('/log/add')
-            .send(logData);
+            const res = await request(app)
+                .post(`/list/${userId}`)
+                .send(watchlistData);
 
-        expect(res.status).toBe(201);
-        expect(res.body).toEqual({ message: 'Log added successfully', data: addedLog });
+            expect(res.status).toBe(201);
+            expect(res.body).toEqual({
+                message: 'Watchlist created successfully',
+                data: createdWatchlist
+            });
+        });
+
+        it('should return 400 for missing required parameters', async () => {
+            const userId = 'testUser';
+            const incompleteData = { name: 'My Watchlist' };
+        
+            watchlistService.createWatchlist.mockImplementationOnce(() => {
+                const error = new Error('Expected parameter(s): tags, visibility, ranked, description, collaborative, movies');
+                error.statusCode = 400;
+                throw error;
+            });
+        
+            const res = await request(app)
+                .post(`/list/${userId}`)
+                .send(incompleteData);
+        
+            console.log("result:", res.body);
+        
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ message: 'Expected parameter(s): tags, visibility, ranked, description, collaborative, movies' });
+        });
+        
+
+        it('should return 500 for an internal server error', async () => {
+            const userId = 'testUser';
+            const watchlistData = {
+                name: 'My Watchlist',
+                tags: ['action', 'drama'],
+                visibility: 'public',
+                ranked: true,
+                description: 'My favorite movies',
+                collaborative: false,
+                movies: ['Inception', 'The Matrix']
+            };
+            const errorMessage = 'Internal server error';
+        
+            watchlistService.createWatchlist.mockRejectedValueOnce(new Error(errorMessage));
+        
+            const res = await request(app)
+                .post(`/list/${userId}`)
+                .send(watchlistData);
+        
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ message: errorMessage });
+        });
     });
 
-    it('should return 400 if adding log fails', async () => {
-        const logData = { uid: 'testUser', movieId: 'testMovie', date: '2024-08-07' };
+    describe('PATCH /list/:watchlistId', () => {
+        it('should update a watchlist for a valid watchlist ID', async () => {
+            const watchlistId = '1';
+            const updatedData = { name: 'Updated Watchlist' };
+            const updatedWatchlist = { id: watchlistId, ...updatedData };
 
-        logService.addLog.mockResolvedValueOnce(null);
+            watchlistService.modifyWatchlist.mockResolvedValueOnce(updatedWatchlist);
 
-        const res = await request(app)
-            .post('/log/add')
-            .send(logData);
+            const res = await request(app)
+                .patch(`/list/${watchlistId}`)
+                .send(updatedData);
 
-        expect(res.status).toBe(400);
-        expect(res.body).toEqual({ message: 'Error adding log' });
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({
+                message: 'Watchlist updated successfully',
+                data: updatedWatchlist
+            });
+        });
+
+        it('should return 400 for an invalid watchlist ID', async () => {
+            const watchlistId = 'invalidId';
+            const updatedData = { name: 'Updated Watchlist' };
+
+            watchlistService.modifyWatchlist.mockResolvedValueOnce(null);
+
+            const res = await request(app)
+                .patch(`/list/${watchlistId}`)
+                .send(updatedData);
+
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ message: 'Error updating watchlist' });
+        });
+
+        it('should return 500 for an internal server error', async () => {
+            const watchlistId = '1';
+            const updatedData = { name: 'Updated Watchlist' };
+            const errorMessage = 'Internal server error';
+
+            watchlistService.modifyWatchlist.mockRejectedValueOnce(new Error(errorMessage));
+
+            const res = await request(app)
+                .patch(`/list/${watchlistId}`)
+                .send(updatedData);
+
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+        });
     });
 
-    it('should return 500 for an internal server error', async () => {
-        const logData = { uid: 'testUser', movieId: 'testMovie', date: '2024-08-07' };
-        const errorMessage = 'Internal server error';
+    describe('GET /list/:watchlistId', () => {
+        it('should return watchlist details for a valid watchlist ID', async () => {
+            const watchlistId = '1';
+            const watchlistDetails = {
+                name: 'My Watchlist',
+                movieList: [
+                    { id: '123', title: 'Inception', genre: 'Action', duration: 148, poster_path: '/path/to/poster' },
+                    { id: '456', title: 'The Matrix', genre: 'Sci-Fi', duration: 136, poster_path: '/path/to/poster' }
+                ]
+            };
 
-        logService.addLog.mockRejectedValueOnce(new Error(errorMessage));
+            watchlistService.getWatchlistDetails.mockResolvedValueOnce(watchlistDetails);
 
-        const res = await request(app)
-            .post('/log/add')
-            .send(logData);
+            const res = await request(app).get(`/list/${watchlistId}`);
 
-        expect(res.status).toBe(500);
-        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-    });
-});
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({
+                message: 'Watchlist details fetched successfully',
+                data: watchlistDetails
+            });
+        });
 
-describe('PUT /log/edit', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
+        it('should return 400 for an invalid watchlist ID', async () => {
+            const watchlistId = 'invalidId';
 
-    it('should update log successfully', async () => {
-        const logData = { uid: 'testUser', logId: 'testLogId', date: '2024-08-08', description: 'Updated description' };
-        const updatedLog = { ...logData };
+            watchlistService.getWatchlistDetails.mockResolvedValueOnce(null);
 
-        logService.editLog.mockResolvedValueOnce(updatedLog);
+            const res = await request(app).get(`/list/${watchlistId}`);
 
-        const res = await request(app)
-            .put('/log/edit')
-            .send(logData);
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ message: 'Error fetching watchlist details' });
+        });
 
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual({ message: 'Log updated successfully', data: updatedLog });
-    });
+        it('should return 500 for an internal server error', async () => {
+            const watchlistId = '1';
+            const errorMessage = 'Internal server error';
 
-    it('should return 400 if updating log fails', async () => {
-        const logData = { uid: 'testUser', logId: 'testLogId', date: '2024-08-08', description: 'Updated description' };
+            watchlistService.getWatchlistDetails.mockRejectedValueOnce(new Error(errorMessage));
 
-        logService.editLog.mockResolvedValueOnce(null);
+            const res = await request(app).get(`/list/${watchlistId}`);
 
-        const res = await request(app)
-            .put('/log/edit')
-            .send(logData);
-
-        expect(res.status).toBe(400);
-        expect(res.body).toEqual({ message: 'Error updating log' });
-    });
-
-    it('should return 500 for an internal server error', async () => {
-        const logData = { uid: 'testUser', logId: 'testLogId', date: '2024-08-08', description: 'Updated description' };
-        const errorMessage = 'Internal server error';
-
-        logService.editLog.mockRejectedValueOnce(new Error(errorMessage));
-
-        const res = await request(app)
-            .put('/log/edit')
-            .send(logData);
-
-        expect(res.status).toBe(500);
-        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-    });
-});
-
-describe('DELETE /log/remove', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+        });
     });
 
-    it('should remove log successfully', async () => {
-        const logData = { uid: 'testUser', logId: 'testLogId' };
+    describe('DELETE /list/:watchlistId', () => {
+        it('should delete a watchlist for a valid watchlist ID', async () => {
+            const watchlistId = '1';
 
-        logService.removeLog.mockResolvedValueOnce(true);
+            watchlistService.deleteWatchlist.mockResolvedValueOnce(true);
 
-        const res = await request(app)
-            .delete('/log/remove')
-            .send(logData);
+            const res = await request(app).delete(`/list/${watchlistId}`);
 
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual({ message: 'Log removed successfully', data: null });
-    });
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({
+                message: 'Watchlist deleted successfully',
+                data: null
+            });
+        });
 
-    it('should return 400 if removing log fails', async () => {
-        const logData = { uid: 'testUser', logId: 'testLogId' };
+        it('should return 400 for an invalid watchlist ID', async () => {
+            const watchlistId = 'invalidId';
 
-        logService.removeLog.mockResolvedValueOnce(false);
+            watchlistService.deleteWatchlist.mockResolvedValueOnce(false);
 
-        const res = await request(app)
-            .delete('/log/remove')
-            .send(logData);
+            const res = await request(app).delete(`/list/${watchlistId}`);
 
-        expect(res.status).toBe(400);
-        expect(res.body).toEqual({ message: 'Error removing log' });
-    });
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ message: 'Error deleting watchlist' });
+        });
 
-    it('should return 500 for an internal server error', async () => {
-        const logData = { uid: 'testUser', logId: 'testLogId' };
-        const errorMessage = 'Internal server error';
+        it('should return 500 for an internal server error', async () => {
+            const watchlistId = '1';
+            const errorMessage = 'Internal server error';
 
-        logService.removeLog.mockRejectedValueOnce(new Error(errorMessage));
+            watchlistService.deleteWatchlist.mockRejectedValueOnce(new Error(errorMessage));
 
-        const res = await request(app)
-            .delete('/log/remove')
-            .send(logData);
+            const res = await request(app).delete(`/list/${watchlistId}`);
 
-        expect(res.status).toBe(500);
-        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-    });
-});
-
-describe('GET /log/:uid', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
-    it('should return logs for a valid user ID', async () => {
-        const uid = 'testUser';
-        const logs = [{ logId: 'testLogId1', date: '2024-08-07', description: 'First log' }];
-
-        logService.getLogsOfUser.mockResolvedValueOnce(logs);
-
-        const res = await request(app)
-            .get(`/log/${uid}`);
-
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual({ message: 'Logs fetched successfully', data: logs });
-    });
-
-    it('should return 400 if fetching logs fails', async () => {
-        const uid = 'testUser';
-
-        logService.getLogsOfUser.mockResolvedValueOnce(null);
-
-        const res = await request(app)
-            .get(`/log/${uid}`);
-
-        expect(res.status).toBe(400);
-        expect(res.body).toEqual({ message: 'Error fetching logs' });
-    });
-
-    it('should return 500 for an internal server error', async () => {
-        const uid = 'testUser';
-        const errorMessage = 'Internal server error';
-
-        logService.getLogsOfUser.mockRejectedValueOnce(new Error(errorMessage));
-
-        const res = await request(app)
-            .get(`/log/${uid}`);
-
-        expect(res.status).toBe(500);
-        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+        });
     });
 });
