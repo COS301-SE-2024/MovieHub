@@ -1,7 +1,8 @@
-const axios = require('axios');
+//const axios = require('axios');
+import axios from 'axios';
 require('dotenv').config();
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_API_KEY = '5cb60bcbd1b573d3c950b827805204a6';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 exports.getPopularMovies = async () => {
@@ -14,7 +15,7 @@ exports.getPopularMovies = async () => {
         return response.data.results;
     } catch (error) {
         throw new Error('Failed to fetch popular movies');
-    }
+    } 
 };
 
 exports.searchMovies = async (query) => {
@@ -33,14 +34,17 @@ exports.searchMovies = async (query) => {
 
 exports.getMovieDetails = async (movieId) => {
     try {
-        const response = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}`, {
-            params: {
-                api_key: TMDB_API_KEY,
-            },
+        const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US&api_key=${TMDB_API_KEY}`, {
+            method: 'GET',
+            headers: {
+                accept: 'application/json'
+            }
         });
-        return response.data;
+        const data = await response.json();
+        return data;
     } catch (error) {
-        throw new Error('Failed to fetch movie details');
+        console.error('Error fetching movie details:', error);
+        return null;
     }
 };
 
