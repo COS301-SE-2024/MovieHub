@@ -16,6 +16,22 @@ exports.createRoom = async (req, res) => {
     }
 };
 
+exports.getRoomDetails = async (req, res) => {
+    try {
+        const roomIdentifier = req.params.identifier; // Assuming the identifier is provided in the URL params
+        const result = await roomService.getRoomDetails(roomIdentifier);
+
+        if (result.success) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error('Error in getRoomDetails controller:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
 exports.joinRoom = async (req, res) => {
     try {
         const { code, userId } = req.body;

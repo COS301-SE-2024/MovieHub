@@ -112,6 +112,30 @@ exports.createRoom = async (userId, roomData) => {
     }
 };
 
+exports.getRoomDetails = async (roomIdentifier) => {
+    const session = driver.session();
+    try {
+        // Check if the identifier is a roomId or shortCode
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $identifier}) OR (r:Room {shortCode: $identifier})
+             RETURN r`,
+            { identifier: roomIdentifier }
+        );
+
+        if (result.records.length > 0) {
+            const room = result.records[0].get('r').properties;
+            return { success: true, room };
+        }
+
+        return { success: false, message: 'Room not found' };
+    } catch (error) {
+        console.error('Error retrieving room details:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 
 exports.joinRoom = async (code, userId) => {
