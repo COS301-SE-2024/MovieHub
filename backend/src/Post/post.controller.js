@@ -3,9 +3,9 @@ import responseHandler from '../utils/responseHandler';
 
 // POSTS //
 exports.addPost = async (req, res) => {
-    const { uid, movieId, text, postTitle, img } = req.body;
+    const { uid, text, postTitle, img } = req.body;
     try {
-        const post = await postService.addPost(uid, movieId, text, postTitle, img);
+        const post = await postService.addPost(uid, text, postTitle, img);
         if (post)
             responseHandler(res, 201, 'Post added successfully', post);
         else 
