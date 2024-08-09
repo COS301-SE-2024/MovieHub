@@ -125,7 +125,7 @@ exports.createWatchParty = async (userId, partyData) => {
 async function createHyperbeamSession(streamingPlatform) {
     try {
         const platformUrls = {
-            'Netflix': `https://www.netflix.com`,
+            'Netflix': `https://www.netflix.com/za/`,
             'Hulu': `https://www.hulu.com/watch`,
             'DisneyPlus': `https://www.disneyplus.com/video`,
             'AmazonPrime': `https://www.amazon.com/dp`,
