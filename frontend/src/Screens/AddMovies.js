@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Image, TextInput } from "react-native";
 import { createWatchlist } from '../Services/ListApiService';
-import { searchMovies } from '../Services/TMDBApiService'; // Adjust the import path as necessary
+import { searchMovies } from '../Services/TMDBApiService';
 
 export default function AddMovies({ route, navigation }) {
 
     const { watchlistData, userInfo } = route.params;
-   
 
     const [movies, setMovies] = useState([]);
     const [selectedMovies, setSelectedMovies] = useState([]);
     const [query, setQuery] = useState('');
     const [searching, setSearching] = useState(false);
 
-    const handleSearch = async () => {
-        if (!query) return;
+    const handleSearch = async (text) => {
+        setQuery(text);
+        if (!text) {
+            setMovies([]);
+            return;
+        }
         setSearching(true);
         try {
-            const moviesData = await searchMovies(query);
+            const moviesData = await searchMovies(text);
             setMovies(moviesData);
         } catch (error) {
             console.error('Error searching movies:', error);
@@ -39,14 +42,14 @@ export default function AddMovies({ route, navigation }) {
             id: movie.id,
             title: movie.title,
             poster_path: movie.poster_path,
-            genre: movie.genre, 
+            genre: movie.genre,
             duration: movie.duration,
         }));
 
         const finalWatchlistData = {
             ...watchlistData,
-            movies: moviesList.map(movie => movie.title), // Old property to maintain backward compatibility
-            moviesList, // New property for detailed movie data
+            movies: moviesList.map(movie => movie.title),
+            moviesList,
         };
 
         try {
@@ -54,9 +57,7 @@ export default function AddMovies({ route, navigation }) {
             const userId = userInfo.userId;
             await createWatchlist(userId, finalWatchlistData);
             Alert.alert('Success', 'Watchlist created successfully!');
-
             navigation.navigate('ProfilePage', { userInfo });
-
         } catch (error) {
             Alert.alert('Error', 'Failed to create watchlist.');
             console.error(error);
@@ -76,6 +77,19 @@ export default function AddMovies({ route, navigation }) {
         </TouchableOpacity>
     );
 
+    const renderSelectedMovieItem = ({ item }) => (
+        <TouchableOpacity
+            style={styles.selectedMovieItem}
+            onPress={() => toggleMovieSelection(item)}
+        >
+            <Image
+                source={{ uri: `https://image.tmdb.org/t/p/w500/${item.poster_path}` }}
+                style={styles.selectedMovieImage}
+            />
+            {selectedMovies.some(selectedMovie => selectedMovie.id === item.id) && <View style={styles.tick} />}
+        </TouchableOpacity>
+    );
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -89,10 +103,10 @@ export default function AddMovies({ route, navigation }) {
                     style={styles.searchInput}
                     placeholder="Search for movies..."
                     value={query}
-                    onChangeText={setQuery}
+                    onChangeText={handleSearch}
                 />
-                <TouchableOpacity style={styles.searchButton} onPress={handleSearch} disabled={searching}>
-                    <Text style={styles.searchButtonText}>{searching ? 'Searching...' : 'Search'}</Text>
+                <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(query)} disabled={searching}>
+                    <Text style={styles.searchButtonText}>{'Search'}</Text>
                 </TouchableOpacity>
             </View>
             <FlatList
@@ -101,6 +115,19 @@ export default function AddMovies({ route, navigation }) {
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 contentContainerStyle={styles.grid}
+                ListHeaderComponent={() => (
+                    <View style={styles.selectedMoviesContainer}>
+                        {selectedMovies.length > 0 && <Text style={styles.selectedMoviesHeader}>Selected Movies</Text>}
+                        <FlatList
+                            data={selectedMovies}
+                            renderItem={renderSelectedMovieItem}
+                            keyExtractor={(item) => item.id.toString()}
+                            horizontal
+                            contentContainerStyle={styles.selectedMoviesGrid}
+                            showsHorizontalScrollIndicator={false}
+                        />
+                    </View>
+                )}
             />
         </View>
     );
@@ -156,6 +183,32 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: "center",
         paddingHorizontal: 16,
+    },
+    selectedMoviesContainer: {
+        paddingVertical: 16,
+    },
+    selectedMoviesHeader: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 16,
+    },
+    selectedMoviesGrid: {
+        flexGrow: 1,
+    },
+    selectedMovieItem: {
+        width: 100,
+        height: 160,
+        marginRight: 12,
+        backgroundColor: "#e1e1e1",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative",
+        borderRadius: 10,
+    },
+    selectedMovieImage: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 10,
     },
     movieItem: {
         width: "45%",
