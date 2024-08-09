@@ -123,6 +123,85 @@ exports.createUserNode = async (uid, username) => {
 };
 
 
+//Peer interactions
+// Follow a user
+exports.followUser = async (followerId, followeeId) => {
+    const session = driver.session();
+
+    try {
+        await session.run(
+            `MERGE (follower:User {uid: $followerId})
+             MERGE (followee:User {uid: $followeeId})
+             MERGE (follower)-[:FOLLOWS]->(followee)`,
+            { followerId, followeeId }
+        );
+
+        // Check if followee also follows the follower, and create a FRIENDS relationship if so
+        const result = await session.run(
+            `MATCH (follower:User {uid: $followerId})-[:FOLLOWS]->(followee:User {uid: $followeeId}),
+                   (followee)-[:FOLLOWS]->(follower)
+             MERGE (follower)-[:FRIENDS]-(followee)`,
+            { followerId, followeeId }
+        );
+
+        return { message: "Followed successfully" };
+    } catch (error) {
+        console.error("Error following user:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Unfollow a user
+exports.unfollowUser = async (userId, targetUserId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `
+            MATCH (u:User {uid: $userId})-[r:FOLLOWS]->(t:User {uid: $targetUserId})
+            DELETE r
+            RETURN u, t
+            `,
+            { userId, targetUserId }
+        );
+
+        if (result.records.length === 0) {
+            throw new Error('Unfollow operation failed: relationship does not exist.');
+        }
+
+        return { success: true, message: 'User unfollowed successfully' };
+    } catch (error) {
+        console.error('Error unfollowing user:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
+// Get friends of a user
+exports.getFriends = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (user:User {uid: $userId})-[:FRIENDS]-(friend:User)
+             RETURN friend`,
+            { userId }
+        );
+
+        const friends = result.records.map(record => record.get('friend').properties);
+
+        return friends;
+    } catch (error) {
+        console.error("Error fetching friends:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Close the driver when the application exits
 process.on('exit', async () => {
