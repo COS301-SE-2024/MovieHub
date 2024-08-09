@@ -1,21 +1,35 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { createRoom } from "../Services/RoomApiService"; // Import the RoomApiService function
 
 const CreateRoomScreen = ({ route }) => {
     const navigation = useNavigation();
-    const { onRoomCreate } = route.params;
-    const { userInfo } = route.params;
+    const { userInfo } = route.params; // Get userInfo from route.params
     const [roomTitle, setRoomTitle] = useState("");
     const [accessLevel, setAccessLevel] = useState("Everyone");
     const [roomType, setRoomType] = useState("Chat-only");
     const [watchParty, setWatchParty] = useState(false);
 
-    const handleCreateRoom = () => {
-        onRoomCreate({ roomTitle, accessLevel, roomType, watchParty });
-        navigation.navigate("HubScreen", { userInfo: route.params.userInfo });
+    const handleCreateRoom = async () => {
+        try {
+            // Call createRoom from RoomApiService with the relevant data
+            const newRoom = await createRoom({
+                title: roomTitle,
+                accessLevel,
+                roomType,
+                watchParty,
+                createdBy: userInfo.userId // Assuming userInfo contains userId
+            });
+
+            // After successful room creation, navigate to the HubScreen with the new room data
+            navigation.navigate("HubScreen", { userInfo, newRoom });
+        } catch (error) {
+            console.error("Failed to create room:", error);
+            Alert.alert("Error", "Failed to create room. Please try again.");
+        }
     };
 
     return (
@@ -24,7 +38,7 @@ const CreateRoomScreen = ({ route }) => {
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
                     <MatIcon name="arrow-left" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Create Room</Text> 
+                <Text style={styles.title}>Create Room</Text>
             </View>
 
             <Text style={styles.label}>Room Name</Text>
@@ -70,7 +84,11 @@ const CreateRoomScreen = ({ route }) => {
                 />
             </View>
 
-            <TouchableOpacity style={[styles.createButton, roomTitle === "" ? styles.disabledButton : null]} onPress={handleCreateRoom} disabled={roomTitle === ""}>
+            <TouchableOpacity
+                style={[styles.createButton, roomTitle === "" ? styles.disabledButton : null]}
+                onPress={handleCreateRoom}
+                disabled={roomTitle === ""}
+            >
                 <Text style={styles.createButtonText}>Create</Text>
             </TouchableOpacity>
         </View>
