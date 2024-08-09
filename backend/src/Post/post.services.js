@@ -286,26 +286,6 @@ exports.removeComment = async (commentId, uid) => {
 
 //GETS//
 
-exports.getPostsOfMovie = async (movieId) => {
-    console.log("In Services: getPostsOfMovie");
-    const session = driver.session();
-    try {
-        const result = await session.run(
-            `MATCH (m:Movie {movieId: $movieId})<-[:POSTED_ON]-(p:Post)
-             RETURN p`,
-            { movieId }
-        );
-        if (result.records.length === 0) {
-            return result.records;
-        }
-        return result.records.map(record => record.get('p').properties);
-    } catch (error) {
-        console.error("Error getting posts of movie: ", error);
-        throw error;
-    } finally {
-        await session.close();
-    }
-};
 
 exports.getReviewsOfMovie = async (movieId) => {
     console.log("In Services: getReviewsOfMovie");

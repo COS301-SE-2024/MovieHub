@@ -159,18 +159,7 @@ exports.removeComment = async (req, res) => {
 };
 
 // GETS //
-exports.getPostsOfMovie = async (req, res) => {
-    try {
-        const movieId = req.params.movieId;
-        const posts = await postService.getPostsOfMovie(movieId);
-        if (posts)
-            responseHandler(res, 200, 'Posts fetched successfully', posts);
-        else
-            res.status(400).json({ message: 'Error fetching posts' });
-    } catch (error) {
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
+
 
 exports.getReviewsOfMovie = async (req, res) => {
     try {
