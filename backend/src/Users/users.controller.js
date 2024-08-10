@@ -121,3 +121,27 @@ exports.getFriends = async (req, res) => {
         res.status(500).json({ message: 'Error fetching friends', error: error.message });
     }
 };
+
+// Get followers of a user
+exports.getFollowers = async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const followers = await userService.getFollowers(userId);
+        res.status(200).json(followers);
+    } catch (error) {
+        console.error('Error fetching followers:', error);
+        res.status(500).json({ message: 'Error fetching followers', error: error.message });
+    }
+};
+
+// Get users that a user is following
+exports.getFollowing = async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const following = await userService.getFollowing(userId);
+        res.status(200).json(following);
+    } catch (error) {
+        console.error('Error fetching following users:', error);
+        res.status(500).json({ message: 'Error fetching following users', error: error.message });
+    }
+};

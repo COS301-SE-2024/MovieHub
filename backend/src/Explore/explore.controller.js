@@ -36,7 +36,8 @@ exports.getFriendsOfFriendsContent = async (req, res) => {
 // Fetch random users' posts
 exports.getRandomUsersContent = async (req, res) => {
     try {
-        const content = await ExploreService.fetchRandomUsersContent();
+        const userId = req.headers['x-user-id'] || req.query.userId; // Accept user ID from header or query parameter
+        const content = await ExploreService.fetchRandomUsersContent(userId);
         res.status(200).json(content);
     } catch (error) {
         console.error('Error fetching random users\' content:', error);
@@ -57,5 +58,27 @@ exports.findUsers = async (req, res) => {
     } catch (error) {
         console.error('Error finding users:', error);
         res.status(500).json({ error: 'Failed to find users' });
+    }
+};
+
+// Fetch latest posts
+exports.getLatestPosts = async (req, res) => {
+    try {
+        const latestPosts = await ExploreService.fetchLatestPosts();
+        res.status(200).json(latestPosts);
+    } catch (error) {
+        console.error('Error fetching latest posts:', error);
+        res.status(500).json({ error: 'Failed to fetch latest posts' });
+    }
+};
+
+// Fetch top reviews
+exports.getTopReviews = async (req, res) => {
+    try {
+        const topReviews = await ExploreService.fetchTopReviews();
+        res.status(200).json(topReviews);
+    } catch (error) {
+        console.error('Error fetching top reviews:', error);
+        res.status(500).json({ error: 'Failed to fetch top reviews' });
     }
 };
