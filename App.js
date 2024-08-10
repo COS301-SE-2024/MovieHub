@@ -224,10 +224,14 @@ export default function App() {
                             name="GenrePage"
                             component={GenrePage}
                             options={({ navigation }) => ({
-                                title: "",
+                                title: "movieHub.",
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
-                                headerTintColor: "black",
+                                headerTintColor: "white",
+                                headerTransparent: true, // Make the header transparent
+                                headerStyle: {
+                                    backgroundColor: "transparent",
+                                },
                             })}
                         />
 
