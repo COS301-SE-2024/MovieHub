@@ -26,6 +26,19 @@ const LoginPage = () => {
     };
 
     const HandleLogin = async () => {
+        setError("");
+
+        if (!email || !password) {
+            setError("Email and password are required");
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+        setError("Invalid email address format");
+        return;
+        }
+
         try {
             // await signIn(email, password);
             const data = await loginUser(email, password);
@@ -41,15 +54,13 @@ const LoginPage = () => {
             navigation.navigate("Home", { userInfo });
         } catch (error) {
             console.log("Error", error);
-            // const regex = /\(([^)]+)\)/;
-
-            // // Use the regex to find the match
-            // const match = error.message.match(regex);
-            // console.log("some",match)
+            
 
             let errorMessage = "Error signing in";
-            if (error.code === "auth/user-not-found") {
-                errorMessage = "User not found. Please check your email address";
+            const firebaseErrorMessage = error.message;
+
+            if (firebaseErrorMessage.includes("auth/invalid-login-credentials")) {
+                errorMessage = "Incorrect email or password. Please try again.";
             } else if (error.code === "auth/wrong-password") {
                 errorMessage = "Incorrect password. Please try again";
             } else if (error.code === "auth/invalid-email") {
@@ -61,7 +72,7 @@ const LoginPage = () => {
             } else {
                 errorMessage = error.message; // Default to Firebase's error message
             }
-            console.error("Error signing in:", error);
+            // console.error("Error signing in:", error);
             setError(errorMessage);
         }
     };
