@@ -95,8 +95,9 @@ export default function CreatePost({ route }) {
         const postData = {
             postTitle: title,
             text: thoughts,
-            uid: userInfo.userId,
-            movieId: 843527.0,
+
+            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+
             img: null,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0,

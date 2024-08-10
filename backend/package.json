@@ -20,11 +20,14 @@
     "supertest": "^7.0.0"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7.10.0",
     "axios": "^1.7.2",
     "base62": "^2.0.2",
     "body-parser": "^1.20.2",
     "colorthief": "^2.4.0",
     "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "elasticsearch": "^16.7.3",
     "expo-linear-gradient": "^13.0.2",
     "express": "^4.19.2",
     "extract-colors": "^4.0.6",

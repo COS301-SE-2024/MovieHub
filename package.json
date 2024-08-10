@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@egjs/hammerjs": "^2.0.17",
+    "@elastic/elasticsearch": "^8.14.0",
     "@expo/metro-runtime": "~3.2.1",
     "@firebase/firestore": "^4.6.4",
     "@gorhom/bottom-sheet": "^4.6.3",
