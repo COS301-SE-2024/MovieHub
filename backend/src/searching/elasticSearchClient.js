@@ -30,56 +30,33 @@ exports.searchMoviesFuzzy = async (query) => {
           multi_match: {
             query: query,
             fields: [
-              'title^1.5',
+              'title^2',
               'tagline',
-              'keywords',
-              'overview',
-              'spokenLanguages',
-              'genre'
+              'keywords^1.5',
+              'overview'
             ],
             fuzziness: 'AUTO',
           }
-        }
+        },
+        size: 30 // Increase the number of results returned
       }
     });
 
-    const filteredMovies = response.body.hits.hits.filter(hit => {
-      //console.log(hit);
-      const { keywords, overview, genre, tagline } = hit._source;
-      console.log(hit._source);
-      // Check if any of the fields contain the word "next"
-      return (
-        (keywords && keywords.trim().length > 0) ||
-        (overview && overview.trim().length > 0) ||
-        (genre && genre.trim().length > 0) ||
-        (tagline && tagline.trim().length > 0)
-      );
-    });
-
-    const sortedMovies = filteredMovies.sort((a, b) => {
+    // Sort by popularity (best to worst) and release date (newest to oldest)
+    const sortedMovies = response.body.hits.hits.sort((a, b) => {
       const aSource = a._source;
       const bSource = b._source;
 
-      // Count filled fields for a and b
-      const aFilledFields = ['keywords', 'overview', 'genre', 'tagline']
-        .filter(field => aSource[field] && aSource[field].trim().length > 0).length;
-      const bFilledFields = ['keywords', 'overview', 'genre', 'tagline']
-        .filter(field => bSource[field] && bSource[field].trim().length > 0).length;
+      // Primary sort: by popularity (descending)
+      const popularityComparison = bSource.popularity - aSource.popularity;
 
-      // If both movies have the same number of filled fields, sort by total text length
-      if (aFilledFields === bFilledFields) {
-        const aTotalLength = ['keywords', 'overview', 'genre', 'tagline']
-          .reduce((sum, field) => sum + (aSource[field] ? aSource[field].trim().length : 0), 0);
-        const bTotalLength = ['keywords', 'overview', 'genre', 'tagline']
-          .reduce((sum, field) => sum + (bSource[field] ? bSource[field].trim().length : 0), 0);
-
-        return bTotalLength - aTotalLength; // Sort by length (descending)
+      if (popularityComparison !== 0) {
+        return popularityComparison;
       }
 
-      // Sort by the number of filled fields (descending)
-      return bFilledFields - aFilledFields;
+      // Secondary sort: by release date (newest first)
+      return new Date(bSource.releaseDate) - new Date(aSource.releaseDate);
     });
-
 
     // Extract and return the relevant data
     return sortedMovies;
