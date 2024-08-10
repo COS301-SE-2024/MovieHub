@@ -58,6 +58,23 @@ export const joinRoom = async (code, userId) => {
     return data;
 };
 
+// Get room details
+export const getRoomDetails = async (roomIdentifier) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${roomIdentifier}`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch room details');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+
 // Invite a user to the room
 export const inviteUserToRoom = async (adminId, userId, roomId) => {
     const headers = await verifyToken();

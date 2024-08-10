@@ -4,12 +4,16 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import FAIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
 import RoomModal from "../Components/RoomModal";
+import { getRoomDetails } from "../Services/RoomApiService"; // Import the getRoomDetails function
+
 
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
     const { userInfo } = route.params;
     const { isUserRoom } = route.params;
     const [roomName, setRoomName] = useState("Asa's Room");
+    const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
+    const [loading, setLoading] = useState(true); // State to manage loading status
 
     const bottomSheetRef = useRef(null);
 
@@ -17,26 +21,57 @@ const ViewRoom = ({ route }) => {
         bottomSheetRef.current?.present();
     };
     
-    const participants = [
-        { name: "Alice Johnson" },
-        { name: "Bob Smith" },
-        { name: "Carol Williams" },
-    ]; 
+    // const participants = [
+    //     { name: "Alice Johnson" },
+    //     { name: "Bob Smith" },
+    //     { name: "Carol Williams" },
+    // ]; 
 
-    const requests = [
-        { name: "Joyce Moshokoa", status: null },
-        { name: "John Cena", status: "You can't see me" },
-        { name: "Veno Mous", status: null },
-    ];
+    // const requests = [
+    //     { name: "Joyce Moshokoa", status: null },
+    //     { name: "John Cena", status: "You can't see me" },
+    //     { name: "Veno Mous", status: null },
+    // ];
 
     // TODO: fetch room details
+    useEffect(() => {
+        const fetchRoomDetails = async () => {
+            try {
+                const roomId = route.params.roomId; // Assuming roomId is passed in route params
+                const response = await getRoomDetails(roomId);
+                setRoomDetails(response.room);
+            } catch (error) {
+                console.error("Failed to fetch room details:", error);
+            } finally {
+                setLoading(false); // Stop loading spinner after data is fetched
+            }
+        };
+
+        fetchRoomDetails();
+    }, [route.params.roomId]);
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
+
+    if (!roomDetails) {
+        return (
+            <View style={styles.errorContainer}>
+                <Text>Error loading room details.</Text>
+            </View>
+        );
+    }
 
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
-                    <Text style={styles.roomName}>{roomName ? roomName : "Asa's Room"}</Text>
+                    <Text style={styles.roomName}>{roomDetails.roomName ? roomName : "Asa's Room"}</Text>
                 </View>
                 <Pressable  onPress={handleOpenBottomSheet}>
                     <Icon name="more-horiz" size={24} style={{ marginRight: 10 }}  />
@@ -51,7 +86,7 @@ const ViewRoom = ({ route }) => {
                     </TouchableOpacity>
                     <View style={styles.participants}>
                         <FAIcon name="users" size={16} />
-                        <Text style={styles.participantsText}>{participants.length}</Text>
+                        <Text style={styles.participantsText}>{roomDetails.maxParticipants}</Text>
                     </View>
                 </View>
             </View>
@@ -61,7 +96,7 @@ const ViewRoom = ({ route }) => {
                 <Text style={styles.movieDetails}>
                     2016 • 2h 34m • <Text style={styles.rating}>8.2</Text>
                 </Text>
-                <Text style={styles.movieDescription}>Okane kasegu watashi wasta. Okane kasegu watshi wastar. Star, star, star. Kira, kira, kira.</Text>
+                <Text style={styles.movieDescription}>{roomDetails.roomDescription}</Text>
             </View>
 
             {isUserRoom && (
@@ -251,6 +286,17 @@ const styles = StyleSheet.create({
     participantName: {
         fontSize: 14,
         fontWeight: "500",
+    },
+    // Add styles for loading and error containers
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
 
