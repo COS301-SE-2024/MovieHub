@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import FAIcon from "react-native-vector-icons/FontAwesome";
@@ -84,10 +84,10 @@ const ViewRoom = ({ route }) => {
                     <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo })}>
                         <Text style={styles.enterText}>Enter</Text>
                     </TouchableOpacity>
-                    <View style={styles.participants}>
+                    <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo })}>
                         <FAIcon name="users" size={16} />
                         <Text style={styles.participantsText}>{roomDetails.maxParticipants}</Text>
-                    </View>
+                    </Pressable>
                 </View>
             </View>
 

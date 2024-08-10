@@ -46,6 +46,7 @@ import WatchParty from "./frontend/src/Screens/WatchParty";
 import HubScreen from "./frontend/src/Screens/HubScreen";
 import CreateRoom from "./frontend/src/Screens/CreateRoom";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
+import ViewParticipants from "./frontend/src/Screens/ViewParticipants";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
 import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage";
@@ -353,6 +354,18 @@ export default function App() {
                                 headerTintColor: "black",
                             })}
                         />
+                        
+                        <Nav.Screen
+                            name="ViewParticipants"
+                            component={ViewParticipants}
+                            options={({ navigation }) => ({
+                                title: "Participants",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
                     </Nav.Navigator>
                 </NavigationContainer>
             </ThemeProvider>
