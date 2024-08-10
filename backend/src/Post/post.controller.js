@@ -119,12 +119,11 @@ exports.editComment = async (req, res) => {
 exports.removePost = async (req, res) => {
     const { postId, uid } = req.body;
     try {
-        try {
-            const result = await postService.removePost(postId, uid);
-            responseHandler(res, 200, 'Post removed successfully');
-        }catch (err) {
-            res.status(400).json({ message: 'Error removing post', error: err});
-        }
+        const result = await postService.removePost(postId, uid);
+        if (result)
+            res.status(200).json({ message: 'Post removed successfully' });
+        else
+            res.status(400).json({ message: 'Error removing post' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -133,12 +132,11 @@ exports.removePost = async (req, res) => {
 exports.removeReview = async (req, res) => {
     const { reviewId, uid  } = req.body;
     try {
-        try {
-            const result = await postService.removeReview(reviewId, uid);
-            responseHandler(res, 200, 'Review removed successfully');
-        }catch (err) {
-            res.status(400).json({ message: 'Error removing review controller', err: err });
-        }
+        const result = await postService.removeReview(reviewId, uid);
+        if (result)
+            res.status(200).json({ message: 'Review removed successfully' });
+        else
+            res.status(400).json({ message: 'Error removing review' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -147,12 +145,11 @@ exports.removeReview = async (req, res) => {
 exports.removeComment = async (req, res) => {
     const { commentId, uid } = req.body;
     try {
-        try {
-            const result = await postService.removeComment(commentId, uid);
-            responseHandler(res, 200, 'Comment removed successfully');
-        }catch (err) {
-            res.status(400).json({ message: 'Error removing comment', err: err });
-        }
+        const result = await postService.removeComment(commentId, uid);
+        if (result)
+            res.status(200).json({ message: 'Comment removed successfully' });
+        else
+            res.status(400).json({ message: 'Error removing comment' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -282,9 +279,12 @@ exports.getCountCommentsOfPost = async (req, res) => {
     try {
         const postId = req.params.postId;
         const postCommentCount = await postService.getCountCommentsOfPost(postId);
-                   responseHandler(res, 200, 'Post comment count fetched successfully', { postCommentCount });
+        if (postCommentCount)
+            responseHandler(res, 200, 'Post comment count fetched successfully', postCommentCount);
+        else
+            res.status(400).json({ message: 'Error fetching post comment count' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
@@ -292,8 +292,11 @@ exports.getCountCommentsOfReview = async (req, res) => {
     try {
         const reviewId = req.params.reviewId;
         const reviewCommentCount = await postService.getCountCommentsOfReview(reviewId);
-                   responseHandler(res, 200, 'Review comment count fetched successfully', { reviewCommentCount });
+        if (reviewCommentCount)
+            responseHandler(res, 200, 'Review comment count fetched successfully', reviewCommentCount);
+        else
+            res.status(400).json({ message: 'Error fetching review comment count' });
     } catch (error) {
-        responseHandler(res, 400, error.message);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
