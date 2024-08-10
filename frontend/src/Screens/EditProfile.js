@@ -3,8 +3,7 @@ import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, Scro
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../../backend/src/Firebase/firebase.config';
+import { uploadImage } from '../Services/imageUtils';
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
@@ -38,6 +37,7 @@ export default function EditProfile({ route }) {
                 case "username":
                 case "name":
                 case "bio":
+                case "avatar":
                 case "pronouns":
                     updatedData[field] = modalContent[field].tempValue;
                     setModalContent({
@@ -121,6 +121,7 @@ export default function EditProfile({ route }) {
     };
 
     const selectImage = async () => {
+        // console.log('In Select Image');
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (permissionResult.granted === false) {
             alert("Permission to access camera roll is required!");
@@ -131,22 +132,14 @@ export default function EditProfile({ route }) {
         if (pickerResult.canceled === true) {
             return;
         }
+        // console.log('Picker: ', pickerResult);
         const { uri } = pickerResult.assets[0];
-        setAvatar(uri);
-
-        const response = await fetch(uri);
-        const blob = await response.blob();
-        const storageRef = ref(storage, `ProfilePictures/${userInfo.userId}.jpg`);
-
-        uploadBytes(storageRef, blob)
-            .then((snapshot) => {
-                getDownloadURL(snapshot.ref).then((downloadURL) => {
-                    updateUserProfile(userInfo.userId, { profilePicture: downloadURL });
-                });
-            })
-            .catch((error) => {
-                console.error('Error uploading image: ', error);
-            });
+        const name = pickerResult.assets[0].fileName;
+        // console.log('Uploading image', uri, name);
+        const avatarUrl = await uploadImage(uri, name, 'profile');
+        // console.log('Uploaded', avatarUrl);
+        setAvatar(avatarUrl);                       
+        applyChanges('avatar');     //From here on I dont know what should be happening
     };
 
     return (
