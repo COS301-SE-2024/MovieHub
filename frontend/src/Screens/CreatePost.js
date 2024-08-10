@@ -1,17 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, FlatList, Image, Alert, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
-import { addPost } from "../Services/PostsApiServices";
+import { addPost, addReview } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
+import { searchMovies } from "../Services/TMDBApiService";
 
 export default function CreatePost({ route }) {
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [thoughts, setThoughts] = useState("");
     const [movieSearch, setMovieSearch] = useState("");
+    const [movieResults, setMovieResults] = useState([]);
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
     const [rating, setRating] = useState(0); // Add state for rating
@@ -22,14 +24,22 @@ export default function CreatePost({ route }) {
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
     const navigation = useNavigation();
     const { userInfo } = route.params;
-    // Mock movie search results
-    const movieResults = movieSearch
-        ? [
-              { id: "1", title: "Inception" },
-              { id: "2", title: "The Matrix" },
-              { id: "3", title: "Interstellar" },
-          ]
-        : [];
+
+    useEffect(() => {
+        if (movieSearch.length > 1) {
+            const fetchMovies = async () => {
+                try {
+                    const results = await searchMovies(movieSearch);
+                    setMovieResults(results.slice(0, 10)); // Get only the first 4 results
+                } catch (error) {
+                    console.error("Error fetching movies:", error);
+                }
+            };
+            fetchMovies();
+        } else {
+            setMovieResults([]);
+        }
+    }, [movieSearch]);
 
     const handleAddImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -85,33 +95,80 @@ export default function CreatePost({ route }) {
         const postData = {
             postTitle: title,
             text: thoughts,
+
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 843527.0,
+
             img: null,
             isReview: isMovieReview,
-            rating: isMovieReview ? rating : 0
+            rating: isMovieReview ? rating : 0,
         };
 
         try {
             const post = await addPost(postData);
-            // console.log('Post added successfully:', post);
-            setFeedbackSuccess(true);
-            setFeedbackMessage("Post added successfully");
-            setFeedbackVisible(true);
-
-            setTimeout(() => {
-                setFeedbackVisible(false)
-                navigation.navigate("HomePage", { userInfo });
-            }, 1500);
+            // Alert user that the post was added successfully
+            Alert.alert(
+                "Success",
+                "Post added successfully",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => {
+                            // clear all inputs 
+                            setTitle("");
+                            setThoughts("");
+                            setRating(0);
+                            setMovieSearch("");
+                            
+                            navigation.navigate("Home", { userInfo });
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
         } catch (error) {
-            setFeedbackMessage("Error adding post");
+            Alert.alert("Error", "Error adding post", [{ text: "OK" }], { cancelable: false });
             console.error("Error adding post:", error);
         }
+    };
 
-        setFeedbackVisible(true);
-        setTimeout(() => {
-            setFeedbackVisible(false);
-        }, 3000);
+    const handleAddReview = async () => {
+        const reviewData = {
+            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            movieId: 843527.0,
+            reviewTitle: title,
+            text: thoughts,
+            img: null,
+            isReview: isMovieReview,
+            rating: isMovieReview ? rating : 0,
+            movieTitle: movieSearch,
+        };
+
+        try {
+            const review = await addReview(reviewData);
+            // Alert user that the review was added successfully
+            Alert.alert(
+                "Success",
+                "Review added successfully",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => {
+                            // clear all inputs 
+                            setTitle("");
+                            setThoughts("");
+                            setRating(0);
+                            setMovieSearch("");
+
+                            navigation.navigate("Home", { userInfo });
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
+        } catch (error) {
+            Alert.alert("Error", "Error adding review", [{ text: "OK" }], { cancelable: false });
+            console.error("Error adding review:", error);
+        }
     };
 
     const handleRatingPress = (value) => {
@@ -128,6 +185,11 @@ export default function CreatePost({ route }) {
             );
         }
         return ratingOptions;
+    };
+
+    const handleMovieSelect = (movie) => {
+        setMovieResults([]);
+        setMovieSearch(movie.title);
     };
 
     return (
@@ -149,18 +211,31 @@ export default function CreatePost({ route }) {
                 </View>
             )}
 
-            <Text style={styles.label}>Title</Text>
-            <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
+            <View style={{ position: "relative" }}>
+                <Text style={styles.label}>Title</Text>
+                <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
 
-            {isMovieReview && (
-                <View>
-                    <Text style={styles.label}>Movie</Text>
-                    <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
-                    {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
-                    <Text style={styles.label}>Rating</Text>
-                    <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
-                </View>
-            )}
+                {isMovieReview && (
+                    <View>
+                        <Text style={styles.label}>Movie</Text>
+                        <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
+                        {movieResults.length > 0 && (
+                            <ScrollView style={styles.movieResultsScrollView} contentContainerStyle={styles.movieResultsContainer}>
+                                {movieResults.map((movie) => (
+                                    <TouchableOpacity key={movie.id} style={styles.movieResult} onPress={() => handleMovieSelect(movie)}>
+                                        <View style={{ display: "flex", flexDirection: "row" }}>
+                                            <Image source={{ uri: `https://image.tmdb.org/t/p/w500/${movie.poster_path}` }} style={styles.movieResultImage} />
+                                            <Text style={styles.movieResultText}>{movie.title}</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        )}
+                        <Text style={styles.label}>Rating</Text>
+                        <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
+                    </View>
+                )}
+            </View>
 
             <Text style={styles.label}>Thoughts</Text>
             <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor="#000" />
@@ -184,17 +259,22 @@ export default function CreatePost({ route }) {
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleAddPost}>
-                    <Text style={styles.postButtonText}>Post</Text>
+                <TouchableOpacity
+                    style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
+                    disabled={isPostButtonDisabled}
+                    onPress={isMovieReview ? handleAddReview : handleAddPost} // add review or post
+                >
+                    <Text style={styles.postButtonText}>{isMovieReview ? "Review" : "Post"}</Text>
                 </TouchableOpacity>
             </View>
 
-            {feedbackVisible && (
-                <View style={[styles.feedbackContainer, feedbackSuccess ? styles.success : styles.error]}>
-                    <Text style={styles.feedback}>{feedbackMessage}</Text>
+            <Modal visible={feedbackVisible} transparent animationType="fade" onRequestClose={() => setFeedbackVisible(false)}>
+                <View style={styles.modalContainer}>
+                    <View style={[styles.modalContent, feedbackSuccess ? styles.modalSuccess : styles.modalError]}>
+                        <Text style={styles.modalText}>{feedbackMessage}</Text>
+                    </View>
                 </View>
-            )}
+            </Modal>
         </ScrollView>
     );
 }
@@ -213,8 +293,8 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     label: {
-        fontSize: 16,
-        fontWeight: "600",
+        fontSize: 14,
+        fontWeight: "800",
         paddingBottom: 10,
     },
     input: {
@@ -267,10 +347,12 @@ const styles = StyleSheet.create({
     },
     postButton: {
         backgroundColor: colors.primary,
-        paddingVertical: 10,
-        paddingHorizontal: 35,
         borderRadius: 10,
         opacity: 1,
+        width: "100%",
+        padding: 15,
+        borderRadius: 5,
+        alignItems: "center",
     },
     postButtonDisabled: {
         opacity: 0.7,
@@ -323,22 +405,70 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: 16,
     },
-    feedbackContainer: {
-        flexShrink: 1,
-        flexWrap: "wrap",
-        alignSelf: "center",
-        display: "flex",
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
         alignItems: "center",
-        padding: 15,
+        // backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+        width: 300,
+        padding: 20,
         borderRadius: 10,
+        alignItems: "center",
     },
-    feedback: {
+    modalSuccess: {
+        backgroundColor: "rgb(72, 209, 204)",
+    },
+    modalError: {
+        backgroundColor: "green",
+    },
+    modalText: {
         color: "#fff",
+        fontSize: 16,
+        textAlign: "center",
     },
-    success: {
-        backgroundColor: "#31B978",
+    modalButton: {
+        backgroundColor: "#4A42C0",
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 4,
     },
-    error: {
-        backgroundColor: "#FF4C4C",
+    modalButtonText: {
+        color: "#fff",
+        fontWeight: "bold",
+    },
+    movieResultsScrollView: {
+        position: "absolute",
+        maxHeight: 240,
+        marginBottom: 16,
+        backgroundColor: "#fff",
+        width: "100%",
+        zIndex: 1,
+        top: 90,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 10,
+            height: 0,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 1,
+        borderColor: "#ddd",
+        borderWidth: 0.4,
+    },
+    movieResult: {
+        padding: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ddd",
+    },
+    movieResultText: {
+        fontSize: 16,
+    },
+    movieResultImage: {
+        width: 50,
+        height: 75,
+        marginRight: 8,
     },
 });

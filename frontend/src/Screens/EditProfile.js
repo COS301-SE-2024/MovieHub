@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,Button } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../backend/src/Firebase/firebase.config';
+import { colors, themeStyles } from '../styles/theme';
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
@@ -98,6 +99,36 @@ export default function EditProfile({ route }) {
         setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: value } });
     };
 
+    const applyAllChanges = async () => {
+        try {
+            const updatedData = {};
+            Object.keys(modalContent).forEach((field) => {
+                if (field === "favoriteGenres") {
+                    updatedData[field] = modalContent[field].tempValue.slice(0, 3);
+                } else if (modalContent[field].tempValue) {
+                    updatedData[field] = modalContent[field].tempValue;
+                }
+            });
+            
+            const userId = userInfo.userId;
+            const updatedUser = await updateUserProfile(userId, updatedData);
+            console.log("Update went well", updatedUser);
+    
+            setModalContent((prevState) => {
+                const newState = { ...prevState };
+                Object.keys(updatedData).forEach((key) => {
+                    newState[key] = {
+                        ...newState[key],
+                        newValue: updatedUser[key],
+                    };
+                });
+                return newState;
+            });
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+        }
+    };
+
     const handleOptionPress = (field, option) => {
         if (field === "pronouns") {
             setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: option, isVisible: false, newValue: option } });
@@ -154,7 +185,7 @@ export default function EditProfile({ route }) {
             <Text style={{ color: "#7b7b7b", marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
             <View style={styles.avatarContainer}>
                 <Image source={{ uri: avatar }} style={styles.avatar} />
-                <Text style={styles.buttonText} onPress={selectImage}>
+                <Text onPress={selectImage} style={styles.changePictureText}>
                     Change Profile Picture
                 </Text>
             </View>
@@ -200,7 +231,7 @@ export default function EditProfile({ route }) {
                                             Cancel
                                         </Text>
                                         <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                            Apply Changes
+                                            Change
                                         </Text>
                                     </View>
                                 </View>
@@ -220,7 +251,7 @@ export default function EditProfile({ route }) {
                                             Cancel
                                         </Text>
                                         <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                            Apply Changes
+                                            Change
                                         </Text>
                                     </View>
                                 </View>
@@ -229,6 +260,9 @@ export default function EditProfile({ route }) {
                     </View>
                 </Modal>
             ))}
+            <TouchableOpacity style={styles.entryButton} onPress={applyAllChanges}>
+                <Text style={styles.entryButtonText}>Apply All Changes</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
@@ -252,6 +286,11 @@ const styles = StyleSheet.create({
     section: {
         marginBottom: 20,
     },
+    changePictureText: {
+        color: colors.primary, // Set the desired color here
+        fontSize: 16, // Optional: adjust the font size if needed
+        fontWeight: 'bold', // Optional: make the text bold if needed
+    },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
@@ -260,6 +299,27 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: 8,
         color: "#7b7b7b",
+    },
+    buttonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        paddingTop: 10,
+    },
+    buttonText: {
+        color: "#000",
+        textAlign: "center",
+        // color: colors.primary
+    },
+    entryButton: {
+        backgroundColor: "black",
+        padding: 16,
+        borderRadius: 4,
+        alignItems: "center",
+    },
+    entryButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
     },
     line: {
         height: 1,

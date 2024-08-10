@@ -9,7 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { removePost } from "../Services/PostsApiServices";
 import { toggleLikePost } from "../Services/LikesApiService";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -59,21 +59,14 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     // Function to remove posts
 
     const handleRemovePost = async (uid, postId) => {
-        try {
-            //
-            console.log('Removing post:', postId + ' by ' + uid);
-            const postBody = {
-                postId: postId,
-                uid: uid
-            }
-            await removePost(postBody);
-            // console.log('Post removed successfully');
-            Alert.alert(null,'Post removed successfully');
-        } catch (error) {
-            console.error('Error removing post:', error);
-            throw new Error('Failed to remove post' + error);
-        }
+        onDelete(postId);
+        toggleModal();
     };
+
+    const handleEditPost = () => {
+        toggleModal();
+        navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
+    }
 
     // TODO: Increment or decrement number of likes
 
@@ -82,14 +75,16 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.45,
-            shadowRadius: 3.84,
-            elevation: 5,
+            // shadowColor: "#000",
+            // shadowOffset: {
+            //     width: 0,
+            //     height: 2,
+            // },
+            // shadowOpacity: 0.45,
+            // shadowRadius: 3.84,
+            // elevation: 5,
+            borderBottomWidth: 0.5,
+            borderBottomColor: theme.borderColor,
         },
         avatar: {
             width: 40,
@@ -201,7 +196,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <Pressable onPress={() => {handleCommentPress(postId)}}>
+                    <Pressable onPress={() => {handleCommentPress(postId, false)}}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
@@ -221,9 +216,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                         <>
                             <TouchableOpacity
                                 style={styles.modalOption}
-                                onPress={() => {
-                                    navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
-                                }}>
+                                onPress={handleEditPost}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
