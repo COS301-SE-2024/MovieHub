@@ -34,6 +34,6 @@ router.get('/listen/:roomId', roomController.listenForMessages);
 router.post('/notify', roomController.sendNotification);
 
 // Route to get room details by roomId or shortCode
-router.get('/rooms/:identifier', roomController.getRoomDetails);
+router.get('/:identifier', roomController.getRoomDetails);
 
 module.exports = router;

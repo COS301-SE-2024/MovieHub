@@ -115,9 +115,10 @@ exports.createRoom = async (userId, roomData) => {
 exports.getRoomDetails = async (roomIdentifier) => {
     const session = driver.session();
     try {
-        // Check if the identifier is a roomId or shortCode
+        // Query to check if the identifier matches either roomId or shortCode
         const result = await session.run(
-            `MATCH (r:Room {roomId: $identifier}) OR (r:Room {shortCode: $identifier})
+            `MATCH (r:Room)
+             WHERE r.roomId = $identifier OR r.shortCode = $identifier
              RETURN r`,
             { identifier: roomIdentifier }
         );
@@ -135,6 +136,7 @@ exports.getRoomDetails = async (roomIdentifier) => {
         await session.close();
     }
 };
+
 
 
 
