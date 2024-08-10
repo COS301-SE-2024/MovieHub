@@ -6,7 +6,7 @@ exports.register = async (req, res) => {
     const { email, password, username } = req.body;
 
     if (!email || !password || !username) {
-        responseHandler(res, 400, "Missing required fields: email, password, username");
+        res.status(400).json({ message: "Missing required fields: email, password, username" });
         return;
     }
 
@@ -28,13 +28,13 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        responseHandler(res, 400, 'Missing required fields: email, password');
+        res.status(400).json({ message: "Missing required fields: email, password" });
         return;
     }
     try {
         const { user, customToken } = await authService.loginUser(email, password);
         if (!user || !customToken) {
-            responseHandler(res, 400, 'Invalid email or password');
+            res.status(400).json({ message: 'Invalid email or password' });
             return;
         }
         res.cookie('session', customToken, { httpOnly: true, secure: true, maxAge: 60 * 60 * 24 * 5 * 1000 });
@@ -49,11 +49,11 @@ exports.logout = async (req, res) => {
     try {
         const logoutResult = await authService.logoutUser();
         if (!logoutResult) {
-            responseHandler(res, 400, 'Logout unsuccessful');
+            res.status(400).json({ message: "Logout unsuccessful" });
             return;
         }
         res.clearCookie('session');
-        responseHandler(res, 200, 'User logged out successfully');
+        res.status(200).json({ message: 'User logged out successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error', error: error.message });

@@ -4,7 +4,6 @@ const authRouter = require('../Auth/auth.router');
 const authService = require('../Auth/auth.services');
 
 jest.mock('../Auth/auth.services');
-jest.mock('../utils/responseHandler');
 
 const app = express();
 app.use(express.json());
@@ -23,7 +22,9 @@ describe('Auth Routes', () => {
 
             authService.registerUser.mockResolvedValueOnce({ userRecord, customToken });
 
-            const res = await request(app).post('/auth/register').send(user);
+            const res = await request(app)
+                .post('/auth/register')
+                .send(user);
 
             expect(res.status).toBe(201);
             expect(res.body).toEqual({
