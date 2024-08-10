@@ -12,4 +12,8 @@ router.delete('/:id', userController.deleteUserProfile);
 
 router.get('/:id/watchlists', userController.getUserWatchlists);
 
+router.post('/follow', userController.followUser);
+router.post('/unfollow', userController.unfollowUser);
+router.get('/friends/:id', userController.getFriends);
+
 module.exports = router;

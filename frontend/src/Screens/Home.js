@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { StyleSheet, Text, View, ScrollView, RefreshControl, TouchableOpacity, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable } from "react-native";
+import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable } from "react-native";
 
 import TrendingMovie from "../Components/TrendingMovies";
 import BottomHeader from "../Components/BottomHeader";
