@@ -25,7 +25,7 @@ exports.getLikesOfMovie = async (req, res) => {
     try {
         const likes = await likesService.getLikesOfMovie(movieId);
         console.log("response: ", likes);
-        if (likes >= 0)
+        if (likes)
             responseHandler(res, 200, 'Likes fetched successfully', likes);
         else
             res.status(400).json({ message: 'Error fetching likes' });
@@ -39,7 +39,7 @@ exports.getLikesOfComment = async (req, res) => {
     const commentId = req.params.commentId;
     try {
         const likes = await likesService.getLikesOfComment(commentId);
-        if (likes >= 0)
+        if (likes)
             responseHandler(res, 200, 'Likes fetched successfully', likes);
         else
             res.status(400).json({ message: 'Error fetching likes' });
@@ -53,7 +53,7 @@ exports.getLikesOfReview = async (req, res) => {
     const reviewId = req.params.reviewId;
     try {
         const likes = await likesService.getLikesOfReview(reviewId);
-        if (likes >= 0)
+        if (likes)
             responseHandler(res, 200, 'Likes fetched successfully', likes);
         else
             res.status(400).json({ message: 'Error fetching likes' });
@@ -69,7 +69,7 @@ exports.getLikesOfPost = async (req, res) => {
     try {
         console.log(postId);
         const likes = await likesService.getLikesOfPost(postId);
-        if (likes >= 0)
+        if (likes)
             responseHandler(res, 200, 'Likes fetched successfully', likes);
         else
             res.status(400).json({ message: 'Error fetching likes' });

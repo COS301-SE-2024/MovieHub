@@ -2,17 +2,7 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import firebaseApp from '../Firebase/firebaseConnection';
 import { firebase } from '../Firebase/firebaseConnection';
-//import admin from '../Firebase/firebase.config.js'
-//import { getFirestore } from 'firebase-admin/firestore';
 import { createUserNode } from '../Users/users.services';
-
-
-// Initialize Firebase Admin SDK
-// admin.initializeApp({
-//   credential: admin.credential.applicationDefault(),
-//   databaseURL: "moviehub-3ebc8.firebaseapp.com"
-// });
-//const admin = firebase();
 
 const auth = getAuth();
 
@@ -71,18 +61,6 @@ exports.loginUser = async (email, password) => {
   } catch (error) {
     throw error;
   }
-  // try {
-  //   const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  //   const idToken = await userCredential.user.getIdToken();
-
-  //   // Create session cookie
-  //   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-  //   const sessionCookie = await firebase.auth().createSessionCookie(idToken, { expiresIn });
-
-  //   return { user: userCredential.user, sessionCookie };
-  // } catch (error) {
-  //   throw error;
-  // }
 };
 
 exports.logoutUser = async () => {

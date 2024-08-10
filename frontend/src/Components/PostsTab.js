@@ -1,10 +1,13 @@
+// PostsTab.js
+
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import Post from "./Post";
-import { getPostsOfUser, getCountCommentsOfPost } from "../Services/PostsApiServices";
-import { getLikesOfPost } from "../Services/LikesApiService";
+import Review from "./Review";
+import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
+import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 
 export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
@@ -14,6 +17,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
     const navigation = useNavigation();
 
     const [posts, setPosts] = useState([]);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -36,31 +40,43 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
         return `${years}y ago`;
     };
 
-    const fetchPosts = async () => {
+    const fetchPostsAndReviews = async () => {
         try {
             const userId = userInfo.userId;
-            const response = await getPostsOfUser(userId);
-            // console.log("Fetched posts:", response.data); // Log the response to verify the structure
+            const [postsResponse, reviewsResponse] = await Promise.all([getPostsOfUser(userId), getReviewsOfUser(userId)]);
 
-            if (response.data === null) {
-                setPosts([]);
-            } else {
-                const postsWithComments = await Promise.all(response.data.map(async (post) => {
-                    const commentsResponse = await getCountCommentsOfPost(post.postId);
-                    const likesResponse = await getLikesOfPost(post.postId);
-                    const likesCount = likesResponse.data;
-                    // console.log("Comments response for post", post.postId, ":", commentsResponse); // Log to verify structure
-                    const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
-                    return { ...post, commentsCount, likesCount };
-                }));
-
-                // Sort posts by createdAt in descending order (most recent first)
-                postsWithComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-                setPosts(postsWithComments);
+            let postsWithComments = [];
+            if (postsResponse.data) {
+                postsWithComments = await Promise.all(
+                    postsResponse.data.map(async (post) => {
+                        const commentsResponse = await getCountCommentsOfPost(post.postId);
+                        const likesResponse = await getLikesOfPost(post.postId);
+                        const likesCount = likesResponse.data;
+                        const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
+                        return { ...post, commentsCount, likesCount, type: "post" };
+                    })
+                );
             }
+
+            let reviewsWithComments = [];
+            if (reviewsResponse.data) {
+                reviewsWithComments = await Promise.all(
+                    reviewsResponse.data.map(async (review) => {
+                        const commentsResponse = await getCountCommentsOfReview(review.reviewId);
+                        const likesResponse = await getLikesOfReview(review.reviewId);
+                        const likesCount = likesResponse.data;
+                        const commentsCount = commentsResponse.data.reviewCommentCount; // Adjust according to the actual structure
+                        return { ...review, commentsCount, likesCount, type: "review" };
+                    })
+                );
+            }
+
+            // Combine posts and reviews and sort by date
+            const combinedData = [...postsWithComments, ...reviewsWithComments].sort((a, b) => new Date(b.createdAt || b.dateReviewed) - new Date(a.createdAt || a.dateReviewed));
+
+            setPosts(combinedData);
         } catch (error) {
-            console.error("Error fetching posts:", error);
+            console.error("Error fetching posts and reviews:", error);
             // Handle error state or retry logic
         } finally {
             setLoading(false); // Set loading to false after fetch completes
@@ -68,8 +84,29 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
     };
 
     useEffect(() => {
-        fetchPosts();
+        fetchPostsAndReviews();
     }, []);
+
+    // Function to handle post deletion and state update
+    const handleDeletePost = async (postId) => {
+        try {
+            await removePost({ postId, uid: userInfo.userId });
+            setPosts(posts.filter(post => post.postId !== postId));
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            Alert.alert("Error", "Failed to delete post");
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        try {
+            await removeReview({ postId: reviewId, uid: userInfo.userId });
+            setPosts(posts.filter(review => review.reviewId !== reviewId));
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            Alert.alert("Error", "Failed to delete review");
+        }
+    };
 
     const styles = StyleSheet.create({
         outerContainer: {
@@ -119,25 +156,49 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                     </Pressable>
                 </View>
             ) : (
-                posts.map((post, index) => (
-                    <Post
-                        key={index} // for uniqueness
-                        postId={post.postId}
-                        uid={post.uid}
-                        username={post.name}
-                        userHandle={userHandle}
-                        userAvatar={post.avatar}
-                        postTitle={post.postTitle}
-                        likes={post.likesCount}
-                        comments={post.commentsCount || 0} /** Comments count */
-                        preview={post.text}
-                        saves={getRandomNumber(0, 18)}
-                        image={post.image || null}
-                        isUserPost={post.uid === userInfo.userId}
-                        handleCommentPress={handleCommentPress}
-                        datePosted={formatTimeAgoFromDB(post.createdAt)}
-                    />
-                ))
+                posts.map((item, index) =>
+                    item.type === "post" ? (
+                        <Post
+                            key={index} // for uniqueness
+                            postId={item.postId}
+                            uid={item.uid}
+                            username={item.name}
+                            userHandle={item.username}
+                            userAvatar={item.avatar}
+                            postTitle={item.postTitle}
+                            likes={item.likesCount}
+                            comments={item.commentsCount || 0} /** Comments count */
+                            preview={item.text}
+                            saves={getRandomNumber(0, 18)}
+                            image={item.image || null}
+                            isUserPost={item.uid === userInfo.userId}
+                            handleCommentPress={handleCommentPress}
+                            datePosted={formatTimeAgoFromDB(item.createdAt)}
+                            onDelete={handleDeletePost} // Pass handleDeletePost function
+                        />
+                    ) : (
+                        <Review
+                            key={index} // for uniqueness
+                            reviewId={item.reviewId}
+                            uid={item.uid}
+                            username={item.name}
+                            userHandle={item.username}
+                            userAvatar={item.avatar}
+                            likes={item.likesCount}
+                            comments={item.commentsCount ? item.commentsCount : 0} /** Comments count */
+                            image={item.image ? item.image : null}
+                            saves={getRandomNumber(0, 18)}
+                            reviewTitle={item.reviewTitle}
+                            preview={item.text}
+                            dateReviewed={formatTimeAgoFromDB(item.createdAt)}
+                            isUserReview={item.uid === userInfo.userId}
+                            handleCommentPress={handleCommentPress}
+                            movieName={item.movieTitle}
+                            rating={item.rating}
+                            onDelete={handleDeleteReview}
+                        />
+                    )
+                )
             )}
         </View>
     );
