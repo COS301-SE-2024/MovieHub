@@ -6,6 +6,7 @@ import NonFollowerPost from '../Components/NonFollowerPost';
 import CategoriesFilters from '../Components/CategoriesFilters';
 import ExploreHub from '../Components/ExploreHub';
 import { Ionicons } from '@expo/vector-icons';
+import { FlatList } from "react-native-gesture-handler";
 import { getFriendsOfFriendsContent, getRandomUsersContent } from '../Services/ExploreApiService'; // Adjust import path as needed
 
 export default function ExplorePage({ route }) {
@@ -59,12 +60,21 @@ export default function ExplorePage({ route }) {
                     <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }} />
                 </View>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <ExploreHub />
                     <ExploreHub />
                     <ExploreHub />
                     <ExploreHub />
-                </ScrollView> {/* Closing tag added here */}
+                </ScrollView> Closing tag added here */}
+
+                <FlatList
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    data={rooms}
+                    renderItem={({ item }) => <ExploreHub userInfo={userInfo} roomData={item} />}
+                    keyExtractor={(item, index) => index.toString()}
+                    contentContainerStyle={styles.cardRow}
+                />
 
                 <View style={styles.postsContainer}>
                     {friendsOfFriendsContent.map((item, index) => (

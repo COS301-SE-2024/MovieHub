@@ -201,6 +201,7 @@ const Home = ({ route }) => {
                                 postTitle={content.post.postTitle}
                                 datePosted={formatDate(content.post.createdAt)} // Format the date
                                 preview={content.post.text}
+                                isUserPost={userInfo.userId == content.post.uid}
                             />
                             
                         ))}
@@ -217,9 +218,10 @@ const Home = ({ route }) => {
                                     comments={0} // Update with actual comments data if available
                                     reviewTitle={content.review.reviewTitle}
                                     preview={content.review.text}
-                                    datePosted={formatDate(content.review.createdAt)}
+                                    dateReviewed={formatDate(content.review.createdAt)}
                                     movieName={content.movie.title}
                                     rating={content.review.rating}
+                                    isUserReview={userInfo.userId==content.review.uid}
                                 />
                             ) : null // Render nothing if review property does not exist
                         ))}
