@@ -18,8 +18,7 @@ async function checkConnection() {
   } catch (err) {
     console.error('Could not connect to Elasticsearch cluster:', err);
   }
-};
-
+}
 
 exports.searchMoviesFuzzy = async (query) => {
   try {
@@ -42,21 +41,12 @@ exports.searchMoviesFuzzy = async (query) => {
       }
     });
 
-    // Sort by popularity (best to worst) and release date (newest to oldest)
-    const sortedMovies = response.body.hits.hits.sort((a, b) => {
-      const aSource = a._source;
-      const bSource = b._source;
-
-      // Primary sort: by popularity (descending)
-      const popularityComparison = bSource.popularity - aSource.popularity;
-
-      if (popularityComparison !== 0) {
-        return popularityComparison;
-      }
-
-      // Secondary sort: by release date (newest first)
-      return new Date(bSource.releaseDate) - new Date(aSource.releaseDate);
-    });
+    // Sort the movies by adjusted score
+    const sortedMovies = response.body.hits.hits.map(hit => {
+      const popularity = hit._source.popularity || 0;
+      const adjustedScore = hit._score * (1 + (popularity / 100));
+      return { ...hit, adjustedScore }; // Add adjustedScore to each hit
+    }).sort((a, b) => b.adjustedScore - a.adjustedScore);
 
     // Extract and return the relevant data
     return sortedMovies;
