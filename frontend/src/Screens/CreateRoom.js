@@ -3,28 +3,31 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Alert } fr
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { createRoom } from "../Services/RoomApiService"; // Import the RoomApiService function
+import { createRoom } from "../Services/RoomApiService"; // Assuming you have a service function to create a room
 
 const CreateRoomScreen = ({ route }) => {
     const navigation = useNavigation();
-    const { userInfo } = route.params; // Get userInfo from route.params
+    const { userInfo } = route.params;
     const [roomTitle, setRoomTitle] = useState("");
     const [accessLevel, setAccessLevel] = useState("Everyone");
     const [roomType, setRoomType] = useState("Chat-only");
     const [watchParty, setWatchParty] = useState(false);
+    const [maxParticipants, setMaxParticipants] = useState("5"); // Default max participants
+    const [roomDescription, setRoomDescription] = useState("");
 
     const handleCreateRoom = async () => {
         try {
-            // Call createRoom from RoomApiService with the relevant data
             const newRoom = await createRoom({
-                title: roomTitle,
+                roomName: roomTitle,
                 accessLevel,
+                maxParticipants,
+                roomDescription,
                 roomType,
-                watchParty,
-                createdBy: userInfo.userId // Assuming userInfo contains userId
+               //watchParty,
+                createdBy: userInfo.userId, // Assuming userInfo contains userId
             });
 
-            // After successful room creation, navigate to the HubScreen with the new room data
+            // Navigate to the HubScreen with the new room data
             navigation.navigate("HubScreen", { userInfo, newRoom });
         } catch (error) {
             console.error("Failed to create room:", error);
@@ -44,7 +47,7 @@ const CreateRoomScreen = ({ route }) => {
             <Text style={styles.label}>Room Name</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Title"
+                placeholder="Enter room name"
                 value={roomTitle}
                 onChangeText={setRoomTitle}
             />
@@ -83,6 +86,24 @@ const CreateRoomScreen = ({ route }) => {
                     thumbColor={watchParty ? "#4A42C0" : "#f4f3f4"}
                 />
             </View>
+
+            <Text style={styles.label}>Max Participants</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Enter max participants"
+                value={maxParticipants}
+                onChangeText={setMaxParticipants}
+                keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Room Description</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Enter room description"
+                value={roomDescription}
+                onChangeText={setRoomDescription}
+                multiline
+            />
 
             <TouchableOpacity
                 style={[styles.createButton, roomTitle === "" ? styles.disabledButton : null]}

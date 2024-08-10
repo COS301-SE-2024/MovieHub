@@ -1,27 +1,28 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Modal, TextInput, Switch } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import ExploreHub from "../Components/ExploreHub";
 
 const HubScreen = ({ route }) => {
-    const { userInfo } = route.params;
+    const { userInfo, newRoom } = route.params;
     const navigation = useNavigation();
-    const [modalVisible, setModalVisible] = useState(false);
-    const [roomTitle, setRoomTitle] = useState("");
-    const [accessLevel, setAccessLevel] = useState("Everyone");
-    const [roomType, setRoomType] = useState("Chat-only");
     const [ownsRoom, setOwnsRoom] = useState(false);
     const [userRoomDetails, setUserRoomDetails] = useState({});
+
+    useEffect(() => {
+        if (newRoom) {
+            setUserRoomDetails(newRoom);
+            setOwnsRoom(true);
+        }
+    }, [newRoom]);
 
     // TODO: replace with real data
     const sections = [
         {
             movieTitle: "People You Follow",
             data: [
-                { roomName: "feel like ranting?", users: 372 },
+                { roomName: "Feel like ranting?", users: 372 },
                 { movieTitle: "My Little Pony", roomName: "Another Room", users: 128 },
             ],
         },
@@ -48,13 +49,14 @@ const HubScreen = ({ route }) => {
         },
     ];
 
-    const handleCreateRoom = ({ roomTitle, accessLevel, roomType }) => {
-        // TODO: Add logic to create the room with roomTitle, accessLevel, and roomType
-
-        const userRoomDetails = { roomTitle, accessLevel, roomType, ownsRoom };
-        // setUserRoomDetails(userRoomDetails);
+    const handleCreateRoom = ({ roomTitle, accessLevel, roomType, watchParty }) => {
+        const newRoom = { roomTitle, accessLevel, roomType, watchParty, maxParticipants: 5 };
+        setUserRoomDetails(newRoom);
         setOwnsRoom(true);
-        console.log("room created", userRoomDetails);
+        console.log("Room created", newRoom);
+
+        // Navigate to the HubScreen with the new room data
+        navigation.navigate("HubScreen", { userInfo, newRoom });
     };
 
     return (
@@ -71,14 +73,13 @@ const HubScreen = ({ route }) => {
             </View>
 
             {ownsRoom && (
-                // TODO: replace with userRoomDetails
                 <View>
-                    <UserRoomCard 
-                        movieTitle="Interstellar" 
-                        roomName="Asa's Room" 
-                        users={0} 
-                        live 
-                        handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true /** TODO: Replace true with 'room.uId==userInfo.userID' */ })} 
+                    <UserRoomCard
+                        movieTitle="Interstellar"
+                        roomName={userRoomDetails.roomTitle}
+                        users={0}
+                        live={userRoomDetails.roomType !== "Chat-only"}
+                        handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true, roomId: userRoomDetails.roomId })}
                     />
                     <View style={styles.divider} />
                 </View>
@@ -90,13 +91,13 @@ const HubScreen = ({ route }) => {
                         <Text style={styles.sectionTitle}>{section.movieTitle}</Text>
                         <MatIcon name="chevron-right" size={24} style={{ marginBottom: 5, marginLeft: 6 }} />
                     </TouchableOpacity>
-                    <FlatList 
-                        horizontal 
-                        data={section.data} 
-                        renderItem={({ item }) => <Card {...item} handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false })}/>} 
-                        keyExtractor={(item, index) => index.toString()} 
-                        showsHorizontalScrollIndicator={false} 
-                        contentContainerStyle={styles.cardRow} 
+                    <FlatList
+                        horizontal
+                        data={section.data}
+                        renderItem={({ item }) => <Card {...item} handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false })} />}
+                        keyExtractor={(item, index) => index.toString()}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.cardRow}
                     />
                 </View>
             ))}
