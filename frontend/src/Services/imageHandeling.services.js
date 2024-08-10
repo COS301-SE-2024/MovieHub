@@ -1,5 +1,5 @@
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from "../Firebase/firebase.config";
+import { storage } from '../../../backend/src/Firebase/firebase.config';
 exports.uploadImage = async (file) => {
     if (!file) {
       console.error('No file provided');

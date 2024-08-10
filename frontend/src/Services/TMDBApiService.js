@@ -66,3 +66,18 @@ export const searchMovies = async (query) => {
         }
     };
 
+// Function to get movie details by ID
+export const getMovieDetails = async (movieId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/movie/${movieId}`, {
+            params: {
+                api_key: API_KEY,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching movie details:", error);
+        return null; // Return null or handle the error as needed
+    }
+};

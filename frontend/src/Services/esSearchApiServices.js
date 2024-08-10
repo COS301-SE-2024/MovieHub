@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = process.env.REACT_APP_SEARCH_API_URL || 'http://192.168.3.218:3000/searchMovie/'; // Update to your Expo URL
+const API_URL = 'http://192.168.39.47:3000/searchMovie/'; // Update to your Expo URL
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
@@ -30,14 +30,26 @@ const fetchWithAuth = async (url, options = {}) => {
     return response.json();
 };
 
+
 export const searchMoviesFuzzy = async (query) => {
     try {
-        const response = await fetchWithAuth(`${API_URL}movies/search`, {
-            method: 'POST',
-            body: JSON.stringify({ query }),
+        const response = await fetchWithAuth(`${API_URL}movies/search/${query}`, {
+            method: 'GET',
         });
         return response;
     } catch (error) {
         throw new Error('Failed to search movies: ' + error.message);
     }
 };
+
+export const getMovieByQuote = async (quote) => {
+    try {
+        const response = await fetchWithAuth(`${API_URL}getMovieByQuote/${quote}`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to search movies: ' + error.message);
+    }
+};
+
