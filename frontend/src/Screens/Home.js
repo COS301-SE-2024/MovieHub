@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable } from "react-native";
-
 import TrendingMovie from "../Components/TrendingMovies";
 import BottomHeader from "../Components/BottomHeader";
 import { useNavigation } from "@react-navigation/native";
 import { getMovies } from "../api";
+import { getFriendsContent } from "../Services/ExploreApiService";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
 import Svg, { Rect } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 import Post from "../Components/Post";
+import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
+import moment from "moment";
 
 const { width, height } = Dimensions.get("window");
 const SPACING = 10;
@@ -74,26 +76,40 @@ const VirtualizedList = ({ children }) => {
     return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} />;
 };
 
+// Helper function to format the post date
+const formatDate = (date) => {
+    return moment(date).fromNow(); // Using moment.js to format the date as 'X time ago'
+};
+
 const Home = ({ route }) => {
-    //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
     const navigation = useNavigation();
-    const [movies, setMovies] = React.useState([]);
-    const scrollX = React.useRef(new Animated.Value(0)).current;
-    React.useEffect(() => {
+    const [movies, setMovies] = useState([]);
+    const [friendsContent, setFriendsContent] = useState([]);
+    const scrollX = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
         const fetchData = async () => {
-            const movies = await getMovies();
-            // Add empty items to create fake space
-            // [empty_item, ...movies, empty_item]
-            setMovies([{ key: "empty-left" }, ...movies, { key: "empty-right" }]);
+            try {
+                const movies = await getMovies();
+                const friendsData = await getFriendsContent(userInfo);
+
+                // Sort posts by most recent date
+                const sortedFriendsContent = friendsData.sort(
+                    (a, b) => new Date(b.post.createdAt) - new Date(a.post.createdAt)
+                );
+
+                setMovies([{ key: "empty-left" }, ...movies, { key: "empty-right" }]);
+                setFriendsContent(sortedFriendsContent);
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            }
         };
 
-        if (movies.length === 0) {
-            fetchData(movies);
-        }
-    }, [movies]);
+        fetchData();
+    }, []);
 
-    if (movies.length === 0) {
+    if (movies.length === 0 || friendsContent.length === 0) {
         return <Loading />;
     }
 
@@ -169,12 +185,44 @@ const Home = ({ route }) => {
                             );
                         }}
                     />
-                    {/* Posts */}
-                    <View>
-                        <Text style={{ fontSize: 24, fontWeight: "bold", paddingLeft: 16, paddingBottom: 10, textAlign: "center" }}>Latest Posts</Text>
-                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
-                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
-                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
+                    {/* Friends' Content */}
+                    <View style={styles.friendsContent}>
+                        <Text style={styles.sectionTitle}>Friends' Content</Text>
+                        {friendsContent.map((content, index) => (
+                            <Post
+                                key={index}
+                                postId={content.post.postId}
+                                uid={content.friend.uid}
+                                username={content.friend.username}
+                                userAvatar={content.friend.avatar}
+                                userHandle={`@${content.friend.username}`}
+                                likes={0} // Update with actual likes data if available
+                                comments={0} // Update with actual comments data if available
+                                postTitle={content.post.postTitle}
+                                datePosted={formatDate(content.post.createdAt)} // Format the date
+                                preview={content.post.text}
+                            />
+                            
+                        ))}
+                        {friendsContent.map((content, index) => (
+                            content.review ? ( // Check if review property exists
+                                <Review
+                                    key={index}
+                                    reviewId={content.review.reviewId}
+                                    uid={content.friend.uid}
+                                    username={content.friend.username}
+                                    userHandle={`@${content.friend.username}`}
+                                    userAvatar={content.friend.avatar}
+                                    likes={0} // Update with actual likes data if available
+                                    comments={0} // Update with actual comments data if available
+                                    reviewTitle={content.review.reviewTitle}
+                                    preview={content.review.text}
+                                    datePosted={formatDate(content.review.createdAt)}
+                                    movieName={content.movie.title}
+                                    rating={content.review.rating}
+                                />
+                            ) : null // Render nothing if review property does not exist
+                        ))}
                     </View>
                 </View>
             </VirtualizedList>
@@ -206,6 +254,15 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         margin: 0,
         marginBottom: 10,
+    },
+    friendsContent: {
+        padding: 16,
+    },
+    sectionTitle: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 10,
+        textAlign: "center",
     },
 });
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
@@ -18,7 +17,7 @@ export default function ExplorePage({ route }) {
     const [selectedCategory, setSelectedCategory] = useState('');
 
     useEffect(() => {
-   
+
         const fetchContent = async () => {
             try {
                 // Fetch friends of friends' content
@@ -65,7 +64,7 @@ export default function ExplorePage({ route }) {
                     <ExploreHub />
                     <ExploreHub />
                     <ExploreHub />
-
+                </ScrollView> {/* Closing tag added here */}
 
                 <View style={styles.postsContainer}>
                     {friendsOfFriendsContent.map((item, index) => (
@@ -107,6 +106,7 @@ export default function ExplorePage({ route }) {
             </ScrollView>
             <BottomHeader userInfo={userInfo} />
         </View>
+
     );
 }
 
