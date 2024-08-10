@@ -9,8 +9,12 @@ const authRouter = require("./src/Auth/auth.router"); // Import Firebase authent
 const movieRouter = require('./src/movieHandeling/movie.router');
 const actorRouter = require('./src/actorHandeling/actor.router');
 const genreRouter = require('./src/genreHandeling/genre.router');
+const roomRouter = require('./src/Room/room.router'); // Import the room router
+// Import and use the party router
+const partyRouter = require('./src/Room/WatchParty/party.router');
+const { firebaseAdmin } = require('./src/Firebase/firebaseConnection');
+const logRouter = require('./src/Log/log.router');
 const exploreRouter = require('./src/Explore/explore.router');
-
 const cors = require("cors"); // since we are using more than on port
 const https = require("https");
 const fs = require("fs");
@@ -23,9 +27,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
+
 app.use(
     cors({
-        origin: ["http://localhost:8081", "exp://192.168.8.35:8081"], // all ports used in frontend web and exp
+        origin: ["http://localhost:8081", "exp://192.168.225.19:8081"], // all ports used in frontend web and exp
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })
@@ -41,7 +46,11 @@ app.use('/like', likesRouter);
 app.use('/movie', movieRouter);
 app.use('/actor', actorRouter);
 app.use('/genre', genreRouter);
+app.use('/rooms', roomRouter); // Add the room routes
+app.use('/party', partyRouter);
+app.use('/log', logRouter);
 app.use('/explore', exploreRouter);
+
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);

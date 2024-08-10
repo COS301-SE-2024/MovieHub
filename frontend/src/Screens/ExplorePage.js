@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
@@ -35,6 +36,14 @@ export default function ExplorePage({ route }) {
         fetchContent();
     }, [userInfo]);
 
+
+    const rooms = [
+        { movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true },
+        { roomName: "feel like ranting?", users: 372 },
+        { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
+        { roomName: "JSON's Room", users: 56 },
+    ];
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -56,7 +65,7 @@ export default function ExplorePage({ route }) {
                     <ExploreHub />
                     <ExploreHub />
                     <ExploreHub />
-                </ScrollView>
+
 
                 <View style={styles.postsContainer}>
                     {friendsOfFriendsContent.map((item, index) => (
@@ -106,12 +115,13 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 10,
         backgroundColor: '#ffffff',
+
     },
     heading: {
-        fontFamily: 'Roboto',
-        color: '#000000',
+        fontFamily: "Roboto",
+        color: "#000000",
         fontSize: 23,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         paddingLeft: 10,
         paddingTop: 1,
     },
@@ -123,4 +133,5 @@ const styles = StyleSheet.create({
     postsContainer: {
         paddingHorizontal: 10,
     },
+
 });
