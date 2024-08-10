@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button } from "react-native";
+
+import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button  } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { getMovieCredits } from "../Services/TMDBApiService";
+import { getMovieCredits,getMovieRuntime } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import Cast from "../Components/Cast";
 import axios from "axios";
@@ -22,6 +23,7 @@ export default function MovieDescriptionPage({ userInfo }) {
     const [loading, setLoading] = useState(true);
     const [isAddedToList, setIsAddedToList] = useState(false);
     const [isWatched, setIsWatched] = useState(false);
+    const [runtime, setRuntime] = useState(null);
     const [isReviewed, setIsReviewed] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const navigation = useNavigation();
@@ -58,6 +60,22 @@ export default function MovieDescriptionPage({ userInfo }) {
     }, [movieId]);
 
     useEffect(() => {
+        const fetchRuntime = async () => {
+            try {
+                const minutes = await getMovieRuntime(movieId);
+                // Convert minutes to hours and minutes
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                setRuntime({ hours, mins });
+            } catch (error) {
+                console.error('Error fetching runtime:', error);
+            }
+        };
+
+        fetchRuntime();
+    }, [movieId]);
+
+    useEffect(() => {
         const fetchColors = async () => {
             try {
                 const response = await axios.post(
@@ -69,6 +87,7 @@ export default function MovieDescriptionPage({ userInfo }) {
                         },
                     }
                 );
+
                 // Convert RGB arrays to rgba strings
                 const convertedColors = response.data.colors.slice(0, 3).map((color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`);
                 setColors(convertedColors);
@@ -114,7 +133,7 @@ export default function MovieDescriptionPage({ userInfo }) {
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
                             <Text style={styles.movietitle2}> | </Text>
-                            <Text style={styles.movietitle2}> 2h </Text>
+                            <Text style={styles.movietitle2}>{runtime.hours > 0 ? `${runtime.hours} h ` : ''}{runtime.mins} mins</Text>
                         </View>
                         <View style={styles.icons}>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.iconsContent}>

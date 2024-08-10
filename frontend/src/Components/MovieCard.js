@@ -15,14 +15,6 @@ export default function MovieCard({movieId, imageUrl,title, rating, overview, da
         navigation.navigate("MovieDescriptionPage", {movieId : movieId,imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date});
     };
 
-    const [overlayVisible, setOverlayVisible] = useState(false);
-
-    const [circlesVisible, setCirclesVisible] = useState(true);
-
-    const handlePress = () => {
-        setCirclesVisible(!circlesVisible);
-        setOverlayVisible(!overlayVisible);
-    };
 
     const [liked, setLiked] = useState(false);
 
@@ -30,42 +22,13 @@ export default function MovieCard({movieId, imageUrl,title, rating, overview, da
         setLiked(!liked);
     };
 
-    const circlesData = [
-        { imageUri: image3 },
-        { imageUri: image2},
-        { imageUri: image1 },
-        { imageUri: image3 },
-        { imageUri: image3 },
-        { imageUri: image2},
-        { imageUri: image1 },
-        { imageUri: image3 },
-        { imageUri: image3 },
-    ];
-
     return (
         <View style={styles.container}>
             
-        <TouchableOpacity onPress={handlePress} activeOpacity={1} style={styles.card}>
+        <TouchableOpacity onPress={handleNewUser} activeOpacity={1} style={styles.card}>
             <Image source={{ uri: imageUrl }} style={styles.image} />
             
-            <Text style={styles.title}>{title}</Text>
-            {/* <CirclesWatch circles={circlesData} visible={circlesVisible} /> */}
-            {overlayVisible && (
-                    <View style={styles.overlay}>
-                        <TouchableOpacity onPress={() => { /* Handle icon press */ }}>
-                            <Ionicons name="eye-sharp" size={24} color="white"  marginLeft="6" style={styles.iconFirst}/>    
-                            <Text style={styles.text}>Watch</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleLikePress} style={styles.iconContainer}>
-                            <Ionicons name="heart" size={24} color={liked ? 'red' : 'white'} style={styles.icon} />
-                            <Text style={styles.text}>Like</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleNewUser}>
-                            <Octicons name="info" size={24} color="white" style={styles.icon}/>    
-                            <Text style={styles.text}>Info</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
+            {/* <Text style={styles.title}>{title}</Text> */}
                 
         </TouchableOpacity>
     </View>
@@ -78,17 +41,25 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        width: 300,
+        width: 400,
         height: 500,
         paddingRight: 15,
         paddingLeft: 15,
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+
+        shadowOpacity: 0.5,
+        shadowRadius: 3.84,
+        elevation: 5,
 
 
     },
     card: {
         position: 'relative',
-        width: '100%',
-        backgroundColor: '#fff',
+        width: '79%',
+        backgroundColor: 'transparent',
         borderRadius: 10,
         padding: 10,
         shadowColor: '#000',
@@ -104,7 +75,7 @@ const styles = StyleSheet.create({
       },
       image: {
         width: '100%',
-        height: 300,
+        height: '100%',
         borderRadius: 10,
         marginBottom: 10,
     },
