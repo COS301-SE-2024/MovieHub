@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
-
+import {uploadImage} from './imageHandeling.services';
 const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.39.101:3000/post/'; // Update to your Expo URL
+
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
@@ -31,7 +32,7 @@ const fetchWithAuth = async (url, options = {}) => {
 };
 
 export const addPost = async (bodyData) => {
-    // bodyData should contain: { uid, movieId, text, postTitle, img }
+    // bodyData should contain: { uid, text, postTitle, img }
     try {
         const response = await fetchWithAuth(`${API_URL}add/post`, {
             method: 'POST',

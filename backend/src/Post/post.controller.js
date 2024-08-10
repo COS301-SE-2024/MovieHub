@@ -3,9 +3,9 @@ import responseHandler from '../utils/responseHandler';
 
 // POSTS //
 exports.addPost = async (req, res) => {
-    const { uid, movieId, text, postTitle, img } = req.body;
+    const { uid, text, postTitle, img } = req.body;
     try {
-        const post = await postService.addPost(uid, movieId, text, postTitle, img);
+        const post = await postService.addPost(uid, text, postTitle, img);
         if (post)
             responseHandler(res, 201, 'Post added successfully', post);
         else 
@@ -159,18 +159,7 @@ exports.removeComment = async (req, res) => {
 };
 
 // GETS //
-exports.getPostsOfMovie = async (req, res) => {
-    try {
-        const movieId = req.params.movieId;
-        const posts = await postService.getPostsOfMovie(movieId);
-        if (posts)
-            responseHandler(res, 200, 'Posts fetched successfully', posts);
-        else
-            res.status(400).json({ message: 'Error fetching posts' });
-    } catch (error) {
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
+
 
 exports.getReviewsOfMovie = async (req, res) => {
     try {
