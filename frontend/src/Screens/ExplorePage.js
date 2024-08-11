@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, FlatList } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import BottomHeader from '../Components/BottomHeader';
 import NonFollowerPost from '../Components/NonFollowerPost';
@@ -36,13 +36,16 @@ export default function ExplorePage({ route }) {
         fetchContent();
     }, [userInfo]);
 
+    const handleOpenHub = () => {
+        navigation.navigate("HubScreen", { userInfo });
+    };
 
-    // const rooms = [
-    //     { movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true },
-    //     { roomName: "feel like ranting?", users: 372 },
-    //     { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
-    //     { roomName: "JSON's Room", users: 56 },
-    // ];
+    const rooms = [
+        { movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true },
+        { roomName: "feel like ranting?", users: 372 },
+        { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
+        { roomName: "JSON's Room", users: 56 },
+    ];
 
     return (
         <View style={styles.container}>
@@ -57,15 +60,24 @@ export default function ExplorePage({ route }) {
 
                 <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
-                    <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }} />
+                    <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }}  onPress={handleOpenHub} />
                 </View>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
                     <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
                     <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
                     <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
-                </ScrollView>
+                </ScrollView> */}
+
+                <FlatList 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false} 
+                    data={rooms} 
+                    renderItem={({ item }) => <ExploreHub userInfo={userInfo} roomData={item} />} 
+                    keyExtractor={(item, index) => index.toString()} 
+                    contentContainerStyle={styles.cardRow}
+                />
 
                 <View style={styles.postsContainer}>
                     {friendsOfFriendsContent.map((item, index) => (
