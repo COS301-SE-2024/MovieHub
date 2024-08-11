@@ -20,7 +20,7 @@ exports.addPost = async (uid,text, postTitle, img) => {
     try {
         const postId = uuidv4();
         const result = await session.run(
-            `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
+            `MATCH (u:User {uid: $uid})
              CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postTitle: $postTitle, img: $img, username : u.username, avatar : u.avatar, name : u.name})
              CREATE (u)-[:POSTED]->(p)-[:POSTED_ON]->(m)
              RETURN p`,
