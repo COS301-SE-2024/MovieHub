@@ -9,6 +9,9 @@ router.post('/create/:userId', roomController.createRoom);
 // Route to join an existing room
 router.post('/join', roomController.joinRoom);
 
+// Route to get participants of a room
+router.get('/:roomId/participants', roomController.getRoomParticipants);
+
 // Route to invite a user to a room
 router.post('/invite', roomController.inviteUserToRoom);
 

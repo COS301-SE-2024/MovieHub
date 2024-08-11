@@ -32,6 +32,34 @@ exports.getRoomDetails = async (req, res) => {
     }
 };
 
+
+// Controller function to handle getting room participants
+exports.getRoomParticipants = async (req, res) => {
+    const { roomId } = req.params;
+
+    try {
+        const result = await roomService.getRoomParticipants(roomId);
+
+        if (result.success) {
+            return res.status(200).json({
+                success: true,
+                participants: result.participants,
+            });
+        } else {
+            return res.status(404).json({
+                success: false,
+                message: result.message,
+            });
+        }
+    } catch (error) {
+        console.error('Error in getRoomParticipants controller:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while retrieving room participants.',
+        });
+    }
+}
+
 exports.joinRoom = async (req, res) => {
     try {
         const { code, userId } = req.body;

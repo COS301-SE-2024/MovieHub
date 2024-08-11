@@ -137,6 +137,30 @@ exports.getRoomDetails = async (roomIdentifier) => {
     }
 };
 
+exports.getRoomParticipants = async (roomId) => {
+    const session = driver.session();
+    try {
+        // Query to get the list of participants in the room
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})<-[:PARTICIPATES_IN]-(u:User)
+             RETURN u`,
+            { roomId }
+        );
+
+        // Check if there are any participants
+        if (result.records.length > 0) {
+            const participants = result.records.map(record => record.get('u').properties);
+            return { success: true, participants };
+        }
+
+        return { success: false, message: 'No participants found for the room' };
+    } catch (error) {
+        console.error('Error retrieving room participants:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
 
 
 
