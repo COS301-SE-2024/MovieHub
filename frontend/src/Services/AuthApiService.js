@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/auth'; //// enter what url your expo is running on + our port 3000
+const API_URL = 'http://10.0.28.189:3000/auth'; //// enter what url your expo is running on + our port 3000
 
 
 export const registerUser = async (email, password, username) => {

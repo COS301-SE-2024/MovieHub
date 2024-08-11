@@ -37,12 +37,12 @@ export default function ExplorePage({ route }) {
     }, [userInfo]);
 
 
-    const rooms = [
-        { movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true },
-        { roomName: "feel like ranting?", users: 372 },
-        { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
-        { roomName: "JSON's Room", users: 56 },
-    ];
+    // const rooms = [
+    //     { movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true },
+    //     { roomName: "feel like ranting?", users: 372 },
+    //     { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
+    //     { roomName: "JSON's Room", users: 56 },
+    // ];
 
     return (
         <View style={styles.container}>
@@ -61,11 +61,11 @@ export default function ExplorePage({ route }) {
                 </View>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <ExploreHub />
-                    <ExploreHub />
-                    <ExploreHub />
-                    <ExploreHub />
-
+                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
+                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
+                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
+                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
+                </ScrollView>
 
                 <View style={styles.postsContainer}>
                     {friendsOfFriendsContent.map((item, index) => (

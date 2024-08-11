@@ -11,8 +11,6 @@ const actorRouter = require('./src/actorHandeling/actor.router');
 const genreRouter = require('./src/genreHandeling/genre.router');
 
 const searchMovieRouter = require('./src/searching/searching.router');
-const logRouter = require('./src/Log/log.router');
-
 
 
 const roomRouter = require('./src/Room/room.router'); // Import the room router
@@ -55,7 +53,7 @@ app.use('/actor', actorRouter);
 app.use('/genre', genreRouter);
 
 app.use('/searchMovie', searchMovieRouter);
-=======
+
 app.use('/rooms', roomRouter); // Add the room routes
 app.use('/party', partyRouter);
 
