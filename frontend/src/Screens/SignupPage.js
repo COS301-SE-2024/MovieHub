@@ -60,11 +60,31 @@ const SignupPage = () => {
         navigation.navigate("LoginPage"); ///Change back to LoginPage
     };
 
+    const validatePassword = (password) => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return passwordRegex.test(password);
+    };
+
     const handleSignup = async () => {
-        // if (password !== confirmPassword) {
-        //     setError("Passwords do not match");
-        //     return;
-        // }
+
+        if (!email || !password || !username || !confirmPassword) {
+            setError("All fields are required");
+            return;
+        }
+        if (!validatePassword(password)) {
+            setError("Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
+            return;
+        }    
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+        setError("Invalid email address format");
+        return;
+        }
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
         if (username.length < 3) {
             setError("Username must be at least 3 characters long");
             return;
