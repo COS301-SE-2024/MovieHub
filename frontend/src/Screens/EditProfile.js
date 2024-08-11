@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,Button } from "react-native";
+import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,Button,Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
@@ -7,6 +7,7 @@ import { updateUserProfile } from "../Services/UsersApiService";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 import { colors, themeStyles } from '../styles/theme';
+import { useNavigation } from '@react-navigation/native';
 
 import { uploadImage } from '../Services/imageUtils';
 
@@ -16,6 +17,8 @@ export default function EditProfile({ route }) {
     const { userProfile } = route.params;
     const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");
     const [uploading, setUploading] = useState(false);
+
+    const navigation = useNavigation();
 
     // Set default values for userProfile fields
     const defaultUserProfile = {
@@ -74,6 +77,9 @@ export default function EditProfile({ route }) {
             const userId = userInfo.userId;
             const updatedUser = await updateUserProfile(userId, updatedData);
             console.log("Update went well", updatedUser);
+            Alert.alert('Success', 'Post deleted successfully!');
+
+            navigation.navigate('ProfilePage', { userinfo: userInfo });
 
             setModalContent((prevState) => {
                 const newState = { ...prevState };
@@ -122,6 +128,7 @@ export default function EditProfile({ route }) {
             const userId = userInfo.userId;
             const updatedUser = await updateUserProfile(userId, updatedData);
             console.log("Update went well", updatedUser);
+            Alert.alert('Success', 'Profile updated successfully!');
     
             setModalContent((prevState) => {
                 const newState = { ...prevState };
@@ -135,7 +142,7 @@ export default function EditProfile({ route }) {
             });
         } catch (error) {
             console.error('Error updating user profile:', error);
-        }
+        } 
     };
 
     const handleOptionPress = (field, option) => {
@@ -313,10 +320,11 @@ const styles = StyleSheet.create({
         // color: colors.primary
     },
     entryButton: {
-        backgroundColor: "black",
+        backgroundColor: "#4A42C0",
         padding: 16,
         borderRadius: 4,
         alignItems: "center",
+        marginBottom: 20,
     },
     entryButtonText: {
         color: "#fff",

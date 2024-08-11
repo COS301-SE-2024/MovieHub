@@ -24,15 +24,15 @@ const CategoriesFilters = ({ categoryName , selectedCategory}) => {
     return (
         <View style={styles.container}>
             <TouchableOpacity
-            style={[
-                styles.button,
-                isSelected ? styles.selectedButton : null,
-            ]}
-            onPress={() => handleCategoryPress(categoryName)}
-        >
-            <Text style={[styles.buttonText, isSelected ? styles.selectedText : null]}>
-                {categoryName}
-            </Text>
+                style={[
+                    styles.button,
+                    isSelected ? styles.selectedButton : null,
+                ]}
+                onPress={() => handleCategoryPress(categoryName)}
+            >
+                <Text style={[styles.buttonText, isSelected ? styles.selectedText : null]}>
+                    {categoryName}
+                </Text>
             </TouchableOpacity>
         </View>
     );
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        width:120,
-        height: 38,
+        width: 120,
+        // height: 38,
         paddingBottom:10
     },
     buttonText: {

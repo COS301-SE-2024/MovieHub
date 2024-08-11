@@ -116,7 +116,7 @@ function CustomDrawer({ navigation }) {
 const styles = StyleSheet.create({
     drawer: {
         flex: 1,
-        paddingTop: 20,
+        paddingTop: 70,
         paddingBottom: 15,
     },
     label: {

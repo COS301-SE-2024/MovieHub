@@ -1,9 +1,13 @@
 
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, Image, FlatList } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image,RefreshControl,ImageBackground } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import BottomHeader from '../Components/BottomHeader';
+import { getPopularMovies, getMoviesByGenre, getNewMovies, getTopPicksForToday,fetchClassicMovies } from '../Services/TMDBApiService';
 import { getMoviesByGenre, getMovieDetails } from "../Services/TMDBApiService";
 import { searchMoviesFuzzy, getMovieByQuote } from "../Services/esSearchApiServices";
+
 
 const genreMap = {
     12: "Adventure",
@@ -34,8 +38,32 @@ const SearchPage = ({ route }) => {
 
     const { userInfo } = route.params || {};
     const navigation = useNavigation();
+    let [genreData, setGenreData] = useState({});
     const [genrePosters, setGenrePosters] = useState({});
     const [searchResults, setSearchResults] = useState([]);
+
+    const genres = {
+        Action: 28,
+        Adventure: 12,
+        Animation: 16,
+        Comedy: 35,
+        Crime: 80,
+        Documentary: 99,
+        Drama: 18,
+        Family: 10751,
+        Fantasy: 14,
+        History: 36,
+        Horror: 27,
+        Musical: 10402,
+        Mystery: 9648,
+        Romance: 10749,
+        'Sci-Fi': 878,
+        Sport: 10770,
+        Thriller: 53
+    };
+
+    let [refreshing, setRefreshing] = useState(false);
+
 
     useEffect(() => {
         const fetchPosters = async () => {
@@ -60,6 +88,59 @@ const SearchPage = ({ route }) => {
         fetchPosters();
     }, []);
 
+    
+    const fetchMovies = async () => {
+        try {
+            const genreDataTemp = {};
+            for (let genre in genres) {
+                const genreId = genres[genre];
+
+                const top10 = await getMoviesByGenre(genreId, 'popularity.desc');
+                const mostWatched = await getTopPicksForToday(genreId);
+                const newMovies = await getNewMovies(genreId);
+                const topPicks = await getTopPicksForToday(genreId);
+                const classicMovies = await fetchClassicMovies(genreId);
+
+                genreDataTemp[genre] = {
+                    top10: top10.slice(0, 10),
+                    mostWatched: mostWatched.slice(0, 20),
+                    newMovies: newMovies.slice(0, 20),
+                    topPicks: topPicks.slice(0, 20),
+                    classics: classicMovies
+                };
+            }
+            setGenreData(genreDataTemp);
+
+            console.log('Genre Data in SearchPage:', genreData);
+        } catch (error) {
+
+            console.error('Error fetching movies:', error);
+        }
+    };
+
+    const fetchClassicMovies = async (genreId) => {
+        try {
+            const movies = await getMoviesByGenre(genreId);
+            return movies.filter(movie => movie.vote_average >= 8.0 && movie.popularity >= 100);
+        } catch (error) {
+            console.error(`Error fetching classic movies for genre ${genreId}:`, error);
+            return [];
+        }
+    };
+
+    
+
+    const handleRefresh = () => {
+        setRefreshing(true);
+        fetchMovies().then(() => setRefreshing(false));
+    };
+    
+
+        useEffect(() => {
+        fetchMovies();
+        }, []);
+
+    // const genres = ['Action','Adventure', 'Animation','Anime', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family','Fantasy', 'History','Horror','Musical','Mystery','Romance','Sci-Fi','Sport','Thriller'];
     const handleSearch = async (text) => {
         if (text === "") {
             setSearchResults([]);
@@ -89,9 +170,9 @@ const SearchPage = ({ route }) => {
 
         console.log(results);
     };
-
+  
     const handleGenrePress = (genre) => {
-        navigation.navigate("GenrePage", { userInfo, genreName: genre });
+        navigation.navigate('GenrePage', { genreName: genre, genreData: genreData[genre] });
     };
 
     const renderMovieItem = ({ item }) => (

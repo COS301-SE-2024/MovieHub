@@ -5,6 +5,7 @@ import { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ThemeProvider, useTheme } from "./frontend/src/styles/ThemeContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ProfilePage from "./frontend/src/Screens/ProfilePage";
 import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -46,13 +47,13 @@ import WatchParty from "./frontend/src/Screens/WatchParty";
 import HubScreen from "./frontend/src/Screens/HubScreen";
 import CreateRoom from "./frontend/src/Screens/CreateRoom";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
 import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage";
 import FollowersPage from "./frontend/src/Screens/FollowersPage";
 import FollowingPage from "./frontend/src/Screens/FollowingPage";
 import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
+import Rooms from "./frontend/src/Screens/Rooms";
 
 const Nav = createNativeStackNavigator();
 
@@ -162,6 +163,9 @@ export default function App() {
                                     </View>
                                 ),
                                 headerTintColor: "black",
+                                headerStyle: {
+                                    backgroundColor: "transparent",
+                                },
                             })}
                         />
 
@@ -224,10 +228,14 @@ export default function App() {
                             name="GenrePage"
                             component={GenrePage}
                             options={({ navigation }) => ({
-                                title: "",
+                                title: "movieHub.",
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
-                                headerTintColor: "black",
+                                headerTintColor: "white",
+                                headerTransparent: true, // Make the header transparent
+                                headerStyle: {
+                                    backgroundColor: "transparent",
+                                },
                             })}
                         />
 
@@ -272,6 +280,10 @@ export default function App() {
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
                                 headerTintColor: "black",
+                                headerTransparent: true,
+                                headerStyle: {
+                                    backgroundColor: "transparent",
+                                },
                             })}
                         />
                         <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
@@ -348,6 +360,17 @@ export default function App() {
                             component={LogEntriesScreen}
                             options={({ navigation }) => ({
                                 title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
+                        <Nav.Screen
+                            name="Rooms"
+                            component={Rooms}
+                            options={({ navigation }) => ({
+                                title: "Rooms",
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
                                 headerTintColor: "black",
