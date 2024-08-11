@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, FlatList } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
@@ -7,6 +6,7 @@ import NonFollowerPost from '../Components/NonFollowerPost';
 import CategoriesFilters from '../Components/CategoriesFilters';
 import ExploreHub from '../Components/ExploreHub';
 import { Ionicons } from '@expo/vector-icons';
+import { FlatList } from "react-native-gesture-handler";
 import { getFriendsOfFriendsContent, getRandomUsersContent } from '../Services/ExploreApiService'; // Adjust import path as needed
 
 export default function ExplorePage({ route }) {
@@ -18,7 +18,7 @@ export default function ExplorePage({ route }) {
     const [selectedCategory, setSelectedCategory] = useState('');
 
     useEffect(() => {
-   
+
         const fetchContent = async () => {
             try {
                 // Fetch friends of friends' content
@@ -62,13 +62,6 @@ export default function ExplorePage({ route }) {
                     <Text style={styles.heading}>The Hub</Text>
                     <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }}  onPress={handleOpenHub} />
                 </View>
-
-                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
-                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
-                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
-                    <ExploreHub roomData={{ movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true }} />
-                </ScrollView> */}
 
                 <FlatList 
                     horizontal 
@@ -119,6 +112,7 @@ export default function ExplorePage({ route }) {
             </ScrollView>
             <BottomHeader userInfo={userInfo} />
         </View>
+
     );
 }
 

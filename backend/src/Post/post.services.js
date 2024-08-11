@@ -456,6 +456,11 @@ exports.getCountCommentsOfPost = async (postId) => {
              RETURN count(c) AS totalComments`,
             { postId }
         );
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        }
+
         const totalComments = result.records[0].get('totalComments').toInt();
         return totalComments;
     } catch (error) {
@@ -475,6 +480,11 @@ exports.getCountCommentsOfReview = async (reviewId) => {
              RETURN count(c) AS totalComments`,
             { reviewId }
         );
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        } 
+        
         const totalComments = result.records[0].get('totalComments').toInt();
         return totalComments;
     } catch (error) {

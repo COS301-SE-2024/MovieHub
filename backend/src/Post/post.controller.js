@@ -268,10 +268,10 @@ exports.getCountCommentsOfPost = async (req, res) => {
     try {
         const postId = req.params.postId;
         const postCommentCount = await postService.getCountCommentsOfPost(postId);
-        if (postCommentCount)
+      //  if (postCommentCount)
             responseHandler(res, 200, 'Post comment count fetched successfully', postCommentCount);
-        else
-            res.status(400).json({ message: 'Error fetching post comment count' });
+        // else
+        //     res.status(400).json({ message: 'Error fetching post comment count' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -281,10 +281,10 @@ exports.getCountCommentsOfReview = async (req, res) => {
     try {
         const reviewId = req.params.reviewId;
         const reviewCommentCount = await postService.getCountCommentsOfReview(reviewId);
-        if (reviewCommentCount)
+      //  if (reviewCommentCount)
             responseHandler(res, 200, 'Review comment count fetched successfully', reviewCommentCount);
-        else
-            res.status(400).json({ message: 'Error fetching review comment count' });
+        // else
+        //     res.status(400).json({ message: 'Error fetching review comment count' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }

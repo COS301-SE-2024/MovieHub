@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable } from "react-native";
+
+import TrendingMovie from "../Components/TrendingMovies";
+import BottomHeader from "../Components/BottomHeader";
 import { useNavigation } from "@react-navigation/native";
 import { getMovies } from "../api";
+import { getFriendsContent } from "../Services/ExploreApiService";
+import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
+import { getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
+import Genres from "../Components/Genres";
+import Rating from "../Components/Rating";
+
 import Svg, { Rect } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -9,7 +18,9 @@ import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
 import Post from "../Components/Post";
+import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
+import moment from "moment";
 
 import { LogBox } from 'react-native';
 
@@ -78,26 +89,71 @@ const VirtualizedList = ({ children }) => {
     return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} />;
 };
 
+// Helper function to format the post date
+const formatDate = (date) => {
+    return moment(date).fromNow(); // Using moment.js to format the date as 'X time ago'
+};
+
+
 const Home = ({ route }) => {
-    //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
     const navigation = useNavigation();
-    const [movies, setMovies] = React.useState([]);
-    const scrollX = React.useRef(new Animated.Value(0)).current;
-    React.useEffect(() => {
+    const [movies, setMovies] = useState([]);
+   // const [friendsContent, setFriendsContent] = useState([]);
+    const [sortedContent, setSortedContent] = useState([]);
+    const scrollX = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
         const fetchData = async () => {
-            const movies = await getMovies();
-            // Add empty items to create fake space
-            // [empty_item, ...movies, empty_item]
-            setMovies([{ key: "empty-left" }, ...movies, { key: "empty-right" }]);
+            try {
+                const movies = await getMovies();
+                const friendsData = await getFriendsContent(userInfo);
+                // Extract posts and reviews
+                const { posts, reviews } = friendsData;
+
+                // Combine posts and reviews
+                const combinedContent = [
+                    ...posts.map(post => ({ ...post, type: 'post' })),
+                    ...reviews.map(review => ({ ...review, type: 'review' }))
+                ];
+
+                // Sort combined content by createdAt in descending order
+                const sortedContent = combinedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
+
+                // Fetch likes for each post and review
+                const enrichedContent = await Promise.all(
+                    sortedContent.map(async (content) => {
+                        if (content.type === 'post') {
+                            const likes = await getLikesOfPost(content.post.postId);
+                            const comments = await getCountCommentsOfPost(content.post.postId);
+                            console.log("Post likes: ", likes.data);
+                            console.log("Post comments: ", comments.data);
+                            return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
+                        }
+                        if (content.type === 'review') {
+                            const likes = await getLikesOfReview(content.review.reviewId);
+                            const comments = await getCountCommentsOfReview(content.review.reviewId);
+                            console.log("Review likes: ", likes.data);
+                            console.log("Review comments: ", comments.data);
+                            return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
+                        }
+                        return content;
+                    })
+                );
+
+                setMovies([{ key: "empty-left" }, ...movies, { key: "empty-right" }]);
+               // setFriendsContent(sortedFriendsContent);
+                setSortedContent(enrichedContent);
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            }
         };
 
-        if (movies.length === 0) {
-            fetchData(movies);
-        }
-    }, [movies]);
+        fetchData();
+    }, []);
 
-    if (movies.length === 0) {
+
+    if (movies.length === 0 || sortedContent.length === 0) {
         return <Loading />;
     }
 
@@ -173,12 +229,47 @@ const Home = ({ route }) => {
                             );
                         }}
                     />
-                    {/* Posts */}
-                    <View>
-                        <Text style={{ fontSize: 24, fontWeight: "bold", paddingLeft: 16, paddingBottom: 10, textAlign: "center" }}>Latest Posts</Text>
-                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
-                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
-                        <Post postId={1} uid={1} username={"test"} userAvatar={"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"} userHandle={"@test"} likes={0} comments={0} postTitle={"Fake title"} datePosted={"5h ago"} preview={"lorem ipsum dolor sit amet"} />
+                    {/* Friends' Content */}
+                    <View style={styles.friendsContent}>
+                        <Text style={styles.sectionTitle}>Feed</Text>
+                        {sortedContent.map((content, index) => (
+                            content.post ? ( // Check if post property exists
+                                <Post
+                                    key={index}
+                                    postId={content.post.postId}
+                                    uid={content.friend.uid}
+                                    username={content.friend.username}
+                                    userAvatar={content.friend.avatar}
+                                    userHandle={`@${content.friend.username}`}
+                                    likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
+                                    comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
+                                    postTitle={content.post.postTitle}
+                                    datePosted={formatDate(content.post.createdAt)} // Format the date
+                                    preview={content.post.text}
+                                    isUserPost={userInfo.userId == content.post.uid}
+                                />
+                            ) : null // Render nothing if post property does not exist
+                        ))}
+                        {sortedContent.map((content, index) => (
+                            content.review ? ( // Check if review property exists
+                                <Review
+                                    key={index}
+                                    reviewId={content.review.reviewId}
+                                    uid={content.friend.uid}
+                                    username={content.friend.username}
+                                    userHandle={`@${content.friend.username}`}
+                                    userAvatar={content.friend.avatar}
+                                    likes={content.review.likeCount ?? 0} // Update with actual likes data if available
+                                    comments={content.review.commentCount ?? 0} // Update with actual comments data if available
+                                    reviewTitle={content.review.reviewTitle}
+                                    preview={content.review.text}
+                                    dateReviewed={formatDate(content.review.createdAt)}
+                                    movieName={content.review.movieTitle}
+                                    rating={content.review.rating}
+                                    isUserReview={userInfo.userId==content.review.uid}
+                                />
+                            ) : null // Render nothing if review property does not exist
+                        ))}
                     </View>
                 </View>
             </VirtualizedList>
@@ -210,6 +301,15 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         margin: 0,
         marginBottom: 10,
+    },
+    friendsContent: {
+        padding: 16,
+    },
+    sectionTitle: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 10,
+        textAlign: "center",
     },
 });
 
