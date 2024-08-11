@@ -37,7 +37,6 @@ export default function EditProfile({ route }) {
                 case "username":
                 case "name":
                 case "bio":
-                case "avatar":
                 case "pronouns":
                     updatedData[field] = modalContent[field].tempValue;
                     setModalContent({
@@ -60,6 +59,9 @@ export default function EditProfile({ route }) {
                         },
                     });
                     break;
+                case "avatar":
+                    updatedData[field] = avatar;
+                    break;
                 default:
                     break;
             }
@@ -70,10 +72,12 @@ export default function EditProfile({ route }) {
             setModalContent((prevState) => {
                 const newState = { ...prevState };
                 Object.keys(updatedData).forEach((key) => {
-                    newState[key] = {
-                        ...newState[key],
-                        newValue: updatedUser[key],
-                    };
+                    if (key !== 'avatar') {
+                        newState[key] = {
+                            ...newState[key],
+                            newValue: updatedUser[key],
+                        };
+                    }
                 });
                 return newState;
             });
@@ -137,8 +141,8 @@ export default function EditProfile({ route }) {
         const name = pickerResult.assets[0].fileName;
         // console.log('Uploading image', uri, name);
         const avatarUrl = await uploadImage(uri, name, 'profile');
-        // console.log('Uploaded', avatarUrl);
-        setAvatar(avatarUrl);                       
+        console.log('Uploaded', avatarUrl);
+        setAvatar(uri);                       
         applyChanges('avatar');     //From here on I dont know what should be happening
     };
 

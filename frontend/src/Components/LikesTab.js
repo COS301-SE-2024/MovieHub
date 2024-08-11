@@ -7,6 +7,7 @@ import { getCountCommentsOfPost } from "../Services/PostsApiServices";
 
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
     const [likedPosts, setLikedPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
