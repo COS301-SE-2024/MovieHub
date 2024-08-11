@@ -82,11 +82,13 @@ const formatDate = (date) => {
     return moment(date).fromNow(); // Using moment.js to format the date as 'X time ago'
 };
 
+
 const Home = ({ route }) => {
     const { userInfo } = route.params;
     const navigation = useNavigation();
     const [movies, setMovies] = useState([]);
-    const [friendsContent, setFriendsContent] = useState([]);
+   // const [friendsContent, setFriendsContent] = useState([]);
+    const [sortedContent, setSortedContent] = useState([]);
     const scrollX = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -94,53 +96,35 @@ const Home = ({ route }) => {
             try {
                 const movies = await getMovies();
                 const friendsData = await getFriendsContent(userInfo);
+                // Extract posts and reviews
+                const { posts, reviews } = friendsData;
 
-               // console.log("Friends data structure:", friendsData);  // Log the entire friendsData structure
+                // Combine posts and reviews
+                const combinedContent = [
+                    ...posts.map(post => ({ ...post, type: 'post' })),
+                    ...reviews.map(review => ({ ...review, type: 'review' }))
+                ];
+
+                // Sort combined content by createdAt in descending order
+                const sortedContent = combinedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
 
                 // Fetch likes for each post and review
-                const enrichedFriendsContent = await Promise.all(
-                    friendsData.map(async (content) => {
-                        if (content.review) {
-                     //       console.log("Review detected:", content.review);  // Check if this log appears
-                            const likes = await getLikesOfReview(content.review.reviewId);
-                            console.log("Review ID:", content.review.reviewId, "Likes:", likes.data, "\n");
-                            return { ...content, review: { ...content.review, likeCount: likes.data } };
-                        }
-
-                        if (content.post) {
+                const enrichedContent = await Promise.all(
+                    sortedContent.map(async (content) => {
+                        if (content.type === 'post') {
                             const likes = await getLikesOfPost(content.post.postId);
-                            console.log("Post ID:", content.post.postId, "Likes:", likes.data, "\n");
-                            return { ...content, post: { ...content.post, likeCount: likes.data } };
+                            return { ...content, likes };
+                        } else if (content.type === 'review') {
+                            const likes = await getLikesOfReview(content.review.reviewId);
+                            return { ...content, likes };
                         }
-
-                        
-
-                        return content;  // Return the content as-is if neither post nor review is present
+                        return content;
                     })
                 );
 
-                // Sort posts and reviews by the most recent date
-                const sortedFriendsContent = enrichedFriendsContent.sort((a, b) => {
-                    const dateA = a.post
-                        ? new Date(a.post.createdAt)
-                        : a.review
-                            ? new Date(a.review.createdAt)
-                            : null;
-
-                    const dateB = b.post
-                        ? new Date(b.post.createdAt)
-                        : b.review
-                            ? new Date(b.review.createdAt)
-                            : null;
-
-                    if (!dateA || !dateB) {
-                        return 0; // Handle case where either date is null
-                    }
-                    return dateB - dateA;
-                });
-
                 setMovies([{ key: "empty-left" }, ...movies, { key: "empty-right" }]);
-                setFriendsContent(sortedFriendsContent);
+               // setFriendsContent(sortedFriendsContent);
+                setSortedContent(enrichedContent);
             } catch (error) {
                 console.error("Failed to fetch data:", error);
             }
@@ -150,7 +134,7 @@ const Home = ({ route }) => {
     }, []);
 
 
-    if (movies.length === 0 || friendsContent.length === 0) {
+    if (movies.length === 0 || sortedContent.length === 0) {
         return <Loading />;
     }
 
@@ -229,7 +213,7 @@ const Home = ({ route }) => {
                     {/* Friends' Content */}
                     <View style={styles.friendsContent}>
                         <Text style={styles.sectionTitle}>Feed</Text>
-                        {friendsContent.map((content, index) => (
+                        {sortedContent.map((content, index) => (
                             content.post ? ( // Check if post property exists
                                 <Post
                                     key={index}
@@ -247,7 +231,7 @@ const Home = ({ route }) => {
                                 />
                             ) : null // Render nothing if post property does not exist
                         ))}
-                        {friendsContent.map((content, index) => (
+                        {sortedContent.map((content, index) => (
                             content.review ? ( // Check if review property exists
                                 <Review
                                     key={index}
