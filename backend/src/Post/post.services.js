@@ -37,7 +37,7 @@ exports.addPost = async (uid,text, postTitle, img) => {
 };
 
 
-exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle) => {
+exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle, img) => {
     console.log("In Services: addReview");
 
     const movieAdded = await addMovie(movieId);
@@ -49,10 +49,10 @@ exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle) 
         const reviewId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name, movieTitle: $movieTitle})
+             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, img: $img, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name, movieTitle: $movieTitle})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
-            { uid, movieId, text, rating, reviewId, reviewTitle, movieTitle, createdAt, updatedAt }
+            { uid, movieId, text, rating, reviewId, reviewTitle, movieTitle,img, createdAt, updatedAt }
         );
         console.log("The Result: ", result.summary);
         return result.records[0].get('r').properties;
@@ -163,16 +163,16 @@ exports.editPost = async (postId, uid, text, postTitle, img) => {
     }
 };
 
-exports.editReview = async (reviewId, uid, text,reviewTitle ,rating) => {
+exports.editReview = async (reviewId, uid, text,reviewTitle ,rating, img) => {
     console.log("In Services: editReview");
     const session = driver.session();
     const updatedAt = new Date().toISOString();
     try {
         const result = await session.run(
             `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
-             SET r.text = $text, r.updatedAt = $updatedAt, r.rating = $rating, r.reviewTitle = $reviewTitle
+             SET r.text = $text, r.updatedAt = $updatedAt, r.rating = $rating, r.reviewTitle = $reviewTitle,r.img = $img
              RETURN r`,
-            { reviewId, uid, text,reviewTitle ,rating, updatedAt }
+            { reviewId, uid, text,reviewTitle ,rating, updatedAt, img }
         );
         if (result.records.length === 0) {
             throw new Error("Review not found or user not authorized to edit this review");

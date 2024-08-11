@@ -17,9 +17,9 @@ exports.addPost = async (req, res) => {
 };
 
 exports.addReview = async (req, res) => {
-    const { uid, movieId, text, rating, reviewTitle, movieTitle } = req.body;
+    const { uid, movieId, text, img, rating,  reviewTitle, movieTitle } = req.body;
     try {
-        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle, movieTitle);
+        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle, movieTitle, img);
         if (review)
             responseHandler(res, 201, 'Review added successfully', review);
         else 
@@ -88,9 +88,9 @@ exports.editPost = async (req, res) => {
 };
 
 exports.editReview = async (req, res) => {
-    const { reviewId, uid, text, reviewTitle, rating } = req.body;
+    const { reviewId, uid, text, reviewTitle, rating, img } = req.body;
     try {
-        const review = await postService.editReview(reviewId, uid, text, reviewTitle ,rating);
+        const review = await postService.editReview(reviewId, uid, text, reviewTitle ,rating, img);
         if (review)
             responseHandler(res, 200, 'Review edited successfully', review);
         else
