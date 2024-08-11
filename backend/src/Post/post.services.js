@@ -14,8 +14,6 @@ const driver = neo4j.driver(
 
 exports.addPost = async (uid,text, postTitle, img) => {
     console.log("In Services: addPost");
-
-
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;

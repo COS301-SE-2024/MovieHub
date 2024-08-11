@@ -51,6 +51,7 @@ export default function CreatePost({ route }) {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
+            includeBase64: true,
             quality: 1,
         });
 
@@ -98,7 +99,8 @@ export default function CreatePost({ route }) {
 
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
 
-            img: null,
+            img: imageUri,
+
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0,
         };
