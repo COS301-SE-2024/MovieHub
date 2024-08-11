@@ -202,6 +202,50 @@ exports.getFriends = async (userId) => {
     }
 };
 
+// Get followers of a user
+exports.getFollowers = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (follower:User)-[:FOLLOWS]->(user:User {uid: $userId})
+             RETURN follower`,
+            { userId }
+        );
+
+        const followers = result.records.map(record => record.get('follower').properties);
+
+        return followers;
+    } catch (error) {
+        console.error("Error fetching followers:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Get users that a user is following
+exports.getFollowing = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (user:User {uid: $userId})-[:FOLLOWS]->(following:User)
+             RETURN following`,
+            { userId }
+        );
+
+        const following = result.records.map(record => record.get('following').properties);
+
+        return following;
+    } catch (error) {
+        console.error("Error fetching following users:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Close the driver when the application exits
 process.on('exit', async () => {

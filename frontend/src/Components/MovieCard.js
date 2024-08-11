@@ -7,7 +7,7 @@ import image1 from "../../../assets/Assassin_movie.jpg";
 import image2 from "../../../assets/oppenheimer_movie.jpg";
 import image3 from "../../../assets/moonlight.jpg";
 
-export default function MovieCard({movieId, imageUrl,title, rating, overview, date}) {
+export default function MovieCard({movieId, imageUrl, title, rating, overview, date}) {
 
     const navigation = useNavigation();
 

@@ -1,8 +1,9 @@
 
+import {uploadImage} from '../services/imageHandeling.services';
 const { v4: uuidv4 } = require('uuid');
-
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
+import { addMovie } from '../movieHandeling/movie.services';
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -11,12 +12,8 @@ const driver = neo4j.driver(
 
 //POSTS//
 
-exports.addPost = async (uid, movieId, text, postTitle, img) => {
+exports.addPost = async (uid,text, postTitle, img) => {
     console.log("In Services: addPost");
-    movieId = Number(movieId);
-    if(img == null){
-        img = "empty";
-    }
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
@@ -24,10 +21,10 @@ exports.addPost = async (uid, movieId, text, postTitle, img) => {
         const postId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, postTitle: $postTitle, img: $img, username : u.username, avatar : u.avatar, name : u.name})
+             CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postTitle: $postTitle, img: $img, username : u.username, avatar : u.avatar, name : u.name})
              CREATE (u)-[:POSTED]->(p)-[:POSTED_ON]->(m)
              RETURN p`,
-            { uid, movieId, text, postId, postTitle, img, createdAt, updatedAt }
+            { uid, text, postId, postTitle, img, createdAt, updatedAt }
         );
         console.log("The Result: ", result.summary);
         return result.records[0].get('p').properties;
@@ -40,9 +37,11 @@ exports.addPost = async (uid, movieId, text, postTitle, img) => {
 };
 
 
-exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle) => {
+exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle, img) => {
     console.log("In Services: addReview");
-    movieId = Number(movieId);
+
+    const movieAdded = await addMovie(movieId);
+
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
@@ -50,10 +49,10 @@ exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle) 
         const reviewId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name, movieTitle: $movieTitle})
+             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, img: $img, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name, movieTitle: $movieTitle})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
-            { uid, movieId, text, rating, reviewId, reviewTitle, movieTitle, createdAt, updatedAt }
+            { uid, movieId, text, rating, reviewId, reviewTitle, movieTitle,img, createdAt, updatedAt }
         );
         console.log("The Result: ", result.summary);
         return result.records[0].get('r').properties;
@@ -164,16 +163,16 @@ exports.editPost = async (postId, uid, text, postTitle, img) => {
     }
 };
 
-exports.editReview = async (reviewId, uid, text,reviewTitle ,rating) => {
+exports.editReview = async (reviewId, uid, text,reviewTitle ,rating, img) => {
     console.log("In Services: editReview");
     const session = driver.session();
     const updatedAt = new Date().toISOString();
     try {
         const result = await session.run(
             `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
-             SET r.text = $text, r.updatedAt = $updatedAt, r.rating = $rating, r.reviewTitle = $reviewTitle
+             SET r.text = $text, r.updatedAt = $updatedAt, r.rating = $rating, r.reviewTitle = $reviewTitle,r.img = $img
              RETURN r`,
-            { reviewId, uid, text,reviewTitle ,rating, updatedAt }
+            { reviewId, uid, text,reviewTitle ,rating, updatedAt, img }
         );
         if (result.records.length === 0) {
             throw new Error("Review not found or user not authorized to edit this review");
@@ -271,27 +270,7 @@ exports.removeComment = async (commentId, uid) => {
 
 //GETS//
 
-exports.getPostsOfMovie = async (movieId) => {
-    console.log("In Services: getPostsOfMovie");
-    const session = driver.session();
-    movieId = Number(movieId);
-    try {
-        const result = await session.run(
-            `MATCH (m:Movie {movieId: $movieId})<-[:POSTED_ON]-(p:Post)
-             RETURN p`,
-            { movieId }
-        );
-        if (result.records.length === 0) {
-            return result.records;
-        }
-        return result.records.map(record => record.get('p').properties);
-    } catch (error) {
-        console.error("Error getting posts of movie: ", error);
-        throw error;
-    } finally {
-        await session.close();
-    }
-};
+
 
 exports.getReviewsOfMovie = async (movieId) => {
     console.log("In Services: getReviewsOfMovie");

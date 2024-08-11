@@ -43,7 +43,7 @@ export default function ProfilePage({ route }) {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
             setUserProfile(response);
-            // console.log("Response:", response);
+            console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);

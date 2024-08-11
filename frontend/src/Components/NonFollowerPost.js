@@ -7,12 +7,16 @@ import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
+import { followUser, unfollowUser } from '../Services/UsersApiService';
+import { removePost } from "../Services/PostsApiServices";
+import { toggleLikePost } from "../Services/LikesApiService";
 
-export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo }) {
+export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
     const [modalVisible, setModalVisible] = useState(false); 
+    const [isFollowing, setIsFollowing] = useState(false);
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
@@ -22,16 +26,52 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
 
     const navigation = useNavigation();
 
+    console.log("yayy User Info:", otherUserInfo);
+
     const handlePress = () => {
-        navigation.navigate("Profile", {userInfo, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted});
+        navigation.navigate("Profile", {
+            userInfo,
+            otherUserInfo
+        });
     };
 
-    const [isFollowing, setIsFollowing] = useState(false);
+    
+ 
+    const toggleFollow = async () => {
+        try {
+            console.log("This is the current users info: ", userInfo);
+            console.log("This is the other users info: ", otherUserInfo);
+            if (isFollowing) {
+                await unfollowUser(userInfo.userId, otherUserInfo.uid);
+            } else {
+                await followUser(userInfo.userId, otherUserInfo.uid);
+            }
+            setIsFollowing(!isFollowing);
+        } catch (error) {
+            console.error('Error toggling follow state:', error);
+        }
+    };
+
+    // Calculate time difference
+    const timeDifference = () => {
+        const now = new Date();
+        const postDate = new Date(datePosted);
+        const diffInSeconds = (now - postDate) / 1000;
+        const diffInHours = diffInSeconds / 3600;
+        const diffInDays = diffInHours / 24;
+
+        if (diffInDays >= 1) {
+            return `${Math.floor(diffInDays)}d`;
+        } else {
+            return `${Math.floor(diffInHours)}h`;
+        }
+    };
+
 
     const styles = StyleSheet.create({
         container: {
             backgroundColor: theme.backgroundColor,
-            paddingHorizontal: 25,
+            paddingHorizontal: 10,
             paddingVertical: 15,
             shadowColor: "#000",
             shadowOffset: {
@@ -44,6 +84,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             // elevation: 5,
             borderTopWidth: 0, 
             borderBottomWidth: 0.3, 
+            borderTopWidth: 0.3,
         },
         avatar: {
             width: 50,
@@ -60,6 +101,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             fontSize: 18,
             fontWeight: "bold",
             color: theme.textColor,
+            marginRight: 10,
         },
         userHandle: {
             color: theme.gray,
@@ -149,6 +191,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             width: 90, 
             alignItems: 'center',
             justifyContent: 'center',
+            
         },
         followingText: {
             color: 'white',
@@ -156,9 +199,9 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         },
     });
 
-    const toggleFollow = () => {
-        setIsFollowing(!isFollowing);
-    };
+    // const toggleFollow = () => {
+    //     setIsFollowing(!isFollowing);
+    // };
 
     
 
@@ -170,7 +213,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                 </TouchableOpacity>
                 <View style={{ alignItems: "left" }}>
                     <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>{userHandle} &bull; 3h</Text>
+                    <Text style={styles.userHandle}>{userHandle} &bull; {timeDifference()}</Text>
                 </View>
                 <TouchableOpacity style={styles.followingButton} onPress={toggleFollow}>
                     <Text style={styles.followingText}>{isFollowing ? 'Following' : 'Follow'}</Text>

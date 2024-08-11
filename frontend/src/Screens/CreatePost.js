@@ -51,6 +51,7 @@ export default function CreatePost({ route }) {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
+            includeBase64: true,
             quality: 1,
         });
 
@@ -95,9 +96,8 @@ export default function CreatePost({ route }) {
         const postData = {
             postTitle: title,
             text: thoughts,
-            uid: userInfo.userId,
-            movieId: 843527.0,
-            img: null,
+            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            img: imageUri,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0,
         };
@@ -136,7 +136,7 @@ export default function CreatePost({ route }) {
             movieId: 843527.0,
             reviewTitle: title,
             text: thoughts,
-            img: null,
+            img: imageUri,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0,
             movieTitle: movieSearch,

@@ -1,23 +1,7 @@
-// backend/users/users.controller.js
-// const express = require('express');
-// const path = require('path');
 const userService = require('./users.services');
 
 let userProfileData;
 let watchlistsData;
-
-// exports.getUserProfile = async (req, res) => {
-//     const userId = req.params.userId;
-//     try {
-//         const user = await userService.getUserProfile(userId);
-//         if (!user) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-//         res.json(user);
-//     } catch (error) {
-//         res.status(500).json({ message: 'Error retrieving user profile', error });
-//     }
-// };
 
 exports.getUserProfile = async (req, res) => {
     console.log('getUserProfile called in user.controller');
@@ -39,8 +23,6 @@ exports.getUserProfile = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
-
-//console.log('User profile username: ' + userProfileData);
 
 exports.updateUserProfile = async (req, res) => {
     const userId = req.params.id;
@@ -64,10 +46,9 @@ exports.deleteUserProfile = async (req, res) => {
    try {
         console.log(`Deleting user profile for ID: ${userId}`);
         const result = await userService.deleteUserProfile(userId);
-        console.log(result);
-        if (result.success) {
+        console.log("Res in controller: ",result);
+        if (result) {
             res.status(200).json({ message: 'User deleted successfully' });
-           // console.log(`'User deleted successfully'`);
         } else {
             res.status(404).json({ message: 'User not found' });
         }
@@ -76,29 +57,31 @@ exports.deleteUserProfile = async (req, res) => {
     }
 };
 
-
 exports.getUserWatchlists = async (req, res) => {
-    const userId  = req.params.id;
+    console.log('getUserWatchlists called in user.controller');
+    const userId = req.params.id;
 
     try {
+        console.log(`Fetching watchlists for user ID: ${userId}`);
         const watchlists = await userService.getUserWatchlists(userId);
         if (watchlists) {
-            watchlistsData = watchlists
-
-            console.log('Watchlists' + watchlists.name);
+            console.log('Watchlists: ' + watchlists.name);
             res.status(200).json(watchlists);
         } else {
             res.status(404).json({ message: 'User not found' });
         }
-      //  res.status(200).json(watchlists);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error fetching watchlists:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
 
 // Follow a user
 exports.followUser = async (req, res) => {
     const { followerId, followeeId } = req.body;
+    if (!followerId || !followeeId) {
+        return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
+    }
     try {
         const response = await userService.followUser(followerId, followeeId);
         res.status(200).json(response);
@@ -111,6 +94,9 @@ exports.followUser = async (req, res) => {
 // Unfollow a user
 exports.unfollowUser = async (req, res) => {
     const { followerId, followeeId } = req.body;
+    if (!followerId || !followeeId) {
+        return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
+    }
     try {
         const response = await userService.unfollowUser(followerId, followeeId);
         res.status(200).json(response);
@@ -125,9 +111,37 @@ exports.getFriends = async (req, res) => {
     const userId = req.params.id;
     try {
         const friends = await userService.getFriends(userId);
-        res.status(200).json(friends);
+        if (friends) {
+            res.status(200).json(friends);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
     } catch (error) {
         console.error('Error fetching friends:', error);
         res.status(500).json({ message: 'Error fetching friends', error: error.message });
+    }
+};
+
+// Get followers of a user
+exports.getFollowers = async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const followers = await userService.getFollowers(userId);
+        res.status(200).json(followers);
+    } catch (error) {
+        console.error('Error fetching followers:', error);
+        res.status(500).json({ message: 'Error fetching followers', error: error.message });
+    }
+};
+
+// Get users that a user is following
+exports.getFollowing = async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const following = await userService.getFollowing(userId);
+        res.status(200).json(following);
+    } catch (error) {
+        console.error('Error fetching following users:', error);
+        res.status(500).json({ message: 'Error fetching following users', error: error.message });
     }
 };
