@@ -113,10 +113,13 @@ const Home = ({ route }) => {
                     sortedContent.map(async (content) => {
                         if (content.type === 'post') {
                             const likes = await getLikesOfPost(content.post.postId);
-                            return { ...content, likes };
-                        } else if (content.type === 'review') {
+                            console.log("Post likes: ", likes.data);
+                            return { ...content, post: { ...content.post, likeCount: likes.data } };
+                        } 
+                        if (content.type === 'review') {
                             const likes = await getLikesOfReview(content.review.reviewId);
-                            return { ...content, likes };
+                            console.log("Review likes: ", likes.data);
+                            return { ...content, review: { ...content.review, likeCount: likes.data } };
                         }
                         return content;
                     })
