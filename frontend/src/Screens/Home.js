@@ -5,6 +5,7 @@ import BottomHeader from "../Components/BottomHeader";
 import { useNavigation } from "@react-navigation/native";
 import { getMovies } from "../api";
 import { getFriendsContent } from "../Services/ExploreApiService";
+import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
 import Svg, { Rect } from "react-native-svg";
@@ -94,10 +95,49 @@ const Home = ({ route }) => {
                 const movies = await getMovies();
                 const friendsData = await getFriendsContent(userInfo);
 
-                // Sort posts by most recent date
-                const sortedFriendsContent = friendsData.sort(
-                    (a, b) => new Date(b.post.createdAt) - new Date(a.post.createdAt)
+               // console.log("Friends data structure:", friendsData);  // Log the entire friendsData structure
+
+                // Fetch likes for each post and review
+                const enrichedFriendsContent = await Promise.all(
+                    friendsData.map(async (content) => {
+                        if (content.review) {
+                     //       console.log("Review detected:", content.review);  // Check if this log appears
+                            const likes = await getLikesOfReview(content.review.reviewId);
+                            console.log("Review ID:", content.review.reviewId, "Likes:", likes.data, "\n");
+                            return { ...content, review: { ...content.review, likeCount: likes.data } };
+                        }
+
+                        if (content.post) {
+                            const likes = await getLikesOfPost(content.post.postId);
+                            console.log("Post ID:", content.post.postId, "Likes:", likes.data, "\n");
+                            return { ...content, post: { ...content.post, likeCount: likes.data } };
+                        }
+
+                        
+
+                        return content;  // Return the content as-is if neither post nor review is present
+                    })
                 );
+
+                // Sort posts and reviews by the most recent date
+                const sortedFriendsContent = enrichedFriendsContent.sort((a, b) => {
+                    const dateA = a.post
+                        ? new Date(a.post.createdAt)
+                        : a.review
+                            ? new Date(a.review.createdAt)
+                            : null;
+
+                    const dateB = b.post
+                        ? new Date(b.post.createdAt)
+                        : b.review
+                            ? new Date(b.review.createdAt)
+                            : null;
+
+                    if (!dateA || !dateB) {
+                        return 0; // Handle case where either date is null
+                    }
+                    return dateB - dateA;
+                });
 
                 setMovies([{ key: "empty-left" }, ...movies, { key: "empty-right" }]);
                 setFriendsContent(sortedFriendsContent);
@@ -108,6 +148,7 @@ const Home = ({ route }) => {
 
         fetchData();
     }, []);
+
 
     if (movies.length === 0 || friendsContent.length === 0) {
         return <Loading />;
@@ -187,23 +228,24 @@ const Home = ({ route }) => {
                     />
                     {/* Friends' Content */}
                     <View style={styles.friendsContent}>
-                        <Text style={styles.sectionTitle}>Friends' Content</Text>
+                        <Text style={styles.sectionTitle}>Feed</Text>
                         {friendsContent.map((content, index) => (
-                            <Post
-                                key={index}
-                                postId={content.post.postId}
-                                uid={content.friend.uid}
-                                username={content.friend.username}
-                                userAvatar={content.friend.avatar}
-                                userHandle={`@${content.friend.username}`}
-                                likes={0} // Update with actual likes data if available
-                                comments={0} // Update with actual comments data if available
-                                postTitle={content.post.postTitle}
-                                datePosted={formatDate(content.post.createdAt)} // Format the date
-                                preview={content.post.text}
-                                isUserPost={userInfo.userId == content.post.uid}
-                            />
-                            
+                            content.post ? ( // Check if post property exists
+                                <Post
+                                    key={index}
+                                    postId={content.post.postId}
+                                    uid={content.friend.uid}
+                                    username={content.friend.username}
+                                    userAvatar={content.friend.avatar}
+                                    userHandle={`@${content.friend.username}`}
+                                    likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
+                                    comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
+                                    postTitle={content.post.postTitle}
+                                    datePosted={formatDate(content.post.createdAt)} // Format the date
+                                    preview={content.post.text}
+                                    isUserPost={userInfo.userId == content.post.uid}
+                                />
+                            ) : null // Render nothing if post property does not exist
                         ))}
                         {friendsContent.map((content, index) => (
                             content.review ? ( // Check if review property exists
@@ -214,12 +256,12 @@ const Home = ({ route }) => {
                                     username={content.friend.username}
                                     userHandle={`@${content.friend.username}`}
                                     userAvatar={content.friend.avatar}
-                                    likes={0} // Update with actual likes data if available
+                                    likes={content.review.likeCount ?? 0} // Update with actual likes data if available
                                     comments={0} // Update with actual comments data if available
                                     reviewTitle={content.review.reviewTitle}
                                     preview={content.review.text}
                                     dateReviewed={formatDate(content.review.createdAt)}
-                                    movieName={content.movie.title}
+                                    movieName={content.review.movieTitle}
                                     rating={content.review.rating}
                                     isUserReview={userInfo.userId==content.review.uid}
                                 />

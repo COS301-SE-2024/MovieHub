@@ -75,6 +75,11 @@ exports.getLikesOfComment = async(commentId) => {
         );
 
         console.log(result);
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        }
+
         const likeCount = result.records[0].get('likeCount').toInt();
         return likeCount;
     } finally {
@@ -113,12 +118,23 @@ exports.getLikesOfPost = async (postId) => {
         );
 
         console.log(result);
+
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        }
+
         const likeCount = result.records[0].get('likeCount').toInt();
+        console.log("Check the like count: ", likeCount);
         return likeCount;
+    } catch (error) {
+        console.error("Error getting likes of post:", error);
+        return 0; // Return 0 in case of an error
     } finally {
         await session.close();
     }
 };
+
 
 // async function toggleLike(uid, entityId, entityType) {
 //     const session = driver.session();

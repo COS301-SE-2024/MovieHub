@@ -53,10 +53,10 @@ exports.getLikesOfReview = async (req, res) => {
     const reviewId = req.params.reviewId;
     try {
         const likes = await likesService.getLikesOfReview(reviewId);
-        if (likes)
+       // if (likes)
             responseHandler(res, 200, 'Likes fetched successfully', likes);
-        else
-            res.status(400).json({ message: 'Error fetching likes' });
+        // else
+        //     res.status(400).json({ message: 'Error fetching likes' });
     } catch (error) {
         // console.error('Error fetching likes:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -69,10 +69,8 @@ exports.getLikesOfPost = async (req, res) => {
     try {
         console.log(postId);
         const likes = await likesService.getLikesOfPost(postId);
-        if (likes)
             responseHandler(res, 200, 'Likes fetched successfully', likes);
-        else
-            res.status(400).json({ message: 'Error fetching likes' });
+    
     } catch (error) {
         // console.error('Error fetching likes:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
