@@ -3,11 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image,RefreshControl,ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import BottomHeader from '../Components/BottomHeader';
-import { getPopularMovies, getMoviesByGenre, getNewMovies, getTopPicksForToday,fetchClassicMovies } from '../Services/TMDBApiService';
-import { getMoviesByGenre, getMovieDetails } from "../Services/TMDBApiService";
+import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
 import { searchMoviesFuzzy, getMovieByQuote } from "../Services/esSearchApiServices";
-
 
 const genreMap = {
     12: "Adventure",
