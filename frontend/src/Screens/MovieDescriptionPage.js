@@ -79,7 +79,7 @@ export default function MovieDescriptionPage({ userInfo }) {
         const fetchColors = async () => {
             try {
                 const response = await axios.post(
-                    `http://192.168.225.19:3000/extract-colors`,
+                    `http://10.0.28.189:3000/extract-colors`,
                     { imageUrl },
                     {
                         headers: {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight + 80,
+        paddingTop: 50,
         width: '100%',
     },
     scrollContent: {
