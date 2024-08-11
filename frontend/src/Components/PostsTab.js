@@ -100,7 +100,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
 
     const handleDeleteReview = async (reviewId) => {
         try {
-            await removeReview({ postId: reviewId, uid: userInfo.userId });
+            await removeReview({ reviewId: reviewId, uid: userInfo.userId });
             setPosts(posts.filter(review => review.reviewId !== reviewId));
         } catch (error) {
             console.error("Error deleting review:", error);

@@ -77,10 +77,7 @@ export default function EditProfile({ route }) {
             const userId = userInfo.userId;
             const updatedUser = await updateUserProfile(userId, updatedData);
             console.log("Update went well", updatedUser);
-            Alert.alert('Success', 'Post deleted successfully!');
-
-            navigation.navigate('ProfilePage', { userinfo: userInfo });
-
+            
             setModalContent((prevState) => {
                 const newState = { ...prevState };
                 Object.keys(updatedData).forEach((key) => {
@@ -270,7 +267,7 @@ export default function EditProfile({ route }) {
                 </Modal>
             ))}
             <TouchableOpacity style={styles.entryButton} onPress={applyAllChanges}>
-                <Text style={styles.entryButtonText}>Apply All Changes</Text>
+                <Text style={styles.entryButtonText}>Save All Changes</Text>
             </TouchableOpacity>
         </ScrollView>
     );

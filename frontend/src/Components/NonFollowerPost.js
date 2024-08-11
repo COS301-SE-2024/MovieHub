@@ -71,7 +71,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     const styles = StyleSheet.create({
         container: {
             backgroundColor: theme.backgroundColor,
-            paddingHorizontal: 10,
+            paddingHorizontal: 25,
             paddingVertical: 15,
             shadowColor: "#000",
             shadowOffset: {
@@ -85,6 +85,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             borderTopWidth: 0, 
             borderBottomWidth: 0.3, 
             borderTopWidth: 0.3,
+            
         },
         avatar: {
             width: 50,

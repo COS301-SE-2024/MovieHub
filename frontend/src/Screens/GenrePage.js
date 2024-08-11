@@ -41,7 +41,7 @@ const GenrePage = () => {
     useEffect(() => {
         const fetchColors = async (imageUrl) => {
             try {
-                const response = await axios.post('http://10.0.0.103:3000/extract-colors', { imageUrl }, {
+                const response = await axios.post('http://10.0.28.189:3000/extract-colors', { imageUrl }, {
                     headers: {
                         'Content-Type': 'application/json',
                     },

@@ -2,14 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable } from "react-native";
 
 import TrendingMovie from "../Components/TrendingMovies";
-import BottomHeader from "../Components/BottomHeader";
 import { useNavigation } from "@react-navigation/native";
 import { getMovies } from "../api";
 import { getFriendsContent } from "../Services/ExploreApiService";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
-import Genres from "../Components/Genres";
-import Rating from "../Components/Rating";
 
 import Svg, { Rect } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
@@ -303,7 +300,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     friendsContent: {
-        padding: 16,
+        paddingVertical: 16,
     },
     sectionTitle: {
         fontSize: 24,
