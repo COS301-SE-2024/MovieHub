@@ -12,7 +12,7 @@ const lightTheme = {
 };
 
 const darkTheme = {
-    backgroundColor: '#000',
+    backgroundColor: '#191919',
     textColor: '#fff',
     iconColor: '#fff',
     gray: '#aaa',

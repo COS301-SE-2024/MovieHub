@@ -86,7 +86,7 @@ const HubScreen = ({ route }) => {
 
             {sections.map((section, index) => (
                 <View key={index} style={styles.section}>
-                    <TouchableOpacity style={styles.sectionHeader}>
+                    <TouchableOpacity style={styles.sectionHeader} onPress={() => navigation.navigate("Rooms", { userInfo })}>
                         <Text style={styles.sectionTitle}>{section.movieTitle}</Text>
                         <MatIcon name="chevron-right" size={24} style={{ marginBottom: 5, marginLeft: 6 }} />
                     </TouchableOpacity>
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 20,
-        fontWeight: "bold",
+        fontWeight: "500",
     },
     createRoomText: {
         fontSize: 16,

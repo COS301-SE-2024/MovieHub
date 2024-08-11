@@ -7,30 +7,46 @@ const SocialFeatures = () => {
             <Text style={styles.sectionHeading}>Following Other Users</Text>
             <Text style={styles.subHeading}>1. Finding Users to Follow:</Text>
             <Text style={styles.text}>
-                - <Text>Explore the Community:</Text> Use the search bar to find users by their username or explore the "Discover" section to find popular users.
+                - <Text>Explore the Community:</Text> Go to the "Explore Page" to find popular users.
             </Text>
             <Text style={styles.text}>
                 - <Text>Follow a User:</Text> Visit the profile of the user you want to follow. Click the "Follow" button to start following them. You will now see their reviews and activities in your feed.
             </Text>
             <Text style={styles.subHeading}>2. Managing Your Followers:</Text>
             <Text style={styles.text}>
-                - <Text>View Your Followers:</Text> Go to your profile and click on the "Followers" tab to see who is following you.
+                - <Text>View Your Followers:</Text> Go to your profile and click on "Followers" to see who is following you.
             </Text>
             <Text style={styles.text}>
                 - <Text>Unfollow a User:</Text> Visit the profile of the user you want to unfollow. Click the "Unfollow" button to stop following them.
             </Text>
 
-            <Text style={styles.sectionHeading}>Commenting on Reviews</Text>
+            <Text style={styles.sectionHeading}>Creating and Editing Content</Text>
+            <Text style={styles.subHeading}>1. Creating a Post or Review:</Text>
+            <Text style={styles.text}>
+                - <Text>Create a Post:</Text> Click on "+" on the bottom navigation and type in your post title and content. Click on "Post" to publish your post.
+            </Text>
+            <Text style={styles.text}>
+                - <Text>Create a Review:</Text> Click on "+" on the bottom navigation. Toggle the switch on top. Click on "Review" to publish your review after entering a title and content.
+            </Text>
+            <Text style={styles.subHeading}>2. Editing or Deleting a Post or Review:</Text>
+            <Text style={styles.text}>
+                - <Text>Edit a Post or Review:</Text> Find the post or review you want to edit on your profile page. Click on the three dots in the top right corner to access the edit button. Make your changes and click "Save" to update your post.
+            </Text>
+            <Text style={styles.text}>
+                - <Text>Delete a Post or Review:</Text> Find the post or review you want to delete on your profile page, click on the three dots in the top right corner and click the "Delete" button. Confirm the deletion to remove your post.
+            </Text>
+
+            <Text style={styles.sectionHeading}>Commenting on Reviews and Posts</Text>
             <Text style={styles.subHeading}>1. Adding a Comment:</Text>
             <Text style={styles.text}>
                 - <Text>Find a Review:</Text> Browse through movie pages or your feed to find a review you want to comment on.
             </Text>
             <Text style={styles.text}>
-                - <Text>Post a Comment:</Text> Click on the "Comment" button below the review. Type your comment in the text box and click "Post" to publish your comment.
+                - <Text>Post a Comment:</Text> Click on the "Comment" icon below the review. Type your comment in the text box and click on send to publish your comment.
             </Text>
             <Text style={styles.subHeading}>2. Editing or Deleting a Comment:</Text>
             <Text style={styles.text}>
-                - <Text>Edit a Comment:</Text> Find the comment you want to edit and click the "Edit" button. Make your changes and click "Save" to update your comment.
+                - <Text>Edit a Comment:</Text> Find the comment you want to edit on your profile page. Make your changes and click "Save" to update your comment.
             </Text>
             <Text style={styles.text}>
                 - <Text>Delete a Comment:</Text> Find the comment you want to delete and click the "Delete" button. Confirm the deletion to remove your comment.

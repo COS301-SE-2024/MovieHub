@@ -124,6 +124,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             fontWeight: "bold",
             textAlign: "center",
             marginBottom: 6,
+            color: theme.textColor,
         },
         subtitle: {
             fontSize: 14,
