@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -24,7 +24,7 @@ const CreateRoomScreen = ({ route }) => {
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
                     <MatIcon name="arrow-left" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Create Room</Text> 
+                <Text style={styles.title}>Create Room</Text>
             </View>
 
             <Text style={styles.label}>Room Name</Text>
@@ -107,13 +107,12 @@ const styles = StyleSheet.create({
     pickerContainer: {
         width: "100%",
         borderRadius: 5,
-        overflow: "hidden",
         backgroundColor: "#D9D9D9",
         marginBottom: 15,
     },
     picker: {
         width: "100%",
-        height: 50,
+        height: Platform.OS === 'ios' ? 150 : 50, // Adjust height for iOS
     },
     switchContainer: {
         flexDirection: "row",
