@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { getMovies } from "../api";
 import { getFriendsContent } from "../Services/ExploreApiService";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
+import { getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
 import Svg, { Rect } from "react-native-svg";
@@ -113,13 +114,17 @@ const Home = ({ route }) => {
                     sortedContent.map(async (content) => {
                         if (content.type === 'post') {
                             const likes = await getLikesOfPost(content.post.postId);
+                            const comments = await getCountCommentsOfPost(content.post.postId);
                             console.log("Post likes: ", likes.data);
-                            return { ...content, post: { ...content.post, likeCount: likes.data } };
-                        } 
+                            console.log("Post comments: ", comments.data);
+                            return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
+                        }
                         if (content.type === 'review') {
                             const likes = await getLikesOfReview(content.review.reviewId);
+                            const comments = await getCountCommentsOfReview(content.review.reviewId);
                             console.log("Review likes: ", likes.data);
-                            return { ...content, review: { ...content.review, likeCount: likes.data } };
+                            console.log("Review comments: ", comments.data);
+                            return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
                         }
                         return content;
                     })
@@ -244,7 +249,7 @@ const Home = ({ route }) => {
                                     userHandle={`@${content.friend.username}`}
                                     userAvatar={content.friend.avatar}
                                     likes={content.review.likeCount ?? 0} // Update with actual likes data if available
-                                    comments={0} // Update with actual comments data if available
+                                    comments={content.review.commentCount ?? 0} // Update with actual comments data if available
                                     reviewTitle={content.review.reviewTitle}
                                     preview={content.review.text}
                                     dateReviewed={formatDate(content.review.createdAt)}
