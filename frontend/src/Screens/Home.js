@@ -150,7 +150,7 @@ const Home = ({ route }) => {
     }, []);
 
 
-    if (movies.length === 0 || sortedContent.length === 0) {
+    if (movies.length === 0) {
         return <Loading />;
     }
 
