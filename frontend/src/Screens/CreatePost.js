@@ -14,7 +14,6 @@ export default function CreatePost({ route }) {
     const [movieSearch, setMovieSearch] = useState("");
     const [allowComments, setAllowComments] = useState(true);
     const [imageUri, setImageUri] = useState(null);
-    const [imageFile, setImageFile] = useState(null);
     const [rating, setRating] = useState(0); // Add state for rating
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -42,11 +41,11 @@ export default function CreatePost({ route }) {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
+            includeBase64: true,
             quality: 1,
         });
 
         if (!result.canceled) {
-            setImageFile(result.assets[0]);
             setImageUri(result.assets[0].uri);
         }
     };
@@ -66,7 +65,6 @@ export default function CreatePost({ route }) {
         });
 
         if (!result.canceled) {
-            setImageFile(result.assets[0]);
             setImageUri(result.assets[0].uri);
         } else {
         }
@@ -90,7 +88,7 @@ export default function CreatePost({ route }) {
             text: thoughts,
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             movieId: 843527.0,
-            img: imageFile,
+            img: imageUri,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0
         };
