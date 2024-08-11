@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator } from "react-native";
 import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
-import { useNavigation } from "@react-navigation/native";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import FAIcon from "@expo/vector-icons/FontAwesome5";
-//import { signUp } from "../../../backend/src/services/authService";
-import { registerUser } from "../Services/AuthApiService";
 import * as SecureStore from "expo-secure-store";
-import { ActivityIndicator } from "react-native";
+import { registerUser } from "../Services/AuthApiService";
 import { colors } from "../styles/theme";
 
 const SignupPage = () => {
@@ -62,11 +60,31 @@ const SignupPage = () => {
         navigation.navigate("LoginPage"); ///Change back to LoginPage
     };
 
+    const validatePassword = (password) => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return passwordRegex.test(password);
+    };
+
     const handleSignup = async () => {
+
+        if (!email || !password || !username || !confirmPassword) {
+            setError("All fields are required");
+            return;
+        }
+        if (!validatePassword(password)) {
+            setError("Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
+            return;
+        }    
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+        setError("Invalid email address format");
+        return;
+        }
         if (password !== confirmPassword) {
             setError("Passwords do not match");
             return;
         }
+
         if (username.length < 3) {
             setError("Username must be at least 3 characters long");
             return;
@@ -103,6 +121,11 @@ const SignupPage = () => {
     };
 
     const styles = StyleSheet.create({
+        scrollContainer: {
+            flexGrow: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
         title: {
             textAlign: "center",
             fontFamily: "Roboto",
@@ -115,8 +138,11 @@ const SignupPage = () => {
             textAlign: "center",
             fontFamily: "Roboto",
             color: "#000000",
-            fontSize: 20,
+            fontSize: 30,
             fontWeight: "bold",
+        },
+        tagline: {
+            color: "#7b7b7b",
         },
         newUsernameButton: {
             marginLeft: 8,
@@ -127,7 +153,7 @@ const SignupPage = () => {
             borderColor: "#7b7b7b",
             borderWidth: 1,
             paddingHorizontal: 10,
-            fontSize: 16,
+            // fontSize: 16,
             color: "#000",
             backgroundColor: "#fff",
             borderRadius: 5,
@@ -166,6 +192,7 @@ const SignupPage = () => {
             fontWeight: "bold",
             paddingBottom: 8,
             paddingTop: 20,
+
         },
         forgot: {
             alignItems: "flex-start",
@@ -185,10 +212,14 @@ const SignupPage = () => {
             textAlign: "center",
             fontWeight: "bold",
         },
+        loginText: {
+            color: colors.primary,
+            fontWeight: "500",
+        },
         link: {
-            fontSize: 15,
+            // fontSize: 15,
             textDecorationLine: "underline",
-            color: "#0f5bd1",
+            color: colors.primary,
         },
         signupLink: {
             flexDirection: "row",
@@ -221,70 +252,72 @@ const SignupPage = () => {
     });
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.logo}>movieHub.</Text>
-            <Text style={styles.title}>Create Account</Text>
-            <View style={{ paddingLeft: 27 }}>
-                <Text style={styles.label}>Username</Text>
-                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                    <TextInput style={styles.inputText} onChangeText={setUsername} value={username} placeholder="" />
-                    <TouchableOpacity style={styles.newUsernameButton} onPress={getRandomName} disabled={isLoadingUsername}>
-                        {isLoadingUsername ? (
-                            <ActivityIndicator size="small" color="black" />
-                        ) : (
-                            <FAIcon name="redo" size={20} color="black" />
-                        )}
-                    </TouchableOpacity>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <View style={styles.container}>
+                    <View style={{ flexDirection: "row", alignItems: "center", }}>
+                        <Text style={styles.logo}>MovieHub.</Text>
+                    </View>
+
+                    <Text style={styles.tagline}>Engage. Share. Discover.</Text>
+                    {/* <Text style={styles.title}>Create Account</Text> */}
+                    <View style={{ paddingLeft: 27 }}>
+                        <Text style={styles.label}>Username</Text>
+                        <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                            <TextInput style={styles.inputText} onChangeText={setUsername} value={username} placeholder="" />
+                            <TouchableOpacity style={styles.newUsernameButton} onPress={getRandomName} disabled={isLoadingUsername}>
+                                {isLoadingUsername ? <ActivityIndicator size="small" color={colors.primary} /> : <FAIcon name="redo" size={18} color={colors.primary} />}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput style={styles.inputText} onChangeText={setEmail} keyboardType="email-address" value={email} placeholder="" />
+                    </View>
+                    <View>
+                        <Text style={styles.label}>Password</Text>
+                        <View style={styles.passwordInputContainer}>
+                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} />
+                            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
+                                <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    {/* <View>
+                        <Text style={styles.label}>Confirm Password</Text>
+                        <View style={styles.passwordInputContainer}>
+                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
+                            <TouchableOpacity onPress={toggleConfirmPasswordVisibility} style={styles.passwordVisibilityButton}>
+                                <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                    </View> */}
+                    <View style={styles.btn}>
+                        <Pressable style={styles.button} onPress={handleSignup}>
+                            <Text style={styles.buttonText}>Sign Up</Text>
+                        </Pressable>
+                        {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text> : null}
+                    </View>
+                    <View style={styles.or}>
+                        <View style={styles.line} />
+                        <Text style={{ fontSize: 15, color: "#7b7b7b" }}>Or</Text>
+                        <View style={styles.line} />
+                    </View>
+                    <View style={styles.socialContainer}>
+                        <Image style={styles.socialLink} source={google} />
+                        <Image style={styles.socialLink} source={facebook} />
+                        <Image style={styles.socialLink} source={twitter} />
+                    </View>
+                    <View style={styles.signupLink}>
+                        <Text style={styles.loginText}>Already have an account? </Text>
+                        <TouchableOpacity onPress={handleExistingUser}>
+                            <Text style={styles.link}>Login</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-            <View>
-                <Text style={styles.label}>Email</Text>
-                <TextInput style={styles.inputText} onChangeText={setEmail} keyboardType="email-address" value={email} placeholder="" />
-            </View>
-            <View>
-                <Text style={styles.label}>Password</Text>
-                <View style={styles.passwordInputContainer}>
-                    <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} />
-                    <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
-                        <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <View>
-                <Text style={styles.label}>Confirm Password</Text>
-                <View style={styles.passwordInputContainer}>
-                    <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
-                    <TouchableOpacity onPress={toggleConfirmPasswordVisibility} style={styles.passwordVisibilityButton}>
-                        <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <View style={styles.btn}>
-                <Pressable style={styles.button} onPress={handleSignup}>
-                    <Text style={styles.buttonText}>Sign Up</Text>
-                </Pressable>
-                {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text> : null}
-            </View>
-            <View style={styles.or}>
-                <View style={styles.line} />
-                <Text style={{ fontSize: 15, color: "#7b7b7b" }}>Or</Text>
-                <View style={styles.line} />
-            </View>
-            <View style={styles.socialContainer}>
-                <Image style={styles.socialLink} source={google} />
-                <Image style={styles.socialLink} source={facebook} />
-                <Image style={styles.socialLink} source={twitter} />
-            </View>
-            <View style={styles.signupLink}>
-                <Text style={{ fontSize: 16 }}>Already have an account? </Text>
-                <TouchableOpacity onPress={handleExistingUser}>
-                    <Text style={styles.link}>Login</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
-
-
 
 export default SignupPage;

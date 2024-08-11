@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.225.19:3000/auth'; //// enter what url your expo is running on + our port 3000
+
+const API_URL = 'http://192.168.3.218:3000/auth'; //// enter what url your expo is running on + our port 3000
 
 export const registerUser = async (email, password, username) => {
     console.log("Inside AuthApi Service");
@@ -15,7 +16,7 @@ export const registerUser = async (email, password, username) => {
     console.log("*********");
     console.log(response);
     if (!response.ok) {
-        throw new Error('Failed to register user');
+        throw new Error('This email is already being used');
     }
  
     console.log("+++++++");
@@ -49,15 +50,15 @@ export const loginUser = async (email, password) => {
     console.log("Check the text dataaa\n", textData);
 
     if (!response.ok) {
-        console.error("Response not OK:", textData);
-        throw new Error('Failed to login user');
+        // console.error("Response not OK:", textData);
+        throw { status: response.status, message: textData };
     }
 
     let data;
     try {
         data = JSON.parse(textData);
     } catch (e) {
-        console.error("Error parsing JSON:", e);
+        // console.error("Error parsing JSON:", e);
         throw new Error(`Invalid JSON response: ${textData}`);
     }
 

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, ImageBackground } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import BottomHeader from "../Components/BottomHeader";
-import { getMoviesByGenre } from "../Services/TMDBApiService";
+
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, RefreshControl, ImageBackground, FlatList } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
+import { searchMoviesFuzzy, getMovieByQuote } from "../Services/esSearchApiServices";
 
 const genreMap = {
     12: "Adventure",
@@ -31,9 +32,35 @@ const genreMap = {
 const sortedGenres = Object.entries(genreMap).sort(([, a], [, b]) => a.localeCompare(b));
 
 const SearchPage = ({ route }) => {
-    const { userInfo } = route.params;
+
+    const { userInfo } = route.params || {};
     const navigation = useNavigation();
+    let [genreData, setGenreData] = useState({});
     const [genrePosters, setGenrePosters] = useState({});
+    const [searchResults, setSearchResults] = useState([]);
+
+    const genres = {
+        Action: 28,
+        Adventure: 12,
+        Animation: 16,
+        Comedy: 35,
+        Crime: 80,
+        Documentary: 99,
+        Drama: 18,
+        Family: 10751,
+        Fantasy: 14,
+        History: 36,
+        Horror: 27,
+        Musical: 10402,
+        Mystery: 9648,
+        Romance: 10749,
+        'Sci-Fi': 878,
+        Sport: 10770,
+        Thriller: 53
+    };
+
+    let [refreshing, setRefreshing] = useState(false);
+
 
     useEffect(() => {
         const fetchPosters = async () => {
@@ -58,30 +85,121 @@ const SearchPage = ({ route }) => {
         fetchPosters();
     }, []);
 
+    
+    const fetchMovies = async () => {
+        try {
+            const genreDataTemp = {};
+            for (let genre in genres) {
+                const genreId = genres[genre];
+
+                const top10 = await getMoviesByGenre(genreId, 'popularity.desc');
+                const mostWatched = await getTopPicksForToday(genreId);
+                const newMovies = await getNewMovies(genreId);
+                const topPicks = await getTopPicksForToday(genreId);
+                const classicMovies = await fetchClassicMovies(genreId);
+
+                genreDataTemp[genre] = {
+                    top10: top10.slice(0, 10),
+                    mostWatched: mostWatched.slice(0, 20),
+                    newMovies: newMovies.slice(0, 20),
+                    topPicks: topPicks.slice(0, 20),
+                    classics: classicMovies
+                };
+            }
+            setGenreData(genreDataTemp);
+
+            console.log('Genre Data in SearchPage:', genreData);
+        } catch (error) {
+
+            console.error('Error fetching movies:', error);
+        }
+    };
+
+    const fetchClassicMovies = async (genreId) => {
+        try {
+            const movies = await getMoviesByGenre(genreId);
+            return movies.filter(movie => movie.vote_average >= 8.0 && movie.popularity >= 100);
+        } catch (error) {
+            console.error(`Error fetching classic movies for genre ${genreId}:`, error);
+            return [];
+        }
+    };
+
+    
+
+    const handleRefresh = () => {
+        setRefreshing(true);
+        fetchMovies().then(() => setRefreshing(false));
+    };
+    
+
+        useEffect(() => {
+        fetchMovies();
+        }, []);
+
+    // const genres = ['Action','Adventure', 'Animation','Anime', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family','Fantasy', 'History','Horror','Musical','Mystery','Romance','Sci-Fi','Sport','Thriller'];
+    const handleSearch = async (text) => {
+        if (text === "") {
+            setSearchResults([]);
+            return;
+        }
+        try {
+            const results = await searchMoviesFuzzy(text);
+
+            // fetch posters as well and add onto results
+            const moviesWithPosters = await Promise.all(
+                results.movies.map(async (movie) => {
+                    const movieDetails = await getMovieDetails(movie._id);
+                    return { ...movie, poster_path: movieDetails.poster_path };
+                })
+            );
+            // Filter out movies with null poster paths
+            const validMovies = moviesWithPosters.filter((movie) => movie.poster_path !== null);
+
+            setSearchResults(validMovies);
+        } catch (error) {
+            console.error("Error searching movies:", error);
+        }
+    };
+
+    const handleSearchByQuote = async (quote) => {
+        const results = await getMovieByQuote(quote);
+
+        console.log(results);
+    };
+  
     const handleGenrePress = (genre) => {
-        navigation.navigate("GenrePage", { userInfo, genreName: genre });
+        navigation.navigate('GenrePage', { genreName: genre, genreData: genreData[genre] });
+    };
+
+    const renderMovieItem = ({ item }) => (
+        <TouchableOpacity style={styles.movieItem} onPress={() => handleMoviePress(item)}>
+            {item.poster_path !== "null" && <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }} style={styles.movieImage} resizeMode="cover" />}
+        </TouchableOpacity>
+    );
+
+    const renderGenreItem = ({ item }) => {
+        const [genreId, genre] = item;
+        return (
+            <TouchableOpacity key={genreId} style={styles.genreBox} onPress={() => handleGenrePress(genre)}>
+                <ImageBackground source={{ uri: genrePosters[genre] }} style={styles.genreImage} resizeMode="cover">
+                    <Text style={styles.genreText}>{genre}</Text>
+                </ImageBackground>
+            </TouchableOpacity>
+        );
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.searchBar}>
                 <Icon name="search" size={30} style={{ marginRight: 8 }} />
-                <TextInput style={styles.input} placeholder="Search movies, actors, or movie lines" />
+
+                <TextInput style={styles.input} placeholder="Search movies, actors, or movie lines" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
                 <Icon name="mic" size={30} color={"gray"} style={{ marginLeft: 8 }} />
             </View>
-            <Text style={styles.title}>Browse Genres</Text>
-            <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-                <View style={styles.grid}>
-                    {sortedGenres.map(([genreId, genre]) => (
-                        <TouchableOpacity key={genre} style={styles.genreBox} onPress={() => handleGenrePress(genre)}>
-                            <ImageBackground source={{ uri: genrePosters[genre] }} style={styles.genreImage} resizeMode="cover">
-                                <Text style={styles.genreText}>{genre}</Text>
-                            </ImageBackground>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            </ScrollView>
-            {/* <BottomHeader style={styles.bottomHeader} /> */}
+            <Text style={styles.title}>{searchResults.length > 0 ? "Search Results" : "Browse Genres"}</Text>
+            {searchResults.length > 0 ? <FlatList data={searchResults} renderItem={renderMovieItem} keyExtractor={(item) => item._id.toString()} numColumns={2} contentContainerStyle={styles.grid} showsVerticalScrollIndicator={false} /> : <FlatList data={sortedGenres} renderItem={renderGenreItem} keyExtractor={(item) => item[0]} numColumns={2} contentContainerStyle={styles.genreGrid} showsVerticalScrollIndicator={false} />}
+
         </View>
     );
 };
@@ -109,14 +227,9 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginVertical: 20,
     },
-    scrollContainer: {
-        flex: 1,
-    },
-    grid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
+    genreGrid: {
         justifyContent: "space-between",
-        paddingHorizontal: 5,
+
     },
     genreBox: {
         width: "48%",
@@ -125,6 +238,11 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 15,
+        marginHorizontal: "1%",
+    },
+    genreImage: {
+        width: "100%",
+        height: "100%",
     },
     genreImage: {
         width: "100%",
@@ -139,6 +257,27 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlignVertical: "center",
     },
+
+    grid: {
+        justifyContent: "space-between",
+    },
+    movieItem: {
+        width: "48%",
+        aspectRatio: 0.7, // Adjust this value to maintain the aspect ratio of the poster
+        backgroundColor: "#e1e1e1",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative",
+        borderRadius: 10,
+        marginHorizontal: "1%",
+        marginVertical: 8,
+    },
+    movieImage: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 10,
+    },
+
 });
 
 export default SearchPage;

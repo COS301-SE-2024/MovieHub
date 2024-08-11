@@ -3,9 +3,9 @@ import responseHandler from '../utils/responseHandler';
 
 // POSTS //
 exports.addPost = async (req, res) => {
-    const { uid, movieId, text, postTitle, img } = req.body;
+    const { uid, text, postTitle, img } = req.body;
     try {
-        const post = await postService.addPost(uid, movieId, text, postTitle, img);
+        const post = await postService.addPost(uid, text, postTitle, img);
         if (post)
             responseHandler(res, 201, 'Post added successfully', post);
         else 
@@ -17,9 +17,9 @@ exports.addPost = async (req, res) => {
 };
 
 exports.addReview = async (req, res) => {
-    const { uid, movieId, text, rating, reviewTitle, movieTitle } = req.body;
+    const { uid, movieId, text, img, rating,  reviewTitle, movieTitle } = req.body;
     try {
-        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle, movieTitle);
+        const review = await postService.addReview(uid, movieId, text, rating, reviewTitle, movieTitle, img);
         if (review)
             responseHandler(res, 201, 'Review added successfully', review);
         else 
@@ -88,9 +88,9 @@ exports.editPost = async (req, res) => {
 };
 
 exports.editReview = async (req, res) => {
-    const { reviewId, uid, text, reviewTitle, rating } = req.body;
+    const { reviewId, uid, text, reviewTitle, rating, img } = req.body;
     try {
-        const review = await postService.editReview(reviewId, uid, text, reviewTitle ,rating);
+        const review = await postService.editReview(reviewId, uid, text, reviewTitle ,rating, img);
         if (review)
             responseHandler(res, 200, 'Review edited successfully', review);
         else
@@ -156,18 +156,7 @@ exports.removeComment = async (req, res) => {
 };
 
 // GETS //
-exports.getPostsOfMovie = async (req, res) => {
-    try {
-        const movieId = req.params.movieId;
-        const posts = await postService.getPostsOfMovie(movieId);
-        if (posts)
-            responseHandler(res, 200, 'Posts fetched successfully', posts);
-        else
-            res.status(400).json({ message: 'Error fetching posts' });
-    } catch (error) {
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
+
 
 exports.getReviewsOfMovie = async (req, res) => {
     try {
