@@ -1,16 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable } from "react-native";
-
-import TrendingMovie from "../Components/TrendingMovies";
-import BottomHeader from "../Components/BottomHeader";
 import { useNavigation } from "@react-navigation/native";
 import { getMovies } from "../api";
-import Genres from "../Components/Genres";
-import Rating from "../Components/Rating";
 import Svg, { Rect } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
+
+import BottomHeader from "../Components/BottomHeader";
+import Genres from "../Components/Genres";
+import Rating from "../Components/Rating";
 import Post from "../Components/Post";
 import HomeHeader from "../Components/HomeHeader";
+
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notifications
 
 const { width, height } = Dimensions.get("window");
 const SPACING = 10;

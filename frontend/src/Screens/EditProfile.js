@@ -311,10 +311,11 @@ const styles = StyleSheet.create({
         // color: colors.primary
     },
     entryButton: {
-        backgroundColor: "black",
+        backgroundColor: "#4A42C0",
         padding: 16,
         borderRadius: 4,
         alignItems: "center",
+        marginBottom: 20,
     },
     entryButtonText: {
         color: "#fff",
