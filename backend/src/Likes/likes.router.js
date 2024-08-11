@@ -7,7 +7,10 @@ router.get('/:userId/likes', likesController.getLikesOfUser); // likes tab  (Ret
 router.get('/movie/:movieId', likesController.getLikesOfMovie); // 
 router.get('/comment/:commentId', likesController.getLikesOfComment); // postTab
 router.get('/review/:reviewId', likesController.getLikesOfReview); // "
-router.get('/post/:postId', likesController.getLikesOfPost); // "
+router.get('/post/:postId', likesController.getLikesOfPost); // 
+
+// Route to check if a user has liked an entity
+router.get('/check-like/:uid/:entityId/:entityType', likesController.checkLike);
 
 router.post('/toggleLikeReview', likesController.toggleLikeReview); // LikesTab / posttab
 router.post('/toggleLikeComment', likesController.toggleLikeComment); // PostsTab

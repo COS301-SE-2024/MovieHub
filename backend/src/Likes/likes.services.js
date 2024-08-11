@@ -322,9 +322,7 @@ exports.toggleLikePost = async (uid, postId) => {
 };
 
 
-process.on('exit', () => {
-    driver.close();
-});
+
 
 const processGets= async(datas) =>{
     console.log('Enter processGets with ',datas);
@@ -341,3 +339,23 @@ const processGets= async(datas) =>{
     return { id, properties };
    });
   };
+
+// Function to check if a user has liked a specific entity (Movie, Post, Review)
+exports.hasUserLikedEntity = async (uid, entityId, entityType) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User)-[like:LIKES]->(e:${entityType})
+            WHERE u.uid = $uid AND e.${entityType.toLowerCase()}Id = $entityId
+            RETURN like`,
+            { uid, entityId }
+        );
+        return result.records.length > 0;
+    } finally {
+        await session.close();
+    }
+};
+
+process.on('exit', () => {
+    driver.close();
+});

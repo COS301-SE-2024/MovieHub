@@ -140,3 +140,23 @@ exports.toggleLikePost = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
+// Check if a user has liked a specific entity
+exports.checkLike = async (req, res) => {
+    const { uid, entityId, entityType } = req.params;
+
+    try {
+        const hasLiked = await likesService.hasUserLikedEntity(uid, entityId, entityType);
+
+        res.status(200).json({
+            success: true,
+            hasLiked,
+        });
+    } catch (error) {
+        console.error(`Error checking like for entity ${entityType}:`, error);
+        res.status(500).json({
+            success: false,
+            message: `An error occurred while checking like for the ${entityType.toLowerCase()}.`,
+        });
+    }
+};
