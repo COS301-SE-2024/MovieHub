@@ -3,7 +3,8 @@ import firebase from 'firebase/app';
 import 'firebase/database'; // Import the Firebase Realtime Database
 
 
-const API_URL = process.env.REACT_APP_ROOMS_API_URL || 'http://192.168.225.19:3000/rooms'; // Update with your correct API URL
+//const API_URL = process.env.REACT_APP_ROOMS_API_URL || 'http://192.168.225.19:3000/rooms'; // Update with your correct API URL
+const API_URL = 'http://localhost:3000/rooms'
 
 // Helper function to get the token from SecureStore
 const getToken = async () => {
@@ -25,13 +26,16 @@ const verifyToken = async () => {
 
 // Create a new room
 export const createRoom = async (userId, roomData) => {
+    console.log("Check the body: ", roomData);
     const headers = await verifyToken();
+    // Add Content-Type header to ensure the body is treated as JSON
+    headers['Content-Type'] = 'application/json';
     const response = await fetch(`${API_URL}/create/${userId}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(roomData),
     });
-
+    console.log("Check the body after res: ", roomData);
     if (!response.ok) {
         throw new Error('Failed to create room');
     }

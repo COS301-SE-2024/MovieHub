@@ -16,18 +16,29 @@ const CreateRoomScreen = ({ route }) => {
     const [maxParticipants, setMaxParticipants] = useState("5"); // Default max participants
     const [roomDescription, setRoomDescription] = useState("");
 
+    const accessLevelOptions = [
+        { key: 0, label: 'Everyone' },
+        { key: 1, label: 'Invite only' },
+        { key: 2, label: 'Followers' }
+    ];
+
+    const roomTypeOptions = [
+        { key: 0, label: 'Chat-only' },
+        { key: 1, label: 'Audio and chat' }
+    ];
     const handleCreateRoom = async () => {
         try {
-            const newRoom = await createRoom({
+            console.log("Room name: ", roomTitle);
+            const newRoom = await createRoom(userInfo.userId, {
                 roomName: roomTitle,
                 accessLevel,
                 maxParticipants,
                 roomDescription,
                 roomType,
-               //watchParty,
                 createdBy: userInfo.userId, // Assuming userInfo contains userId
             });
 
+            console.log("In CreateRoom.js ", newRoom);
             // Navigate to the HubScreen with the new room data
             navigation.navigate("HubScreen", { userInfo, newRoom });
         } catch (error) {
