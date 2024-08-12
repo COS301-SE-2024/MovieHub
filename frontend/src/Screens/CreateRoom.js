@@ -1,22 +1,37 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import ModalSelector from 'react-native-modal-selector';
 
 const CreateRoomScreen = ({ route }) => {
     const navigation = useNavigation();
     const { onRoomCreate } = route.params;
     const { userInfo } = route.params;
     const [roomTitle, setRoomTitle] = useState("");
+    const [roomDescription, setRoomDescription] = useState("");
+    const [maxParticipants, setMaxParticipants] = useState(0);
     const [accessLevel, setAccessLevel] = useState("Everyone");
     const [roomType, setRoomType] = useState("Chat-only");
     const [watchParty, setWatchParty] = useState(false);
+
+    const accessLevelOptions = [
+        { key: 0, label: 'Everyone' },
+        { key: 1, label: 'Invite only' },
+        { key: 2, label: 'Followers' }
+    ];
+
+    const roomTypeOptions = [
+        { key: 0, label: 'Chat-only' },
+        { key: 1, label: 'Audio and chat' }
+    ];
 
     const handleCreateRoom = () => {
         onRoomCreate({ roomTitle, accessLevel, roomType, watchParty });
         navigation.navigate("HubScreen", { userInfo: route.params.userInfo });
     };
+
+    const isButtonDisabled = roomTitle === "" || roomDescription === "";
 
     return (
         <View style={styles.container}>
@@ -24,7 +39,7 @@ const CreateRoomScreen = ({ route }) => {
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
                     <MatIcon name="arrow-left" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Create Room</Text> 
+                <Text style={styles.title}>Create Room</Text>
             </View>
 
             <Text style={styles.label}>Room Name</Text>
@@ -35,29 +50,56 @@ const CreateRoomScreen = ({ route }) => {
                 onChangeText={setRoomTitle}
             />
 
+            <Text style={styles.label}>Room Description</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Description"
+                value={roomDescription}
+                onChangeText={setRoomDescription}
+            />
+
+            <Text style={styles.label}>Max Participants</Text>
+            <TextInput
+                style={styles.input}
+                placeholder=""
+                value={maxParticipants}
+                onChangeText={setMaxParticipants}
+            />
+
             <Text style={styles.label}>Access Level</Text>
             <View style={styles.pickerContainer}>
-                <Picker
-                    selectedValue={accessLevel}
-                    style={styles.picker}
-                    onValueChange={(itemValue) => setAccessLevel(itemValue)}
-                >
-                    <Picker.Item label="Everyone" value="Everyone" />
-                    <Picker.Item label="Invite only" value="Invite only" />
-                    <Picker.Item label="Followers" value="Followers" />
-                </Picker>
+                <ModalSelector
+                    data={accessLevelOptions}
+                    initValue={accessLevel}
+                    onChange={(option) => setAccessLevel(option.label)}
+                    style={styles.modalSelector}
+                    selectStyle={styles.selectStyle}
+                    selectTextStyle={styles.selectText}
+                    optionTextStyle={styles.optionText}
+                    optionStyle={styles.optionStyle}
+                    optionContainerStyle={styles.optionContainer}
+                    cancelStyle={styles.cancelStyle}
+                    cancelTextStyle={styles.cancelTextStyle}
+                    initValueTextStyle={styles.initValueTextStyle}
+                />
             </View>
 
             <Text style={styles.label}>Room Type</Text>
             <View style={styles.pickerContainer}>
-                <Picker
-                    selectedValue={roomType}
-                    style={styles.picker}
-                    onValueChange={(itemValue) => setRoomType(itemValue)}
-                >
-                    <Picker.Item label="Chat-only" value="Chat-only" />
-                    <Picker.Item label="Audio and chat" value="Audio and chat" />
-                </Picker>
+                <ModalSelector
+                    data={roomTypeOptions}
+                    initValue={roomType}
+                    onChange={(option) => setRoomType(option.label)}
+                    style={styles.modalSelector}
+                    selectStyle={styles.selectStyle}
+                    selectTextStyle={styles.selectText}
+                    optionTextStyle={styles.optionText}
+                    optionStyle={styles.optionStyle}
+                    optionContainerStyle={styles.optionContainer}
+                    cancelStyle={styles.cancelStyle}
+                    cancelTextStyle={styles.cancelTextStyle}
+                    initValueTextStyle={styles.initValueTextStyle}
+                />
             </View>
 
             <View style={styles.switchContainer}>
@@ -70,7 +112,7 @@ const CreateRoomScreen = ({ route }) => {
                 />
             </View>
 
-            <TouchableOpacity style={[styles.createButton, roomTitle === "" ? styles.disabledButton : null]} onPress={handleCreateRoom} disabled={roomTitle === ""}>
+            <TouchableOpacity style={[styles.createButton, isButtonDisabled ? styles.disabledButton : null]} onPress={handleCreateRoom} disabled={isButtonDisabled}>
                 <Text style={styles.createButtonText}>Create</Text>
             </TouchableOpacity>
         </View>
@@ -111,9 +153,46 @@ const styles = StyleSheet.create({
         backgroundColor: "#D9D9D9",
         marginBottom: 15,
     },
-    picker: {
+    modalSelector: {
+        width: "100%",
+    },
+    initValueTextStyle: {
+        color: "#000",
+        fontSize: 14
+    },
+    selectStyle: {
         width: "100%",
         height: 50,
+        justifyContent: "center",
+        // backgroundColor: "#D9D9D9",
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: "#ccc",
+    },
+    selectText: {
+        color: "#fff",
+    },
+    optionText: {
+        fontSize: 16,
+        color: "#000",
+    },
+    optionStyle: {
+        backgroundColor: "#D9D9D9",
+        borderBottomWidth: 1,
+        borderBottomColor: "#ccc",
+    },
+    optionContainer: {
+        backgroundColor: "#D9D9D9",
+    },
+    cancelStyle: {
+        backgroundColor: "#D9D9D9",
+        borderTopWidth: 1,
+        borderTopColor: "#ccc",
+    },
+    cancelTextStyle: {
+        fontSize: 16,
+        color: "#000",
+        textTransform: "capitalize"
     },
     switchContainer: {
         flexDirection: "row",

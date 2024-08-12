@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, RefreshControl, ImageBackground, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, RefreshControl,ImageBackground, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
 import { searchMoviesFuzzy, getMovieByQuote } from "../Services/esSearchApiServices";
 
@@ -195,7 +196,16 @@ const SearchPage = ({ route }) => {
                 <Icon name="search" size={30} style={{ marginRight: 8 }} />
 
                 <TextInput style={styles.input} placeholder="Search movies, actors, or movie lines" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
-                <Icon name="mic" size={30} color={"gray"} style={{ marginLeft: 8 }} />
+                {/* <Icon name="mic" size={30} color={"gray"} style={{ marginLeft: 8 }} /> */}
+                <IonIcon 
+                    name="sparkles-sharp" 
+                    size={30} color={"gold"} 
+                    style={{ 
+                        marginLeft: 8, 
+                        textShadowColor: 'rgba(0, 0, 0, 0.25)',
+                        textShadowOffset: { width: 1, height: 1 },
+                        textShadowRadius: 8,}} 
+                    />
             </View>
             <Text style={styles.title}>{searchResults.length > 0 ? "Search Results" : "Browse Genres"}</Text>
             {searchResults.length > 0 ? <FlatList data={searchResults} renderItem={renderMovieItem} keyExtractor={(item) => item._id.toString()} numColumns={2} contentContainerStyle={styles.grid} showsVerticalScrollIndicator={false} /> : <FlatList data={sortedGenres} renderItem={renderGenreItem} keyExtractor={(item) => item[0]} numColumns={2} contentContainerStyle={styles.genreGrid} showsVerticalScrollIndicator={false} />}
@@ -227,6 +237,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginVertical: 20,
     },
+
     genreGrid: {
         justifyContent: "space-between",
 
