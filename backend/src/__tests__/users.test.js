@@ -19,8 +19,8 @@ describe('GET /users/:userId', () => {
     });
 
     it('should return user profile for a valid user ID', async () => {
-        const userId = 'user1';
-        const userProfile = { id: 'user1', name: 'John Doe' };
+        const userId = 'tempUserAgain';
+        const userProfile = { id: 'tempUserAgain', name: 'John Doe' };
 
         userService.getUserProfile.mockResolvedValueOnce(userProfile);
 
@@ -42,7 +42,7 @@ describe('GET /users/:userId', () => {
     });
 
     it('should return 500 for an internal server error', async () => {
-        const userId = 'user1';
+        const userId = 'tempUserAgain';
         const errorMessage = 'Internal server error';
 
         userService.getUserProfile.mockRejectedValueOnce(new Error(errorMessage));
@@ -61,9 +61,9 @@ describe('PATCH /users/:userId', () => {
     });
 
     it('should update user profile for a valid user ID', async () => {
-        const userId = 'user1';
+        const userId = 'tempUserAgain';
         const userUpdate = { name: 'Jane Doe' };
-        const updatedUser = { id: 'user1', name: 'Jane Doe' };
+        const updatedUser = { id: 'tempUserAgain', name: 'Jane Doe' };
 
         userService.updateUserProfile.mockResolvedValueOnce(updatedUser);
 
@@ -90,7 +90,7 @@ describe('PATCH /users/:userId', () => {
     });
 
     it('should return 500 for an internal server error', async () => {
-        const userId = 'user1';
+        const userId = 'tempUserAgain';
         const userUpdate = { name: 'Jackie' };
         const errorMessage = 'Internal server error';
 
@@ -111,7 +111,7 @@ describe('DELETE /users/:id', () => {
     });
 
     it('should delete user profile for a valid user ID', async () => {
-        const userId = 'temp_user';
+        const userId = 'tempUser';
 
         userService.deleteUserProfile.mockResolvedValueOnce(true);
 
@@ -135,7 +135,7 @@ describe('DELETE /users/:id', () => {
     });
 
     it('should return 500 for an internal server error', async () => {
-        const userId = 'user1';
+        const userId = 'tempUserAgain';
         const errorMessage = 'Internal server error';
 
         userService.deleteUserProfile.mockRejectedValueOnce(new Error(errorMessage));
