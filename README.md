@@ -1,7 +1,7 @@
 <p align="center">
   <div align="center">
        <h1 align="center">Girls Gone Code </h1> 
-  <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/1e1ca1d9-4474-48ce-833b-07e82e5f29db" style="height: 7%;">
+  <img src="https://github.com/COS301-SE-2024/MovieHub/assets/134503930/6691e89c-7e55-4919-a12f-72363f3082dd" style="height: 7%;">
     <br>
     <br>
   <h1 align="center">Engage with Films Like Never Before!</h1>
@@ -10,6 +10,7 @@
 <h3 align="center">MovieHub aims to address the need for movie enthusiasts to explore, discuss and review films on a social platform that is usable and interactive. With it providing users with a one-stop destination for all their movie related needs. A priority of this project is to surpass existing platforms, by offering a superior user experience and unparalleled depth of content.
 </h3>
 <div align="center">
+
 
   # Badges #
 ![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2024/MovieHub)
@@ -31,15 +32,31 @@
 
 [Girls Gone Code - Demo1](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
 
+[Girls Gone Code - Demo2](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
+
+[Girls Gone Code - Demo3](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
+
 # Project Management #
 [Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
 
 # Documentation #
-[System Requirements Specification](https://drive.google.com/drive/folders/16fJP4jYCHB0H5OU3CgpYu_xFF-FxxibN?usp=sharing)
+[User Manual](https://drive.google.com/file/d/1iv4GoROOOOWD6gOVhm0HEjQvYxB16WmX/view?usp=drive_link)
+
+[Coding Standards](Documents/coding_standards.md)
+
+[Technical Installation Guide](https://docs.google.com/document/d/1zp0Hbq3SqKYIm8k-iSeQAuG_CHX94tTBwCCRNEXxHXU)
+
+[System Requirements Specification](Documents/srs_v1.pdf)
+
+[System Requirements Specification V2](Documents/srs_v2.pdf)
+
+[System Requirements Specification V3](https://docs.google.com/document/d/1ogFLG_cuWd7z3-1SvTDk6gqk7DkN6dANgGDCkluFNEk)
 
 ## Branching Strategy
-We use GitFlow as our branching strategy, with main, development, and feature branches.
 ![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/a27a0067-9f71-423c-a333-9a0b716767bf)
+
+We use GitFlow as our branching strategy, with main, development, and feature branches.
+
 
 ## Branch Naming Convention
 **Main Branch**: `main`
