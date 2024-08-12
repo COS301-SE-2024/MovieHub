@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
         width: 10,
         marginHorizontal: 5,
         borderRadius: 10,
-        backgroundColor: '#371f76'
+        backgroundColor: '#4a42c0'
     },
     subTitle: {
         fontSize: 21,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 10,
         borderColor: '#ffffff',
-        backgroundColor: '#000000',
+        backgroundColor: '#4a42c0',
         borderWidth: 1.5
     },
     createText: {

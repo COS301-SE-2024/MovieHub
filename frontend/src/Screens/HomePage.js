@@ -98,7 +98,6 @@ const HomePage = ({route}) => {
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                      {movies.slice(0, 10).map((movie, index) => (
-
                                 <MovieCard
                                     key={index}
                                     movieId={movie.id}

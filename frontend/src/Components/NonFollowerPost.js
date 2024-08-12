@@ -3,13 +3,10 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useState } from "react";
-import { TextInput } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { followUser, unfollowUser } from '../Services/UsersApiService';
-import { removePost } from "../Services/PostsApiServices";
-import { toggleLikePost } from "../Services/LikesApiService";
 
 export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid }) {
     const { theme } = useTheme();
@@ -17,9 +14,11 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     const [saved, setSaved] = useState(false);
     const [modalVisible, setModalVisible] = useState(false); 
     const [isFollowing, setIsFollowing] = useState(false);
+    
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
+
     const toggleLike = () => {
         setLiked(!liked);
     };
@@ -35,8 +34,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         });
     };
 
-    
- 
     const toggleFollow = async () => {
         try {
             console.log("This is the current users info: ", userInfo);
@@ -67,7 +64,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         }
     };
 
-
     const styles = StyleSheet.create({
         container: {
             backgroundColor: theme.backgroundColor,
@@ -78,14 +74,10 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                 width: 0,
                 height: 2,
             },
-            // shadowOpacity: 0.17,
-            // shadowRadius: 3.84,
             borderColor: '#000000',
-            // elevation: 5,
             borderTopWidth: 0, 
             borderBottomWidth: 0.3, 
             borderTopWidth: 0.3,
-            
         },
         avatar: {
             width: 50,
@@ -103,6 +95,8 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             fontWeight: "bold",
             color: theme.textColor,
             marginRight: 10,
+            flexShrink: 1,
+            maxWidth: '70%', // Adjust as needed
         },
         userHandle: {
             color: theme.gray,
@@ -111,6 +105,13 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             alignItems: "center",
             display: "flex",
             flexDirection: "row",
+            flexWrap: "wrap",
+            flex: 1,
+        },
+        nameAndHandleContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            flex: 1, // This will allow the username and follow button to share the space equally
         },
         postImage: {
             width: "100%",
@@ -142,7 +143,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             flexDirection: "row",
             alignItems: "center",
             marginRight: 20,
-            
         },
         statsNumber: {
             color: theme.textColor,
@@ -183,8 +183,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             paddingLeft: 10,
         },
         followingButton: {
-            backgroundColor: 'black',
-            marginLeft: "auto",
+            backgroundColor: isFollowing ? 'grey' : '#4a42c0', // Dynamic background color
             borderRadius: 15,
             paddingHorizontal: 10,
             paddingVertical: 5,
@@ -192,7 +191,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             width: 90, 
             alignItems: 'center',
             justifyContent: 'center',
-            
+            marginLeft: 10,
         },
         followingText: {
             color: 'white',
@@ -200,27 +199,22 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         },
     });
 
-    // const toggleFollow = () => {
-    //     setIsFollowing(!isFollowing);
-    // };
-
-    
-
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <TouchableOpacity onPress={handlePress}>
-                <Image source={{ uri: userAvatar }} style={styles.avatar} />
+                    <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 </TouchableOpacity>
-                <View style={{ alignItems: "left" }}>
-                    <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>{userHandle} &bull; {timeDifference()}</Text>
+                <View style={styles.nameAndHandleContainer}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.username} numberOfLines={1} ellipsizeMode="tail">{username}</Text>
+                        <Text style={styles.userHandle}>{userHandle} &bull; {timeDifference()}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.followingButton} onPress={toggleFollow}>
+                        <Text style={styles.followingText}>{isFollowing ? 'Following' : 'Follow'}</Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.followingButton} onPress={toggleFollow}>
-                    <Text style={styles.followingText}>{isFollowing ? 'Following' : 'Follow'}</Text>
-                </TouchableOpacity>
-                <Icon name="more-vert" size={22} style={styles.moreIcon}></Icon>
-                
+                <Icon name="more-vert" size={22} style={styles.moreIcon} />
             </View>
             {image && <Image source={{ uri: image }} style={styles.postImage} />}
             <Text style={styles.postTitle}>{postTitle}</Text>
@@ -243,10 +237,10 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             </View>
             {modalVisible && (
                 <View style={styles.modalContainer}>
-                    <TouchableOpacity style={styles.modalOption} onPress={() => { /* Add edit functionality / }}>
+                    <TouchableOpacity style={styles.modalOption} onPress={() => { /* Add edit functionality */ }}>
                         <Text style={styles.modalText}>Edit</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.modalOption} onPress={() => { / Add delete functionality */ }}>
+                    <TouchableOpacity style={styles.modalOption} onPress={() => { /* Add delete functionality */ }}>
                         <Text style={styles.modalText}>Delete</Text>
                     </TouchableOpacity>
                 </View>
@@ -254,4 +248,3 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         </View>
     );
 }
-

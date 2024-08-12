@@ -311,6 +311,17 @@ export default function App() {
                         />
 
                         <Nav.Screen
+                            name="WatchlistDetails"
+                            component={WatchlistDetails}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
+                        <Nav.Screen
                             name="AddMovies"
                             component={AddMovies}
                             options={({ navigation }) => ({
