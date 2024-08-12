@@ -34,6 +34,8 @@
 
 [Girls Gone Code - Demo2](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
 
+[Girls Gone Code - Demo3](https://drive.google.com/file/d/1f2MYe6KOZmrjrmMTc_NtuJ8d3Rhkcvde/view?usp=sharing)
+
 # Project Management #
 [Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
 
@@ -42,9 +44,13 @@
 
 [Coding Standards](Documents/coding_standards.md)
 
+[Technical Installation Guide](https://docs.google.com/document/d/1zp0Hbq3SqKYIm8k-iSeQAuG_CHX94tTBwCCRNEXxHXU)
+
 [System Requirements Specification](Documents/srs_v1.pdf)
 
 [System Requirements Specification V2](Documents/srs_v2.pdf)
+
+[System Requirements Specification V3](https://docs.google.com/document/d/1ogFLG_cuWd7z3-1SvTDk6gqk7DkN6dANgGDCkluFNEk)
 
 ## Branching Strategy
 ![image](https://github.com/COS301-SE-2024/MovieHub/assets/40609889/a27a0067-9f71-423c-a333-9a0b716767bf)
