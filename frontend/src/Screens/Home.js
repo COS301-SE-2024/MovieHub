@@ -241,6 +241,7 @@ const Home = ({ route }) => {
                                     likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
                                     comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
                                     postTitle={content.post.postTitle}
+                                    image={content.post.img}
                                     datePosted={formatDate(content.post.createdAt)} // Format the date
                                     preview={content.post.text}
                                     isUserPost={userInfo.userId == content.post.uid}
@@ -262,6 +263,7 @@ const Home = ({ route }) => {
                                     preview={content.review.text}
                                     dateReviewed={formatDate(content.review.createdAt)}
                                     movieName={content.review.movieTitle}
+                                    image={content.review.img}
                                     rating={content.review.rating}
                                     isUserReview={userInfo.userId==content.review.uid}
                                 />

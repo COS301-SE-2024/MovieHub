@@ -84,7 +84,7 @@ export default function ExplorePage({ route }) {
                             likes={item.post ? item.post.likes : 0}
                             comments={item.post ? item.post.comments : 0}
                             saves={item.post ? item.post.saves : 0}
-                            image={item.post ? item.post.image : null}
+                            image={item.post ? item.post.img : null}
                             postTitle={item.post ? item.post.postTitle : 'No Title'}
                             preview={item.post ? item.post.text : 'No Preview'}
                             datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
@@ -101,7 +101,7 @@ export default function ExplorePage({ route }) {
                             likes={item.post ? item.post.likes : 0}
                             comments={item.post ? item.post.comments : 0}
                             saves={item.post ? item.post.saves : 0}
-                            image={item.post ? item.post.image : null}
+                            image={item.post ? item.post.img : null}
                             postTitle={item.post ? item.post.postTitle : 'No Title'}
                             preview={item.post ? item.post.text : 'No Preview'}
                             datePosted={item.post ? item.post.createdAt : 'Unknown Date'}

@@ -79,7 +79,7 @@ export default function MovieDescriptionPage({ userInfo }) {
         const fetchColors = async () => {
             try {
                 const response = await axios.post(
-                    `http://10.0.28.189:3000/extract-colors`,
+                    `http://localhost:3000/extract-colors`,
                     { imageUrl },
                     {
                         headers: {

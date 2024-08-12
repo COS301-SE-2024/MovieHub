@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/post/'; // Update to your Expo URL
+//const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/post/'; // Update to your Expo URL
+const API_URL = 'http://localhost:3000/post/';
 
 import {uploadImage} from './imageUtils';
 
