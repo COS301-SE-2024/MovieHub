@@ -1,7 +1,7 @@
 // authService.js
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../Firebase/firebase.config";
+import { auth, db } from "../firebase.config";
 import { collection, doc, updateDoc, getDocs, setDoc, query, where } from "firebase/firestore";
 
 // Sign up function

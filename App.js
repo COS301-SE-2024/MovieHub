@@ -1,4 +1,4 @@
-import "regenerator-runtime/runtime";
+import 'regenerator-runtime/runtime';
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useState } from "react";
@@ -9,7 +9,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ProfilePage from "./frontend/src/Screens/ProfilePage";
 import EditProfile from "./frontend/src/Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import CustomDrawer from "./frontend/src/Screens/ProfileDrawer";
+import CustomDrawer from "./frontend/src/Components/ProfileDrawer";
 import HomePage from "./frontend/src/Screens/HomePage";
 import Home from "./frontend/src/Screens/Home";
 import MainHeader from "./frontend/src/Components/MainHeader";
@@ -18,7 +18,6 @@ import SearchHeader from "./frontend/src/Components/SearchHeader";
 import ProfileHeader from "./frontend/src/Components/ProfileHeader";
 import LoginPage from "./frontend/src/Screens/LoginPage";
 import SignupPage from "./frontend/src/Screens/SignupPage";
-import ProfileSetup from "./frontend/src/Screens/ProfileSetupPage";
 import LandingPage from "./frontend/src/Screens/LandingPage";
 import ExplorePage from "./frontend/src/Screens/ExplorePage";
 import SearchPage from "./frontend/src/Screens/SearchPage";
@@ -58,9 +57,16 @@ import Rooms from "./frontend/src/Screens/Rooms";
 const Nav = createNativeStackNavigator();
 
 export default function App() {
+    const [drawerVisible, setDrawerVisible] = useState(false);
     const [navigationState, setNavigationState] = useState(null);
-    const theme = useTheme();
 
+    const toggleDrawer = () => {
+        setDrawerVisible(!drawerVisible);
+    };
+
+    const closeDrawer = () => {
+        setDrawerVisible(false);
+    };
     return (
         // <WebSocketProvider>
         <GestureHandlerRootView>
