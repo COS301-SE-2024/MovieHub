@@ -40,7 +40,7 @@
 [Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
 
 # Documentation #
-[User Manual](Documents/user_manual.pdf)
+[User Manual](https://drive.google.com/file/d/1iv4GoROOOOWD6gOVhm0HEjQvYxB16WmX/view?usp=drive_link)
 
 [Coding Standards](Documents/coding_standards.md)
 
