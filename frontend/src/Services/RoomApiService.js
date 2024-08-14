@@ -44,6 +44,39 @@ export const createRoom = async (userId, roomData) => {
     return data;
 };
 
+// Function to get all rooms a user has created
+export const getUserCreatedRooms = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/created/${userId}`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch created rooms');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+// Function to get all rooms a user is participating in
+export const getUserParticipatedRooms = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/participated/${userId}`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch participated rooms');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+
 // Join an existing room
 export const joinRoom = async (code, userId) => {
     const headers = await verifyToken();

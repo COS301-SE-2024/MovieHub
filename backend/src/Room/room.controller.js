@@ -60,6 +60,40 @@ exports.getRoomParticipants = async (req, res) => {
     }
 }
 
+// Controller to get all rooms a user has created
+exports.getUserCreatedRooms = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const result = await roomService.getUserCreatedRooms(userId);
+        if (result.success) {
+            return res.status(200).json(result.createdRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getUserCreatedRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+// Controller to get all rooms a user is participating in (but not created)
+exports.getUserParticipatedRooms = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const result = await roomService.getUserParticipatedRooms(userId);
+        if (result.success) {
+            return res.status(200).json(result.participatedRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getUserParticipatedRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.joinRoom = async (req, res) => {
     try {
         const { code, userId } = req.body;

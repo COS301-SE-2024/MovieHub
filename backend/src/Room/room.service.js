@@ -162,6 +162,54 @@ exports.getRoomParticipants = async (roomId) => {
     }
 };
 
+// Get all rooms a user has created
+exports.getUserCreatedRooms = async (userId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:CREATED]->(r:Room)
+             RETURN r`,
+            { userId }
+        );
+
+        if (result.records.length > 0) {
+            const createdRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, createdRooms };
+        }
+
+        return { success: false, message: 'No rooms found' };
+    } catch (error) {
+        console.error('Error retrieving created rooms:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Get all rooms a user is participating in (but not created)
+exports.getUserParticipatedRooms = async (userId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:PARTICIPATES_IN]->(r:Room)
+             WHERE NOT (u)-[:CREATED]->(r)
+             RETURN r`,
+            { userId }
+        );
+
+        if (result.records.length > 0) {
+            const participatedRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, participatedRooms };
+        }
+
+        return { success: false, message: 'No rooms found' };
+    } catch (error) {
+        console.error('Error retrieving participated rooms:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
 
 
 exports.joinRoom = async (code, userId) => {

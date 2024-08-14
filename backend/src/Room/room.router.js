@@ -12,6 +12,13 @@ router.post('/join', roomController.joinRoom);
 // Route to get participants of a room
 router.get('/:roomId/participants', roomController.getRoomParticipants);
 
+// Route to get all rooms a user has created
+router.get('/created/:userId', roomController.getUserCreatedRooms);
+
+// Route to get all rooms a user is participating in (but not created)
+router.get('/participated/:userId', roomController.getUserParticipatedRooms);
+
+
 // Route to invite a user to a room
 router.post('/invite', roomController.inviteUserToRoom);
 
