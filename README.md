@@ -42,13 +42,13 @@
 # Documentation #
 [User Manual](https://drive.google.com/file/d/1iv4GoROOOOWD6gOVhm0HEjQvYxB16WmX/view?usp=drive_link)
 
-[Coding Standards](Documents/coding_standards.md)
+[Coding Standards](https://drive.google.com/file/d/1YhwENSPPHKAhN0RX5Yf7JC6yaqSxsFeL/view?usp=drive_link)
 
 [Technical Installation Guide](https://docs.google.com/document/d/1zp0Hbq3SqKYIm8k-iSeQAuG_CHX94tTBwCCRNEXxHXU)
 
-[System Requirements Specification](Documents/srs_v1.pdf)
+[System Requirements Specification](https://docs.google.com/document/d/1293slHpaKcP6hOiM6PjI-4Zr4hAu2tglDNine3Ai4fE/edit?usp=drive_link)
 
-[System Requirements Specification V2](Documents/srs_v2.pdf)
+[System Requirements Specification V2](https://docs.google.com/document/d/1xU8-jJXFGvj36zFVYMH4AKWorYx7icOV1DTvzTpjpDE/edit?usp=drive_link)
 
 [System Requirements Specification V3](https://docs.google.com/document/d/1ogFLG_cuWd7z3-1SvTDk6gqk7DkN6dANgGDCkluFNEk)
 
