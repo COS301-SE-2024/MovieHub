@@ -76,6 +76,21 @@ export const getUserParticipatedRooms = async (userId) => {
     return data;
 };
 
+// Get public rooms
+export const getPublicRooms = async () => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/public-rooms`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch public rooms');
+    }
+
+    const data = await response.json();
+    return data;
+};
 
 // Join an existing room
 export const joinRoom = async (code, userId) => {

@@ -211,6 +211,28 @@ exports.getUserParticipatedRooms = async (userId) => {
     }
 };
 
+exports.getPublicRooms = async () => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {accessLevel: 'everyone', isActive: true})
+             RETURN r`
+        );
+
+        if (result.records.length > 0) {
+            const publicRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, publicRooms };
+        }
+
+        return { success: false, message: 'No public rooms found' };
+    } catch (error) {
+        console.error('Error retrieving public rooms:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 exports.joinRoom = async (code, userId) => {
     const session = driver.session();

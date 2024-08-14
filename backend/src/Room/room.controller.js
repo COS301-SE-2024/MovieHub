@@ -94,6 +94,20 @@ exports.getUserParticipatedRooms = async (req, res) => {
     }
 };
 
+exports.getPublicRooms = async (req, res) => {
+    try {
+        const result = await roomService.getPublicRooms();
+        if (result.success) {
+            return res.status(200).json(result.publicRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getPublicRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.joinRoom = async (req, res) => {
     try {
         const { code, userId } = req.body;
