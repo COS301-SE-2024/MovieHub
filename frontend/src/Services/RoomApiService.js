@@ -92,6 +92,22 @@ export const getPublicRooms = async () => {
     return data;
 };
 
+// Get the participant count of a room
+export const getRoomParticipantCount = async (roomId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${roomId}/participant-count`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch room participant count');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
 // Join an existing room
 export const joinRoom = async (code, userId) => {
     const headers = await verifyToken();

@@ -1,16 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import FAIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
 import RoomModal from "../Components/RoomModal";
-import { getRoomDetails } from "../Services/RoomApiService";
+import { getRoomDetails, getRoomParticipantCount } from "../Services/RoomApiService";
 
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
     const { userInfo } = route.params;
     const { isUserRoom } = route.params;
     const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
+    const [participantCount, setParticipantCount] = useState(0); // State to hold participant count
     const [loading, setLoading] = useState(true); // State to manage loading status
 
     const bottomSheetRef = useRef(null);
@@ -26,8 +27,16 @@ const ViewRoom = ({ route }) => {
                 const roomId = route.params.roomId; // Assuming roomId is passed in route params
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
+
+                // Fetch participant count
+                const participantResponse = await getRoomParticipantCount(roomId);
+                if (participantResponse.success) {
+                    setParticipantCount(participantResponse.participantCount);
+                } else {
+                    console.error("Failed to fetch participant count:", participantResponse.message);
+                }
             } catch (error) {
-                console.error("Failed to fetch room details:", error);
+                console.error("Failed to fetch room details or participant count:", error);
             } finally {
                 setLoading(false); // Stop loading spinner after data is fetched
             }
@@ -75,7 +84,7 @@ const ViewRoom = ({ route }) => {
                     </TouchableOpacity>
                     <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo })}>
                         <FAIcon name="users" size={16} />
-                        <Text style={styles.participantsText}>{maxParticipants}</Text>
+                        <Text style={styles.participantsText}>{participantCount}</Text>
                     </Pressable>
                 </View>
             </View>
@@ -88,35 +97,8 @@ const ViewRoom = ({ route }) => {
                 <Text style={styles.movieDescription}>{roomDescription}</Text>
             </View>
 
-            {/* {isUserRoom && (
-                <View style={styles.requestsContainer}>
-                    <Text style={styles.requestsTitle}>
-                        Requests <Text style={styles.requestsCount}>{requests.length ? requests.length : 0}</Text>
-                    </Text>
-                    {requests && requests.length > 0 ? (
-                        requests.map((request, index) => (
-                            <View key={index} style={styles.request}>
-                                <View style={styles.profilePlaceholder} />
-                                <View style={styles.requestInfo}>
-                                    <Text style={styles.requestName}>{request.name}</Text>
-                                    {request.status && <Text style={styles.requestStatus}>{request.status}</Text>}
-                                </View>
-                                <TouchableOpacity style={styles.acceptButton}>
-                                    <Text style={styles.acceptText}>Accept</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.rejectButton}>
-                                    <Text style={styles.rejectText}>Reject</Text>
-                                </TouchableOpacity>
-                            </View>
-                        ))
-                    ) : (
-                        <Text>No requests available.</Text>
-                    )}
-                </View>
-            )} */}
-
             <View style={styles.participantsContainer}>
-                <Text style={styles.participantsTitle}>Participants <Text style={styles.requestsCount}>{participants.length}</Text></Text>
+                <Text style={styles.participantsTitle}>Participants <Text style={styles.requestsCount}>{participantCount}</Text></Text>
                 {participants.map((participant, index) => (
                     <View key={index} style={styles.participant}>
                         <View style={styles.profilePlaceholder} />

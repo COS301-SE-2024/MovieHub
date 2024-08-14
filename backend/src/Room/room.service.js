@@ -137,6 +137,30 @@ exports.getRoomDetails = async (roomIdentifier) => {
     }
 };
 
+// Get participant count of a room
+exports.getRoomParticipantCount = async (roomId) => {
+    const session = driver.session();
+    try {
+        // Query to count the number of participants in the room
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})<-[:PARTICIPATES_IN]-(u:User)
+             RETURN COUNT(u) AS participantCount`,
+            { roomId }
+        );
+
+        if (result.records.length > 0) {
+            const participantCount = result.records[0].get('participantCount').toInt();
+            return { success: true, participantCount };
+        }
+
+        return { success: false, message: 'Room not found or no participants' };
+    } catch (error) {
+        console.error('Error retrieving room participant count:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }};
+
 exports.getRoomParticipants = async (roomId) => {
     const session = driver.session();
     try {

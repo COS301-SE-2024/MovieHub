@@ -18,6 +18,10 @@ router.get('/created/:userId', roomController.getUserCreatedRooms);
 // Route to get all rooms a user is participating in (but not created)
 router.get('/participated/:userId', roomController.getUserParticipatedRooms);
 
+// Route to get participant count for a specific room
+router.get('/:roomId/participant-count', roomController.getRoomParticipantCount);
+
+
 router.get('/public-rooms', roomController.getPublicRooms);
 
 // Route to invite a user to a room

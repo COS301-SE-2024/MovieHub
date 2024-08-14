@@ -93,6 +93,23 @@ exports.getUserParticipatedRooms = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
+// Controller to handle request for getting room participant count
+exports.getRoomParticipantCount = async (req, res) => {
+    const { roomId } = req.params;
+
+    try {
+        const result = await roomService.getRoomParticipantCount(roomId);
+
+        if (result.success) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error('Error in getRoomParticipantCount controller:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
 
 exports.getPublicRooms = async (req, res) => {
     try {
