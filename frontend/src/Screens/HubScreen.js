@@ -3,59 +3,46 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms } from '../Services/RoomApiService'; // Import the functions
 
 const HubScreen = ({ route }) => {
     const { userInfo, newRoom } = route.params;
     const navigation = useNavigation();
-    const [ownsRoom, setOwnsRoom] = useState(false);
-    const [userRoomDetails, setUserRoomDetails] = useState({});
+    const [createdRooms, setCreatedRooms] = useState([]);
+    const [participatingRooms, setParticipatingRooms] = useState([]);
+    const [publicRooms, setPublicRooms] = useState([]);
 
     useEffect(() => {
-        if (newRoom) {
-            setUserRoomDetails(newRoom);
-            setOwnsRoom(true);
-        }
-    }, [newRoom]);
+        const fetchRooms = async () => {
+            try {
+                const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
+                setCreatedRooms(createdRoomsData);
+            } catch (error) {
+                console.error('Failed to fetch created rooms:', error);
+                setError('Failed to fetch created rooms');
+            }
 
-    // TODO: replace with real data
-    const sections = [
-        {
-            movieTitle: "People You Follow",
-            data: [
-                { roomName: "Feel like ranting?", users: 372 },
-                { movieTitle: "My Little Pony", roomName: "Another Room", users: 128 },
-            ],
-        },
-        {
-            movieTitle: "Netflix Hub",
-            data: [
-                { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
-                { roomName: "JSON's Room", users: 56 },
-            ],
-        },
-        {
-            movieTitle: "HBO Hub",
-            data: [
-                { movieTitle: "Shrek 3", roomName: "Shrek Marathon!!", users: 98, live: true },
-                { movieTitle: "Spiderman", roomName: "Spideyy", live: true },
-            ],
-        },
-        {
-            movieTitle: "Hulu Hub",
-            data: [
-                { roomName: "Another Hulu Room", users: 45 },
-                { roomName: "Hulu Fun", users: 67 },
-            ],
-        },
-    ];
+            try {
+                const participatingRoomsData = await getUserParticipatedRooms(userInfo.userId);
+                setParticipatingRooms(participatingRoomsData);
+            } catch (error) {
+                console.error('Failed to fetch participated rooms:', error);
+                setError('Failed to fetch participated rooms');
+            }
+
+            try {
+                const publicRoomsData = await getPublicRooms();
+                setPublicRooms(publicRoomsData);
+            } catch (error) {
+                console.error('Failed to fetch public rooms:', error);
+                setError('Failed to fetch public rooms');
+            }
+        };
+        fetchRooms();
+    }, [userInfo.userId]);
 
     const handleCreateRoom = ({ roomTitle, accessLevel, roomType, watchParty }) => {
         const newRoom = { roomTitle, accessLevel, roomType, watchParty, maxParticipants: 5 };
-        setUserRoomDetails(newRoom);
-        setOwnsRoom(true);
-        console.log("Room created", newRoom);
-
-        // Navigate to the HubScreen with the new room data
         navigation.navigate("HubScreen", { userInfo, newRoom });
     };
 
@@ -72,62 +59,67 @@ const HubScreen = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {ownsRoom && (
+            {createdRooms.length > 0 ? (
                 <View>
-                    <UserRoomCard
-                        movieTitle="Interstellar"
-                        roomName={userRoomDetails.roomTitle}
-                        users={0}
-                        live={userRoomDetails.roomType !== "Chat-only"}
-                        handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true, roomId: userRoomDetails.roomId })}
-                    />
+                    <Text style={styles.sectionTitle}>Rooms You Created</Text>
+                    {createdRooms.map((room, index) => (
+                        <UserRoomCard
+                            key={index}
+                            roomName={room.roomName}
+                            users={room.maxParticipants}
+                            live={room.roomType !== "Chat-only"}
+                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true, roomId: room.roomId })}
+                        />
+                    ))}
                     <View style={styles.divider} />
                 </View>
+            ) : (
+                <Text style={styles.noRoomsText}>You haven't created any rooms yet.</Text>
             )}
 
-            {sections.map((section, index) => (
-                <View key={index} style={styles.section}>
-                    <TouchableOpacity style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>{section.movieTitle}</Text>
-                        <MatIcon name="chevron-right" size={24} style={{ marginBottom: 5, marginLeft: 6 }} />
-                    </TouchableOpacity>
-                    <FlatList
-                        horizontal
-                        data={section.data}
-                        renderItem={({ item }) => <Card {...item} handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false })} />}
-                        keyExtractor={(item, index) => index.toString()}
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.cardRow}
-                    />
+            {participatingRooms.length > 0 ? (
+                <View>
+                    <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
+                    {participatingRooms.map((room, index) => (
+                        <UserRoomCard
+                            key={index}
+                            roomName={room.roomTitle}
+                            users={room.participantsCount}
+                            live={room.roomType !== "Chat-only"}
+                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false, roomId: room.roomId })}
+                        />
+                    ))}
                 </View>
-            ))}
+            ) : (
+                <Text style={styles.noRoomsText}>You're not participating in any rooms yet.</Text>
+            )}
+
+            {publicRooms.length > 0 ? (
+                <View>
+                    <Text style={styles.sectionTitle}>Public Rooms Available</Text>
+                    {publicRooms.map((room, index) => (
+                        <UserRoomCard
+                            key={index}
+                            roomName={room.roomTitle}
+                            users={room.participantsCount}
+                            live={room.roomType !== "Chat-only"}
+                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false, roomId: room.roomId })}
+                        />
+                    ))}
+                </View>
+            ) : (
+                <Text style={styles.noRoomsText}>No public rooms available to join.</Text>
+            )}
 
         </ScrollView>
     );
 };
 
-const Card = ({ movieTitle, roomName, users, live, handlePress }) => (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
-        {live && (
-            <Text style={styles.liveText}>
-                ● Live - <Text>{movieTitle}</Text>
-            </Text>
-        )}
-        <View style={styles.cardBody}>
-            <Text style={styles.cardTitle}>{roomName}</Text>
-            <View style={styles.cardFooter}>
-                <Icon name="users" size={16} />
-                <Text style={styles.userCount}>{users}</Text>
-            </View>
-        </View>
-    </TouchableOpacity>
-);
-
-const UserRoomCard = ({ movieTitle, roomName, users, live, handlePress }) => (
+const UserRoomCard = ({ roomName, users, live, handlePress }) => (
     <TouchableOpacity style={styles.userRoomCard} onPress={handlePress} >
         {live && (
             <Text style={styles.liveText}>
-                ● Live - <Text>{movieTitle}</Text>
+                ● Active
             </Text>
         )}
         <View style={styles.cardBody}>
@@ -166,36 +158,17 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "blue",
     },
-    section: {
-        marginBottom: 25,
-        paddingLeft: 16,
-    },
-    sectionHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 5,
-    },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 8,
+        paddingLeft: 16,
     },
-    label: {
-        fontSize: 14,
-        fontWeight: "bold",
-        marginBottom: 4,
-    },
-    cardRow: {
-        flexDirection: "row",
-    },
-    card: {
-        position: "relative",
-        width: 250,
-        height: 180,
-        backgroundColor: "#e0e0e0",
-        borderRadius: 8,
-        padding: 16,
-        marginRight: 16,
+    noRoomsText: {
+        fontSize: 16,
+        color: "gray",
+        paddingLeft: 16,
+        paddingVertical: 8,
     },
     userRoomCard: {
         position: "relative",
@@ -204,7 +177,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#e0e0e0",
         borderRadius: 8,
         padding: 16,
-        margin: "auto",
+        marginVertical: 8,
+        marginLeft: 16,
     },
     divider: {
         height: 1,

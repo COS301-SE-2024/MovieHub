@@ -1,17 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import FAIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
 import RoomModal from "../Components/RoomModal";
-import { getRoomDetails } from "../Services/RoomApiService"; // Import the getRoomDetails function
-
+import { getRoomDetails } from "../Services/RoomApiService";
 
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
     const { userInfo } = route.params;
     const { isUserRoom } = route.params;
-    const [roomName, setRoomName] = useState("Asa's Room");
     const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
     const [loading, setLoading] = useState(true); // State to manage loading status
 
@@ -20,20 +18,8 @@ const ViewRoom = ({ route }) => {
     const handleOpenBottomSheet = () => {
         bottomSheetRef.current?.present();
     };
-    
-    // const participants = [
-    //     { name: "Alice Johnson" },
-    //     { name: "Bob Smith" },
-    //     { name: "Carol Williams" },
-    // ]; 
 
-    // const requests = [
-    //     { name: "Joyce Moshokoa", status: null },
-    //     { name: "John Cena", status: "You can't see me" },
-    //     { name: "Veno Mous", status: null },
-    // ];
-
-    // TODO: fetch room details
+    // Fetch room details
     useEffect(() => {
         const fetchRoomDetails = async () => {
             try {
@@ -66,15 +52,18 @@ const ViewRoom = ({ route }) => {
         );
     }
 
+    // Destructure the roomDetails object for easier access
+    const { roomName, maxParticipants, roomDescription, participants = [] } = roomDetails;
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
-                    <Text style={styles.roomName}>{roomDetails.roomName ? roomName : "Asa's Room"}</Text>
+                    <Text style={styles.roomName}>{roomName || "Asa's Room"}</Text>
                 </View>
-                <Pressable  onPress={handleOpenBottomSheet}>
-                    <Icon name="more-horiz" size={24} style={{ marginRight: 10 }}  />
+                <Pressable onPress={handleOpenBottomSheet}>
+                    <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
                 </Pressable>
             </View>
 
@@ -86,7 +75,7 @@ const ViewRoom = ({ route }) => {
                     </TouchableOpacity>
                     <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo })}>
                         <FAIcon name="users" size={16} />
-                        <Text style={styles.participantsText}>{roomDetails.maxParticipants}</Text>
+                        <Text style={styles.participantsText}>{maxParticipants}</Text>
                     </Pressable>
                 </View>
             </View>
@@ -96,32 +85,36 @@ const ViewRoom = ({ route }) => {
                 <Text style={styles.movieDetails}>
                     2016 • 2h 34m • <Text style={styles.rating}>8.2</Text>
                 </Text>
-                <Text style={styles.movieDescription}>{roomDetails.roomDescription}</Text>
+                <Text style={styles.movieDescription}>{roomDescription}</Text>
             </View>
 
-            {isUserRoom && (
+            {/* {isUserRoom && (
                 <View style={styles.requestsContainer}>
                     <Text style={styles.requestsTitle}>
-                        Requests <Text style={styles.requestsCount}>{requests.length}</Text>
+                        Requests <Text style={styles.requestsCount}>{requests.length ? requests.length : 0}</Text>
                     </Text>
-                    {requests.map((request, index) => (
-                        <View key={index} style={styles.request}>
-                            <View style={styles.profilePlaceholder} />
-                            <View style={styles.requestInfo}>
-                                <Text style={styles.requestName}>{request.name}</Text>
-                                {request.status && <Text style={styles.requestStatus}>{request.status}</Text>}
+                    {requests && requests.length > 0 ? (
+                        requests.map((request, index) => (
+                            <View key={index} style={styles.request}>
+                                <View style={styles.profilePlaceholder} />
+                                <View style={styles.requestInfo}>
+                                    <Text style={styles.requestName}>{request.name}</Text>
+                                    {request.status && <Text style={styles.requestStatus}>{request.status}</Text>}
+                                </View>
+                                <TouchableOpacity style={styles.acceptButton}>
+                                    <Text style={styles.acceptText}>Accept</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.rejectButton}>
+                                    <Text style={styles.rejectText}>Reject</Text>
+                                </TouchableOpacity>
                             </View>
-                            <TouchableOpacity style={styles.acceptButton}>
-                                <Text style={styles.acceptText}>Accept</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.rejectButton}>
-                                <Text style={styles.rejectText}>Reject</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
+                        ))
+                    ) : (
+                        <Text>No requests available.</Text>
+                    )}
                 </View>
-            )}
-            
+            )} */}
+
             <View style={styles.participantsContainer}>
                 <Text style={styles.participantsTitle}>Participants <Text style={styles.requestsCount}>{participants.length}</Text></Text>
                 {participants.map((participant, index) => (
@@ -156,12 +149,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "500",
     },
-    moreOptions: {
-        padding: 8,
-    },
-    moreText: {
-        fontSize: 24,
-    },
     videoContainer: {
         marginBottom: 16,
         paddingHorizontal: 16,
@@ -188,11 +175,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingRight: 4
-    },
-    participantsIcon: {
-        width: 24,
-        height: 24,
-        marginRight: 6,
     },
     participantsText: {
         fontSize: 16,
@@ -276,18 +258,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 8,
     },
-    profilePlaceholder: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: "#ccc",
-        marginRight: 8,
-    },
     participantName: {
         fontSize: 14,
         fontWeight: "500",
     },
-    // Add styles for loading and error containers
     loadingContainer: {
         flex: 1,
         justifyContent: "center",
