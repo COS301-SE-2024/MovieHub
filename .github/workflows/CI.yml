@@ -23,7 +23,21 @@ jobs:
           cd backend
           npm install
 
+      - name: Check environment variables
+        run: |
+          echo "NEO4J_URI is set"
+          echo "NEO4J_USERNAME is set"
+          echo "NEO4J_PASSWORD is set"
+        env:
+          NEO4J_URI: ${{ secrets.NEO4J_URI }}
+          NEO4J_USERNAME: ${{ secrets.NEO4J_USERNAME }}
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
+    
       - name: Run tests with coverage
+        env:
+          NEO4J_URI: ${{ secrets.NEO4J_URI }}
+          NEO4J_USERNAME: ${{ secrets.NEO4J_USERNAME }}
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
         run: npm test -- --coverage
 
       - name: Upload Coverage Artifact
