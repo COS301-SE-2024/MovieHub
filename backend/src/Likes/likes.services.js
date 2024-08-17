@@ -24,26 +24,6 @@ exports.getLikesOfUser = async (uid) => {
     }
 };
 
-// exports.getLikes = async ( entityType) => {
-//     const session = driver.session();
-//     console.log("getLikes", entityType);
-//     try {
-//         const result = await session.run(
-//             `MATCH (u:User)-[:LIKES]->(e:${entityType})
-//             WHERE u.uid = $uid
-//             RETURN e`,
-//             { uid }
-//         );
-
-//         console.log(result);
-//         const entities = result.records.map(record => record.get('data'));
-//         const data = await processGets(entities); // Await the processGets call if necessary
-//         return data;
-//     } finally {
-//         await session.close();
-//     }
-// };
-
 exports.getLikesOfReview = async (reviewId) => {
     const session = driver.session();
     console.log("getLikesOfReview", reviewId);
@@ -56,6 +36,9 @@ exports.getLikesOfReview = async (reviewId) => {
         );
 
         console.log(result);
+        if (result.records.length === 0) {
+            return 0;
+        }
         const likeCount = result.records[0].get('likeCount').toInt();
         return likeCount;
     } finally {
@@ -134,44 +117,6 @@ exports.getLikesOfPost = async (postId) => {
         await session.close();
     }
 };
-
-
-// async function toggleLike(uid, entityId, entityType) {
-//     const session = driver.session();
-//     try {
-//         const result = await session.run(
-//             `MATCH (u:User), (e)
-//             WHERE u.uid = $uid AND ID(e) = $entityId
-//             MATCH (u)-[like:LIKES]->(e)
-//             RETURN like`,
-//             { uid, entityId }
-//         );
-
-//         if (result.records.length > 0) {
-//             await session.run(
-//                 `MATCH (u:User), (e)
-//                 WHERE u.uid = $uid AND ID(e) = $entityId
-//                 MATCH (u)-[like:LIKES]->(e)
-//                 DETACH DELETE like`,
-//                 { uid, entityId }
-//             );
-//             return false; // Like removed
-//         } else {
-//             await session.run(
-//                 `MATCH (u:User), (e)
-//                 WHERE u.uid = $uid AND ID(e) = $entityId
-//                 MERGE (u)-[:LIKES]->(e)`,
-//                 { uid, entityId }
-//             );
-//             return true; // Entity liked
-//         }
-//     } catch (error) {
-//         console.error(`Error toggling like on ${entityType.toLowerCase()}:`, error);
-//         throw new Error(`An error occurred while toggling like on the ${entityType.toLowerCase()}`);
-//     } finally {
-//         await session.close();
-//     }
-// }
 
 exports.toggleLikeReview = async (uid, reviewId) => {
     const session = driver.session();

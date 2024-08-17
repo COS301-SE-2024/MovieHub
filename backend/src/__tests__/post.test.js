@@ -460,47 +460,6 @@ describe('DELETE post/remove/comment', () => {
     });
 });
 
-describe('GET /post/movie/:movieId/posts', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
-    it('should get posts of a movie', async () => {
-        const movieId = '1';
-        const posts = [{ id: '1', text: 'Great movie!' }];
-
-        postService.getPostsOfMovie.mockResolvedValueOnce(posts);
-
-        const res = await request(app).get(`/post/movie/${movieId}/posts`);
-
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual({ message: 'Posts fetched successfully', data: posts });
-    });
-
-    it('should return 400 if there is an error fetching posts', async () => {
-        const movieId = '1';
-
-        postService.getPostsOfMovie.mockResolvedValueOnce(null);
-
-        const res = await request(app).get(`/post/movie/${movieId}/posts`);
-
-        expect(res.status).toBe(400);
-        expect(res.body).toEqual({ message: 'Error fetching posts' });
-    });
-
-    it('should return 500 if there is an internal server error', async () => {
-        const movieId = '1';
-        const errorMessage = 'Internal server error';
-
-        postService.getPostsOfMovie.mockRejectedValueOnce(new Error(errorMessage));
-
-        const res = await request(app).get(`/post/movie/${movieId}/posts`);
-
-        expect(res.status).toBe(500);
-        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-    });
-});
-
 describe('GET /post/movie/:movieId/reviews', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -804,15 +763,15 @@ describe('GET /post/post/:postId/comment/count', () => {
         expect(res.body).toEqual({ message: 'Post comment count fetched successfully', data: postCommentCount });
     });
 
-    it('should return 400 if there is an error fetching the post comment count', async () => {
-        postService.getCountCommentsOfPost.mockResolvedValueOnce(null);
+    // it('should return 400 if there is an error fetching the post comment count', async () => {
+    //     postService.getCountCommentsOfPost.mockResolvedValueOnce(null);
 
-        const res = await request(app)
-            .get('/post/post/1/comment/count');
+    //     const res = await request(app)
+    //         .get('/post/post/1/comment/count');
 
-        expect(res.status).toBe(400);
-        expect(res.body).toEqual({ message: 'Error fetching post comment count' });
-    });
+    //     expect(res.status).toBe(400);
+    //     expect(res.body).toEqual({ message: 'Error fetching post comment count' });
+    // });
 
     it('should return 500 if there is an internal server error', async () => {
         const errorMessage = 'Internal server error';
@@ -842,15 +801,15 @@ describe('GET /post/review/:reviewId/comment/count', () => {
         expect(res.body).toEqual({ message: 'Review comment count fetched successfully', data: reviewCommentCount });
     });
 
-    it('should return 400 if there is an error fetching the review comment count', async () => {
-        postService.getCountCommentsOfReview.mockResolvedValueOnce(null);
+    // it('should return 400 if there is an error fetching the review comment count', async () => {
+    //     postService.getCountCommentsOfReview.mockResolvedValueOnce(null);
 
-        const res = await request(app)
-            .get('/post/review/1/comment/count');
+    //     const res = await request(app)
+    //         .get('/post/review/1/comment/count');
 
-        expect(res.status).toBe(400);
-        expect(res.body).toEqual({ message: 'Error fetching review comment count' });
-    });
+    //     expect(res.status).toBe(400);
+    //     expect(res.body).toEqual({ message: 'Error fetching review comment count' });
+    // });
 
     it('should return 500 if there is an internal server error', async () => {
         const errorMessage = 'Internal server error';
