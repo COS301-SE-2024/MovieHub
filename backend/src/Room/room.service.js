@@ -381,7 +381,7 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
 
         // Send notification to the invited user using Firebase Realtime Database
         const db = getDatabase();
-        const notificationsRef = ref(db, `notifications/${userId}`); // Reference to the user's notifications
+        const notificationsRef = ref(db, `notifications/${userId}/room_invitations`); // Reference to the user's notifications
         const newNotificationRef = push(notificationsRef); // Create a new notification entry
 
         // Set the notification details
