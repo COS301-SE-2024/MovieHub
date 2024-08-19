@@ -1,35 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { getUserNotifications } from '../Services/UsersApiService'; // Import from UsersApiService
+import { markNotificationAsRead, deleteNotification, clearNotifications } from '../Services/NotifyApiService'; // Import from NotifyApiService
 import BottomHeader from "../Components/BottomHeader";
-
-import { themeStyles } from "../styles/theme";
 
 const Notifications = ({ route }) => {
     const { userInfo } = route.params;
+    const [notifications, setNotifications] = useState([]);
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, text: "New message from John", read: false },
-        { id: 2, text: "You have 3 new followers", read: true },
-        { id: 3, text: "Reminder: Complete your profile", read: false },
-        { id: 4, text: "Your post got 50 likes", read: true },
-        { id: 5, text: "Event reminder: Watch Party at 3!", read: false },
-        { id: 6, text: "New message from Kamo", read: true },
-        { id: 7, text: "New message from Lily", read: true },
-        { id: 8, text: "New message from John", read: true },
-        { id: 9, text: "New message from Barry", read: true },
-        { id: 10, text: "New message from John", read: true },
-    ]);
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const data = await getUserNotifications(userInfo.uid);
+                setNotifications(data);
+            } catch (error) {
+                console.error('Failed to fetch notifications:', error);
+            }
+        };
 
-    const markAsRead = (id) => {
-        const updatedNotifications = notifications.map((notification) =>
-            notification.id === id ? { ...notification, read: true } : notification
-        );
-        setNotifications(updatedNotifications);
+        fetchNotifications();
+    }, [userInfo.uid]);
+
+    const handleMarkAsRead = async (id) => {
+        try {
+            await markNotificationAsRead(userInfo.uid, id);
+            setNotifications(notifications.map((notification) =>
+                notification.id === id ? { ...notification, read: true } : notification
+            ));
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+        }
     };
 
-    const deleteNotification = (id) => {
-        const updatedNotifications = notifications.filter((notification) => notification.id !== id);
-        setNotifications(updatedNotifications);
+    const handleDeleteNotification = async (id) => {
+        try {
+            await deleteNotification(userInfo.uid, id);
+            setNotifications(notifications.filter((notification) => notification.id !== id));
+        } catch (error) {
+            console.error('Failed to delete notification:', error);
+        }
+    };
+
+    const handleClearNotifications = async () => {
+        try {
+            await clearNotifications(userInfo.uid);
+            setNotifications([]);
+        } catch (error) {
+            console.error('Failed to clear notifications:', error);
+        }
     };
 
     const renderItem = ({ item }) => (
@@ -41,27 +59,33 @@ const Notifications = ({ route }) => {
                 {!item.read && (
                     <TouchableOpacity
                         style={[styles.button, styles.readButton]}
-                        onPress={() => markAsRead(item.id)}
+                        onPress={() => handleMarkAsRead(item.id)}
                     >
                         <Text style={styles.buttonText}>Mark as Read</Text>
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => deleteNotification(item.id)}>
+                <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id)}>
                     <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
             </View>
-
         </View>
     );
 
     return (
         <View style={styles.container}>
-            <FlatList
-                data={notifications}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={styles.listContainer}
-            />            
+            {notifications.length === 0 ? (
+                <Text>No older Messages</Text>
+            ) : (
+                <FlatList
+                    data={notifications}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={styles.listContainer}
+                />
+            )}
+            <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                <Text style={styles.buttonText}>Clear All</Text>
+            </TouchableOpacity>
             <BottomHeader userInfo={userInfo} />
         </View>
     );
@@ -112,6 +136,13 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         backgroundColor: "#000000",
+    },
+    clearButton: {
+        backgroundColor: "#ff0000",
+        padding: 10,
+        borderRadius: 5,
+        alignItems: "center",
+        justifyContent: "center",
     },
     buttonText: {
         color: "#fff",
