@@ -16,4 +16,7 @@ router.post('/follow', userController.followUser);
 router.post('/unfollow', userController.unfollowUser);
 router.get('/friends/:id', userController.getFriends);
 
+// Route to get user notifications
+router.get('/:id/notifications', userController.getUserNotifications);
+
 module.exports = router;

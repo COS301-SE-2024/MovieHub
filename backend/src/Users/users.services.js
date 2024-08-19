@@ -1,6 +1,7 @@
 // backend/users/users.services.js
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
+const { getDatabase, ref, get } = require('firebase/database');
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -202,6 +203,25 @@ exports.getFriends = async (userId) => {
     }
 };
 
+// Get user notifications from Firebase Realtime Database
+exports.getUserNotifications = async (userId) => {
+    const db = getDatabase();
+    const notificationsRef = ref(db, `notifications/${userId}`);
+
+    try {
+        const snapshot = await get(notificationsRef);
+        if (!snapshot.exists()) {
+            console.warn(`No notifications found for userId: ${userId}`);
+            return [];
+        }
+
+        const notifications = snapshot.val();
+        return notifications;
+    } catch (error) {
+        console.error("Error fetching notifications:", error);
+        throw error;
+    }
+};
 
 // Close the driver when the application exits
 process.on('exit', async () => {

@@ -379,7 +379,21 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
             { userId, roomId }
         );
 
-        console.log(`User ${userId} invited to room ${roomId} by admin ${adminId}.`);
+        // Send notification to the invited user using Firebase Realtime Database
+        const db = getDatabase();
+        const notificationsRef = ref(db, `notifications/${userId}`); // Reference to the user's notifications
+        const newNotificationRef = push(notificationsRef); // Create a new notification entry
+
+        // Set the notification details
+        await set(newNotificationRef, {
+            message: `You have been invited to join the room: ${roomCheck.records[0].get('r').properties.roomName}`,
+            roomId: roomId,
+            invitedBy: adminId,
+            timestamp: new Date().toISOString(),
+            read: false // Mark notification as unread
+        });
+
+        console.log(`User ${userId} invited to room ${roomId} by admin ${adminId}. Notification sent.`);
         return true;
     } catch (error) {
         console.error('Error inviting user to room:', error);
@@ -388,6 +402,7 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
         await session.close();
     }
 };
+
 
 // Function to decline a room invite
 exports.declineRoomInvite = async (userId, roomId) => {
