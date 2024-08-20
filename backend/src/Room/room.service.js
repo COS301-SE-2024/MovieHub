@@ -361,16 +361,19 @@ async function checkUserAccess(userId, room) {
 exports.inviteUserToRoom = async (adminId, userId, roomId) => {
     const session = driver.session();
     try {
-        // Check if the room is invite-only and the admin is the creator
+        // Check if the room is invite-only and the admin is the creator, and get the room's shortCode
         const roomCheck = await session.run(
             `MATCH (r:Room {roomId: $roomId, accessLevel: 'invite', createdBy: $adminId})
-             RETURN r`,
+             RETURN r.shortCode AS shortCode, r.roomName AS roomName`,
             { roomId, adminId }
         );
 
         if (roomCheck.records.length === 0) {
             throw new Error('Room is not invite-only or admin is not authorized.');
         }
+
+        const shortCode = roomCheck.records[0].get('shortCode');
+        const roomName = roomCheck.records[0].get('roomName');
 
         // Create an INVITED_TO relationship
         await session.run(
@@ -384,11 +387,13 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
         const notificationsRef = ref(db, `notifications/${userId}/room_invitations`); // Reference to the user's notifications
         const newNotificationRef = push(notificationsRef); // Create a new notification entry
 
-        // Set the notification details
+        // Set the notification details, including the shortCode
         await set(newNotificationRef, {
-            message: `You have been invited to join the room: ${roomCheck.records[0].get('r').properties.roomName}`,
+            message: `You have been invited to join the room: ${roomName}`,
             roomId: roomId,
+            shortCode: shortCode, // Include the room code
             invitedBy: adminId,
+            notificationType: 'room_invite',
             timestamp: new Date().toISOString(),
             read: false // Mark notification as unread
         });
@@ -402,6 +407,7 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
         await session.close();
     }
 };
+
 
 
 // Function to decline a room invite

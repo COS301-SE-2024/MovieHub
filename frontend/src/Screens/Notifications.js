@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { getUserNotifications } from '../Services/UsersApiService'; // Import from UsersApiService
 import { markNotificationAsRead, deleteNotification, clearNotifications } from '../Services/NotifyApiService'; // Import from NotifyApiService
+import { joinRoom, declineRoomInvite } from '../Services/RoomApiService'; // Import RoomApiService
 import BottomHeader from "../Components/BottomHeader";
 
 const Notifications = ({ route }) => {
@@ -50,10 +51,34 @@ const Notifications = ({ route }) => {
         }
     };
 
+    const handleAcceptInvite = async (shortCode) => {
+        try {
+            const response = await joinRoom(shortCode, userInfo.uid);
+            if (response.success) {
+                console.log('Joined room successfully:', response.roomId);
+                handleDeleteNotification(response.roomId); // Delete the invite notification after joining
+            } else {
+                console.error('Failed to join room:', response.message);
+            }
+        } catch (error) {
+            console.error('Error joining room:', error);
+        }
+    };
+
+    const handleDeclineInvite = async (roomId) => {
+        try {
+            await declineRoomInvite(userInfo.uid, roomId);
+            console.log(`Declined room invite with ID: ${roomId}`);
+            handleDeleteNotification(roomId); // Delete the invite notification after declining
+        } catch (error) {
+            console.error('Error declining room invite:', error);
+        }
+    };
+
     const renderItem = ({ item }) => (
         <View style={styles.notificationItem}>
             <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]}>
-                {item.text}
+                {item.message}
             </Text>
             <View style={styles.buttonContainer}>
                 {!item.read && (
@@ -63,6 +88,22 @@ const Notifications = ({ route }) => {
                     >
                         <Text style={styles.buttonText}>Mark as Read</Text>
                     </TouchableOpacity>
+                )}
+                {item.notificationType === 'room_invite' && (
+                    <>
+                        <TouchableOpacity
+                            style={[styles.button, styles.acceptButton]}
+                            onPress={() => handleAcceptInvite(item.shortCode)}
+                        >
+                            <Text style={styles.buttonText}>Accept</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.button, styles.declineButton]}
+                            onPress={() => handleDeclineInvite(item.roomId)}
+                        >
+                            <Text style={styles.buttonText}>Decline</Text>
+                        </TouchableOpacity>
+                    </>
                 )}
                 <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id)}>
                     <Text style={styles.buttonText}>Delete</Text>
@@ -130,6 +171,12 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         alignItems: "center",
         justifyContent: "center",
+    },
+    acceptButton: {
+        backgroundColor: "#4CAF50", // Green button for accepting
+    },
+    declineButton: {
+        backgroundColor: "#f44336", // Red button for declining
     },
     readButton: {
         backgroundColor: "#ddd",

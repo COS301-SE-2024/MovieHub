@@ -22,7 +22,7 @@ const verifyToken = async () => {
 // Mark a notification as read
 export const markNotificationAsRead = async (userId, notificationId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${userId}/room_invitations/${notificationId}/read`, {
+    const response = await fetch(`${API_URL}/${userId}/${type}/${notificationId}/read`, {
         method: 'PATCH',
         headers,
     });
@@ -35,7 +35,7 @@ export const markNotificationAsRead = async (userId, notificationId) => {
 // Delete a notification
 export const deleteNotification = async (userId, notificationId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${userId}/room_invitations/${notificationId}`, {
+    const response = await fetch(`${API_URL}/${userId}/${type}/${notificationId}`, {
         method: 'DELETE',
         headers,
     });
@@ -48,7 +48,7 @@ export const deleteNotification = async (userId, notificationId) => {
 // Clear all notifications for a user
 export const clearNotifications = async (userId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${userId}/room_invitations`, {
+    const response = await fetch(`${API_URL}/${userId}/${type}`, {
         method: 'DELETE',
         headers,
     });
