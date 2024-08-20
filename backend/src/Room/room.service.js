@@ -115,17 +115,18 @@ exports.createRoom = async (userId, roomData) => {
 exports.getRoomDetails = async (roomIdentifier) => {
     const session = driver.session();
     try {
-        // Query to check if the identifier matches either roomId or shortCode
         const result = await session.run(
             `MATCH (r:Room)
              WHERE r.roomId = $identifier OR r.shortCode = $identifier
-             RETURN r`,
+             OPTIONAL MATCH (u:User)-[:CREATED]->(r)
+             RETURN r, u`,
             { identifier: roomIdentifier }
         );
 
         if (result.records.length > 0) {
             const room = result.records[0].get('r').properties;
-            return { success: true, room };
+            const creator = result.records[0].get('u') ? result.records[0].get('u').properties : null;
+            return { success: true, room, creator };
         }
 
         return { success: false, message: 'Room not found' };
@@ -141,10 +142,10 @@ exports.getRoomDetails = async (roomIdentifier) => {
 exports.getRoomParticipantCount = async (roomId) => {
     const session = driver.session();
     try {
-        // Query to count the number of participants in the room
         const result = await session.run(
-            `MATCH (r:Room {roomId: $roomId})<-[:PARTICIPATES_IN]-(u:User)
-             RETURN COUNT(u) AS participantCount`,
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(u:User)
+             RETURN COUNT(DISTINCT u) + 1 AS participantCount`,
             { roomId }
         );
 
@@ -159,7 +160,8 @@ exports.getRoomParticipantCount = async (roomId) => {
         throw error;
     } finally {
         await session.close();
-    }};
+    }
+};
 
 exports.getRoomParticipants = async (roomId) => {
     const session = driver.session();

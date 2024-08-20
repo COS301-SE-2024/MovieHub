@@ -1,12 +1,12 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms } from '../Services/RoomApiService'; // Import the functions
+import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from '../Services/RoomApiService'; // Import the functions
 
 const HubScreen = ({ route }) => {
-    const { userInfo, newRoom } = route.params;
+    const { userInfo } = route.params;
     const navigation = useNavigation();
     const [createdRooms, setCreatedRooms] = useState([]);
     const [participatingRooms, setParticipatingRooms] = useState([]);
@@ -16,26 +16,50 @@ const HubScreen = ({ route }) => {
         const fetchRooms = async () => {
             try {
                 const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
-                setCreatedRooms(createdRoomsData);
+
+                // Fetch participant counts for created rooms
+                const createdRoomsWithCounts = await Promise.all(createdRoomsData.map(async room => {
+                    const countResponse = await getRoomParticipantCount(room.roomId);
+                    return {
+                        ...room,
+                        participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
+                    };
+                }));
+                setCreatedRooms(createdRoomsWithCounts);
             } catch (error) {
                 console.error('Failed to fetch created rooms:', error);
-                setError('Failed to fetch created rooms');
             }
 
             try {
                 const participatingRoomsData = await getUserParticipatedRooms(userInfo.userId);
-                setParticipatingRooms(participatingRoomsData);
+
+                // Fetch participant counts for participating rooms
+                const participatingRoomsWithCounts = await Promise.all(participatingRoomsData.map(async room => {
+                    const countResponse = await getRoomParticipantCount(room.roomId);
+                    return {
+                        ...room,
+                        participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
+                    };
+                }));
+                setParticipatingRooms(participatingRoomsWithCounts);
             } catch (error) {
                 console.error('Failed to fetch participated rooms:', error);
-                setError('Failed to fetch participated rooms');
             }
 
             try {
                 const publicRoomsData = await getPublicRooms();
-                setPublicRooms(publicRoomsData);
+
+                // Fetch participant counts for public rooms
+                const publicRoomsWithCounts = await Promise.all(publicRoomsData.map(async room => {
+                    const countResponse = await getRoomParticipantCount(room.roomId);
+                    return {
+                        ...room,
+                        participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
+                    };
+                }));
+                setPublicRooms(publicRoomsWithCounts);
             } catch (error) {
                 console.error('Failed to fetch public rooms:', error);
-                setError('Failed to fetch public rooms');
             }
         };
         fetchRooms();
@@ -66,7 +90,7 @@ const HubScreen = ({ route }) => {
                         <UserRoomCard
                             key={index}
                             roomName={room.roomName}
-                            users={room.maxParticipants}
+                            users={room.participantsCount}
                             live={room.roomType !== "Chat-only"}
                             handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true, roomId: room.roomId })}
                         />
@@ -116,7 +140,7 @@ const HubScreen = ({ route }) => {
 };
 
 const UserRoomCard = ({ roomName, users, live, handlePress }) => (
-    <TouchableOpacity style={styles.userRoomCard} onPress={handlePress} >
+    <TouchableOpacity style={styles.userRoomCard} onPress={handlePress}>
         {live && (
             <Text style={styles.liveText}>
                 ● Active

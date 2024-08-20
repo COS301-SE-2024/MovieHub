@@ -268,5 +268,6 @@ export const getUserNotifications = async (userId) => {
     }
 
     const data = await response.json();
+    console.log("Inside UsersApiService, check data: " + JSON.stringify(data));
     return data;
 };

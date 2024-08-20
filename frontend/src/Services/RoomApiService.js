@@ -76,6 +76,24 @@ export const getUserParticipatedRooms = async (userId) => {
     return data;
 };
 
+
+// New function to get participants of a specific room
+export const getRoomParticipants = async (roomId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${roomId}/participants`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch room participants');
+    }
+
+    const data = await response.json();
+    return data.participants;
+};
+
 // Get public rooms
 export const getPublicRooms = async () => {
     const headers = await verifyToken();
@@ -217,7 +235,7 @@ export const kickUserFromRoom = async (roomId, adminId, userId) => {
 // Add a message to a room
 export const addMessageToRoom = async (roomId, userId, message) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/messages`, {
+    const response = await fetch(`${API_URL}/message`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ roomId, userId, message }),
@@ -234,7 +252,7 @@ export const addMessageToRoom = async (roomId, userId, message) => {
 // Get messages from a room
 export const getMessagesFromRoom = async (roomId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${roomId}/messages`, {
+    const response = await fetch(`${API_URL}/messages/${roomId}`, {
         headers,
     });
 

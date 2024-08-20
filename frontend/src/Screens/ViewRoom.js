@@ -25,9 +25,10 @@ const ViewRoom = ({ route }) => {
         const fetchRoomDetails = async () => {
             try {
                 const roomId = route.params.roomId; // Assuming roomId is passed in route params
+                console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
-
+                console.log("Room details fetched: ", response);
                 // Fetch participant count
                 const participantResponse = await getRoomParticipantCount(roomId);
                 if (participantResponse.success) {
@@ -79,7 +80,7 @@ const ViewRoom = ({ route }) => {
             <View style={styles.videoContainer}>
                 <View style={styles.videoPlaceholder} />
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                    <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo })}>
+                    <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
                         <Text style={styles.enterText}>Enter</Text>
                     </TouchableOpacity>
                     <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo })}>
