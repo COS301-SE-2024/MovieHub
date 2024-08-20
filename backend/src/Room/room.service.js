@@ -166,20 +166,24 @@ exports.getRoomParticipantCount = async (roomId) => {
 exports.getRoomParticipants = async (roomId) => {
     const session = driver.session();
     try {
-        // Query to get the list of participants in the room
+        // Query to get the list of participants in the room and the creator of the room
         const result = await session.run(
-            `MATCH (r:Room {roomId: $roomId})<-[:PARTICIPATES_IN]-(u:User)
-             RETURN u`,
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(p:User)
+             OPTIONAL MATCH (c:User)-[:CREATED]->(r)
+             RETURN collect(p) AS participants, collect(c) AS creator`,
             { roomId }
         );
 
-        // Check if there are any participants
-        if (result.records.length > 0) {
-            const participants = result.records.map(record => record.get('u').properties);
-            return { success: true, participants };
-        }
+        // Extract participants and creator from the result
+        const participants = result.records[0].get('participants').map(user => user.properties);
+        const creator = result.records[0].get('creator')[0]?.properties;
 
-        return { success: false, message: 'No participants found for the room' };
+        return {
+            success: true,
+            participants,
+            creator
+        };
     } catch (error) {
         console.error('Error retrieving room participants:', error);
         throw error;
@@ -187,6 +191,7 @@ exports.getRoomParticipants = async (roomId) => {
         await session.close();
     }
 };
+
 
 // Get all rooms a user has created
 exports.getUserCreatedRooms = async (userId) => {

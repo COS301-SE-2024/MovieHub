@@ -44,6 +44,7 @@ exports.getRoomParticipants = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 participants: result.participants,
+                creator: result.creator
             });
         } else {
             return res.status(404).json({

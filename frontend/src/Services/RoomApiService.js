@@ -76,11 +76,10 @@ export const getUserParticipatedRooms = async (userId) => {
     return data;
 };
 
-
 // New function to get participants of a specific room
 export const getRoomParticipants = async (roomId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${roomId}/participants`, {
+    const response = await fetch(`${API_URL}/${roomId}/participants`, { // Ensure the API URL matches your backend route
         method: 'GET',
         headers,
     });
@@ -91,8 +90,10 @@ export const getRoomParticipants = async (roomId) => {
     }
 
     const data = await response.json();
-    return data.participants;
+    console.log("Here we go agaaaaaaaaaain", data);
+    return data; // Return the entire data object, including participants and creator
 };
+
 
 // Get public rooms
 export const getPublicRooms = async () => {

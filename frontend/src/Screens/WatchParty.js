@@ -11,6 +11,7 @@ const WatchParty = ({ route }) => {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [participants, setParticipants] = useState([]);
+    const [creator, setCreator] = useState(null); // State to store creator information
     const [roomName, setRoomName] = useState(""); // State to store the room name
     const flatListRef = useRef(null);
     const bottomSheetRef = useRef(null);
@@ -18,10 +19,13 @@ const WatchParty = ({ route }) => {
     useEffect(() => {
         const fetchParticipantsAndMessages = async () => {
             try {
-                // Fetch room participants
-                const fetchedParticipants = await getRoomParticipants(roomId);
+                // Fetch room participants including creator
+                const { participants: fetchedParticipants, creator: fetchedCreator } = await getRoomParticipants(roomId);
                 setParticipants(fetchedParticipants);
-               // console.log("LOOOOOOOOOK", participants);
+                setCreator(fetchedCreator);
+                console.log("Check fetched parti: " + fetchedParticipants);
+                console.log("LOOOOOOOK", participants);
+                console.log("LOOOOOOOOK again", creator);
                 // Fetch room details
                 const roomDetails = await getRoomDetails(roomId);
                 setRoomName(roomDetails.room.roomName || "Unknown Room"); // Set room name
@@ -29,7 +33,7 @@ const WatchParty = ({ route }) => {
                 // Fetch messages
                 const fetchedMessages = await getMessagesFromRoom(roomId);
                 const formattedMessages = Object.entries(fetchedMessages).map(([key, value]) => {
-                    const senderInfo = participants.find(participant => participant.uid === value.userId) || {};
+                    const senderInfo = participants.find(participant => participant.uid === value.userId) || creator;
                     return {
                         id: key,
                         sender: value.userId === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
@@ -175,7 +179,7 @@ const WatchParty = ({ route }) => {
                     <Text>Room: {roomName}</Text>
                     <View style={styles.roomDetails}>
                         <Ionicons name="people" size={16} color="black" />
-                        <Text>{participants.length}</Text>
+                        <Text>{(Array.isArray(participants) ? participants.length : 0) + 1}</Text>
                     </View>
                 </View>
                 <TouchableOpacity onPress={handleInvitePress}>
@@ -209,7 +213,9 @@ const WatchParty = ({ route }) => {
                     <Ionicons name="send" size={24} color="white" />
                 </TouchableOpacity>
             </View>
-            <InviteModal ref={bottomSheetRef} friends={participants} title="Invite Friends" onInvite={handleInviteUser} />
+            {/* <InviteModal ref={bottomSheetRef} 
+                friends={ [] } // Pass an empty array if there are no friends to invite
+            title="Invite Friends" onInvite={handleInviteUser} /> */}
         </KeyboardAvoidingView>
     );
 };
