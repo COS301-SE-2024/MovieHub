@@ -12,19 +12,40 @@ const Notifications = ({ route }) => {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const data = await getUserNotifications(userInfo.uid);
-                setNotifications(data);
+                const data = await getUserNotifications(userInfo.userId);
+                console.log("Fetched user notifications: ", data);
+
+                // Flatten notifications into an array
+                const flattenedNotifications = [];
+                if (data.success && data.notifications) {
+                    for (const category in data.notifications) {
+                        if (data.notifications.hasOwnProperty(category)) {
+                            const notificationsOfCategory = data.notifications[category];
+                            for (const id in notificationsOfCategory) {
+                                if (notificationsOfCategory.hasOwnProperty(id)) {
+                                    const notification = notificationsOfCategory[id];
+                                    flattenedNotifications.push({
+                                        id, // Unique identifier for each notification
+                                        ...notification, // Spread the notification details
+                                        type: category // Add the category/type of the notification
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                setNotifications(flattenedNotifications);
             } catch (error) {
                 console.error('Failed to fetch notifications:', error);
             }
         };
 
         fetchNotifications();
-    }, [userInfo.uid]);
+    }, [userInfo.userId]);
 
-    const handleMarkAsRead = async (id) => {
+    const handleMarkAsRead = async (id, type) => {
         try {
-            await markNotificationAsRead(userInfo.uid, id);
+            await markNotificationAsRead(userInfo.userId, type, id);
             setNotifications(notifications.map((notification) =>
                 notification.id === id ? { ...notification, read: true } : notification
             ));
@@ -33,9 +54,9 @@ const Notifications = ({ route }) => {
         }
     };
 
-    const handleDeleteNotification = async (id) => {
+    const handleDeleteNotification = async (id, type) => {
         try {
-            await deleteNotification(userInfo.uid, id);
+            await deleteNotification(userInfo.userId, type, id);
             setNotifications(notifications.filter((notification) => notification.id !== id));
         } catch (error) {
             console.error('Failed to delete notification:', error);
@@ -44,19 +65,21 @@ const Notifications = ({ route }) => {
 
     const handleClearNotifications = async () => {
         try {
-            await clearNotifications(userInfo.uid);
+            // Assuming type needs to be passed for clearing all notifications, you might need to adjust this
+            await clearNotifications(userInfo.userId);
             setNotifications([]);
         } catch (error) {
             console.error('Failed to clear notifications:', error);
         }
     };
 
-    const handleAcceptInvite = async (shortCode) => {
+    const handleAcceptInvite = async (shortCode, roomId) => {
         try {
-            const response = await joinRoom(shortCode, userInfo.uid);
-            if (response.success) {
+            const response = await joinRoom(shortCode, userInfo.userId);
+            console.log("Notification.js Accept func response:", JSON.stringify(response));
+            if (response.roomId) {
                 console.log('Joined room successfully:', response.roomId);
-                handleDeleteNotification(response.roomId); // Delete the invite notification after joining
+                handleDeleteNotification(roomId, 'room_invitations'); // Delete the invite notification after joining
             } else {
                 console.error('Failed to join room:', response.message);
             }
@@ -67,9 +90,9 @@ const Notifications = ({ route }) => {
 
     const handleDeclineInvite = async (roomId) => {
         try {
-            await declineRoomInvite(userInfo.uid, roomId);
+            await declineRoomInvite(userInfo.userId, roomId);
             console.log(`Declined room invite with ID: ${roomId}`);
-            handleDeleteNotification(roomId); // Delete the invite notification after declining
+            handleDeleteNotification(roomId, 'room_invitations'); // Delete the invite notification after declining
         } catch (error) {
             console.error('Error declining room invite:', error);
         }
@@ -84,7 +107,7 @@ const Notifications = ({ route }) => {
                 {!item.read && (
                     <TouchableOpacity
                         style={[styles.button, styles.readButton]}
-                        onPress={() => handleMarkAsRead(item.id)}
+                        onPress={() => handleMarkAsRead(item.id, item.type)}
                     >
                         <Text style={styles.buttonText}>Mark as Read</Text>
                     </TouchableOpacity>
@@ -93,7 +116,7 @@ const Notifications = ({ route }) => {
                     <>
                         <TouchableOpacity
                             style={[styles.button, styles.acceptButton]}
-                            onPress={() => handleAcceptInvite(item.shortCode)}
+                            onPress={() => handleAcceptInvite(item.shortCode, item.id)}
                         >
                             <Text style={styles.buttonText}>Accept</Text>
                         </TouchableOpacity>
@@ -105,7 +128,10 @@ const Notifications = ({ route }) => {
                         </TouchableOpacity>
                     </>
                 )}
-                <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id)}>
+                <TouchableOpacity
+                    style={[styles.button, styles.deleteButton]}
+                    onPress={() => handleDeleteNotification(item.id, item.type)}
+                >
                     <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
             </View>

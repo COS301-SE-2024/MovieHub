@@ -117,6 +117,8 @@ export const joinRoom = async (code, userId) => {
         body: JSON.stringify({ code, userId }),
     });
 
+    console.log("RoomApiService joinRoom response: " + JSON.stringify(response));
+
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to join room');
