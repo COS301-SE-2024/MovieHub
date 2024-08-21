@@ -1,5 +1,9 @@
 import * as SecureStore from 'expo-secure-store';
-const API_URL = 'http://localhost:3000/explore';
+// const API_URL = 'http://localhost:3000/explore';
+import { getLocalIP } from './getLocalIP';
+
+const localIP = getLocalIP();
+const API_URL = `http://${localIP}:3000/explore`;
 
 // Set up a key to store the token
 const TOKEN_KEY = 'userToken';

@@ -119,7 +119,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         },
         postImage: {
             width: "100%",
-            height: 300,
+            height: 400,
             marginTop: 10,
             borderRadius: 10,
             objectFit: "cover",
@@ -231,7 +231,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     <Icon name="more-vert" size={20} />
                 </Pressable>
             </View>
-            {image && <Image source={{ uri: image }} style={styles.postImage} />}
+            {image && <Image source={{ uri: image }} style={styles.postImage} resizeMode="cover" />}
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>

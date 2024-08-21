@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-
 import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button  } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { getMovieCredits,getMovieRuntime } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons, Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
+import { getLocalIP } from '../Services/getLocalIP';
+
 import Cast from "../Components/Cast";
 import axios from "axios";
-import { Ionicons, Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
 
 export default function MovieDescriptionPage({ userInfo }) { 
-
+    const localIP = getLocalIP();
     const route = useRoute();
     const { movieId, imageUrl, title, rating, overview, date } = route.params;
 
@@ -79,7 +80,7 @@ export default function MovieDescriptionPage({ userInfo }) {
         const fetchColors = async () => {
             try {
                 const response = await axios.post(
-                    `http://localhost:3000/extract-colors`,
+                    `http://${localIP}:3000/extract-colors`,
                     { imageUrl },
                     {
                         headers: {

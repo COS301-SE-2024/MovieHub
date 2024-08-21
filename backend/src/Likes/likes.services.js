@@ -74,7 +74,7 @@ exports.getLikesOfComment = async(commentId) => {
             { commentId }
         );
 
-        console.log(result);
+        // console.log(result);
         // Check if there are any records returned, if not, return 0
         if (result.records.length === 0) {
             return 0;
@@ -117,7 +117,7 @@ exports.getLikesOfPost = async (postId) => {
             { postId }
         );
 
-        console.log(result);
+        // console.log(result);
 
         // Check if there are any records returned, if not, return 0
         if (result.records.length === 0) {
