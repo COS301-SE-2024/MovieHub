@@ -3,7 +3,6 @@ import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, Scro
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
-
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 import { colors, themeStyles } from '../styles/theme';

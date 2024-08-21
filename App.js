@@ -1,9 +1,13 @@
 import "regenerator-runtime/runtime";
+import 'react-native-gesture-handler';
+import { enableScreens } from 'react-native-screens';
+enableScreens();
+
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { ThemeProvider, useTheme } from "./frontend/src/styles/ThemeContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ProfilePage from "./frontend/src/Screens/ProfilePage";
@@ -55,7 +59,7 @@ import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 import Rooms from "./frontend/src/Screens/Rooms";
 
-const Nav = createNativeStackNavigator();
+const Nav = createStackNavigator();
 
 export default function App() {
     const [navigationState, setNavigationState] = useState(null);
