@@ -1,6 +1,10 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = 'http://192.168.39.47:3000/searchMovie/'; // Update to your Expo URL
+// const API_URL = 'http://192.168.39.47:3000/searchMovie/'; // Update to your Expo URL
+import { getLocalIP } from './getLocalIP';
+
+const localIP = getLocalIP();
+const API_URL = `http://${localIP}:3000/searchMovie/`;
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');

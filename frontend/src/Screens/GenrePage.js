@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image,RefreshControl,FlatList,StatusBar,Dimensions,SafeAreaView,ActivityIndicator } from 'react-native';
-import BottomHeader from '../Components/BottomHeader';
-import MovieCard from '../Components/MovieCard';
 import { useRoute } from '@react-navigation/native';
-import TrendingMovie from "../Components/TrendingMovies";
 import { LinearGradient } from "expo-linear-gradient";
+import { getLocalIP } from '../Services/getLocalIP';
+import MovieCard from '../Components/MovieCard';
+import TrendingMovie from "../Components/TrendingMovies";
 import axios from "axios";
-
 
 const GenrePage = () => {
     const route = useRoute();
+    const localIP = getLocalIP();
     const { genreName, genreData } = route.params;
 
     if (!genreData || typeof genreData !== 'object') {
@@ -41,7 +41,7 @@ const GenrePage = () => {
     useEffect(() => {
         const fetchColors = async (imageUrl) => {
             try {
-                const response = await axios.post('http://localhost:3000/extract-colors', { imageUrl }, {
+                const response = await axios.post(`http://${localIP}:3000/extract-colors`, { imageUrl }, {
                     headers: {
                         'Content-Type': 'application/json',
                     },

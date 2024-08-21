@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable } from "react-native";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Svg, { Rect } from "react-native-svg";
+import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
-import TrendingMovie from "../Components/TrendingMovies";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getMovies } from "../api";
 import { getFriendsContent } from "../Services/ExploreApiService";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
-
-import Svg, { Rect } from "react-native-svg";
-import { LinearGradient } from "expo-linear-gradient";
 
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
@@ -18,8 +16,6 @@ import Post from "../Components/Post";
 import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
 import moment from "moment";
-
-import { LogBox } from 'react-native';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();//Ignore all log notifications
@@ -101,53 +97,63 @@ const Home = ({ route }) => {
     const scrollX = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchMovies = async () => {
             try {
-                const movies = await getMovies();
-                const friendsData = await getFriendsContent(userInfo);
-                // Extract posts and reviews
-                const { posts, reviews } = friendsData;
-
-                // Combine posts and reviews
-                const combinedContent = [
-                    ...posts.map(post => ({ ...post, type: 'post' })),
-                    ...reviews.map(review => ({ ...review, type: 'review' }))
-                ];
-
-                // Sort combined content by createdAt in descending order
-                const sortedContent = combinedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
-
-                // Fetch likes for each post and review
-                const enrichedContent = await Promise.all(
-                    sortedContent.map(async (content) => {
-                        if (content.type === 'post') {
-                            const likes = await getLikesOfPost(content.post.postId);
-                            const comments = await getCountCommentsOfPost(content.post.postId);
-                            console.log("Post likes: ", likes.data);
-                            console.log("Post comments: ", comments.data);
-                            return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
-                        }
-                        if (content.type === 'review') {
-                            const likes = await getLikesOfReview(content.review.reviewId);
-                            const comments = await getCountCommentsOfReview(content.review.reviewId);
-                            console.log("Review likes: ", likes.data);
-                            console.log("Review comments: ", comments.data);
-                            return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
-                        }
-                        return content;
-                    })
-                );
-
-                setMovies([{ key: "empty-left" }, ...movies, { key: "empty-right" }]);
-               // setFriendsContent(sortedFriendsContent);
-                setSortedContent(enrichedContent);
+                const moviesData = await getMovies();
+                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
             } catch (error) {
-                console.error("Failed to fetch data:", error);
+                console.error("Failed to fetch movies:", error);
             }
         };
 
-        fetchData();
+        fetchMovies();
     }, []);
+
+    // Fetch friends content
+    const fetchFriendsContent = useCallback(async () => {
+        try {
+            const friendsData = await getFriendsContent(userInfo);
+            const { posts, reviews } = friendsData;
+
+            const combinedContent = [
+                ...posts.map(post => ({ ...post, type: 'post' })),
+                ...reviews.map(review => ({ ...review, type: 'review' }))
+            ];
+
+            const sortedContent = combinedContent.sort((a, b) => 
+                new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt)
+            );
+
+            const enrichedContent = await Promise.all(
+                sortedContent.map(async (content) => {
+                    if (content.type === 'post') {
+                        const likes = await getLikesOfPost(content.post.postId);
+                        const comments = await getCountCommentsOfPost(content.post.postId);
+                        return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
+                    }
+                    if (content.type === 'review') {
+                        const likes = await getLikesOfReview(content.review.reviewId);
+                        const comments = await getCountCommentsOfReview(content.review.reviewId);
+                        return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
+                    }
+                    return content;
+                })
+            );
+
+            setSortedContent(enrichedContent);
+            console.log("Home: friends content fecthed");
+        } catch (error) {
+            console.error("Failed to fetch friends content:", error);
+        }
+    }, [userInfo]);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (userInfo) {
+                fetchFriendsContent();
+            }
+        }, [userInfo, fetchFriendsContent])
+    )
 
 
     if (movies.length === 0) {
@@ -227,49 +233,52 @@ const Home = ({ route }) => {
                         }}
                     />
                     {/* Friends' Content */}
-                    <View style={styles.friendsContent}>
-                        <Text style={styles.sectionTitle}>Feed</Text>
-                        {sortedContent.map((content, index) => (
-                            content.post ? ( // Check if post property exists
-                                <Post
-                                    key={index}
-                                    postId={content.post.postId}
-                                    uid={content.friend.uid}
-                                    username={content.friend.username}
-                                    userAvatar={content.friend.avatar}
-                                    userHandle={`@${content.friend.username}`}
-                                    likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
-                                    comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
-                                    postTitle={content.post.postTitle}
-                                    image={content.post.img}
-                                    datePosted={formatDate(content.post.createdAt)} // Format the date
-                                    preview={content.post.text}
-                                    isUserPost={userInfo.userId == content.post.uid}
-                                />
-                            ) : null // Render nothing if post property does not exist
-                        ))}
-                        {sortedContent.map((content, index) => (
-                            content.review ? ( // Check if review property exists
-                                <Review
-                                    key={index}
-                                    reviewId={content.review.reviewId}
-                                    uid={content.friend.uid}
-                                    username={content.friend.username}
-                                    userHandle={`@${content.friend.username}`}
-                                    userAvatar={content.friend.avatar}
-                                    likes={content.review.likeCount ?? 0} // Update with actual likes data if available
-                                    comments={content.review.commentCount ?? 0} // Update with actual comments data if available
-                                    reviewTitle={content.review.reviewTitle}
-                                    preview={content.review.text}
-                                    dateReviewed={formatDate(content.review.createdAt)}
-                                    movieName={content.review.movieTitle}
-                                    image={content.review.img}
-                                    rating={content.review.rating}
-                                    isUserReview={userInfo.userId==content.review.uid}
-                                />
-                            ) : null // Render nothing if review property does not exist
-                        ))}
-                    </View>
+
+                    { sortedContent.length > 0 &&
+                        <View style={styles.friendsContent}>
+                            <Text style={styles.sectionTitle}>Feed</Text>
+                            {sortedContent.map((content, index) => (
+                                content.post ? ( // Check if post property exists
+                                    <Post
+                                        key={index}
+                                        postId={content.post.postId}
+                                        uid={content.friend.uid}
+                                        username={content.friend.username}
+                                        userAvatar={content.friend.avatar}
+                                        userHandle={`@${content.friend.username}`}
+                                        likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
+                                        comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
+                                        postTitle={content.post.postTitle}
+                                        image={content.post.img}
+                                        datePosted={formatDate(content.post.createdAt)} // Format the date
+                                        preview={content.post.text}
+                                        isUserPost={userInfo.userId == content.post.uid}
+                                    />
+                                ) : null // Render nothing if post property does not exist
+                            ))}
+                            {sortedContent.map((content, index) => (
+                                content.review ? ( // Check if review property exists
+                                    <Review
+                                        key={index}
+                                        reviewId={content.review.reviewId}
+                                        uid={content.friend.uid}
+                                        username={content.friend.username}
+                                        userHandle={`@${content.friend.username}`}
+                                        userAvatar={content.friend.avatar}
+                                        likes={content.review.likeCount ?? 0} // Update with actual likes data if available
+                                        comments={content.review.commentCount ?? 0} // Update with actual comments data if available
+                                        reviewTitle={content.review.reviewTitle}
+                                        preview={content.review.text}
+                                        dateReviewed={formatDate(content.review.createdAt)}
+                                        movieName={content.review.movieTitle}
+                                        image={content.review.img}
+                                        rating={content.review.rating}
+                                        isUserReview={userInfo.userId==content.review.uid}
+                                    />
+                                ) : null // Render nothing if review property does not exist
+                            ))}
+                        </View>
+                    }
                 </View>
             </VirtualizedList>
             <BottomHeader userInfo={userInfo} />

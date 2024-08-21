@@ -227,12 +227,12 @@ const LoginPage = () => {
                             </View>
                         </View>
 
-                        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
                         <Pressable style={styles.button} onPress={HandleLogin}>
                             <Text style={styles.buttonText}>Login</Text>
                         </Pressable>
 
+                        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                        
                         <TouchableOpacity
                             style={styles.forgot}
                             onPress={() => {

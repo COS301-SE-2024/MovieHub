@@ -2,10 +2,8 @@ import axios from 'axios';
 // require('dotenv').config();
 import {REACT_APP_TMDB_API_KEY} from '@env';
 
-
 //const API_KEY = process.env.TMDB_API_KEY; //Enter key from .env
 const API_KEY ='5cb60bcbd1b573d3c950b827805204a6';
-
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 

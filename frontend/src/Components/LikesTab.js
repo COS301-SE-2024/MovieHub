@@ -120,7 +120,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                                 comments={item.commentsCount}
                                 preview={item.properties.text}
                                 saves={getRandomNumber(0, 18)}
-                                image={item.properties.image || null}
+                                image={item.properties.img || null}
                                 isUserPost={item.properties.uid === userInfo.userId}
                                 handleCommentPress={handleCommentPress}
                                 datePosted={formatTimeAgoFromDB(item.properties.createdAt)}
@@ -139,7 +139,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                                 comments={item.commentsCount}
                                 preview={item.properties.text}
                                 saves={getRandomNumber(0, 18)}
-                                image={item.properties.image || null}
+                                image={item.properties.img || null}
                                 isUserReview={item.properties.uid === userInfo.userId}
                                 handleCommentPress={handleCommentPress}
                                 dateReviewed={formatTimeAgoFromDB(item.properties.createdAt)}

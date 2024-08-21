@@ -1,9 +1,13 @@
 // src/services/UsersApiService.js
 import * as SecureStore from 'expo-secure-store';
 
-
 //const API_URL =  'http://10.0.28.189:3000/users';// enter what url your expo is running on + our port 3000
-const API_URL = 'http://localhost:3000/users';
+// const API_URL = 'http://localhost:3000/users';
+import { getLocalIP } from './getLocalIP';
+
+const localIP = getLocalIP();
+const API_URL = `http://${localIP}:3000/users`;
+
 
 // Helper function to get the token from SecureStore
 const getToken = async () => {
