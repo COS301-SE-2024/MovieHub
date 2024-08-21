@@ -9,7 +9,7 @@ import { getRoomDetails, getRoomParticipantCount } from "../Services/RoomApiServ
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
     const { userInfo } = route.params;
-    const { isUserRoom } = route.params;
+    const [isRoomCreator, setIsRoomCreator] = useState(false); 
     const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
     const [participantCount, setParticipantCount] = useState(0); // State to hold participant count
     const [loading, setLoading] = useState(true); // State to manage loading status
@@ -28,6 +28,8 @@ const ViewRoom = ({ route }) => {
                 console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
+                setIsRoomCreator(response.creator.username == userInfo.username);
+                console.log("username: ", userInfo.username, isRoomCreator);
                 console.log("Room details fetched: ", response);
                 // Fetch participant count
                 const participantResponse = await getRoomParticipantCount(roomId);
@@ -83,7 +85,7 @@ const ViewRoom = ({ route }) => {
                     <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
                         <Text style={styles.enterText}>Enter</Text>
                     </TouchableOpacity>
-                    <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo })}>
+                    <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator })}>
                         <FAIcon name="users" size={16} />
                         <Text style={styles.participantsText}>{participantCount}</Text>
                     </Pressable>
