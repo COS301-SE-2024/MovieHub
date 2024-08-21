@@ -11,7 +11,7 @@ import BottomHeader from "../Components/BottomHeader";
 import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
-import { getCommentsOfPost } from "../Services/PostsApiServices";
+import { getCommentsOfPost, getCommentsOfReview } from "../Services/PostsApiServices";
 import { getUserProfile } from "../Services/UsersApiService";
 
 export default function ProfilePage({ route }) {
@@ -36,13 +36,14 @@ export default function ProfilePage({ route }) {
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [isPost, setIsPost] = useState(false);
 
     const fetchData = async () => {
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
             setUserProfile(response);
-            // console.log("Response:", response);
+            console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);
@@ -58,17 +59,30 @@ export default function ProfilePage({ route }) {
         }
     };
 
-    const fetchComments = async (postId) => {
+    const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
-        try {
-            const response = await getCommentsOfPost(postId);
-            // console.log("Fetched comments:", response.data);
-            setComments(response.data);
-        } catch (error) {
-            console.error("Error fetching comments of post:", error.message);
-            throw new Error("Failed to fetch comments of post");
-        } finally {
-            setLoadingComments(false);
+        if (isReview) {
+            try {
+                const response = await getCommentsOfReview(postId);
+                setComments(response.data);
+                // console.log("Fetched comments of reviews:", response.data);
+            } catch (error) {
+                console.error("Error fetching comments of review:", error.message);
+                throw new Error("Failed to fetch comments of review");
+            } finally {
+                setLoadingComments(false);
+            }
+        } else {
+            try {
+                const response = await getCommentsOfPost(postId);
+                setComments(response.data);
+                // console.log("Fetched comments:", response.data);
+            } catch (error) {
+                console.error("Error fetching comments of post:", error.message);
+                throw new Error("Failed to fetch comments of post");
+            } finally {
+                setLoadingComments(false);
+            }
         }
     };
 
@@ -81,9 +95,10 @@ export default function ProfilePage({ route }) {
         fetchData();
     }, []);
 
-    const handleCommentPress = async (postId) => {
+    const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
-        const response = await fetchComments(postId);
+        setIsPost(!isReview);
+        const response = await fetchComments(postId, isReview);
         // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
@@ -173,8 +188,7 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} />;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress}/>;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "watchlist":
@@ -210,11 +224,11 @@ export default function ProfilePage({ route }) {
                     <Text style={styles.userHandle}>@{userProfile.username || "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                    <Text>
+                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, userProfile })}>
                         <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
-                    <Text>
+                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, userProfile })}>
                         <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
@@ -264,6 +278,7 @@ export default function ProfilePage({ route }) {
             
             <CommentsModal    
                 ref={bottomSheetRef} 
+                isPost={isPost}
                 postId={selectedPostId} 
                 userId={userInfo.userId}
                 username={userInfo.username}

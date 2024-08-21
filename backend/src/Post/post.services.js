@@ -14,19 +14,13 @@ const driver = neo4j.driver(
 
 exports.addPost = async (uid,text, postTitle, img) => {
     console.log("In Services: addPost");
-    if(img == null){
-        img = "empty";
-    }
-    else{
-        img = uploadImage(img);
-    }
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
     try {
         const postId = uuidv4();
         const result = await session.run(
-            `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
+            `MATCH (u:User {uid: $uid})
              CREATE (p:Post {postId: $postId, text: $text, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postTitle: $postTitle, img: $img, username : u.username, avatar : u.avatar, name : u.name})
              CREATE (u)-[:POSTED]->(p)-[:POSTED_ON]->(m)
              RETURN p`,
@@ -43,9 +37,11 @@ exports.addPost = async (uid,text, postTitle, img) => {
 };
 
 
-exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
+exports.addReview = async (uid, movieId, text, rating, reviewTitle, movieTitle, img) => {
     console.log("In Services: addReview");
+
     const movieAdded = await addMovie(movieId);
+
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
@@ -53,10 +49,10 @@ exports.addReview = async (uid, movieId, text, rating, reviewTitle) => {
         const reviewId = uuidv4();
         const result = await session.run(
             `MATCH (u:User {uid: $uid}), (m:Movie {movieId: $movieId})
-             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name})
+             CREATE (r:Review {reviewId: $reviewId, text: $text, rating: $rating, createdAt: $createdAt, updatedAt: $updatedAt, img: $img, uid: $uid, movieId: $movieId, reviewTitle: $reviewTitle, username : u.username, avatar : u.avatar, name : u.name, movieTitle: $movieTitle})
              CREATE (u)-[:REVIEWED]->(r)-[:REVIEWED_ON]->(m)
              RETURN r`,
-            { uid, movieId, text, rating, reviewId, reviewTitle, createdAt, updatedAt }
+            { uid, movieId, text, rating, reviewId, reviewTitle, movieTitle,img, createdAt, updatedAt }
         );
         console.log("The Result: ", result.summary);
         return result.records[0].get('r').properties;
@@ -144,16 +140,16 @@ exports.addCommentToComment = async (uid, comOnId, text) => {
 };
 
 // EDIT //
-exports.editPost = async (postId, uid, text) => {
+exports.editPost = async (postId, uid, text, postTitle, img) => {
     console.log("In Services: editPost");
     const session = driver.session();
     const updatedAt = new Date().toISOString();
     try {
         const result = await session.run(
             `MATCH (p:Post {postId: $postId, uid: $uid})
-             SET p.text = $text, p.updatedAt = $updatedAt
+             SET p.text = $text, p.updatedAt = $updatedAt, p.postTitle = $postTitle, p.img = $img
              RETURN p`,
-            { postId, uid, text, updatedAt }
+            { postId, uid, text, updatedAt, postTitle, img }
         );
         if (result.records.length === 0) {
             throw new Error("Post not found or user not authorized to edit this post");
@@ -167,16 +163,16 @@ exports.editPost = async (postId, uid, text) => {
     }
 };
 
-exports.editReview = async (reviewId, uid, text) => {
+exports.editReview = async (reviewId, uid, text,reviewTitle ,rating, img) => {
     console.log("In Services: editReview");
     const session = driver.session();
     const updatedAt = new Date().toISOString();
     try {
         const result = await session.run(
             `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
-             SET r.text = $text, r.updatedAt = $updatedAt
+             SET r.text = $text, r.updatedAt = $updatedAt, r.rating = $rating, r.reviewTitle = $reviewTitle,r.img = $img
              RETURN r`,
-            { reviewId, uid, text, updatedAt }
+            { reviewId, uid, text,reviewTitle ,rating, updatedAt, img }
         );
         if (result.records.length === 0) {
             throw new Error("Review not found or user not authorized to edit this review");
@@ -222,13 +218,9 @@ exports.removePost = async (postId, uid) => {
     try {
         const result = await session.run(
             `MATCH (p:Post {postId: $postId, uid: $uid})
-             DETACH DELETE p
-             RETURN p`,
+             DETACH DELETE p`,
             { postId, uid }
         );
-        if (result.records.length === 0) {
-            throw new Error("Post not found or user not authorized to remove this post");
-        }
         return true;
     } catch (error) {
         console.error("Error removing post: ", error);
@@ -245,13 +237,9 @@ exports.removeReview = async (reviewId, uid) => {
     try {
         const result = await session.run(
             `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
-             DETACH DELETE r
-             RETURN r`,
+             DETACH DELETE r`,
             { reviewId, uid }
         );
-        if (result.records.length === 0) {
-            throw new Error("Review not found or user not authorized to remove this review");
-        }
         return true;
     } catch (error) {
         console.error("Error removing review: ", error);
@@ -267,13 +255,9 @@ exports.removeComment = async (commentId, uid) => {
     try {
         const result = await session.run(
             `MATCH (c:Comment {comId: $commentId, uid: $uid})
-             DETACH DELETE c
-             RETURN c`,
+             DETACH DELETE c`,
             { commentId, uid }
         );
-        if (result.records.length === 0) {
-            throw new Error("Comment not found or user not authorized to remove this comment");
-        }
         return true;
     } catch (error) {
         console.error("Error removing comment: ", error);
@@ -287,9 +271,11 @@ exports.removeComment = async (commentId, uid) => {
 //GETS//
 
 
+
 exports.getReviewsOfMovie = async (movieId) => {
     console.log("In Services: getReviewsOfMovie");
     const session = driver.session();
+    movieId = Number(movieId);
     try {
         const result = await session.run(
             `MATCH (m:Movie {movieId: $movieId})<-[:REVIEWED_ON]-(r:Review)
@@ -351,6 +337,27 @@ exports.getCommentsOfReview = async (reviewId) => {
     }
 };
 
+exports.getCommentsOfComment = async (commentId) => {
+    console.log("In Services: getCommentsOfComment");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (c:Comment {comOnId: $commentId})
+             RETURN c`,
+            { commentId }
+        );
+        if (result.records.length === 0) {
+            return result.records;
+        }
+        return result.records.map(record => record.get('c').properties);
+    } catch (error) {
+        console.error("Error getting comments of review: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 exports.getPostsOfUser = async (uid) => {
     console.log("In Services: getPostsOfUser");
     const session = driver.session();
@@ -361,7 +368,7 @@ exports.getPostsOfUser = async (uid) => {
             { uid }
         );
         if (result.records.length === 0) {
-            return ;
+            return result.records;
         }
         return result.records.map(record => record.get('p').properties);
     } catch (error) {
@@ -416,6 +423,7 @@ exports.getCommentsOfUser = async (uid) => {
 
 exports.getAverageRating = async (movieId) => {
     const session = driver.session();
+    movieId = Number(movieId);
     try {
         const result = await session.run(
             `
@@ -448,6 +456,11 @@ exports.getCountCommentsOfPost = async (postId) => {
              RETURN count(c) AS totalComments`,
             { postId }
         );
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        }
+
         const totalComments = result.records[0].get('totalComments').toInt();
         return totalComments;
     } catch (error) {
@@ -467,6 +480,11 @@ exports.getCountCommentsOfReview = async (reviewId) => {
              RETURN count(c) AS totalComments`,
             { reviewId }
         );
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        } 
+        
         const totalComments = result.records[0].get('totalComments').toInt();
         return totalComments;
     } catch (error) {

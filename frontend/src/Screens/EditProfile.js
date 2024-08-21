@@ -1,16 +1,23 @@
 import React, { useState } from "react";
-import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,Button,Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../../backend/src/Firebase/firebase.config';
+
+import { colors, themeStyles } from '../styles/theme';
+import { useNavigation } from '@react-navigation/native';
+
+import { uploadImage } from '../Services/imageUtils';
+
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
     const { userProfile } = route.params;
     const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");
     const [uploading, setUploading] = useState(false);
+
+    const navigation = useNavigation();
 
     // Set default values for userProfile fields
     const defaultUserProfile = {
@@ -60,20 +67,25 @@ export default function EditProfile({ route }) {
                         },
                     });
                     break;
+                case "avatar":
+                    updatedData[field] = avatar;
+                    break;
                 default:
                     break;
             }
             const userId = userInfo.userId;
             const updatedUser = await updateUserProfile(userId, updatedData);
             console.log("Update went well", updatedUser);
-
+            
             setModalContent((prevState) => {
                 const newState = { ...prevState };
                 Object.keys(updatedData).forEach((key) => {
-                    newState[key] = {
-                        ...newState[key],
-                        newValue: updatedUser[key],
-                    };
+                    if (key !== 'avatar') {
+                        newState[key] = {
+                            ...newState[key],
+                            newValue: updatedUser[key],
+                        };
+                    }
                 });
                 return newState;
             });
@@ -96,6 +108,37 @@ export default function EditProfile({ route }) {
 
     const handleInputChange = (field, value) => {
         setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: value } });
+    };
+
+    const applyAllChanges = async () => {
+        try {
+            const updatedData = {};
+            Object.keys(modalContent).forEach((field) => {
+                if (field === "favoriteGenres") {
+                    updatedData[field] = modalContent[field].tempValue.slice(0, 3);
+                } else if (modalContent[field].tempValue) {
+                    updatedData[field] = modalContent[field].tempValue;
+                }
+            });
+            
+            const userId = userInfo.userId;
+            const updatedUser = await updateUserProfile(userId, updatedData);
+            console.log("Update went well", updatedUser);
+            Alert.alert('Success', 'Profile updated successfully!');
+    
+            setModalContent((prevState) => {
+                const newState = { ...prevState };
+                Object.keys(updatedData).forEach((key) => {
+                    newState[key] = {
+                        ...newState[key],
+                        newValue: updatedUser[key],
+                    };
+                });
+                return newState;
+            });
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+        } 
     };
 
     const handleOptionPress = (field, option) => {
@@ -121,6 +164,7 @@ export default function EditProfile({ route }) {
     };
 
     const selectImage = async () => {
+        // console.log('In Select Image');
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (permissionResult.granted === false) {
             alert("Permission to access camera roll is required!");
@@ -131,22 +175,14 @@ export default function EditProfile({ route }) {
         if (pickerResult.canceled === true) {
             return;
         }
+        // console.log('Picker: ', pickerResult);
         const { uri } = pickerResult.assets[0];
-        setAvatar(uri);
-
-        const response = await fetch(uri);
-        const blob = await response.blob();
-        const storageRef = ref(storage, `ProfilePictures/${userInfo.userId}.jpg`);
-
-        uploadBytes(storageRef, blob)
-            .then((snapshot) => {
-                getDownloadURL(snapshot.ref).then((downloadURL) => {
-                    updateUserProfile(userInfo.userId, { profilePicture: downloadURL });
-                });
-            })
-            .catch((error) => {
-                console.error('Error uploading image: ', error);
-            });
+        const name = pickerResult.assets[0].fileName;
+        // console.log('Uploading image', uri, name);
+        const avatarUrl = await uploadImage(uri, name, 'profile');
+        console.log('Uploaded', avatarUrl);
+        setAvatar(uri);                       
+        applyChanges('avatar');     //From here on I dont know what should be happening
     };
 
     return (
@@ -154,7 +190,7 @@ export default function EditProfile({ route }) {
             <Text style={{ color: "#7b7b7b", marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
             <View style={styles.avatarContainer}>
                 <Image source={{ uri: avatar }} style={styles.avatar} />
-                <Text style={styles.buttonText} onPress={selectImage}>
+                <Text onPress={selectImage} style={styles.changePictureText}>
                     Change Profile Picture
                 </Text>
             </View>
@@ -200,7 +236,7 @@ export default function EditProfile({ route }) {
                                             Cancel
                                         </Text>
                                         <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                            Apply Changes
+                                            Change
                                         </Text>
                                     </View>
                                 </View>
@@ -220,7 +256,7 @@ export default function EditProfile({ route }) {
                                             Cancel
                                         </Text>
                                         <Text style={styles.buttonText} onPress={() => applyChanges(field)}>
-                                            Apply Changes
+                                            Change
                                         </Text>
                                     </View>
                                 </View>
@@ -229,6 +265,9 @@ export default function EditProfile({ route }) {
                     </View>
                 </Modal>
             ))}
+            <TouchableOpacity style={styles.entryButton} onPress={applyAllChanges}>
+                <Text style={styles.entryButtonText}>Save All Changes</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
@@ -252,6 +291,11 @@ const styles = StyleSheet.create({
     section: {
         marginBottom: 20,
     },
+    changePictureText: {
+        color: colors.primary, // Set the desired color here
+        fontSize: 16, // Optional: adjust the font size if needed
+        fontWeight: 'bold', // Optional: make the text bold if needed
+    },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
@@ -260,6 +304,28 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: 8,
         color: "#7b7b7b",
+    },
+    buttonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        paddingTop: 10,
+    },
+    buttonText: {
+        color: "#000",
+        textAlign: "center",
+        // color: colors.primary
+    },
+    entryButton: {
+        backgroundColor: "#4A42C0",
+        padding: 16,
+        borderRadius: 4,
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    entryButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
     },
     line: {
         height: 1,

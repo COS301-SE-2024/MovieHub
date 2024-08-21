@@ -1,6 +1,12 @@
 // src/services/LikesApiService.js
 import * as SecureStore from 'expo-secure-store';
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/like/'; // Update to your Expo URL
+
+//const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/like/'; // Update to your Expo URL
+// const API_URL = 'http://localhost:3000/like/';
+import { getLocalIP } from './getLocalIP';
+
+const localIP = getLocalIP();
+const API_URL = `http://${localIP}:3000/like/`;
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
@@ -75,12 +81,12 @@ export const getLikesOfPost = async (postId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}post/${postId}`, {headers: headers});
     if (!response.ok) {
-        console.log(response)
+        // console.log("response", response)
         throw new Error("Failed to fetch post likes");
     } 
     
     const data = await response.json();
-    console.log("data", data);
+    // console.log("data", data);
     return data;
 };
 

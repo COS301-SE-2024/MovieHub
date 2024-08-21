@@ -1,5 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
+
 const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/auth/'; // Update to your Expo URL
+
 
 export const registerUser = async (email, password, username) => {
     console.log("Inside AuthApi Service");

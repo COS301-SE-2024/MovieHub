@@ -339,125 +339,126 @@ describe('PUT /post/edit/comment', () => {
     });
 });
 
-// describe('DELETE /post/delete/post', () => {
-//     beforeEach(() => {
-//         jest.clearAllMocks();
-//     });
+describe('DELETE /post/remove/post', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-//     it('should delete a post', async () => {
-//         const postId = '1';
+    it('should remove a post successfully', async () => {
+        postService.removePost.mockResolvedValueOnce(true);
 
-//         postService.deletePost.mockResolvedValueOnce(true);
+        const res = await request(app)
+            .delete('/post/remove/post')
+            .send({ postId: '1', uid: 'user1' });
 
-//         const res = await request(app).delete(`/post/delete/post?postId=${postId}`);
+        console.log("Test res:",res.body);
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ message: 'Post removed successfully' });
+    });
 
-//         expect(res.status).toBe(200);
-//         expect(res.body).toEqual({ message: 'Post deleted successfully' });
-//     });
+    it('should return 400 if there is an error removing the post', async () => {
+        postService.removePost.mockImplementationOnce(null);
 
-//     it('should return 400 if there is an error deleting the post', async () => {
-//         const postId = '1';
+        const res = await request(app)
+            .delete('/post/remove/post')
+            .send({ postId: '1', uid: 'user1' });
 
-//         postService.deletePost.mockResolvedValueOnce(false);
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Error removing post'});
+    });
 
-//         const res = await request(app).delete(`/post/delete/post?postId=${postId}`);
+    it('should return 500 if there is an internal server error', async () => {
+        const errorMessage = 'Internal server error';
+        postService.removePost.mockRejectedValueOnce(new Error(errorMessage));
 
-//         expect(res.status).toBe(400);
-//         expect(res.body).toEqual({ message: 'Error deleting post' });
-//     });
+        const res = await request(app)
+            .delete('/post/remove/post')
+            .send({ postId: '1', uid: 'user1' });
 
-//     it('should return 500 if there is an internal server error', async () => {
-//         const postId = '1';
-//         const errorMessage = 'Internal server error';
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+    });
+});
 
-//         postService.deletePost.mockRejectedValueOnce(new Error(errorMessage));
+describe('DELETE /post/remove/review', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-//         const res = await request(app).delete(`/post/delete/post?postId=${postId}`);
+    it('should remove a review successfully', async () => {
+        postService.removeReview.mockResolvedValueOnce(true);
 
-//         expect(res.status).toBe(500);
-//         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-//     });
-// });
+        const res = await request(app)
+            .delete('/post/remove/review')
+            .send({ reviewId: '1', uid: 'user1' });
 
-// describe('DELETE /post/delete/review', () => {
-//     beforeEach(() => {
-//         jest.clearAllMocks();
-//     });
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ message: 'Review removed successfully' });
+    });
 
-//     it('should delete a review', async () => {
-//         const reviewId = '1';
+    it('should return 400 if there is an error removing the review', async () => {
+        postService.removeReview.mockImplementationOnce(null);
 
-//         postService.deleteReview.mockResolvedValueOnce(true);
+        const res = await request(app)
+            .delete('/post/remove/review')
+            .send({ reviewId: '1', uid: 'user1' });
 
-//         const res = await request(app).delete(`/post/delete/review?reviewId=${reviewId}`);
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Error removing review' });
+    });
 
-//         expect(res.status).toBe(200);
-//         expect(res.body).toEqual({ message: 'Review deleted successfully' });
-//     });
+    it('should return 500 if there is an internal server error', async () => {
+        const errorMessage = 'Internal server error';
+        postService.removeReview.mockRejectedValueOnce(new Error(errorMessage));
 
-//     it('should return 400 if there is an error deleting the review', async () => {
-//         const reviewId = '1';
+        const res = await request(app)
+            .delete('/post/remove/review')
+            .send({ reviewId: '1', uid: 'user1' });
 
-//         postService.deleteReview.mockResolvedValueOnce(false);
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+    });
+});
 
-//         const res = await request(app).delete(`/post/delete/review?reviewId=${reviewId}`);
+describe('DELETE post/remove/comment', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-//         expect(res.status).toBe(400);
-//         expect(res.body).toEqual({ message: 'Error deleting review' });
-//     });
+    it('should remove a comment successfully', async () => {
+        postService.removeComment.mockResolvedValueOnce(true);
 
-//     it('should return 500 if there is an internal server error', async () => {
-//         const reviewId = '1';
-//         const errorMessage = 'Internal server error';
+        const res = await request(app)
+            .delete('/post/remove/comment')
+            .send({ commentId: '1', uid: 'user1' });
 
-//         postService.deleteReview.mockRejectedValueOnce(new Error(errorMessage));
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ message: 'Comment removed successfully' });
+    });
 
-//         const res = await request(app).delete(`/post/delete/review?reviewId=${reviewId}`);
+    it('should return 400 if there is an error removing the comment', async () => {
+        postService.removeComment.mockImplementationOnce(null);
 
-//         expect(res.status).toBe(500);
-//         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-//     });
-// });
+        const res = await request(app)
+            .delete('/post/remove/comment')
+            .send({ commentId: '1', uid: 'user1' });
 
-// describe('DELETE /post/remove/comment', () => {
-//     beforeEach(() => {
-//         jest.clearAllMocks();
-//     });
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Error removing comment' });
+    });
 
-//     it('should delete a comment', async () => {
-//         const commentId = '1';
+    it('should return 500 if there is an internal server error', async () => {
+        const errorMessage = 'Internal server error';
+        postService.removeComment.mockRejectedValueOnce(new Error(errorMessage));
 
-//         postService.removeComment.mockResolvedValueOnce(true);
+        const res = await request(app)
+            .delete('/post/remove/comment')
+            .send({ commentId: '1', uid: 'user1' });
 
-//         const res = await request(app).delete(`/post/remove/comment?commentId=${commentId}`);
-
-//         expect(res.status).toBe(200);
-//         expect(res.body).toEqual({ message: 'Comment deleted successfully' });
-//     });
-
-//     it('should return 400 if there is an error deleting the comment', async () => {
-//         const commentId = '1';
-
-//         postService.removeComment.mockResolvedValueOnce(false);
-
-//         const res = await request(app).delete(`/post/remove/comment?commentId=${commentId}`);
-
-//         expect(res.status).toBe(400);
-//         expect(res.body).toEqual({ message: 'Error deleting comment' });
-//     });
-
-//     it('should return 500 if there is an internal server error', async () => {
-//         const commentId = '1';
-//         const errorMessage = 'Internal server error';
-
-//         postService.removeComment.mockRejectedValueOnce(new Error(errorMessage));
-
-//         const res = await request(app).delete(`/post/remove/comment?commentId=${commentId}`);
-
-//         expect(res.status).toBe(500);
-//         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-//     });
-// });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+    });
+});
 
 describe('GET /post/movie/:movieId/posts', () => {
     beforeEach(() => {
@@ -781,6 +782,82 @@ describe('GET /post/movie/:movieId/rating', () => {
         postService.getAverageRating.mockRejectedValueOnce(new Error(errorMessage));
 
         const res = await request(app).get(`/post/movie/${movieId}/rating`);
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+    });
+});
+
+describe('GET /post/post/:postId/comment/count', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should fetch post comment count successfully', async () => {
+        const postCommentCount = 5;
+        postService.getCountCommentsOfPost.mockResolvedValueOnce(postCommentCount);
+
+        const res = await request(app)
+            .get('/post/post/1/comment/count');
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ message: 'Post comment count fetched successfully', data: postCommentCount });
+    });
+
+    it('should return 400 if there is an error fetching the post comment count', async () => {
+        postService.getCountCommentsOfPost.mockResolvedValueOnce(null);
+
+        const res = await request(app)
+            .get('/post/post/1/comment/count');
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Error fetching post comment count' });
+    });
+
+    it('should return 500 if there is an internal server error', async () => {
+        const errorMessage = 'Internal server error';
+        postService.getCountCommentsOfPost.mockRejectedValueOnce(new Error(errorMessage));
+
+        const res = await request(app)
+            .get('/post/post/1/comment/count');
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
+    });
+});
+
+describe('GET /post/review/:reviewId/comment/count', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should fetch review comment count successfully', async () => {
+        const reviewCommentCount = 10;
+        postService.getCountCommentsOfReview.mockResolvedValueOnce(reviewCommentCount);
+
+        const res = await request(app)
+            .get('/post/review/1/comment/count');
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ message: 'Review comment count fetched successfully', data: reviewCommentCount });
+    });
+
+    it('should return 400 if there is an error fetching the review comment count', async () => {
+        postService.getCountCommentsOfReview.mockResolvedValueOnce(null);
+
+        const res = await request(app)
+            .get('/post/review/1/comment/count');
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Error fetching review comment count' });
+    });
+
+    it('should return 500 if there is an internal server error', async () => {
+        const errorMessage = 'Internal server error';
+        postService.getCountCommentsOfReview.mockRejectedValueOnce(new Error(errorMessage));
+
+        const res = await request(app)
+            .get('/post/review/1/comment/count');
 
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });

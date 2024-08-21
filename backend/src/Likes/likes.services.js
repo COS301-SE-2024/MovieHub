@@ -74,7 +74,12 @@ exports.getLikesOfComment = async(commentId) => {
             { commentId }
         );
 
-        console.log(result);
+        // console.log(result);
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        }
+
         const likeCount = result.records[0].get('likeCount').toInt();
         return likeCount;
     } finally {
@@ -112,13 +117,24 @@ exports.getLikesOfPost = async (postId) => {
             { postId }
         );
 
-        console.log(result);
+        // console.log(result);
+
+        // Check if there are any records returned, if not, return 0
+        if (result.records.length === 0) {
+            return 0;
+        }
+
         const likeCount = result.records[0].get('likeCount').toInt();
+        console.log("Check the like count: ", likeCount);
         return likeCount;
+    } catch (error) {
+        console.error("Error getting likes of post:", error);
+        return 0; // Return 0 in case of an error
     } finally {
         await session.close();
     }
 };
+
 
 // async function toggleLike(uid, entityId, entityType) {
 //     const session = driver.session();
@@ -306,9 +322,7 @@ exports.toggleLikePost = async (uid, postId) => {
 };
 
 
-process.on('exit', () => {
-    driver.close();
-});
+
 
 const processGets= async(datas) =>{
     console.log('Enter processGets with ',datas);
@@ -325,3 +339,23 @@ const processGets= async(datas) =>{
     return { id, properties };
    });
   };
+
+// Function to check if a user has liked a specific entity (Movie, Post, Review)
+exports.hasUserLikedEntity = async (uid, entityId, entityType) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User)-[like:LIKES]->(e:${entityType})
+            WHERE u.uid = $uid AND e.${entityType.toLowerCase()}Id = $entityId
+            RETURN like`,
+            { uid, entityId }
+        );
+        return result.records.length > 0;
+    } finally {
+        await session.close();
+    }
+};
+
+process.on('exit', () => {
+    driver.close();
+});

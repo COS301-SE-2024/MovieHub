@@ -1,10 +1,12 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express';
 import searchController from  './searching.controller';
+const router = express.Router();
 
 // Define routes
-router.get('/movies/checkConnection', searchController.checkConnection);
-router.get('/movies/search', searchController.searchMoviesFuzzy);
+
+router.get('/movies/search/:query', searchController.searchMoviesFuzzy);
+router.get('/getMovieByQuote/:quote',searchController.getMovieByQuote);
 
 // Export the router
 module.exports = router;
+

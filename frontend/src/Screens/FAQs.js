@@ -9,8 +9,8 @@ const faqs = [
         answer: "MovieHub is a comprehensive platform for movie enthusiasts to explore, review, and discuss films. It offers personalized recommendations, social networking features, and a user-friendly interface for all your movie-related needs.",
     },
     {
-        question: "How do I create an account on MovieHub?",
-        answer: "To create an account, click on the 'Sign Up' button on the home page, fill in your personal details, and follow the prompts to complete the registration process.",
+        question: "What is the difference between posts and reviews?",
+        answer: "Posts are for informal and casual movie reviews and discussions, while reviews are for movie ratings and reviews. Reviews are more formal and involve more details and context.",
     },
     {
         question: "How does MovieHub recommend movies?",
@@ -52,6 +52,15 @@ const faqs = [
         question: "How can I delete a review or comment I posted?",
         answer: "To delete a review or comment you posted, go to your profile, find the review or comment, and click on the 'Delete' button. Confirm the deletion to remove it from the platform.",
     },
+    {
+        question: "Do I have to create a rooom to start a watch party?",
+        answer: "Yes, you can start a watch party by creating a room. Once you have created the room, you can invite friends to join.",
+    },
+    {
+        question: "How do I schedule a watch party?",
+        answer: "To schedule a watch party, go to the room you created, and click on the 'Schedule' button. You can choose the date and time of your watch party, and invite your friends to join.",
+    },
+    
 ];
 
 const FAQPage = (navigation) => {

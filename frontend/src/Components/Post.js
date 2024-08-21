@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert,Modal} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
@@ -9,11 +9,12 @@ import { useNavigation } from "@react-navigation/native";
 import { removePost } from "../Services/PostsApiServices";
 import { toggleLikePost } from "../Services/LikesApiService";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress }) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
 
     const toggleModal = () => {
@@ -56,24 +57,25 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             Alert.alert(error.message);
         }
     };
+
+    const toggleConfirmationModal = (postId) => {
+        setConfirmationModalVisible(!confirmationModalVisible);
+        
+    };
+
     // Function to remove posts
 
     const handleRemovePost = async (uid, postId) => {
-        try {
-            //
-            console.log('Removing post:', postId + ' by ' + uid);
-            const postBody = {
-                postId: postId,
-                uid: uid
-            }
-            await removePost(postBody);
-            // console.log('Post removed successfully');
-            Alert.alert(null,'Post removed successfully');
-        } catch (error) {
-            console.error('Error removing post:', error);
-            throw new Error('Failed to remove post' + error);
-        }
+        onDelete(postId);
+        setConfirmationModalVisible(false);
+        toggleModal();
+        Alert.alert('Success', 'Post deleted successfully!');
     };
+
+    const handleEditPost = () => {
+        toggleModal();
+        navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
+    }
 
     // TODO: Increment or decrement number of likes
 
@@ -82,14 +84,16 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.45,
-            shadowRadius: 3.84,
-            elevation: 5,
+            // shadowColor: "#000",
+            // shadowOffset: {
+            //     width: 0,
+            //     height: 2,
+            // },
+            // shadowOpacity: 0.45,
+            // shadowRadius: 3.84,
+            // elevation: 5,
+            borderBottomWidth: 0.5,
+            borderBottomColor: theme.borderColor,
         },
         avatar: {
             width: 40,
@@ -115,7 +119,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         },
         postImage: {
             width: "100%",
-            height: 300,
+            height: 400,
             marginTop: 10,
             borderRadius: 10,
             objectFit: "cover",
@@ -178,6 +182,41 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             color: "black",
             fontSize: 16,
         },
+        confirmationModal: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+        },
+        confirmationContainer: {
+            backgroundColor: "white",
+            borderRadius: 10,
+            padding: 20,
+            width: "80%",
+            alignItems: "center",
+        },
+        confirmationText: {
+            fontSize: 16,
+            marginBottom: 20,
+            fontWeight: 'bold',
+            textAlign: 'center',
+
+        },
+        confirmationButton: {
+            marginTop: 10,
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+            borderRadius: 10,
+            backgroundColor: "black",
+            alignItems: "center",
+            width: "70%",
+            marginBottom: 5,
+
+        },
+        confirmationButtonText: {
+            color: "white",
+            fontSize: 16,
+        },
     });
 
     return (
@@ -192,7 +231,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     <Icon name="more-vert" size={20} />
                 </Pressable>
             </View>
-            {image && <Image source={{ uri: image }} style={styles.postImage} />}
+            {image && <Image source={{ uri: image }} style={styles.postImage} resizeMode="cover" />}
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
@@ -201,7 +240,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <Pressable onPress={() => {handleCommentPress(postId)}}>
+                    <Pressable onPress={() => {handleCommentPress(postId, false)}}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
@@ -221,14 +260,12 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                         <>
                             <TouchableOpacity
                                 style={styles.modalOption}
-                                onPress={() => {
-                                    navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
-                                }}>
+                                onPress={handleEditPost}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={styles.modalOption}
-                                onPress={() => {handleRemovePost(uid, postId);}}
+                                onPress={() => {toggleConfirmationModal(postId);}}
                             >
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>
@@ -244,6 +281,27 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     )}
                 </View>
             )}
+            <Modal animationType="slide"
+                visible={confirmationModalVisible}
+                transparent ={true}
+                
+                onRequestClose={() => setConfirmationModalVisible(false)}>
+                <View style={styles.confirmationModal}>
+                    <View style={styles.confirmationContainer}>
+                        <Text style={styles.confirmationText}>Are you sure you want to delete this post?</Text>
+                        <TouchableOpacity
+                            style={styles.confirmationButton}
+                            onPress={() => {handleRemovePost(uid, postId);}}>
+                            <Text style={styles.confirmationButtonText}>Delete</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.confirmationButton}
+                            onPress={() => setConfirmationModalVisible(false)}>
+                            <Text style={styles.confirmationButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
