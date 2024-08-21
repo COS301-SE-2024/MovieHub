@@ -56,6 +56,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         return { ...post, commentsCount, likesCount, type: "post" };
                     })
                 );
+                console.log("Loook ", postsWithComments);
             }
 
             let reviewsWithComments = [];
@@ -100,7 +101,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
 
     const handleDeleteReview = async (reviewId) => {
         try {
-            await removeReview({ postId: reviewId, uid: userInfo.userId });
+            await removeReview({ reviewId: reviewId, uid: userInfo.userId });
             setPosts(posts.filter(review => review.reviewId !== reviewId));
         } catch (error) {
             console.error("Error deleting review:", error);
@@ -171,7 +172,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                             comments={item.commentsCount || 0} /** Comments count */
                             preview={item.text}
                             saves={getRandomNumber(0, 18)}
-                            image={item.image || null}
+                            image={item.img || null}
                             isUserPost={item.uid === userInfo.userId}
                             handleCommentPress={handleCommentPress}
                             datePosted={formatTimeAgoFromDB(item.createdAt)}
@@ -187,7 +188,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                             userAvatar={item.avatar}
                             likes={item.likesCount}
                             comments={item.commentsCount ? item.commentsCount : 0} /** Comments count */
-                            image={item.image ? item.image : null}
+                            image={item.img ? item.img : null}
                             saves={getRandomNumber(0, 18)}
                             reviewTitle={item.reviewTitle}
                             preview={item.text}

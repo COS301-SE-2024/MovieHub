@@ -2,8 +2,8 @@
 import * as SecureStore from 'expo-secure-store';
 
 
-const API_URL = process.env.REACT_APP_USERS_API_URL || 'http://192.168.3.218:3000/users';// enter what url your expo is running on + our port 3000
-
+//const API_URL =  'http://10.0.28.189:3000/users';// enter what url your expo is running on + our port 3000
+const API_URL = 'http://localhost:3000/users';
 
 // Helper function to get the token from SecureStore
 const getToken = async () => {
@@ -200,9 +200,16 @@ export const getReviewsOfUser = async (userId) => {
 //User Peer Interaction:
 export const followUser = async (userId, targetUserId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${userId}/follow/${targetUserId}`, {
+    const response = await fetch(`${API_URL}/follow`, {
         method: 'POST',
-        headers,
+        headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            followerId: userId,
+            followeeId: targetUserId,
+        }),
     });
 
     if (!response.ok) {
@@ -215,9 +222,16 @@ export const followUser = async (userId, targetUserId) => {
 
 export const unfollowUser = async (userId, targetUserId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${userId}/unfollow/${targetUserId}`, {
+    const response = await fetch(`${API_URL}/unfollow`, {
         method: 'DELETE',
-        headers,
+        headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            followerId: userId,
+            followeeId: targetUserId,
+        }),
     });
 
     if (!response.ok) {
@@ -227,7 +241,6 @@ export const unfollowUser = async (userId, targetUserId) => {
     const data = await response.json();
     return data;
 };
-
 // Function to get friends
 export const getFriends = async (userId) => {
     const headers = await verifyToken();

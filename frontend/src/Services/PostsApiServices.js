@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.39.101:3000/post/'; // Update to your Expo URL
+//const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/post/'; // Update to your Expo URL
+const API_URL = 'http://192.168.3.218:3000/post/';
 
 import {uploadImage} from './imageUtils';
 
@@ -37,12 +38,13 @@ export const addPost = async (bodyData) => {
 
     // bodyData should contain: { uid, text, postTitle, img }
 
-    console.log('Body Data:', bodyData);
-    console.log('URI:', bodyData.img.uri);
-    console.log('name:', bodyData.img.fileName);
+    if(bodyData.img === null){
+        bodyData.img = null;
+    }else{
     bodyData.img = await uploadImage(bodyData.img, 'posts');
+    }
     // console.log('image:', bodyData.img);
-
+    
     // const imgType = typeof bodyData.img;
     // const isReviewType = typeof bodyData.isReview;
     // const movieIdType = typeof bodyData.movieId;
@@ -86,7 +88,11 @@ export const addReview = async (bodyData) => {
 
     // bodyData should contain: { uid, movieId, text, img, rating, reviewTitle, movieTitle }
 
+    if(bodyData.img === null){
+        bodyData.img = null;
+    }else{
     bodyData.img = await uploadImage(bodyData.img, 'reviews');
+    }
 
     try {
         const response = await fetchWithAuth(`${API_URL}add/review`, {

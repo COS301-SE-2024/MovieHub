@@ -11,23 +11,71 @@ const session = driver.session();
 
 // Fetch friends' posts and reviews
 exports.fetchFriendsContent = async (userId) => {
-    const query = `
+    // Function to run a query with a new session
+    const runQuery = async (query, params) => {
+        const session = driver.session(); // Create a new session for each query
+        try {
+            const result = await session.run(query, params);
+            return result;
+        } finally {
+            await session.close(); // Close the session after query execution
+        }
+    };
+
+    // Query for friends and their posts including friends' information
+    const postsQuery = `
+      MATCH (u:User)-[:FOLLOWS]->(friend:User)
+      WHERE u.uid = $userId
+      OPTIONAL MATCH (friend)-[:POSTED]->(post:Post)
+      RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, post
+    `;
+
+    // Query for friends and their reviews including friends' information
+    const reviewsQuery = `
       MATCH (u:User)-[:FOLLOWS]->(friend:User)
       WHERE u.uid = $userId
       OPTIONAL MATCH (friend)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
-      OPTIONAL MATCH (friend)-[:POSTED]->(post:Post)
-      RETURN friend, post, review, movie
+      RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, review, movie
     `;
 
     try {
-        const result = await session.run(query, { userId });
-        const friendsContent = result.records.map(record => ({
-            friend: record.get('friend').properties,
-            post: record.get('post') ? record.get('post').properties : null,
-            review: record.get('review') ? record.get('review').properties : null,
-            movie: record.get('movie') ? record.get('movie').properties : null
-        }));
+        // Execute the queries with new sessions
+        const [postsResult, reviewsResult] = await Promise.all([
+            runQuery(postsQuery, { userId }),
+            runQuery(reviewsQuery, { userId })
+        ]);
+
+        // Collect all posts with friends' information
+        const posts = postsResult.records.map(record => {
+            const post = record.get('post') ? record.get('post').properties : null;
+            const friendInfo = {
+                uid: record.get('friendId'),
+                username: record.get('friendUsername'),
+                avatar: record.get('friendAvatar')
+            };
+            return post ? { friend: friendInfo, post } : null;
+        }).filter(post => post !== null);
+
+        // Collect all reviews with friends' information
+        const reviews = reviewsResult.records.map(record => {
+            const review = record.get('review') ? record.get('review').properties : null;
+            const movie = record.get('movie') ? record.get('movie').properties : null;
+            const friendInfo = {
+                uid: record.get('friendId'),
+                username: record.get('friendUsername'),
+                avatar: record.get('friendAvatar')
+            };
+            return review ? { friend: friendInfo, review, movie } : null;
+        }).filter(review => review !== null);
+
+        // Construct final result
+        const friendsContent = {
+            posts,
+            reviews
+        };
+
         return friendsContent;
+
     } catch (error) {
         console.error('Error fetching friends content:', error);
         throw new Error('Failed to fetch friends content');

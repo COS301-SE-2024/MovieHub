@@ -283,7 +283,7 @@ const SignupPage = () => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                    {/* <View>
+                    <View>
                         <Text style={styles.label}>Confirm Password</Text>
                         <View style={styles.passwordInputContainer}>
                             <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
@@ -291,7 +291,7 @@ const SignupPage = () => {
                                 <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
                             </TouchableOpacity>
                         </View>
-                    </View> */}
+                    </View>
                     <View style={styles.btn}>
                         <Pressable style={styles.button} onPress={handleSignup}>
                             <Text style={styles.buttonText}>Sign Up</Text>

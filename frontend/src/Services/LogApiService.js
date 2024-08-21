@@ -1,7 +1,8 @@
 // src/services/LogApiService.js
 
 import * as SecureStore from 'expo-secure-store';
-const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.39.101:3000/log/'; // Update to your Expo URL
+//const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.39.101:3000/log/'; // Update to your Expo URL
+const API_URL = 'http://localhost:3000/log/';
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
