@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 //const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/post/'; // Update to your Expo URL
-const API_URL = 'http://localhost:3000/post/';
+const API_URL = 'http://192.168.3.218:3000/post/';
 
 import {uploadImage} from './imageUtils';
 
@@ -39,7 +39,7 @@ export const addPost = async (bodyData) => {
     // bodyData should contain: { uid, text, postTitle, img }
 
     if(bodyData.img === null){
-        bodyData.img = 'empty';
+        bodyData.img = null;
     }else{
     bodyData.img = await uploadImage(bodyData.img, 'posts');
     }
@@ -89,7 +89,7 @@ export const addReview = async (bodyData) => {
     // bodyData should contain: { uid, movieId, text, img, rating, reviewTitle, movieTitle }
 
     if(bodyData.img === null){
-        bodyData.img = 'empty';
+        bodyData.img = null;
     }else{
     bodyData.img = await uploadImage(bodyData.img, 'reviews');
     }
