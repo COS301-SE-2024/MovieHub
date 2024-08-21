@@ -11,17 +11,12 @@ const participantsData = [
     { id: "7", name: "Drake", username: "@bbldrizzy" },
 ];
 
-const ViewParticipants = () => {
+const ViewParticipants = ({ route }) => {
+    const { IsRoomCreator } = route.params;
     const [participants, setParticipants] = useState(participantsData);
 
     const handleFollowPress = (id) => {
-        setParticipants((prevParticipants) =>
-            prevParticipants.map((participant) =>
-                participant.id === id
-                    ? { ...participant, followed: !participant.followed }
-                    : participant
-            )
-        );
+        setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.id === id ? { ...participant, followed: !participant.followed } : participant)));
     };
 
     const renderItem = ({ item }) => (
@@ -34,32 +29,21 @@ const ViewParticipants = () => {
                 <Text style={styles.nameText}>{item.name}</Text>
                 <Text style={styles.usernameText}>{item.username}</Text>
             </View>
-            <TouchableOpacity
-                style={[
-                    styles.followButton,
-                    item.followed && styles.followingButton,
-                ]}
-                onPress={() => handleFollowPress(item.id)}
-            >
-                <Text
-                    style={[
-                        styles.followButtonText,
-                        item.followed && styles.followingButtonText,
-                    ]}
-                >
-                    {item.followed ? "Following" : "Follow"}
-                </Text>
-            </TouchableOpacity>
+            <View style={{display: "flex", flexDirection: "row"}}>
+                <TouchableOpacity style={[styles.followButton, item.followed && styles.followingButton]} onPress={() => handleFollowPress(item.id)}>
+                    <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{item.followed ? "Following" : "Follow"}</Text>
+                </TouchableOpacity>
+                {IsRoomCreator &&
+                    <TouchableOpacity style={[styles.removeButton]} onPress={() => handleFollowPress(item.id)}>
+                    <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Remove"}</Text>
+                </TouchableOpacity>}
+            </View>
         </View>
     );
 
     return (
         <View style={styles.container}>
-            <FlatList
-                data={participants}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-            />
+            <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.id} />
         </View>
     );
 };
@@ -113,6 +97,12 @@ const styles = StyleSheet.create({
     },
     followingButtonText: {
         color: "#657786",
+    },
+    removeButton: {
+        paddingVertical: 5,
+        paddingHorizontal: 15,
+        borderRadius: 20,
+        backgroundColor: "#d10000",
     },
 });
 
