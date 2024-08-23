@@ -5,7 +5,7 @@ import { TabView, TabBar } from "react-native-tab-view";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
 import LikesTab from "../Components/LikesTab";
-import PostsTab from "../Components/PostsTab";
+import PostsTab from "../Components/FollowerPostTab";
 import WatchlistTab from "../Components/FollowerWatchlists";
 import BottomHeader from "../Components/BottomHeader";
 import CommentsModal from "../Components/CommentsModal";
@@ -16,7 +16,7 @@ import { getUserProfile, followUser, unfollowUser } from "../Services/UsersApiSe
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function FollowersProfilePage({ route }) {
-    console.log("Other User Info:", otherUserInfo);
+    console.log("FollowerPostTab - Other User Info:", otherUserInfo);
     const { theme } = useTheme();
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);
@@ -29,15 +29,12 @@ export default function FollowersProfilePage({ route }) {
     // const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
-    
-
-    
 
     const { userInfo, otherUserInfo } = route.params;
     // console.log("hai User Info:", otherUserInfo);
     const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
 
-    console.log("Other User Info:", otherUserInfo);
+    console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
 
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
@@ -212,9 +209,7 @@ export default function FollowersProfilePage({ route }) {
 
     const renderScene = ({ route }) => {
         switch (route.key) {
-            case "posts":
-
-                return <PostsTab userInfo={otherUserInfo} userProfile={userProfile} />;
+            case "posts": return <PostsTab userInfo={otherUserInfo} userProfile={userProfile} />;
             case "likes":
                 return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "watchlist":
