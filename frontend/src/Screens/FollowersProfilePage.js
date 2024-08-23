@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { TabView, TabBar } from "react-native-tab-view";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
-import LikesTab from "../Components/LikesTab";
+import LikesTab from "../Components/FollowerLikesTab";
 import PostsTab from "../Components/FollowerPostTab";
 import WatchlistTab from "../Components/FollowerWatchlists";
 import BottomHeader from "../Components/BottomHeader";

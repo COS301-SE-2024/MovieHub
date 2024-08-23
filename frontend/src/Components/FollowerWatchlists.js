@@ -17,7 +17,7 @@ const WatchlistTab = ({ userInfo }) => {
         const fetchUserWatchlists = async () => {
             try {
                 console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
-                const userId = userInfo.userId; // Replace with actual user ID fetching logic
+                const userId = userInfo.uid; // Replace with actual user ID fetching logic
 
                 const userWatchlists = await getUserWatchlists(userId);
                 const watchlistId = userWatchlists.id;
@@ -80,7 +80,7 @@ const WatchlistTab = ({ userInfo }) => {
                 ))}
                 {watchlists.length === 0 && (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>Your watchlists will appear here</Text>
+                        <Text style={styles.emptyText}>No watchlist yet</Text>
                     </View>
                 )}
             </ScrollView>
