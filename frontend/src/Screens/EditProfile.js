@@ -1,25 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,Button,Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
 import { colors, themeStyles } from '../styles/theme';
 import { useNavigation } from '@react-navigation/native';
-
 import { uploadImage } from '../Services/imageUtils';
-
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
     const { userProfile } = route.params;
-    const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");
+    const [avatar, setAvatar] = useState(userProfile.avatar);
+    const [avatarChanged, setAvatarChanged] = useState(false);
     const [uploading, setUploading] = useState(false);
 
     const navigation = useNavigation();
 
-    // Set default values for userProfile fields
     const defaultUserProfile = {
         username: "",
         name: "",
@@ -74,6 +70,7 @@ export default function EditProfile({ route }) {
                     break;
             }
             const userId = userInfo.userId;
+            console.log("UPDATED DATA", updatedData);
             const updatedUser = await updateUserProfile(userId, updatedData);
             console.log("Update went well", updatedUser);
             
@@ -181,9 +178,20 @@ export default function EditProfile({ route }) {
         // console.log('Uploading image', uri, name);
         const avatarUrl = await uploadImage(uri, name, 'profile');
         console.log('Uploaded', avatarUrl);
-        setAvatar(uri);                       
-        applyChanges('avatar');     //From here on I dont know what should be happening
+        setAvatar(uri);   
+        setAvatarChanged(true);
+        console.log("AVATAR", avatar);                    
+        console.log("AVATAR URL", uri);                    
+        // await applyChanges('avatar');     //From here on I dont know what should be happening
     };
+
+    useEffect(() => {
+        if (avatarChanged) {
+            // Call applyChanges only after avatar state is updated
+            applyChanges('avatar');
+            setAvatarChanged(false);
+        }
+    }, [avatar, avatarChanged]);
 
     return (
         <ScrollView style={styles.container}>
@@ -325,7 +333,7 @@ const styles = StyleSheet.create({
     entryButtonText: {
         color: "#fff",
         fontSize: 16,
-        fontWeight: "bold",
+        fontWeight: "medium",
     },
     line: {
         height: 1,

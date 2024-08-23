@@ -7,7 +7,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { updateUserProfile } from "../Services/UsersApiService";
 
 const pronounsOptions = ["He/Him", "She/Her", "They/Them", "Prefer not to say"];
-const genreOptions = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"];
+const genreOptions = ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"];
 const defaultAvatar = "https://via.placeholder.com/150"; // Placeholder image URL
 
 const ProfileSetupPage = ({ route }) => {
@@ -51,11 +51,6 @@ const ProfileSetupPage = ({ route }) => {
         setfavouriteGenres(newGenres);
     };
 
-    const handleOptionPress = (field, option) => {
-        if (field === "favoriteGenres") {
-        }
-    };
-
     const handlePronounsSelect = (option) => {
         setPronouns(option);
         setModalVisible({ ...modalVisible, pronouns: false });
@@ -75,7 +70,7 @@ const ProfileSetupPage = ({ route }) => {
 
         userInfo.updatedData = updatedData;
 
-        navigation.navigate("HomePage", { userInfo });
+        navigation.navigate("Home", { userInfo });
     };
 
     return (
@@ -97,6 +92,7 @@ const ProfileSetupPage = ({ route }) => {
             <View>
                 <Text style={styles.label}>Name</Text>
                 <TextInput style={styles.inputText} onChangeText={setName} value={name} placeholder="Enter your name" />
+                {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "left" }}>{error}</Text> : null}
             </View>
             <View>
                 <Text style={styles.label}>Bio</Text>
@@ -144,7 +140,7 @@ const ProfileSetupPage = ({ route }) => {
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Select Favorite Genres</Text>
-                            <ScrollView style={{ maxHeight: 300 }}>
+                            <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
                                 {genreOptions.map((option) => (
                                     <TouchableOpacity key={option} onPress={() => handleGenreSelect(option)}>
                                         <Text style={[styles.option, { backgroundColor: favouriteGenres.includes(option) ? "#4A42C0" : "#ffffff", color: favouriteGenres.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
@@ -165,7 +161,6 @@ const ProfileSetupPage = ({ route }) => {
                 <Pressable style={styles.button} onPress={handleSubmit}>
                     <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Done</Text>
                 </Pressable>
-                {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text> : null}
             </View>
         </ScrollView>
     );

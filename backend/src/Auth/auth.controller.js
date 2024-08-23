@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
         console.log("Register User Result:", result);
 
         const { userRecord, customToken } = result;
-        console.log("User:", userRecord);
+        console.log("User:", userRecord.uid);
         console.log("Custom Token:", customToken);
 
         responseHandler(res, 201, 'User registered successfully', { uid: userRecord.uid, username, token: customToken });
@@ -59,3 +59,32 @@ exports.logout = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
+exports.verifyEmail = async (req, res) => {
+    try {
+        const isVerified = await authService.checkEmailVerification();
+        if (isVerified) {
+            res.status(200).json({ message: "Email verified" });
+        } else {
+            res.status(400).json({ message: "Email not verified" });
+        }
+    } catch (error) {
+        // console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.isVerified = async (req, res) => {
+    console.log("In the auth Controller");
+    try {
+        const isVerified = await authService.isUserVerified();
+        if (isVerified) {
+            res.status(200).json({ message: "Email verified", isVerified });
+        } else {
+            res.status(400).json({ message: "Email not verified", isVerified });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}

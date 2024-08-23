@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Svg, { Rect } from "react-native-svg";
-import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox } from "react-native";
+import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     friendsContent: {
-        paddingVertical: 16,
+        paddingVertical: 4,
     },
     sectionTitle: {
         fontSize: 24,

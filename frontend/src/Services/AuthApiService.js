@@ -32,7 +32,6 @@ export const registerUser = async (email, password, username) => {
 
     // Store the token securely
     await SecureStore.setItemAsync('userToken', data.data.token);
-
     return data;
 };
 
@@ -46,9 +45,10 @@ export const loginUser = async (email, password) => {
         body: JSON.stringify({ email, password }),
     });
 
-    console.log("Let's go in");
-    console.log("Response status:", response.status);
-    console.log("Response headers:", response.headers);
+    console.log("AuthServices: Let's go in");
+    // console.log(response);
+    // console.log("Response status:", response.status);
+    // console.log("Response headers:", response.headers);
     const textData = await response.text();
     console.log("Check the text dataaa\n", textData);
 
@@ -85,4 +85,42 @@ export const logoutUser = async () => {
 
     const data = await response.json();
     return data;
+};
+
+export const checkEmailVerification = async () => {
+    const response = await fetch(`${API_URL}/verify-email`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to check email verification');
+    }
+
+    const data = await response.json();
+    return data.emailVerified;
+};
+
+export const isUserVerified = async () => {
+    try {
+        // const token = await getAuth().currentUser.getIdToken(true);
+
+        const response = await fetch(`${API_URL}/is-verified`, {
+            method: 'GET',
+            headers: {
+                // 'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const textData = await response.text();
+        const data = JSON.parse(textData);
+
+        return data.isVerified;
+    } catch (error) {
+        console.error("Error checking user verification: ", error);
+        return false;
+    }
 };
