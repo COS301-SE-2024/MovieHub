@@ -8,6 +8,19 @@ const VerificationPage = ({ route }) => {
     const [checking, setChecking] = useState(false);
     const navigation = useNavigation();
 
+    const handleError = () => {
+        Alert.alert(
+            "Error",
+            "Failed to check email verification. Please try to sign in again.",
+            [
+                {
+                    text: "OK",
+                    onPress: () => navigation.navigate('Login'), // Navigate to the login page
+                },
+            ]
+        );
+    };
+
     const verifyEmail = async () => {
         setChecking(true);
         try {
@@ -19,7 +32,8 @@ const VerificationPage = ({ route }) => {
                 alert("Your email is not yet verified. Please check your inbox.");
             }
         } catch (error) {
-            alert("Error checking email verification: " + error.message);
+            console.log("Error checking email verification: " + error.message);
+            handleError();
         } finally {
             setChecking(false);
         }
