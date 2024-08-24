@@ -210,6 +210,60 @@ exports.editComment = async (commentId, uid, text) => {
     }
 };
 
+exports.updatePostsForUser = async (uid) => {
+    console.log("In Services: updatePostsForUser");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid})-[:POSTED]->(p:Post {uid: $uid})
+             SET p.username = u.username, p.name = u.name, p.avatar = u.avatar
+             RETURN p`,
+            { uid }
+        );
+        console.log("The Result: ", result.summary);
+        return result.records.map(record => record.get('p').properties);
+    } catch (error) {
+        console.error("Error updating posts: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+exports.updateUserContent = async (uid) => {
+    console.log("In Services: updateUserContent");
+    const session = driver.session();
+    try {
+        // Update Posts
+        await session.run(
+            `MATCH (u:User {uid: $uid})-[:POSTED]->(p:Post {uid: $uid})
+             SET p.username = u.username, p.name = u.name, p.avatar = u.avatar`,
+            { uid }
+        );
+
+        // Update Reviews
+        await session.run(
+            `MATCH (u:User {uid: $uid})-[:REVIEWED]->(r:Review {uid: $uid})
+             SET r.username = u.username, r.name = u.name, r.avatar = u.avatar`,
+            { uid }
+        );
+
+        // Update Comments
+        await session.run(
+            `MATCH (u:User {uid: $uid})-[:COMMENTED]->(c:Comment {uid: $uid})
+             SET c.username = u.username, c.name = u.name, c.avatar = u.avatar`,
+            { uid }
+        );
+
+        console.log("User content updated successfully for uid:", uid);
+    } catch (error) {
+        console.error("Error updating user content: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
 // DELETE //
 
 exports.removePost = async (postId, uid) => {
