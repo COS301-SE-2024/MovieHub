@@ -1,18 +1,55 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import FAIcon from "react-native-vector-icons/FontAwesome";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, FlatList, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import RoomModal from "../Components/RoomModal";
 import { getRoomDetails, getRoomParticipantCount } from "../Services/RoomApiService";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import FAIcon from "react-native-vector-icons/FontAwesome";
+import RoomModal from "../Components/RoomModal";
+import NetflixLogo from "../../../assets/netflix-logo.svg";
+import ShowmaxLogo from "../../../assets/showmax-logo.svg";
+import AppleTVLogo from "../../../assets/apple-tv.svg";
+
+const platformLogos = {
+    Netflix: NetflixLogo,
+    Showmax: ShowmaxLogo,
+    "Apple TV": AppleTVLogo,
+};
 
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
     const { userInfo } = route.params;
-    const [isRoomCreator, setIsRoomCreator] = useState(false); 
+    const [isRoomCreator, setIsRoomCreator] = useState(false);
     const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
     const [participantCount, setParticipantCount] = useState(0); // State to hold participant count
     const [loading, setLoading] = useState(true); // State to manage loading status
+    const [watchPartyStarted, setWatchPartyStarted] = useState(false);
+    const [upcomingParties, setUpcomingParties] = useState([
+        {
+            id: 1,
+            partyName: "Upcoming Party 1",
+            date: "2023-05-01",
+            startTime: "10:00 AM",
+            platform: "Netflix",
+            movieTitle: "The Matrix",
+        },
+        {
+            id: 2,
+            partyName: "Minions Unite!",
+            date: "2023-05-02",
+            startTime: "11:00 AM",
+            platform: "Showmax",
+            movieTitle: "Despicable Me 2",
+        },
+        {
+            id: 3,
+            partyName: "Upcoming Party 3",
+            date: "2023-05-03",
+            startTime: "12:00 PM",
+            platform: "Apple TV",
+            movieTitle: "The Godfather",
+        },
+    ]);
 
     const bottomSheetRef = useRef(null);
 
@@ -68,49 +105,89 @@ const ViewRoom = ({ route }) => {
     const { roomName, maxParticipants, roomDescription, participants = [] } = roomDetails;
 
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.header}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
-                    <Text style={styles.roomName}>{roomName || "Asa's Room"}</Text>
-                </View>
-                <Pressable onPress={handleOpenBottomSheet}>
-                    <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
-                </Pressable>
-            </View>
-
-            <View style={styles.videoContainer}>
-                <View style={styles.videoPlaceholder} />
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                    <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
-                        <Text style={styles.enterText}>Enter</Text>
-                    </TouchableOpacity>
-                    <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator })}>
-                        <FAIcon name="users" size={16} />
-                        <Text style={styles.participantsText}>{participantCount}</Text>
+        <View style={styles.container}>
+            <ScrollView>
+                <View style={styles.header}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
+                        <Text style={styles.roomName}>{roomName || "Asa's Room"}</Text>
+                    </View>
+                    <Pressable onPress={handleOpenBottomSheet}>
+                        <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
                     </Pressable>
                 </View>
-            </View>
 
-            <View style={styles.movieInfo}>
-                <Text style={styles.movieTitle}>Interstellar</Text>
-                <Text style={styles.movieDetails}>
-                    2016 • 2h 34m • <Text style={styles.rating}>8.2</Text>
-                </Text>
-                <Text style={styles.movieDescription}>{roomDescription}</Text>
-            </View>
+                <View style={styles.videoContainer}>
+                    {watchPartyStarted ? (
+                        <View>
+                            <View style={styles.videoPlaceholder} />
+                            <View style={styles.movieInfo}>
+                                <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 6 }}>Currently Playing</Text>
+                                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                                    <Text style={styles.movieTitle}>Megamind</Text>
+                                    <Text style={styles.movieDetails}>2004 • 1h 34m</Text>
+                                </View>
+                                <Text style={styles.movieDescription}>A supervillain named Megamind defeats and kills his enemy. Out of boredom, he creates a superhero who becomes evil, forcing Megamind to turn into a hero.</Text>
+                            </View>
+                        </View>
+                    ) : (
+                        <Text style={[styles.movieDescription, { paddingVertical: 20 }]}>{roomDescription}</Text>
+                    )}
 
-            <View style={styles.participantsContainer}>
-                <Text style={styles.participantsTitle}>Participants <Text style={styles.requestsCount}>{participantCount}</Text></Text>
-                {participants.map((participant, index) => (
-                    <View key={index} style={styles.participant}>
-                        <View style={styles.profilePlaceholder} />
-                        <Text style={styles.participantName}>{participant.name}</Text>
+                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                        <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
+                            <Text style={styles.enterText}>Enter</Text>
+                        </TouchableOpacity>
+                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator })}>
+                            <FAIcon name="users" size={16} />
+                            <Text style={styles.participantsText}>{participantCount}</Text>
+                        </Pressable>
                     </View>
-                ))}
+                </View>
+
+                <View style={styles.line} />
+                {watchPartyStarted && <Text style={[styles.movieDescription, { paddingVertical: 10, paddingHorizontal: 16 }]}>{roomDescription}</Text>}
+
+                <View>
+                    <Text style={styles.upcomingPartiesTitle}>Upcoming Watch Parties</Text>
+                    <View style={{ marginBottom: 10 }}>
+                        {upcomingParties.map((party, index) => (
+                            <PartySchedule key={index} {...party} />
+                        ))}
+                    </View>
+                </View>
+            </ScrollView>
+            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} />
+        </View>
+    );
+};
+
+const PartySchedule = ({ movieTitle, partyName, startTime, platform }) => {
+    const [reminderSet, setReminderSet] = useState(false);
+    const PlatformLogo = platformLogos[platform] || null;
+
+    const handleReminder = () => {
+        setReminderSet(!reminderSet);
+        // TODO: add any logic to actually set the reminder notification
+    };
+
+    return (
+        <View style={styles.upcomingParty}>
+            {PlatformLogo && <PlatformLogo width={40} height={40} style={styles.platformLogo} />}
+            <View style={styles.partyDetails}>
+                <Text style={styles.partyName}>{partyName}</Text>
+                <Text style={styles.startTime}>{startTime}</Text>
+                <Text style={styles.upcomingMovieTitle}>{movieTitle}</Text>
             </View>
-            <RoomModal ref={bottomSheetRef} title="More options" />
-        </ScrollView>
+            <TouchableOpacity style={styles.reminder} onPress={handleReminder}>
+                <Ionicons
+                    name={reminderSet ? "notifications" : "notifications-outline"} // Conditional icon rendering
+                    size={24}
+                    color={reminderSet ? "#4a42c0" : "black"} // Conditional color rendering
+                />
+                {!reminderSet && <Text style={styles.reminderText}>Remind Me</Text>}
+            </TouchableOpacity>
+        </View>
     );
 };
 
@@ -159,24 +236,23 @@ const styles = StyleSheet.create({
     participants: {
         flexDirection: "row",
         alignItems: "center",
-        paddingRight: 4
     },
     participantsText: {
+        marginLeft: 6,
         fontSize: 16,
-        marginLeft: 5,
     },
     movieInfo: {
         marginBottom: 26,
-        paddingHorizontal: 16,
     },
     movieTitle: {
-        fontSize: 22,
-        fontWeight: "bold",
+        fontSize: 18,
+        fontWeight: "600",
         marginBottom: 4,
     },
     movieDetails: {
-        fontSize: 16,
+        fontSize: 15,
         marginBottom: 8,
+        color: "gray",
     },
     rating: {
         color: "red",
@@ -185,67 +261,12 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: "#7b7b7b",
     },
-    requestsContainer: {
-        marginBottom: 16,
-        paddingHorizontal: 16,
-    },
-    requestsTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 8,
-    },
-    requestsCount: {
-        color: "#7b7b7b",
-        fontSize: 15,
-    },
-    request: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 8,
-    },
     profilePlaceholder: {
         width: 40,
         height: 40,
         borderRadius: 20,
         backgroundColor: "#ccc",
         marginRight: 8,
-    },
-    requestInfo: {
-        flex: 1,
-    },
-    requestName: {
-        fontSize: 14,
-        fontWeight: "500",
-    },
-    requestStatus: {
-        fontSize: 14,
-        color: "#555",
-    },
-    acceptText: {
-        padding: 8,
-        color: "green",
-    },
-    rejectText: {
-        color: "red",
-        padding: 8,
-    },
-    participantsContainer: {
-        marginBottom: 26,
-        paddingHorizontal: 16,
-    },
-    participantsTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 8,
-    },
-    participant: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 8,
-    },
-    participantName: {
-        fontSize: 14,
-        fontWeight: "500",
     },
     loadingContainer: {
         flex: 1,
@@ -256,6 +277,51 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    upcomingPartiesTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginBottom: 12,
+        paddingHorizontal: 16,
+    },
+    line: {
+        height: 1,
+        backgroundColor: "#e0e0e0",
+        marginVertical: 10,
+        marginHorizontal: 16,
+    },
+    upcomingParty: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#f5f5f5",
+        padding: 16,
+        marginBottom: 10,
+    },
+    platformLogo: {
+        marginRight: 10,
+    },
+    partyDetails: {
+        flex: 1,
+    },
+    partyName: {
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    startTime: {
+        fontSize: 14,
+        color: "gray",
+    },
+    upcomingMovieTitle: {
+        fontSize: 16,
+        color: "#333",
+    },
+    reminder: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    reminderText: {
+        marginLeft: 5,
+        fontSize: 14,
     },
 });
 

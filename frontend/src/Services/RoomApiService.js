@@ -4,7 +4,7 @@ import 'firebase/database'; // Import the Firebase Realtime Database
 
 
 //const API_URL = process.env.REACT_APP_ROOMS_API_URL || 'http://192.168.225.19:3000/rooms'; // Update with your correct API URL
-const API_URL = 'http://localhost:3000/rooms'
+const API_URL = 'http://10.0.14.57:3000/rooms'
 
 // Helper function to get the token from SecureStore
 const getToken = async () => {

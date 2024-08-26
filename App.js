@@ -54,6 +54,7 @@ import FollowersPage from "./frontend/src/Screens/FollowersPage";
 import FollowingPage from "./frontend/src/Screens/FollowingPage";
 import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
+import CreateWatchParty from "./frontend/src/Screens/CreateWatchParty";
 
 const Nav = createNativeStackNavigator();
 
@@ -360,6 +361,17 @@ export default function App() {
                             component={ViewParticipants}
                             options={({ navigation }) => ({
                                 title: "Participants",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
+                        <Nav.Screen
+                            name="CreateWatchParty"
+                            component={CreateWatchParty}
+                            options={({ navigation }) => ({
+                                title: "",
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
                                 headerTintColor: "black",
