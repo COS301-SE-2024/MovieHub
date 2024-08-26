@@ -12,7 +12,7 @@ exports.createRoom = async (req, res) => {
         console.log("The response " + res);
     } catch (error) {
         console.error('Error in createRoom controller:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -39,7 +39,7 @@ exports.inviteUserToRoom = async (req, res) => {
         res.status(200).json({ message: `User ${userId} invited to room ${roomId}` });
     } catch (error) {
         console.error('Error inviting user to room:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -50,7 +50,7 @@ exports.declineRoomInvite = async (req, res) => {
         res.status(200).json({ message: `User ${userId} declined invite to room ${roomId}` });
     } catch (error) {
         console.error('Error declining room invite:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 // Controller to leave a room
@@ -61,7 +61,7 @@ exports.leaveRoom = async (req, res) => {
         res.status(200).json({ message: `User ${userId} left the room ${roomId}.` });
     } catch (error) {
         console.error('Error leaving room:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -77,7 +77,7 @@ exports.kickUserFromRoom = async (req, res) => {
         }
     } catch (error) {
         console.error('Error kicking user from room:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
