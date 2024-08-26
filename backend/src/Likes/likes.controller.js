@@ -6,10 +6,7 @@ exports.getLikesOfUser = async (req, res) => {
         const userId = req.params.userId;
         console.log(`Fetching user likes for ID: ${userId}`);
         const likes = await likesService.getLikesOfUser(userId);
-        if (likes){
-            responseHandler(res, 200, 'Likes fetched successfully', likes);
-        } else
-            res.status(400).json({ message: 'Error fetching likes' });
+        responseHandler(res, 200, 'Likes fetched successfully', likes);
     } catch (error) {
         // console.error('Error fetching likes:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -39,10 +36,7 @@ exports.getLikesOfComment = async (req, res) => {
     const commentId = req.params.commentId;
     try {
         const likes = await likesService.getLikesOfComment(commentId);
-        if (likes)
-            responseHandler(res, 200, 'Likes fetched successfully', likes);
-        else
-            res.status(400).json({ message: 'Error fetching likes' });
+        responseHandler(res, 200, 'Likes fetched successfully', likes);
     } catch (error) {
         // console.error('Error fetching likes:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -53,10 +47,7 @@ exports.getLikesOfReview = async (req, res) => {
     const reviewId = req.params.reviewId;
     try {
         const likes = await likesService.getLikesOfReview(reviewId);
-       // if (likes)
-            responseHandler(res, 200, 'Likes fetched successfully', likes);
-        // else
-        //     res.status(400).json({ message: 'Error fetching likes' });
+        responseHandler(res, 200, 'Likes fetched successfully', likes);
     } catch (error) {
         // console.error('Error fetching likes:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -69,8 +60,7 @@ exports.getLikesOfPost = async (req, res) => {
     try {
         console.log(postId);
         const likes = await likesService.getLikesOfPost(postId);
-            responseHandler(res, 200, 'Likes fetched successfully', likes);
-    
+        responseHandler(res, 200, 'Likes fetched successfully', likes);
     } catch (error) {
         // console.error('Error fetching likes:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
