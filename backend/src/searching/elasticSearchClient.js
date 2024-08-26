@@ -1,4 +1,6 @@
 const { Client } = require('@elastic/elasticsearch');
+const neo4j = require('neo4j-driver');
+require('dotenv').config();
 
 // Define the Elasticsearch nodes
 const esNodes = [
@@ -9,6 +11,12 @@ const esNodes = [
 
 // Create the Elasticsearch client
 const client = new Client({ nodes: esNodes });
+
+const driver = neo4j.driver(
+  process.env.NEO4J_URI,
+  neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
+);
+
 
 // Test the connection
 async function checkConnection() {
@@ -21,6 +29,8 @@ async function checkConnection() {
 }
 
 exports.searchMoviesFuzzy = async (query) => {
+
+
   try {
     const response = await client.search({
       index: 'movies', // Assuming your index is named 'movies'
@@ -55,3 +65,93 @@ exports.searchMoviesFuzzy = async (query) => {
     throw error;
   }
 };
+
+
+exports.searchRecentMoviesByGenres = async (uid) => {
+
+  const session = driver.session();
+  let genres;
+  try {
+    const result = await session.run(
+      'MATCH (u:User {uid: $uid}) RETURN u',
+      { uid }
+    );
+
+    if (result.records.length === 0) {
+      return null;
+    }
+    genres = result.records[0].get('u').properties;
+    genres = genres.favouriteGenres;
+    //genres = genres[0] + ' ' + genres[1] + ' ' + genres[2];
+    console.log(genres);
+  } finally {
+    await session.close();
+  }
+
+  try {
+    const sixYearsAgo = new Date();
+    sixYearsAgo.setMonth(sixYearsAgo.getFullYear() - 6);
+    const response = await client.search({
+      index: 'movies', // Assuming your index is named 'movies'
+      body: {
+        query: {
+          bool: {
+            must: [
+              {
+                bool: {
+                  should: genres.map((genre) => ({
+                    match: {
+                      genres: genre // Matching each genre provided
+                    }
+                  }))
+                }
+              }
+            ]
+          }
+        },
+        size: 30 // Increase the number of results returned
+      }
+    });
+    // const response = await client.search({
+    //   index: 'movies', // Assuming your index is named 'movies'
+    //   body: {
+    //     query: {
+    //       bool: {
+    //         must: [
+    //           {
+    //             bool: {
+    //               should: genres.map((genre) => ({
+    //                 match: {
+    //                   genre: genre // Matching each genre provided
+    //                 }
+    //               }))
+    //             }
+    //           },
+    //           {
+    //             range: {
+    //               releaseDate: {
+    //                 gte: sixYearsAgo.toISOString() // Movies not older than 6 months
+    //               }
+    //             }
+    //           }
+    //         ]
+    //       }
+    //     },
+    //     size: 30 // Increase the number of results returned
+    //   }
+    // });
+    const sortedMovies = response.body.hits.hits
+      .map(hit => {
+        const releaseDate = new Date(hit._source.releaseDate);
+        return { ...hit, releaseDate }; // Add releaseDate to each hit
+      })
+      .sort((a, b) => b.releaseDate - a.releaseDate);
+    // Extract and return the relevant data without sorting
+    //console.log(response.body.hits.hits.map(hits => hits));
+    return sortedMovies;
+  } catch (error) {
+    console.error('Error searching for movies:', error.meta.body.error); // More detailed error log
+    throw error;
+  }
+};
+
