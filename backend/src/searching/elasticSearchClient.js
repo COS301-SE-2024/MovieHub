@@ -89,66 +89,37 @@ exports.searchRecentMoviesByGenres = async (uid) => {
   }
 
   try {
-    const sixYearsAgo = new Date();
-    sixYearsAgo.setMonth(sixYearsAgo.getFullYear() - 6);
+
+    const currentYear = new Date().getFullYear();
+    const fiveYearsAgo = currentYear - 3;
+
     const response = await client.search({
       index: 'movies', // Assuming your index is named 'movies'
       body: {
         query: {
           bool: {
-            must: [
+            filter: [
               {
-                bool: {
-                  should: genres.map((genre) => ({
-                    match: {
-                      genres: genre // Matching each genre provided
-                    }
-                  }))
+                range: {
+                  "releaseDate": {
+                    gte: fiveYearsAgo,
+                    lte: currentYear
+                  }
                 }
               }
-            ]
+            ],
+            should: genres.map((genre) => ({
+              match: {
+                genres: genre // Matching each genre provided
+              }
+            }))
           }
         },
         size: 30 // Increase the number of results returned
       }
     });
-    // const response = await client.search({
-    //   index: 'movies', // Assuming your index is named 'movies'
-    //   body: {
-    //     query: {
-    //       bool: {
-    //         must: [
-    //           {
-    //             bool: {
-    //               should: genres.map((genre) => ({
-    //                 match: {
-    //                   genre: genre // Matching each genre provided
-    //                 }
-    //               }))
-    //             }
-    //           },
-    //           {
-    //             range: {
-    //               releaseDate: {
-    //                 gte: sixYearsAgo.toISOString() // Movies not older than 6 months
-    //               }
-    //             }
-    //           }
-    //         ]
-    //       }
-    //     },
-    //     size: 30 // Increase the number of results returned
-    //   }
-    // });
-    const sortedMovies = response.body.hits.hits
-      .map(hit => {
-        const releaseDate = new Date(hit._source.releaseDate);
-        return { ...hit, releaseDate }; // Add releaseDate to each hit
-      })
-      .sort((a, b) => b.releaseDate - a.releaseDate);
-    // Extract and return the relevant data without sorting
-    //console.log(response.body.hits.hits.map(hits => hits));
-    return sortedMovies;
+
+    return response.body.hits.hits;
   } catch (error) {
     console.error('Error searching for movies:', error.meta.body.error); // More detailed error log
     throw error;
