@@ -12,7 +12,117 @@ exports.createRoom = async (req, res) => {
         console.log("The response " + res);
     } catch (error) {
         console.error('Error in createRoom controller:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getRoomDetails = async (req, res) => {
+    try {
+        const roomIdentifier = req.params.identifier; // Assuming the identifier is provided in the URL params
+        const result = await roomService.getRoomDetails(roomIdentifier);
+
+        if (result.success) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error('Error in getRoomDetails controller:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+
+// Controller function to handle getting room participants
+exports.getRoomParticipants = async (req, res) => {
+    const { roomId } = req.params;
+
+    try {
+        const result = await roomService.getRoomParticipants(roomId);
+
+        if (result.success) {
+            return res.status(200).json({
+                success: true,
+                participants: result.participants,
+                creator: result.creator
+            });
+        } else {
+            return res.status(404).json({
+                success: false,
+                message: result.message,
+            });
+        }
+    } catch (error) {
+        console.error('Error in getRoomParticipants controller:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while retrieving room participants.',
+        });
+    }
+}
+
+// Controller to get all rooms a user has created
+exports.getUserCreatedRooms = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const result = await roomService.getUserCreatedRooms(userId);
+        if (result.success) {
+            return res.status(200).json(result.createdRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getUserCreatedRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+// Controller to get all rooms a user is participating in (but not created)
+exports.getUserParticipatedRooms = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const result = await roomService.getUserParticipatedRooms(userId);
+        if (result.success) {
+            return res.status(200).json(result.participatedRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getUserParticipatedRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+// Controller to handle request for getting room participant count
+exports.getRoomParticipantCount = async (req, res) => {
+    const { roomId } = req.params;
+
+    try {
+        const result = await roomService.getRoomParticipantCount(roomId);
+
+        if (result.success) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error('Error in getRoomParticipantCount controller:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+exports.getPublicRooms = async (req, res) => {
+    try {
+        const result = await roomService.getPublicRooms();
+        if (result.success) {
+            return res.status(200).json(result.publicRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getPublicRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -39,7 +149,7 @@ exports.inviteUserToRoom = async (req, res) => {
         res.status(200).json({ message: `User ${userId} invited to room ${roomId}` });
     } catch (error) {
         console.error('Error inviting user to room:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -50,7 +160,7 @@ exports.declineRoomInvite = async (req, res) => {
         res.status(200).json({ message: `User ${userId} declined invite to room ${roomId}` });
     } catch (error) {
         console.error('Error declining room invite:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: error.message });
     }
 };
 // Controller to leave a room
@@ -61,7 +171,7 @@ exports.leaveRoom = async (req, res) => {
         res.status(200).json({ message: `User ${userId} left the room ${roomId}.` });
     } catch (error) {
         console.error('Error leaving room:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -77,7 +187,7 @@ exports.kickUserFromRoom = async (req, res) => {
         }
     } catch (error) {
         console.error('Error kicking user from room:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: error.message });
     }
 };
 
