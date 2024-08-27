@@ -1,67 +1,158 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { getUserNotifications } from '../Services/UsersApiService'; // Import from UsersApiService
+import { markNotificationAsRead, deleteNotification, clearNotifications } from '../Services/NotifyApiService'; // Import from NotifyApiService
+import { joinRoom, declineRoomInvite } from '../Services/RoomApiService'; // Import RoomApiService
 import BottomHeader from "../Components/BottomHeader";
-
-import { themeStyles } from "../styles/theme";
 
 const Notifications = ({ route }) => {
     const { userInfo } = route.params;
+    const [notifications, setNotifications] = useState([]);
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, text: "New message from John", read: false },
-        { id: 2, text: "You have 3 new followers", read: true },
-        { id: 3, text: "Reminder: Complete your profile", read: false },
-        { id: 4, text: "Your post got 50 likes", read: true },
-        { id: 5, text: "Event reminder: Watch Party at 3!", read: false },
-        { id: 6, text: "New message from Kamo", read: true },
-        { id: 7, text: "New message from Lily", read: true },
-        { id: 8, text: "New message from John", read: true },
-        { id: 9, text: "New message from Barry", read: true },
-        { id: 10, text: "New message from John", read: true },
-    ]);
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const data = await getUserNotifications(userInfo.userId);
+                console.log("Fetched user notifications: ", data);
 
-    const markAsRead = (id) => {
-        const updatedNotifications = notifications.map((notification) =>
-            notification.id === id ? { ...notification, read: true } : notification
-        );
-        setNotifications(updatedNotifications);
+                // Flatten notifications into an array
+                const flattenedNotifications = [];
+                if (data.success && data.notifications) {
+                    for (const category in data.notifications) {
+                        if (data.notifications.hasOwnProperty(category)) {
+                            const notificationsOfCategory = data.notifications[category];
+                            for (const id in notificationsOfCategory) {
+                                if (notificationsOfCategory.hasOwnProperty(id)) {
+                                    const notification = notificationsOfCategory[id];
+                                    flattenedNotifications.push({
+                                        id, // Unique identifier for each notification
+                                        ...notification, // Spread the notification details
+                                        type: category // Add the category/type of the notification
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                setNotifications(flattenedNotifications);
+            } catch (error) {
+                console.error('Failed to fetch notifications:', error);
+            }
+        };
+
+        fetchNotifications();
+    }, [userInfo.userId]);
+
+    const handleMarkAsRead = async (id, type) => {
+        try {
+            await markNotificationAsRead(userInfo.userId, type, id);
+            setNotifications(notifications.map((notification) =>
+                notification.id === id ? { ...notification, read: true } : notification
+            ));
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+        }
     };
 
-    const deleteNotification = (id) => {
-        const updatedNotifications = notifications.filter((notification) => notification.id !== id);
-        setNotifications(updatedNotifications);
+    const handleDeleteNotification = async (id, type) => {
+        try {
+            await deleteNotification(userInfo.userId, type, id);
+            setNotifications(notifications.filter((notification) => notification.id !== id));
+        } catch (error) {
+            console.error('Failed to delete notification:', error);
+        }
+    };
+
+    const handleClearNotifications = async () => {
+        try {
+            // Assuming type needs to be passed for clearing all notifications, you might need to adjust this
+            await clearNotifications(userInfo.userId);
+            setNotifications([]);
+        } catch (error) {
+            console.error('Failed to clear notifications:', error);
+        }
+    };
+
+    const handleAcceptInvite = async (shortCode, roomId) => {
+        try {
+            const response = await joinRoom(shortCode, userInfo.userId);
+            console.log("Notification.js Accept func response:", JSON.stringify(response));
+            if (response.roomId) {
+                console.log('Joined room successfully:', response.roomId);
+                handleDeleteNotification(roomId, 'room_invitations'); // Delete the invite notification after joining
+            } else {
+                console.error('Failed to join room:', response.message);
+            }
+        } catch (error) {
+            console.error('Error joining room:', error);
+        }
+    };
+
+    const handleDeclineInvite = async (roomId) => {
+        try {
+            await declineRoomInvite(userInfo.userId, roomId);
+            console.log(`Declined room invite with ID: ${roomId}`);
+            handleDeleteNotification(roomId, 'room_invitations'); // Delete the invite notification after declining
+        } catch (error) {
+            console.error('Error declining room invite:', error);
+        }
     };
 
     const renderItem = ({ item }) => (
         <View style={styles.notificationItem}>
             <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]}>
-                {item.text}
+                {item.message}
             </Text>
             <View style={styles.buttonContainer}>
                 {!item.read && (
                     <TouchableOpacity
                         style={[styles.button, styles.readButton]}
-                        onPress={() => markAsRead(item.id)}
+                        onPress={() => handleMarkAsRead(item.id, item.type)}
                     >
                         <Text style={styles.buttonText}>Mark as Read</Text>
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => deleteNotification(item.id)}>
+                {item.notificationType === 'room_invite' && (
+                    <>
+                        <TouchableOpacity
+                            style={[styles.button, styles.acceptButton]}
+                            onPress={() => handleAcceptInvite(item.shortCode, item.id)}
+                        >
+                            <Text style={styles.buttonText}>Accept</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.button, styles.declineButton]}
+                            onPress={() => handleDeclineInvite(item.roomId)}
+                        >
+                            <Text style={styles.buttonText}>Decline</Text>
+                        </TouchableOpacity>
+                    </>
+                )}
+                <TouchableOpacity
+                    style={[styles.button, styles.deleteButton]}
+                    onPress={() => handleDeleteNotification(item.id, item.type)}
+                >
                     <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
             </View>
-
         </View>
     );
 
     return (
         <View style={styles.container}>
-            <FlatList
-                data={notifications}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={styles.listContainer}
-            />            
+            {notifications.length === 0 ? (
+                <Text>No older Messages</Text>
+            ) : (
+                <FlatList
+                    data={notifications}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={styles.listContainer}
+                />
+            )}
+            <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                <Text style={styles.buttonText}>Clear All</Text>
+            </TouchableOpacity>
             <BottomHeader userInfo={userInfo} />
         </View>
     );
@@ -107,11 +198,24 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+    acceptButton: {
+        backgroundColor: "#4CAF50", // Green button for accepting
+    },
+    declineButton: {
+        backgroundColor: "#f44336", // Red button for declining
+    },
     readButton: {
         backgroundColor: "#ddd",
     },
     deleteButton: {
         backgroundColor: "#000000",
+    },
+    clearButton: {
+        backgroundColor: "#ff0000",
+        padding: 10,
+        borderRadius: 5,
+        alignItems: "center",
+        justifyContent: "center",
     },
     buttonText: {
         color: "#fff",
