@@ -16,6 +16,7 @@ const searchMovieRouter = require('./src/searching/searching.router');
 const roomRouter = require('./src/Room/room.router'); // Import the room router
 // Import and use the party router
 const partyRouter = require('./src/Room/WatchParty/party.router');
+const NotRouter = require('./src/Notifications/notification.router');
 const { firebaseAdmin } = require('./src/Firebase/firebaseConnection');
 const logRouter = require('./src/Log/log.router');
 const exploreRouter = require('./src/Explore/explore.router');
@@ -59,7 +60,7 @@ app.use('/party', partyRouter);
 
 app.use('/log', logRouter);
 app.use('/explore', exploreRouter);
-
+app.use('/notification', NotRouter);
 
 
 app.use((req, res, next) => {
