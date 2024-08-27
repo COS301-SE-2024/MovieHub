@@ -1,19 +1,47 @@
-// InviteModal.js
-import React, { useCallback, useMemo, forwardRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Share, Alert } from "react-native";
+import React, { useState, useCallback, useMemo, useEffect, forwardRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Share, Alert, FlatList } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { getFriends } from "../Services/UsersApiService"; // Import the getFriends function
 
 const InviteModal = forwardRef((props, ref) => {
-    // const ref = useRef(null);
     const snapPoints = useMemo(() => ["30%", "40%", "65%"], []);
-    const friends = props.friends;
+    const [searchQuery, setSearchQuery] = useState("");
+    const [friends, setFriends] = useState([]);
+    const [filteredFriends, setFilteredFriends] = useState([]);
+
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
+
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                const fetchedFriends = await getFriends(props.userInfo.userId); // Assuming props.userInfo contains user ID
+                setFriends(fetchedFriends);
+                setFilteredFriends(fetchedFriends);
+            } catch (error) {
+                Alert.alert("Error", "Failed to fetch friends.");
+                console.error("Failed to fetch friends:", error);
+            }
+        };
+
+        fetchFriends();
+    }, [props.userInfo.id]);
+
+    useEffect(() => {
+        if (searchQuery === "") {
+            setFilteredFriends(friends);
+        } else {
+            setFilteredFriends(friends.filter(friend =>
+                friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+            ));
+        }
+    }, [searchQuery, friends]);
 
     const handleCopyLinkPress = () => {
         console.log("Copy link");
     };
+
     const handleShare = async () => {
         try {
             const result = await Share.share({
@@ -35,6 +63,10 @@ const InviteModal = forwardRef((props, ref) => {
         }
     };
 
+    const handleInviteUser = (friend) => {
+        props.onInvite(friend); // Call the onInvite prop to handle the invitation
+    };
+
     const renderContent = () => (
         <View style={styles.container}>
             <Text style={styles.title}>{props.title}</Text>
@@ -52,48 +84,40 @@ const InviteModal = forwardRef((props, ref) => {
 
             <View style={styles.searchBar}>
                 <Icon name="search" size={24} style={{ color: "#7b7b7b" }} />
-                <TextInput style={styles.input} placeholder="Find a friend" />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Find a friend"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
             </View>
 
-            <View >
-                {/* <FlatList
-                    data={friends}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <View style={styles.friendItem}>
-                            <View style={styles.friendInfo}>
-                                <View style={styles.avatar} />
-                                <Text>{item.name}</Text>
-                            </View>
-                            <TouchableOpacity style={styles.inviteButton}>
-                                <Text>Invite</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                /> */}
-                {friends.map((friend, index) => (
-                    <View key={index} style={styles.friendItem}>
+            <FlatList
+                data={filteredFriends}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <View style={styles.friendItem}>
                         <View style={styles.friendInfo}>
                             <View style={styles.avatar} />
-                            <Text>{friend.name}</Text>
+                            <Text>{item.name}</Text>
                         </View>
-                        <TouchableOpacity style={styles.inviteButton}>
+                        <TouchableOpacity style={styles.inviteButton} onPress={() => handleInviteUser(item)}>
                             <Text>Invite</Text>
                         </TouchableOpacity>
                     </View>
-                ))}
-            </View>
+                )}
+            />
         </View>
     );
 
     return (
         <BottomSheetModalProvider>
-            <BottomSheetModal 
-                ref={ref} 
+            <BottomSheetModal
+                ref={ref}
                 index={2}
-                snapPoints={snapPoints} 
-                enablePanDownToClose={true} 
-                handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} 
+                snapPoints={snapPoints}
+                enablePanDownToClose={true}
+                handleIndicatorStyle={{ backgroundColor: "#4A42C0" }}
                 backdropComponent={renderBackdrop}
             >
                 <BottomSheetScrollView>
@@ -114,7 +138,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 16,
-        position: "fixed",
     },
     icons: {
         flexDirection: "row",
