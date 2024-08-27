@@ -35,6 +35,8 @@ export default function FollowersProfilePage({ route }) {
     const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
 
     console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
+    console.log("FollowerPostTab() - Other User Info:", userInfo);
+
 
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
@@ -209,9 +211,9 @@ export default function FollowersProfilePage({ route }) {
 
     const renderScene = ({ route }) => {
         switch (route.key) {
-            case "posts": return <PostsTab userInfo={otherUserInfo} userProfile={userProfile} />;
+            case "posts": return <PostsTab userInfo={otherUserInfo} otherinfo={userInfo} userProfile={userProfile} />;
             case "likes":
-                return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+                return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} orginalUserinfo={userInfo} />;
             case "watchlist":
                 return <WatchlistTab userInfo={otherUserInfo} userProfile={userProfile} />;
 

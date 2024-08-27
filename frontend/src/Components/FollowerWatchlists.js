@@ -12,6 +12,8 @@ const WatchlistTab = ({ userInfo }) => {
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
+
+    console.log("followers watchlist",userInfo);
         // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {
@@ -73,9 +75,6 @@ const WatchlistTab = ({ userInfo }) => {
                             </Text>
                             <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>
-                        <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
-                            <MaterialIcons name="more-vert" size={24} color="black" />
-                        </TouchableOpacity>
                     </TouchableOpacity>
                 ))}
                 {watchlists.length === 0 && (
@@ -170,6 +169,7 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     emptyText: {
+        paddingTop: 25,
         fontSize: 16,
         color: "#666",
         textAlign: "center",
