@@ -259,3 +259,19 @@ export const getFriends = async (userId) => {
     const data = await response.json();
     return data;
 };
+
+// Function to get a user's notifications
+export const getUserNotifications = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/notifications`, {
+        headers,
+    }); 
+ 
+    if (!response.ok) {
+        throw new Error('Failed to fetch user notifications');
+    }
+
+    const data = await response.json();
+    console.log("Inside UsersApiService, check data: " + JSON.stringify(data));
+    return data;
+};
