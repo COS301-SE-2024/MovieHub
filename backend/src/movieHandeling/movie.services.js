@@ -138,17 +138,17 @@ exports.getSuggestedMoviesForUser = async (uid) => {
             return [];  // No similar users found
         }
 
-        // Step 3: Compile a list of movies based on the interactions of the similar users, considering their reviews and watchlist tags
+        // Step 3: Compile a list of movies based on the interactions of the similar users, prioritizing watchlists with matching tags
         const suggestedMoviesResult = await session.run(
             `MATCH (other:User)-[:REVIEWED]->(r:Review)-[:REVIEWED_ON]->(m:Movie)
              WHERE other.uid IN $similarUserUids AND r.rating > 5  // Only consider positive reviews
              OPTIONAL MATCH (other)-[:HAS_WATCHLIST]->(w:Watchlist)-[:INCLUDES]->(m)
-             WHERE any(tag IN w.tags WHERE tag IN $favoriteGenres)  // Consider watchlist tags matching favorite genres
+             WITH m, r, w, apoc.coll.intersection(w.tags, $favoriteGenres) AS matchingTags
              OPTIONAL MATCH (u:User {uid: $uid})-[:HAS_WATCHLIST]->(uw:Watchlist)-[:INCLUDES]->(m)
-             WITH m, count(r) AS ratingCount, coalesce(uw, false) AS isInUserWatchlist
+             WITH m, count(r) AS ratingCount, coalesce(uw, false) AS isInUserWatchlist, matchingTags
              WHERE NOT isInUserWatchlist  // Exclude movies already in the user's watchlist
-             RETURN m AS movie, ratingCount
-             ORDER BY ratingCount DESC
+             RETURN m AS movie, ratingCount, size(matchingTags) AS priority
+             ORDER BY priority DESC, ratingCount DESC  // Prioritize by matching tags, then by rating count
              LIMIT 10`,  // Adjust limit as needed
             { similarUserUids, favoriteGenres, uid }
         );
