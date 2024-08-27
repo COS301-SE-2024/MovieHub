@@ -21,7 +21,7 @@ export default function EditProfile({ route }) {
         name: "",
         bio: "",
         pronouns: "",
-        favoriteGenres: [],
+        favouriteGenres: [],
         ...userProfile
     };
 
@@ -31,7 +31,7 @@ export default function EditProfile({ route }) {
         currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: defaultUserProfile.bio, tempValue: "" },
         pronouns: { isVisible: false, newValue: defaultUserProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
-        favoriteGenres: { isVisible: false, newValue: defaultUserProfile.favoriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
+        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
     });
 
     const applyChanges = async (field) => {
@@ -52,7 +52,7 @@ export default function EditProfile({ route }) {
                         },
                     });
                     break;
-                case "favoriteGenres":
+                case "favouriteGenres":
                     updatedData[field] = modalContent[field].tempValue.slice(0, 3);
                     setModalContent({
                         ...modalContent,
@@ -111,7 +111,7 @@ export default function EditProfile({ route }) {
         try {
             const updatedData = {};
             Object.keys(modalContent).forEach((field) => {
-                if (field === "favoriteGenres") {
+                if (field === "favouriteGenres") {
                     updatedData[field] = modalContent[field].tempValue.slice(0, 3);
                 } else if (modalContent[field].tempValue) {
                     updatedData[field] = modalContent[field].tempValue;
@@ -141,7 +141,7 @@ export default function EditProfile({ route }) {
     const handleOptionPress = (field, option) => {
         if (field === "pronouns") {
             setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: option, isVisible: false, newValue: option } });
-        } else if (field === "favoriteGenres") {
+        } else if (field === "favouriteGenres") {
             const newOptions = [...modalContent[field].tempValue];
             if (newOptions.includes(option)) {
                 newOptions.splice(newOptions.indexOf(option), 1);
@@ -207,8 +207,8 @@ export default function EditProfile({ route }) {
                 <View key={index}>
                     <TouchableOpacity onPress={() => handleFieldPress(field)}>
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "currentlyWatching" ? "Currently Watching" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            {field === "favoriteGenres" ? (
+                            <Text style={styles.sectionTitle}>{field === "favouriteGenres" ? "Favorite Genres (Max 3)" : field === "currentlyWatching" ? "Currently Watching" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                            {field === "favouriteGenres" ? (
                                 <ScrollView horizontal={true} contentContainerStyle={{ flexDirection: "row", paddingTop: 10 }}>
                                     {modalContent[field].newValue.map((option, index) => (
                                         <Text key={index} style={styles.chip}>
@@ -229,8 +229,8 @@ export default function EditProfile({ route }) {
                 <Modal key={index} animationType="fade" transparent={true} visible={modalContent[field].isVisible} onRequestClose={() => setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false } })}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Change {field === "favoriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            {field === "favoriteGenres" ? (
+                            <Text style={styles.modalTitle}>Change {field === "favouriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                            {field === "favouriteGenres" ? (
                                 <View>
                                     <ScrollView style={{ maxHeight: 200 }}>
                                         {modalContent[field].options.map((option, index) => (

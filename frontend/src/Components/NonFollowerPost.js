@@ -1,26 +1,62 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-import { followUser, unfollowUser } from '../Services/UsersApiService';
+import { followUser, unfollowUser } from "../Services/UsersApiService";
+import { toggleLikePost } from "../Services/LikesApiService";
 
-export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid }) {
+export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid, isUserPost, handleCommentPress, postId }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false); 
+    const [modalVisible, setModalVisible] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
-    
+
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
 
-    const toggleLike = () => {
+    console.log(postId)
+
+    const toggleLike = async () => {
+        const body = {
+            postId: postId,
+            userId: uid,
+        };
+
+        try {
+            await toggleLikePost(body);
+            console.log("Toggle like successful");
+        } catch (error) {
+            console.error("Error toggling like:", error);
+        }
+
         setLiked(!liked);
+    };
+
+    const handleShare = async () => {
+        try {
+            const result = await Share.share({
+                url: "",
+                title: "MovieHub",
+                message: "Check this post out on MovieHub: " + postTitle,
+            });
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error) {
+            Alert.alert(error.message);
+        }
     };
 
     const navigation = useNavigation();
@@ -30,7 +66,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     const handlePress = () => {
         navigation.navigate("Profile", {
             userInfo,
-            otherUserInfo
+            otherUserInfo,
         });
     };
 
@@ -45,7 +81,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             }
             setIsFollowing(!isFollowing);
         } catch (error) {
-            console.error('Error toggling follow state:', error);
+            console.error("Error toggling follow state:", error);
         }
     };
 
@@ -56,8 +92,14 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         const diffInSeconds = (now - postDate) / 1000;
         const diffInHours = diffInSeconds / 3600;
         const diffInDays = diffInHours / 24;
+        const diffInMonths = diffInDays / 30;
+        const diffInYears = diffInMonths / 12;
 
-        if (diffInDays >= 1) {
+        if (diffInYears >= 1) {
+            return `${Math.floor(diffInYears)}y`;
+        } else if (diffInMonths >= 1) {
+            return `${Math.floor(diffInMonths)}mo`;
+        } else if (diffInDays >= 1) {
             return `${Math.floor(diffInDays)}d`;
         } else {
             return `${Math.floor(diffInHours)}h`;
@@ -69,15 +111,15 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            borderColor: '#000000',
-            borderTopWidth: 0, 
-            borderBottomWidth: 0.3, 
-            borderTopWidth: 0.3,
+            // shadowColor: "#000",
+            // shadowOffset: {
+            //     width: 0,
+            //     height: 2,
+            // },
+            borderColor: "#000000",
+            borderTopWidth: 0,
+            borderBottomWidth: 0.3,
+            // borderTopWidth: 0.3,
         },
         avatar: {
             width: 50,
@@ -87,16 +129,16 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             alignItems: "center",
             justifyContent: "center",
             marginRight: 10,
-            backgroundColor: 'black',
+            backgroundColor: "black",
         },
         username: {
-            paddingBottom: 10,
+            paddingBottom: 4,
             fontSize: 18,
             fontWeight: "bold",
             color: theme.textColor,
             marginRight: 10,
             flexShrink: 1,
-            maxWidth: '70%', // Adjust as needed
+            maxWidth: "95%", // Adjust as needed
         },
         userHandle: {
             color: theme.gray,
@@ -154,10 +196,10 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             fontSize: 13,
         },
         modalContainer: {
-            position: 'absolute',
+            position: "absolute",
             top: 30,
             right: 10,
-            backgroundColor: 'white',
+            backgroundColor: "white",
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -175,26 +217,25 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             paddingHorizontal: 20,
         },
         modalText: {
-            color: 'black',
+            color: "black",
             fontSize: 16,
         },
         moreIcon: {
-            marginTop: -20,
             paddingLeft: 10,
         },
         followingButton: {
-            backgroundColor: isFollowing ? 'grey' : '#4a42c0', // Dynamic background color
+            backgroundColor: isFollowing ? "grey" : "#4a42c0", // Dynamic background color
             borderRadius: 15,
             paddingHorizontal: 10,
             paddingVertical: 5,
-            marginTop: -20,
-            width: 90, 
-            alignItems: 'center',
-            justifyContent: 'center',
+            width: 90,
+            alignItems: "center",
+            justifyContent: "center",
             marginLeft: 10,
+            marginRight: 4,
         },
         followingText: {
-            color: 'white',
+            color: "white",
             fontSize: 14,
         },
     });
@@ -207,44 +248,71 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                 </TouchableOpacity>
                 <View style={styles.nameAndHandleContainer}>
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.username} numberOfLines={1} ellipsizeMode="tail">{username}</Text>
-                        <Text style={styles.userHandle}>{userHandle} &bull; {timeDifference()}</Text>
+                        <Text style={styles.username} numberOfLines={1} ellipsizeMode="tail">
+                            {username}
+                        </Text>
+                        <Text style={styles.userHandle}>
+                            {userHandle} &bull; {timeDifference()}
+                        </Text>
                     </View>
-                    <TouchableOpacity style={styles.followingButton} onPress={toggleFollow}>
-                        <Text style={styles.followingText}>{isFollowing ? 'Following' : 'Follow'}</Text>
-                    </TouchableOpacity>
                 </View>
-                <Icon name="more-vert" size={22} style={styles.moreIcon} />
+                <View style={{ flexDirection: "row", alignItems: "center", paddingBottom: 18 }}>
+                    <TouchableOpacity style={styles.followingButton} onPress={toggleFollow}>
+                        <Text style={styles.followingText}>{isFollowing ? "Following" : "Follow"}</Text>
+                    </TouchableOpacity>
+                    <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
+                        <Icon name="more-vert" size={20} />
+                    </Pressable>
+                </View>
             </View>
             {image && <Image source={{ uri: image }} style={styles.postImage} />}
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5,}} onPress={toggleLike} />
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} onPress={toggleLike} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                    <Pressable
+                        onPress={() => {
+                            handleCommentPress(postId, false);
+                        }}>
+                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                    </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
-                <View style={styles.stats}>
-                    <Icon name="bookmark-border" size={20} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{saves}</Text>
-                </View>
                 <View style={{ flex: 1 }}></View>
-                <CommIcon name="share-outline" size={22} style={styles.icon} />
+                <Pressable onPress={handleShare}>
+                    <CommIcon name="share-outline" size={20} style={styles.icon} />
+                </Pressable>
             </View>
             {modalVisible && (
                 <View style={styles.modalContainer}>
-                    <TouchableOpacity style={styles.modalOption} onPress={() => { /* Add edit functionality */ }}>
-                        <Text style={styles.modalText}>Edit</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.modalOption} onPress={() => { /* Add delete functionality */ }}>
-                        <Text style={styles.modalText}>Delete</Text>
-                    </TouchableOpacity>
+                    {isUserPost ? ( // Check if the post belongs to the user
+                        <>
+                            <TouchableOpacity style={styles.modalOption} onPress={handleEditPost}>
+                                <Text style={styles.modalText}>Edit</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.modalOption}
+                                onPress={() => {
+                                    toggleConfirmationModal(postId);
+                                }}>
+                                <Text style={styles.modalText}>Delete</Text>
+                            </TouchableOpacity>
+                        </>
+                    ) : (
+                        <TouchableOpacity
+                            style={styles.modalOption}
+                            onPress={() => {
+                                /* Report logic */
+                            }}>
+                            <Text style={styles.modalText}>Report</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
-            )} 
+            )}
         </View>
     );
 }

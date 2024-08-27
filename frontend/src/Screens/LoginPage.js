@@ -52,7 +52,7 @@ const LoginPage = () => {
             const userData = await getUserProfile(userInfo.userId);
 
             const verified = await isUserVerified();
-            console.log("User Verified:", verified);
+            // console.log("User Verified:", verified);
 
             if (!verified) {
                 console.log("User is not verified");
