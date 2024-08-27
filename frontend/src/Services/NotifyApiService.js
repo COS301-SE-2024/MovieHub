@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { getLocalIP } from './getLocalIP';
 
 const localIP = getLocalIP();
-const API_URL = `http://${localIP}:3000/users`;
+const API_URL = `http://${localIP}:3000/notification`;
 
 // Helper function to get the token from SecureStore
 const getToken = async () => {
