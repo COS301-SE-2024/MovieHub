@@ -1,9 +1,10 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ImageBackground } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from '../Services/RoomApiService'; // Import the functions
+import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService"; // Import the functions
+import { fetchRandomImage } from "../Services/RoomApiService";
 
 const HubScreen = ({ route }) => {
     const { userInfo } = route.params;
@@ -11,6 +12,8 @@ const HubScreen = ({ route }) => {
     const [createdRooms, setCreatedRooms] = useState([]);
     const [participatingRooms, setParticipatingRooms] = useState([]);
     const [publicRooms, setPublicRooms] = useState([]);
+    const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
+
 
     useEffect(() => {
         const fetchRooms = async () => {
@@ -18,48 +21,54 @@ const HubScreen = ({ route }) => {
                 const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
 
                 // Fetch participant counts for created rooms
-                const createdRoomsWithCounts = await Promise.all(createdRoomsData.map(async room => {
-                    const countResponse = await getRoomParticipantCount(room.roomId);
-                    return {
-                        ...room,
-                        participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
-                    };
-                }));
+                const createdRoomsWithCounts = await Promise.all(
+                    createdRoomsData.map(async (room) => {
+                        const countResponse = await getRoomParticipantCount(room.roomId);
+                        return {
+                            ...room,
+                            participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
+                        };
+                    })
+                );
                 setCreatedRooms(createdRoomsWithCounts);
             } catch (error) {
-                console.error('Failed to fetch created rooms:', error);
+                console.error("Failed to fetch created rooms:", error);
             }
 
             try {
                 const participatingRoomsData = await getUserParticipatedRooms(userInfo.userId);
 
                 // Fetch participant counts for participating rooms
-                const participatingRoomsWithCounts = await Promise.all(participatingRoomsData.map(async room => {
-                    const countResponse = await getRoomParticipantCount(room.roomId);
-                    return {
-                        ...room,
-                        participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
-                    };
-                }));
+                const participatingRoomsWithCounts = await Promise.all(
+                    participatingRoomsData.map(async (room) => {
+                        const countResponse = await getRoomParticipantCount(room.roomId);
+                        return {
+                            ...room,
+                            participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
+                        };
+                    })
+                );
                 setParticipatingRooms(participatingRoomsWithCounts);
             } catch (error) {
-                console.error('Failed to fetch participated rooms:', error);
+                console.error("Failed to fetch participated rooms:", error);
             }
 
             try {
                 const publicRoomsData = await getPublicRooms();
 
                 // Fetch participant counts for public rooms
-                const publicRoomsWithCounts = await Promise.all(publicRoomsData.map(async room => {
-                    const countResponse = await getRoomParticipantCount(room.roomId);
-                    return {
-                        ...room,
-                        participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
-                    };
-                }));
+                const publicRoomsWithCounts = await Promise.all(
+                    publicRoomsData.map(async (room) => {
+                        const countResponse = await getRoomParticipantCount(room.roomId);
+                        return {
+                            ...room,
+                            participantsCount: countResponse.participantCount || 0, // Default to 0 if no count
+                        };
+                    })
+                );
                 setPublicRooms(publicRoomsWithCounts);
             } catch (error) {
-                console.error('Failed to fetch public rooms:', error);
+                console.error("Failed to fetch public rooms:", error);
             }
         };
         fetchRooms();
@@ -68,6 +77,10 @@ const HubScreen = ({ route }) => {
     const handleCreateRoom = ({ roomTitle, accessLevel, roomType, watchParty }) => {
         const newRoom = { roomTitle, accessLevel, roomType, watchParty, maxParticipants: 5 };
         navigation.navigate("HubScreen", { userInfo, newRoom });
+    };
+
+    const getRandomKeyword = () => {
+        return keywords[Math.floor(Math.random() * keywords.length)];
     };
 
     return (
@@ -87,12 +100,13 @@ const HubScreen = ({ route }) => {
                 <View>
                     <Text style={styles.sectionTitle}>Rooms You Created</Text>
                     {createdRooms.map((room, index) => (
-                        <UserRoomCard
-                            key={index}
-                            roomName={room.roomName}
-                            users={room.participantsCount}
-                            live={room.roomType !== "Chat-only"}
-                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true, roomId: room.roomId })}
+                        <UserRoomCard 
+                            key={index} 
+                            roomName={room.roomName} 
+                            users={room.participantsCount} 
+                            live={room.roomType !== "Chat-only"} 
+                            keyword={getRandomKeyword()}
+                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true, roomId: room.roomId })} 
                         />
                     ))}
                     <View style={styles.divider} />
@@ -105,12 +119,13 @@ const HubScreen = ({ route }) => {
                 <View>
                     <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
                     {participatingRooms.map((room, index) => (
-                        <UserRoomCard
-                            key={index}
-                            roomName={room.roomTitle}
-                            users={room.participantsCount}
+                        <UserRoomCard 
+                            key={index} 
+                            roomName={room.roomName} 
+                            users={room.participantsCount} 
                             live={room.roomType !== "Chat-only"}
-                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false, roomId: room.roomId })}
+                            keyword={getRandomKeyword()} 
+                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false, roomId: room.roomId })} 
                         />
                     ))}
                 </View>
@@ -122,39 +137,76 @@ const HubScreen = ({ route }) => {
                 <View>
                     <Text style={styles.sectionTitle}>Public Rooms Available</Text>
                     {publicRooms.map((room, index) => (
-                        <UserRoomCard
-                            key={index}
-                            roomName={room.roomTitle}
-                            users={room.participantsCount}
-                            live={room.roomType !== "Chat-only"}
-                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false, roomId: room.roomId })}
+                        <UserRoomCard 
+                            key={index} 
+                            roomName={room.roomName} 
+                            users={room.participantsCount} 
+                            keyword={getRandomKeyword()}
+                            live={room.roomType !== "Chat-only"} 
+                            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false, roomId: room.roomId })} 
                         />
                     ))}
                 </View>
             ) : (
                 <Text style={styles.noRoomsText}>No public rooms available to join.</Text>
             )}
-
         </ScrollView>
     );
 };
 
-const UserRoomCard = ({ roomName, users, live, handlePress }) => (
-    <TouchableOpacity style={styles.userRoomCard} onPress={handlePress}>
-        {live && (
-            <Text style={styles.liveText}>
-                ● Active
-            </Text>
-        )}
-        <View style={styles.cardBody}>
-            <Text style={styles.cardTitle}>{roomName}</Text>
-            <View style={styles.cardFooter}>
-                <Icon name="users" size={16} />
-                <Text style={styles.userCount}>{users}</Text>
-            </View>
-        </View>
-    </TouchableOpacity>
-);
+export const UserRoomCard = ({ roomName, users, live, handlePress, keyword }) => {
+    const [randomImage, setRandomImage] = useState(null);
+    const [fallbackColor, setFallbackColor] = useState(null);
+
+    useEffect(() => {
+        const fetchImage = async () => {
+            try {
+                const image = await fetchRandomImage(keyword);
+                setRandomImage(image);
+            } catch (error) {
+                console.error("Failed to fetch random image:", error);
+            }
+        };
+        fetchImage();
+
+        // Generate a random color (excluding white)
+        console.log("Random color:", getRandomColor());
+        const randomColor = getRandomColor();
+        setFallbackColor(randomColor);
+    }, [keyword]);
+
+    // Function to generate a random color, excluding white
+    const getRandomColor = () => {
+        const colors = [
+            "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFAF33", "#57FF33", "#FF5733", 
+            "#5733FF", "#33FFA1", "#A133FF", "#FF5733", "#57A1FF", "#FF3357", "#57FF33"
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+    };
+
+    return (
+        <TouchableOpacity style={styles.userRoomCard} onPress={handlePress}>
+            {randomImage && (
+                <ImageBackground 
+                    source={randomImage ? { uri: randomImage } : null} 
+                    style={[styles.imageBackground, { backgroundColor: fallbackColor }]} 
+                    imageStyle={{ borderRadius: 8 }}
+                >
+                    <View style={styles.overlay}>
+                        {live && <Text style={styles.liveText}>● Active</Text>}
+                        <View style={styles.cardBody}>
+                            <Text style={styles.cardTitle}>{roomName}</Text>
+                            <View style={styles.cardFooter}>
+                                <Icon name="users" size={16} color="white" />
+                                <Text style={styles.userCount}>{users}</Text>
+                            </View>
+                        </View>
+                    </View>
+                </ImageBackground>
+            )}
+        </TouchableOpacity>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -195,18 +247,27 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
     },
     userRoomCard: {
-        position: "relative",
         width: "85%",
         height: 210,
-        backgroundColor: "#e0e0e0",
         borderRadius: 8,
-        padding: 16,
         marginVertical: 8,
-        marginLeft: 16,
+        alignSelf: 'center', // Center the card horizontally
+        overflow: "hidden", // Ensure the overlay is contained within the card's rounded corners    
+    },
+    imageBackground: {
+        flex: 1,
+        justifyContent: "space-between",
+    },
+    overlay: {
+        ...StyleSheet.absoluteFillObject, // This ensures the overlay covers the entire image
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        borderRadius: 8,
+        justifyContent: "space-between",
+        padding: 16,
     },
     divider: {
         height: 1,
-        backgroundColor: "#7b7b7b7b",
+        backgroundColor: "#d9d9d9",
         marginVertical: 16,
     },
     cardBody: {
@@ -226,6 +287,7 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: "bold",
+        color: "white",
     },
     cardFooter: {
         flexDirection: "row",
@@ -234,6 +296,7 @@ const styles = StyleSheet.create({
     },
     userCount: {
         marginLeft: 8,
+        color: "white",
     },
 });
 

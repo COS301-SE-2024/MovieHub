@@ -1,7 +1,8 @@
 import * as SecureStore from 'expo-secure-store';
 import firebase from 'firebase/app';
 import 'firebase/database'; // Import the Firebase Realtime Database
-
+import axios from 'axios';
+import { PEXELS_API_KEY } from '@env';
 
 //const API_URL = process.env.REACT_APP_ROOMS_API_URL || 'http://192.168.225.19:3000/rooms'; // Update with your correct API URL
 const API_URL = 'http://10.0.14.57:3000/rooms'
@@ -281,5 +282,25 @@ export const listenForMessages = async (roomId, onMessageReceived) => {
     } catch (error) {
         console.error('Error setting up message listener:', error);
         throw new Error('Failed to listen for messages');
+    }
+};
+
+export const fetchRandomImage = async (keyword) => {
+    try {
+        const response = await axios.get(`https://api.pexels.com/v1/search`, {
+            params: {
+                query: keyword,
+                per_page: 1,
+                page: Math.floor(Math.random() * 100) + 1, // Random page number for randomness
+            },
+            headers: {
+                Authorization: PEXELS_API_KEY,
+            },
+        });
+        const photos = response.data.photos;
+        return photos.length > 0 ? photos[0].src.medium : null; // Return the medium-sized image URL
+    } catch (error) {
+        console.error('Failed to fetch image:', error);
+        return null;
     }
 };
