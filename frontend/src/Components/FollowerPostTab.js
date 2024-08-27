@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
-import Post from "./Post";
-import Review from "./Review";
+import Post from "./FollowerPost";
+import Review from "./FollowerReview";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 
-export default function FollowerPostsTab({ userInfo, userProfile, handleCommentPress }) {
+export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,handleCommentPress }) {
     const { theme } = useTheme();
     const username = userProfile.name;
     const userHandle = "@" + userInfo.username;
@@ -38,7 +38,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, handleCommentP
         return `${years}y ago`;
     };
 
-    console.log("FollowerPostTab(1) -- Other User Info:", userInfo);
+    console.log("FollowerPostTab(1) -- Other User Info og:", otherinfo);
 
     const fetchPostsAndReviews = async () => {
         try {
@@ -176,6 +176,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, handleCommentP
                             handleCommentPress={handleCommentPress}
                             datePosted={formatTimeAgoFromDB(item.createdAt)}
                             onDelete={handleDeletePost} // Pass handleDeletePost function
+                            ogUserinfo={otherinfo}
                         />
                     ) : (
                         <Review
@@ -197,6 +198,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, handleCommentP
                             movieName={item.movieTitle}
                             rating={item.rating}
                             onDelete={handleDeleteReview}
+                            ogUserinfo={otherinfo}
                         />
                     )
                 )
