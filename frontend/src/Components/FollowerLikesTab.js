@@ -6,11 +6,13 @@ import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import Review from "./Review";
 
-export default function FollowerLikesTab({ userInfo, userProfile, handleCommentPress }) {
+export default function FollowerLikesTab({ userInfo, userProfile, handleCommentPress, orginalUserinfo}) {
     const [likedPosts, setLikedPosts] = useState([]);
 
     const [loading, setLoading] = useState(false);
 
+    console.log("followers likes",userInfo);
+    console.log("followers profile",userProfile);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -31,6 +33,8 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
         if (months < 12) return `${months}mo ago`;
         return `${years}y ago`;
     };
+
+    console.log("whats going on",orginalUserinfo);
 
     const fetchLikedPosts = async () => {
         try {
@@ -110,7 +114,7 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
                             <Post
                                 key={index} // for uniqueness
                                 postId={item.properties.postId}
-                                uid={item.properties.uid}
+                                uid={orginalUserinfo.userId}
                                 username={item.properties.name}
                                 userHandle={item.userHandle}
                                 userAvatar={item.properties.avatar}
@@ -129,7 +133,7 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
                             <Review
                                 key={index} // for uniqueness
                                 reviewId={item.properties.reviewId}
-                                uid={item.properties.uid}
+                                uid={orginalUserinfo.userId}
                                 username={item.properties.name}
                                 userHandle={item.userHandle}
                                 userAvatar={item.properties.avatar}
@@ -162,10 +166,9 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     title: {
-        fontSize: 18,
-        fontWeight: "bold",
+        fontSize: 16,
+        color: "#666",
         textAlign: "center",
-        marginBottom: 6,
     },
     subtitle: {
         fontSize: 14,
