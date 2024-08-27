@@ -12,12 +12,14 @@ const WatchlistTab = ({ userInfo }) => {
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
+
+    console.log("followers watchlist",userInfo);
         // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
                 console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
-                const userId = userInfo.userId; // Replace with actual user ID fetching logic
+                const userId = userInfo.uid; // Replace with actual user ID fetching logic
 
                 const userWatchlists = await getUserWatchlists(userId);
                 const watchlistId = userWatchlists.id;
@@ -73,14 +75,11 @@ const WatchlistTab = ({ userInfo }) => {
                             </Text>
                             <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>
-                        <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
-                            <MaterialIcons name="more-vert" size={24} color="black" />
-                        </TouchableOpacity>
                     </TouchableOpacity>
                 ))}
                 {watchlists.length === 0 && (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>Your watchlists will appear here</Text>
+                        <Text style={styles.emptyText}>No watchlist yet</Text>
                     </View>
                 )}
             </ScrollView>
@@ -170,6 +169,7 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     emptyText: {
+        paddingTop: 25,
         fontSize: 16,
         color: "#666",
         textAlign: "center",
