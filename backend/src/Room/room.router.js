@@ -9,6 +9,21 @@ router.post('/create/:userId', roomController.createRoom);
 // Route to join an existing room
 router.post('/join', roomController.joinRoom);
 
+// Route to get participants of a room
+router.get('/:roomId/participants', roomController.getRoomParticipants);
+
+// Route to get all rooms a user has created
+router.get('/created/:userId', roomController.getUserCreatedRooms);
+
+// Route to get all rooms a user is participating in (but not created)
+router.get('/participated/:userId', roomController.getUserParticipatedRooms);
+
+// Route to get participant count for a specific room
+router.get('/:roomId/participant-count', roomController.getRoomParticipantCount);
+
+
+router.get('/public-rooms', roomController.getPublicRooms);
+
 // Route to invite a user to a room
 router.post('/invite', roomController.inviteUserToRoom);
 
@@ -32,5 +47,8 @@ router.get('/listen/:roomId', roomController.listenForMessages);
 
 // Route to send a notification to users in a room
 router.post('/notify', roomController.sendNotification);
+
+// Route to get room details by roomId or shortCode
+router.get('/:identifier', roomController.getRoomDetails);
 
 module.exports = router;
