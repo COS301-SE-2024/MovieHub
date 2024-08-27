@@ -58,6 +58,7 @@ import FollowingPage from "./frontend/src/Screens/FollowingPage";
 import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 import Rooms from "./frontend/src/Screens/Rooms";
+import CreateWatchParty from "./frontend/src/Screens/CreateWatchParty";
 
 const Nav = createStackNavigator();
 
@@ -391,6 +392,19 @@ export default function App() {
                                 headerTintColor: "black",
                             })}
                         />
+
+                        <Nav.Screen
+                            name="CreateWatchParty"
+                            component={CreateWatchParty}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
+                            
                     </Nav.Navigator>
                 </NavigationContainer>
             </ThemeProvider>
