@@ -20,6 +20,17 @@ exports.createMovie = async (req, res) => {
     }
 };
 
+exports.fetchSuggestedMovies = async (req, res) => {
+    const { uid } = req.params;
+
+    try {
+        const suggestedMovies = await movieService.getSuggestedMoviesForUser(uid);
+        res.status(200).json({ movies: suggestedMovies });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching suggested movies', error: error.message });
+    }
+};
+
 exports.fetchMovieDetails = async (req, res) => {
     const { movieId } = req.params;
     try {
