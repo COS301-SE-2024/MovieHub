@@ -112,6 +112,157 @@ exports.createRoom = async (userId, roomData) => {
     }
 };
 
+exports.getRoomDetails = async (roomIdentifier) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room)
+             WHERE r.roomId = $identifier OR r.shortCode = $identifier
+             OPTIONAL MATCH (u:User)-[:CREATED]->(r)
+             RETURN r, u`,
+            { identifier: roomIdentifier }
+        );
+
+        if (result.records.length > 0) {
+            const room = result.records[0].get('r').properties;
+            const creator = result.records[0].get('u') ? result.records[0].get('u').properties : null;
+            return { success: true, room, creator };
+        }
+
+        return { success: false, message: 'Room not found' };
+    } catch (error) {
+        console.error('Error retrieving room details:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Get participant count of a room
+exports.getRoomParticipantCount = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(u:User)
+             RETURN COUNT(DISTINCT u) + 1 AS participantCount`,
+            { roomId }
+        );
+
+        if (result.records.length > 0) {
+            const participantCount = result.records[0].get('participantCount').toInt();
+            return { success: true, participantCount };
+        }
+
+        return { success: false, message: 'Room not found or no participants' };
+    } catch (error) {
+        console.error('Error retrieving room participant count:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getRoomParticipants = async (roomId) => {
+    const session = driver.session();
+    try {
+        // Query to get the list of participants in the room and the creator of the room
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(p:User)
+             OPTIONAL MATCH (c:User)-[:CREATED]->(r)
+             RETURN collect(p) AS participants, collect(c) AS creator`,
+            { roomId }
+        );
+
+        // Extract participants and creator from the result
+        const participants = result.records[0].get('participants').map(user => user.properties);
+        const creator = result.records[0].get('creator')[0]?.properties;
+
+        return {
+            success: true,
+            participants,
+            creator
+        };
+    } catch (error) {
+        console.error('Error retrieving room participants:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
+// Get all rooms a user has created
+exports.getUserCreatedRooms = async (userId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:CREATED]->(r:Room)
+             RETURN r`,
+            { userId }
+        );
+
+        if (result.records.length > 0) {
+            const createdRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, createdRooms };
+        }
+
+        return { success: false, message: 'No rooms found' };
+    } catch (error) {
+        console.error('Error retrieving created rooms:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Get all rooms a user is participating in (but not created)
+exports.getUserParticipatedRooms = async (userId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:PARTICIPATES_IN]->(r:Room)
+             WHERE NOT (u)-[:CREATED]->(r)
+             RETURN r`,
+            { userId }
+        );
+
+        if (result.records.length > 0) {
+            const participatedRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, participatedRooms };
+        }
+
+        return { success: false, message: 'No rooms found' };
+    } catch (error) {
+        console.error('Error retrieving participated rooms:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getPublicRooms = async () => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {accessLevel: 'everyone', isActive: true})
+             RETURN r`
+        );
+
+        if (result.records.length > 0) {
+            const publicRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, publicRooms };
+        }
+
+        return { success: false, message: 'No public rooms found' };
+    } catch (error) {
+        console.error('Error retrieving public rooms:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
 
 
 exports.joinRoom = async (code, userId) => {
@@ -217,16 +368,19 @@ async function checkUserAccess(userId, room) {
 exports.inviteUserToRoom = async (adminId, userId, roomId) => {
     const session = driver.session();
     try {
-        // Check if the room is invite-only and the admin is the creator
+        // Check if the room is invite-only and the admin is the creator, and get the room's shortCode
         const roomCheck = await session.run(
             `MATCH (r:Room {roomId: $roomId, accessLevel: 'invite', createdBy: $adminId})
-             RETURN r`,
+             RETURN r.shortCode AS shortCode, r.roomName AS roomName`,
             { roomId, adminId }
         );
 
         if (roomCheck.records.length === 0) {
             throw new Error('Room is not invite-only or admin is not authorized.');
         }
+
+        const shortCode = roomCheck.records[0].get('shortCode');
+        const roomName = roomCheck.records[0].get('roomName');
 
         // Create an INVITED_TO relationship
         await session.run(
@@ -235,7 +389,23 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
             { userId, roomId }
         );
 
-        console.log(`User ${userId} invited to room ${roomId} by admin ${adminId}.`);
+        // Send notification to the invited user using Firebase Realtime Database
+        const db = getDatabase();
+        const notificationsRef = ref(db, `notifications/${userId}/room_invitations`); // Reference to the user's notifications
+        const newNotificationRef = push(notificationsRef); // Create a new notification entry
+
+        // Set the notification details, including the shortCode
+        await set(newNotificationRef, {
+            message: `You have been invited to join the room: ${roomName}`,
+            roomId: roomId,
+            shortCode: shortCode, // Include the room code
+            invitedBy: adminId,
+            notificationType: 'room_invite',
+            timestamp: new Date().toISOString(),
+            read: false // Mark notification as unread
+        });
+
+        console.log(`User ${userId} invited to room ${roomId} by admin ${adminId}. Notification sent.`);
         return true;
     } catch (error) {
         console.error('Error inviting user to room:', error);
@@ -244,6 +414,8 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
         await session.close();
     }
 };
+
+
 
 // Function to decline a room invite
 exports.declineRoomInvite = async (userId, roomId) => {
