@@ -58,6 +58,7 @@ import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 import Rooms from "./frontend/src/Screens/Rooms";
 import VerificationPage from "./frontend/src/Screens/VerificationPage";
+import ForgotPasswordPage from "./frontend/src/Screens/ForgotPassword";
 
 const Nav = createStackNavigator();
 
@@ -403,6 +404,16 @@ export default function App() {
                             })}
                         />
 
+                        <Nav.Screen
+                            name="ForgotPasswordPage"
+                            component={ForgotPasswordPage}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
 
                     </Nav.Navigator>
                 </NavigationContainer>

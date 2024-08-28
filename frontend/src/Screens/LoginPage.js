@@ -78,12 +78,14 @@ const LoginPage = () => {
 
             if (firebaseErrorMessage.includes("auth/invalid-login-credentials")) {
                 errorMessage = "Incorrect email or password. Please try again.";
-            } else if (error.code === "auth/wrong-password") {
+            } else if (firebaseErrorMessage.includes("auth/wrong-password")) {
                 errorMessage = "Incorrect password. Please try again";
-            } else if (error.code === "auth/invalid-email") {
+            } else if (firebaseErrorMessage.includes("auth/invalid-email")) {
                 errorMessage = "Invalid email address format";
-            } else if (error.code === "auth/invalid-login-credentials") {
+            } else if (firebaseErrorMessage.includes("auth/invalid-login-credentials")) {
                 errorMessage = "Incorrect email or password. Please try again";
+            } else if (firebaseErrorMessage.includes("auth/too-many-requests")) {
+                errorMessage = "Too many failed login attempts. Please try again later.";
             } else if (!email || !password) {
                 errorMessage = "Email and password are required";
             } else {
@@ -257,7 +259,7 @@ const LoginPage = () => {
                         <TouchableOpacity
                             style={styles.forgot}
                             onPress={() => {
-                                /* Implement forgot password functionality */
+                                navigation.navigate("ForgotPasswordPage");
                             }}>
                             <Text style={styles.forgotText}>Forgot password?</Text>
                         </TouchableOpacity>

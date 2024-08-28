@@ -126,7 +126,7 @@ export default function ExplorePage({ route }) {
                     {friendsOfFriendsContent.map((item, index) => (
                         <NonFollowerPost
                             key={`fof-${index}`}
-                            postId={item.postId}
+                            postId={item.post.postId}
                             userInfo={userInfo} // Current user's info
                             otherUserInfo={item.fof} // Friend of friend's info
                             uid={item.fof.uid} // Friend of friend's uid
@@ -147,7 +147,7 @@ export default function ExplorePage({ route }) {
                     {randomUsersContent.map((item, index) => (
                         <NonFollowerPost
                             key={`random-${index}`}
-                            postId={item.postId}
+                            postId={item.post.postId}
                             userInfo={userInfo} // Current user's info
                             otherUserInfo={item.user}
                             username={item.user.username}

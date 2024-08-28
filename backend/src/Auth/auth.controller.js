@@ -1,5 +1,6 @@
 import authService from './auth.services';
 import responseHandler from '../utils/responseHandler';
+import { error } from 'neo4j-driver';
 
 exports.register = async (req, res) => {
     console.log("In the auth Controller");
@@ -86,5 +87,57 @@ exports.isVerified = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    const { email } = req.body;
+    console.log("In resetPassword controller", email);
+
+    if (!email) {
+        res.status(400).json({ message: "Missing required fields: email" });
+        return;
+    }
+
+    try {
+        const result = await authService.sendPasswordResetEmail(email);
+
+        if (result.success) {
+            res.status(200).json({ message: 'Password reset email sent successfully' });
+        } else {
+            res.status(400).json({ message: result.error || 'Failed to send password reset email' });
+        }
+    } catch (error) {
+        console.error("reset Password Error", error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+}
+
+exports.updatePassword = async (req, res) => {
+    const { currPassword, newPassword } = req.body;
+
+    if (!currPassword && !newPassword) {
+        return res.status(400).json({ message: "Missing required fields: currentPassword, newPassword", error: "missing-fields" });
+    }
+
+    if (!currPassword) {
+        return res.status(400).json({ message: "Missing required field: currentPassword", error: "missing-curr-password" });
+    }
+
+    if (!newPassword) {
+        return res.status(400).json({ message: "Missing required field: newPassword", error: "missing-new-password" });
+    }
+
+    try {
+        const result = await authService.updatePassword(currPassword, newPassword);
+        // console.log("Result update password!!:", result);
+        if (result.success) {
+            return res.status(200).json({ message: result.message });
+        } else {
+            return res.status(400).json({ message: result.error, error: result });
+        }
+    } catch (error) {
+        console.error("Update Password Error", error);
+        return res.status(500).json({ message: 'Internal server error', error: error.message, });
     }
 }

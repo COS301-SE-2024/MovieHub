@@ -1,5 +1,5 @@
-import * as SecureStore from 'expo-secure-store';
-import { getLocalIP } from './getLocalIP';
+import * as SecureStore from "expo-secure-store";
+import { getLocalIP } from "./getLocalIP";
 //const API_URL = 'http://192.168.3.218:3000/auth'; //// enter what url your expo is running on + our port 3000
 // const API_URL = 'http://localhost:3000/auth';
 const localIP = getLocalIP();
@@ -9,38 +9,36 @@ export const registerUser = async (email, password, username) => {
     console.log("Inside AuthApi Service");
 
     const response = await fetch(`${API_URL}/register`, {
-
-        method: 'POST',
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password, username }),
     });
     console.log("*********");
     console.log(response);
     if (!response.ok) {
-        throw new Error('This email is already being used');
+        throw new Error("This email is already being used");
     }
- 
+
     console.log("+++++++");
     const data = await response.json();
     console.log("--------------");
     console.log("Heres the data: " + JSON.stringify(data));
     if (!data.data || !data.data.token) {
-        throw new Error('Token not found in response');
+        throw new Error("Token not found in response");
     }
 
     // Store the token securely
-    await SecureStore.setItemAsync('userToken', data.data.token);
+    await SecureStore.setItemAsync("userToken", data.data.token);
     return data;
 };
 
 export const loginUser = async (email, password) => {
     const response = await fetch(`${API_URL}/login`, {
-
-        method: 'POST',
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
     });
@@ -65,22 +63,20 @@ export const loginUser = async (email, password) => {
         throw new Error(`Invalid JSON response: ${textData}`);
     }
 
-    console.log('Parsed data:', data);
+    console.log("Parsed data:", data);
 
-    
     // Store the token securely using Expo SecureStore
-    await SecureStore.setItemAsync('userToken', data.data.token);
+    await SecureStore.setItemAsync("userToken", data.data.token);
     return data;
 };
 
 export const logoutUser = async () => {
     const response = await fetch(`${API_URL}/logout`, {
-
-        method: 'POST',
+        method: "POST",
     });
 
     if (!response.ok) {
-        throw new Error('Failed to logout user');
+        throw new Error("Failed to logout user");
     }
 
     const data = await response.json();
@@ -89,14 +85,14 @@ export const logoutUser = async () => {
 
 export const checkEmailVerification = async () => {
     const response = await fetch(`${API_URL}/verify-email`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         },
     });
 
     if (!response.ok) {
-        throw new Error('Failed to check email verification');
+        throw new Error("Failed to check email verification");
     }
 
     const data = await response.json();
@@ -108,11 +104,11 @@ export const isUserVerified = async () => {
         // const token = await getAuth().currentUser.getIdToken(true);
 
         const response = await fetch(`${API_URL}/is-verified`, {
-            method: 'GET',
+            method: "GET",
             headers: {
                 // 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+                "Content-Type": "application/json",
+            },
         });
 
         const textData = await response.text();
@@ -122,5 +118,54 @@ export const isUserVerified = async () => {
     } catch (error) {
         console.error("Error checking user verification: ", error);
         return false;
+    }
+};
+
+export const sendPasswordResetEmail = async (email) => {
+    try {
+        const response = await fetch(`${API_URL}/reset-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        const responseText = await response.json();
+        console.log("Raw Response:", responseText);
+
+        if (response.success === false) {
+            return { success: false, error: responseText.message };
+        }
+
+        return { success: true, message: responseText.message };
+    } catch (error) {
+        console.error("Error sending password reset email:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const updateUserPassword = async (currPassword, newPassword) => {
+    try {
+        const response = await fetch(`${API_URL}/update-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ currPassword, newPassword }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error updating password:", errorData);
+            throw new Error(errorData.message || 'Failed to update password');
+        }
+
+        const data = await response.json();
+        console.log("Password Update Service:", data);
+        return { success: true, message: data.message };
+    } catch (error) {
+        console.error("Error updating password!!!", error);
+        return { success: false, error: error.message,  };
     }
 };

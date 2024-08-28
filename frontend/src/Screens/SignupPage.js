@@ -144,6 +144,7 @@ const SignupPage = () => {
             color: "#000000",
             fontSize: 30,
             fontWeight: "bold",
+            marginBottom: 10,
         },
         tagline: {
             color: "#7b7b7b",

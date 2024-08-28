@@ -1,5 +1,5 @@
 // src/Auth/auth.services.js
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, sendPasswordResetEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import firebaseApp from "../Firebase/firebaseConnection";
 import { firebase } from "../Firebase/firebaseConnection";
 import { createUserNode } from "../Users/users.services";
@@ -104,3 +104,40 @@ exports.isUserVerified = async () => {
         return false;
     }
 }
+
+exports.sendPasswordResetEmail = async (email) => {
+    try {
+        await sendPasswordResetEmail(auth, email); // from firebase auth
+        const result = { message: 'Password reset email sent successfully', success: true };
+        return result;
+    } catch (error) {
+        // console.error("Errorrrr:", error);
+        throw error;
+    }
+}
+exports.updatePassword = async (currPassword, newPassword) => {
+    try {
+        const user = auth.currentUser;
+        if (user) {
+            // Verify the current password
+            const credential = EmailAuthProvider.credential(user.email, currPassword);
+            await reauthenticateWithCredential(user, credential);
+            console.log("reauthenticated auth services");
+
+            // Update the password
+            await updatePassword(user, newPassword);
+            return { success: true, message: 'Password updated successfully' };
+        } else {
+            throw new Error("No user is currently signed in.");
+        }
+    } catch (error) {
+        console.error("Error updating password: ", error);
+        if (error.code === 'auth/wrong-password') {
+            // Handle wrong current password error without logging the user out
+            return { success: false, error: "The current password is incorrect.", code: error.code };
+        } else {
+            // Handle other errors normally
+            return { success: false, error: error.message, };
+        }
+    }
+};
