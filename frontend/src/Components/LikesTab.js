@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
-import Post from "./Post";
-
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
+import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
+import Post from "./Post";
 import Review from "./Review";
 
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
     const [likedPosts, setLikedPosts] = useState([]);
-
     const [loading, setLoading] = useState(false);
-
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -96,6 +94,15 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
             Alert.alert("Error", "Failed to delete review");
         }
     };
+
+    if (loading) {
+        return (
+            <View style={{ paddingTop: 5 }}>
+                <InstagramLoader active />
+                <FacebookLoader active />
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1 }}>

@@ -238,10 +238,6 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
-                <View style={styles.stats}>
-                    <Icon name="bookmark-border" size={20} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{saves}</Text>
-                </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
                     <CommIcon name="share-outline" size={20} style={styles.icon} />

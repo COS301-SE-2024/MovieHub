@@ -51,13 +51,14 @@ import WatchParty from "./frontend/src/Screens/WatchParty";
 import HubScreen from "./frontend/src/Screens/HubScreen";
 import CreateRoom from "./frontend/src/Screens/CreateRoom";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
-// import { WebSocketProvider } from "./frontend/src/context/WebSocketProvider";
 import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage";
 import FollowersPage from "./frontend/src/Screens/FollowersPage";
 import FollowingPage from "./frontend/src/Screens/FollowingPage";
 import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 import Rooms from "./frontend/src/Screens/Rooms";
+import VerificationPage from "./frontend/src/Screens/VerificationPage";
+import ForgotPasswordPage from "./frontend/src/Screens/ForgotPassword";
 
 const Nav = createStackNavigator();
 
@@ -168,7 +169,7 @@ export default function App() {
                                 ),
                                 headerTintColor: "black",
                                 headerStyle: {
-                                    backgroundColor: "transparent",
+                                    backgroundColor: "#fff",
                                 },
                             })}
                         />
@@ -391,6 +392,29 @@ export default function App() {
                                 headerTintColor: "black",
                             })}
                         />
+
+                        <Nav.Screen
+                            name="VerificationPage"
+                            component={VerificationPage}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
+                        <Nav.Screen
+                            name="ForgotPasswordPage"
+                            component={ForgotPasswordPage}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+
                     </Nav.Navigator>
                 </NavigationContainer>
             </ThemeProvider>

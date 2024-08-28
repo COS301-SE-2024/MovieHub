@@ -3,11 +3,12 @@ import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Pressable, 
 import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
-import { useNavigation } from "@react-navigation/native";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import Icon from "@expo/vector-icons/MaterialIcons";
-import { loginUser } from "../Services/AuthApiService";
+import { isUserVerified, loginUser } from "../Services/AuthApiService";
 import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
+import { getUserProfile } from "../Services/UsersApiService";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -35,8 +36,8 @@ const LoginPage = () => {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-        setError("Invalid email address format");
-        return;
+            setError("Invalid email address format");
+            return;
         }
 
         try {
@@ -47,9 +48,29 @@ const LoginPage = () => {
                 userId: data.data.uid,
                 username: data.data.username,
             };
-            navigation.navigate("Home", { userInfo });
-        } catch (error) {
 
+            const userData = await getUserProfile(userInfo.userId);
+
+            const verified = await isUserVerified();
+            // console.log("User Verified:", verified);
+
+            if (!verified) {
+                console.log("User is not verified");
+                navigation.navigate("VerificationPage", { userInfo });
+            } else if (!userData.name) {
+                console.log("User has no name");
+                navigation.navigate("ProfileSetup", { userInfo });
+            } else {
+                // prevents the user from going back to the login page
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: "Home", params: { userInfo } }], // Replace 'Home' with your home screen name
+                    })
+                );
+                navigation.navigate("Home", { userInfo });
+            }
+        } catch (error) {
             console.log("Error", error);
 
             let errorMessage = "Error signing in";
@@ -57,12 +78,14 @@ const LoginPage = () => {
 
             if (firebaseErrorMessage.includes("auth/invalid-login-credentials")) {
                 errorMessage = "Incorrect email or password. Please try again.";
-            } else if (error.code === "auth/wrong-password") {
+            } else if (firebaseErrorMessage.includes("auth/wrong-password")) {
                 errorMessage = "Incorrect password. Please try again";
-            } else if (error.code === "auth/invalid-email") {
+            } else if (firebaseErrorMessage.includes("auth/invalid-email")) {
                 errorMessage = "Invalid email address format";
-            } else if (error.code === "auth/invalid-login-credentials") {
+            } else if (firebaseErrorMessage.includes("auth/invalid-login-credentials")) {
                 errorMessage = "Incorrect email or password. Please try again";
+            } else if (firebaseErrorMessage.includes("auth/too-many-requests")) {
+                errorMessage = "Too many failed login attempts. Please try again later.";
             } else if (!email || !password) {
                 errorMessage = "Email and password are required";
             } else {
@@ -232,11 +255,11 @@ const LoginPage = () => {
                         </Pressable>
 
                         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                        
+
                         <TouchableOpacity
                             style={styles.forgot}
                             onPress={() => {
-                                /* Implement forgot password functionality */
+                                navigation.navigate("ForgotPasswordPage");
                             }}>
                             <Text style={styles.forgotText}>Forgot password?</Text>
                         </TouchableOpacity>
@@ -271,7 +294,5 @@ const LoginPage = () => {
         </KeyboardAvoidingView>
     );
 };
-
-
 
 export default LoginPage;

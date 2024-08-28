@@ -1,75 +1,138 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { colors } from "../styles/theme";
+import { updateUserPassword } from "../Services/AuthApiService";
 
-export default function ChangePassword() {
+export default function ChangePassword({ route }) {
     const [currPassword, setCurrPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [feedbackVisible, setFeedbackVisible] = useState(false);
-    const [feedbackMessage, setFeedbackMessage] = useState("");
-    const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+    const [passwordMismatch, setPasswordMismatch] = useState(false);
 
     const allFieldsFilled = currPassword && newPassword && confirmPassword;
 
-    const handleSave = () => {
+    const getErrorMessage = (error) => {
+        
+        if (error.includes('auth/invalid-email')) {
+            return "The email address is badly formatted.";
+        } else if (error.includes('auth/wrong-password')) {
+            return "The password is incorrect.";
+        } else if (error.includes('auth/user-not-found')) {
+            return "There is no user corresponding to this email.";
+        } else if (error.includes('auth/weak-password')) {
+            return "The password is too weak.";
+        } else if (error.includes('auth/invalid-login-credentials')) {
+            return "Invalid login credentials. Please try again.";
+        } else if (error.includes('auth/too-many-requests')) {
+            return "Too many requests. Please try again later.";
+        }
+        
+        return error ? error : "An error occurred. Please try again.";
+    };
+    
+    
+    const handleSave = async () => {
         if (!allFieldsFilled) return;
 
-        if (newPassword === confirmPassword) {
-            setFeedbackMessage("Your password has been changed successfully.");
-            setFeedbackSuccess(true);
-            // Clear the input fields
-            setCurrPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
-        } else {
-            setFeedbackMessage("Passwords do not match.");
-            setFeedbackSuccess(false);
+        if (newPassword !== confirmPassword) {
+            setPasswordMismatch(true);
+            Alert.alert("Passwords do not match", "Please enter the same password in both fields.");
+            return;
         }
-        setFeedbackVisible(true);
-        setTimeout(() => {
-            setFeedbackVisible(false);
-        }, 3000); // Hide feedback after 3 seconds
+
+        try {
+            const result = await updateUserPassword(currPassword, newPassword);
+            console.log("Result update password:", result);
+            if (result.success) {
+                Alert.alert("Success", result.message);
+                setCurrPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+                setPasswordMismatch(false);
+            } else {
+                console.log("Error:", result.error);
+                const errorMessage = getErrorMessage(result.error);
+                Alert.alert("Error", errorMessage);
+            }
+        } catch (error) {
+            console.log("Error:", error);
+            const errorMessage = getErrorMessage(error);
+            Alert.alert("Error", errorMessage);
+        }
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Current Password</Text>
-                <TextInput style={styles.inputText} onChangeText={setCurrPassword} value={currPassword} placeholder="" secureTextEntry={true} />
-            </View>
-
-            <View style={styles.line} />
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>New Password</Text>
-                <TextInput style={styles.inputText} onChangeText={setNewPassword} value={newPassword} placeholder="" secureTextEntry={true} />
-            </View>
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Confirm Password</Text>
-                <TextInput style={styles.inputText} onChangeText={setConfirmPassword} value={confirmPassword} placeholder="" secureTextEntry={true} />
-            </View>
-            <TouchableOpacity onPress={handleSave} style={[styles.saveButton, !allFieldsFilled && styles.saveButtonDisabled]} disabled={!allFieldsFilled}>
-                <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-
-            <View style={{ flex: 0.3 }} />
-
-            {feedbackVisible && (
-                <View style={[styles.feedbackContainer, feedbackSuccess ? styles.success : styles.error]}>
-                    <Text style={styles.feedback}>{feedbackMessage}</Text>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+            >
+                <Text style={styles.passwordRequirements}>
+                    Your password should be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and a special character.
+                </Text>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Current Password</Text>
+                    <TextInput
+                        style={[styles.inputText, { borderColor: '#7b7b7b' }]}
+                        onChangeText={setCurrPassword}
+                        value={currPassword}
+                        placeholder=""
+                        secureTextEntry={true}
+                    />
                 </View>
-            )}
-        </View>
+
+                <View style={styles.line} />
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>New Password</Text>
+                    <TextInput
+                        style={[styles.inputText, passwordMismatch ? styles.inputError : { borderColor: '#7b7b7b' }]}
+                        onChangeText={setNewPassword}
+                        value={newPassword}
+                        placeholder=""
+                        secureTextEntry={true}
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Confirm Password</Text>
+                    <TextInput
+                        style={[styles.inputText, passwordMismatch ? styles.inputError : { borderColor: '#7b7b7b' }]}
+                        onChangeText={setConfirmPassword}
+                        value={confirmPassword}
+                        placeholder=""
+                        secureTextEntry={true}
+                    />
+                </View>
+                <Text style={styles.forgotPassword}>Forgot your password?</Text>
+                <View style={{ flex: 0.8 }} />
+                <View style={{ paddingHorizontal: 16 }}>
+                    <TouchableOpacity
+                        onPress={handleSave}
+                        style={[styles.saveButton, !allFieldsFilled && styles.saveButtonDisabled]}
+                        disabled={!allFieldsFilled}
+                    >
+                        <Text style={styles.saveButtonText}>Save</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 10,
         flex: 1,
         backgroundColor: "#fff",
+    },
+    scrollContainer: {
+        paddingTop: 10,
+    },
+    passwordRequirements: {
+        paddingHorizontal: 28,
+        color: "#7b7b7b",
     },
     inputContainer: {
         paddingLeft: 30,
@@ -90,6 +153,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         borderRadius: 10,
     },
+    inputError: {
+        borderColor: "#FF4C4C",
+    },
     line: {
         marginTop: 30,
         height: 1,
@@ -105,12 +171,12 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     saveButton: {
+        alignSelf: "center",
         backgroundColor: colors.primary,
         padding: 12,
         borderRadius: 10,
-        width: 150,
+        width: "100%",
         marginTop: 25,
-        marginLeft: 30,
         alignItems: "center",
         opacity: 1,
     },
@@ -125,23 +191,5 @@ const styles = StyleSheet.create({
         color: "#0f5bd1",
         marginTop: 20,
         marginLeft: 30,
-    },
-    feedbackContainer: {
-        flexShrink: 1,
-        flexWrap: "wrap",
-        alignSelf: "center",
-        display: "flex",
-        alignItems: "center",
-        padding: 15,
-        borderRadius: 10,
-    },
-    feedback: {
-        color: "#fff",
-    },
-    success: {
-        backgroundColor: "#31B978",
-    },
-    error: {
-        backgroundColor: "#FF4C4C",
     },
 });

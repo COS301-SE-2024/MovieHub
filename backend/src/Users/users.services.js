@@ -17,7 +17,7 @@ exports.getUserProfile = async (userId) => {
             'MATCH (u:User {uid: $userId}) RETURN u',
             { userId }
         );
-        console.log("Letssss see the result " , result);
+        // console.log("Letssss see the result " , result);
         if (result.records.length === 0) {
             return null;
         }
