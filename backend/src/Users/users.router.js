@@ -18,5 +18,7 @@ router.get('/friends/:id', userController.getFriends);
 
 router.get('/:id/followers', userController.getFollowers);
 router.get('/:id/following', userController.getFollowing);
+router.get('/:id/followers/count', userController.fetchFollowerCount  );
+router.get('/:id/following/count', userController.fetchFollowingCount );
 
 module.exports = router;

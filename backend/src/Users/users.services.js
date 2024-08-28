@@ -246,6 +246,48 @@ exports.getFollowing = async (userId) => {
     }
 };
 
+exports.getFollowerCount = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (follower:User)-[:FOLLOWS]->(user:User {uid: $userId})
+             RETURN count(follower) AS followerCount`,
+            { userId }
+        );
+
+        const followerCount = result.records[0].get('followerCount').toNumber();
+
+        return followerCount;
+    } catch (error) {
+        console.error("Error fetching follower count:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getFollowingCount = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (user:User {uid: $userId})-[:FOLLOWS]->(following:User)
+             RETURN count(following) AS followingCount`,
+            { userId }
+        );
+
+        const followingCount = result.records[0].get('followingCount').toNumber();
+
+        return followingCount;
+    } catch (error) {
+        console.error("Error fetching following count:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Close the driver when the application exits
 process.on('exit', async () => {
