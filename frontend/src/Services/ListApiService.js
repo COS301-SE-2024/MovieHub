@@ -4,7 +4,7 @@
 import { getLocalIP } from './getLocalIP';
 
 const localIP = getLocalIP();
-const API_URL = `http://${localIP}:3000/list`;
+const API_URL = `http://${localIP}:3000/list/`;
 
 
 export const createWatchlist = async (userId, watchlistData) => {

@@ -11,6 +11,7 @@ import { searchMovies } from "../Services/TMDBApiService";
 export default function CreatePost({ route }) {
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
+    const [movieId, setMovieId] = useState("");
     const [thoughts, setThoughts] = useState("");
     const [movieSearch, setMovieSearch] = useState("");
     const [movieResults, setMovieResults] = useState([]);
@@ -133,7 +134,7 @@ export default function CreatePost({ route }) {
     const handleAddReview = async () => {
         const reviewData = {
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: 843527.0,
+            movieId: movieId, //LEA
             reviewTitle: title,
             text: thoughts,
             img: imageUri,
@@ -189,6 +190,7 @@ export default function CreatePost({ route }) {
     const handleMovieSelect = (movie) => {
         setMovieResults([]);
         setMovieSearch(movie.title);
+        setMovieId(movie.id);
     };
 
     return (
