@@ -33,7 +33,7 @@ exports.createRoom = async (userId, roomData) => {
     }
 
     const session = driver.session();
-    const { roomName, accessLevel, maxParticipants, roomDescription } = roomData;
+    const { roomName, accessLevel, maxParticipants, roomDescription, coverImage } = roomData;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
     const isActive = true;
@@ -50,7 +50,7 @@ exports.createRoom = async (userId, roomData) => {
 
         if (roomNameCheckResult.records.length > 0) {
             console.error("Room name already exists.");
-            return { success: false, message: "Room name already exists." };
+            return { success: false, message: "A room with the same name already exists. Please choose a different name." };
         }
 
         console.log("Room name is unique. Proceeding with database query.");
@@ -67,6 +67,7 @@ exports.createRoom = async (userId, roomData) => {
                 shortCode: $shortCode, 
                 roomName: $roomName,
                 accessLevel: $accessLevel,
+                coverImage: $coverImage,
                 createdBy: $createdBy,
                 createdAt: $createdAt,
                 updatedAt: $updatedAt,
@@ -82,6 +83,7 @@ exports.createRoom = async (userId, roomData) => {
                 shortCode,
                 roomName,
                 accessLevel,
+                coverImage,
                 createdBy: userId,
                 createdAt,
                 updatedAt,
@@ -206,12 +208,14 @@ exports.getUserCreatedRooms = async (userId) => {
         if (result.records.length > 0) {
             const createdRooms = result.records.map(record => record.get('r').properties);
             return { success: true, createdRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, createdRooms: [] }; // Return an empty array if no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
         }
-
-        return { success: false, message: 'No rooms found' };
     } catch (error) {
         console.error('Error retrieving created rooms:', error);
-        throw error;
+        return { success: false, message: 'An error occurred while retrieving created rooms' };
     } finally {
         await session.close();
     }
@@ -231,39 +235,44 @@ exports.getUserParticipatedRooms = async (userId) => {
         if (result.records.length > 0) {
             const participatedRooms = result.records.map(record => record.get('r').properties);
             return { success: true, participatedRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, participatedRooms: [] }; // Return an empty array if no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
         }
-
-        return { success: false, message: 'No rooms found' };
     } catch (error) {
         console.error('Error retrieving participated rooms:', error);
-        throw error;
+        return { success: false, message: 'An error occurred while retrieving participated rooms' };
     } finally {
         await session.close();
     }
 };
 
+
 exports.getPublicRooms = async () => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (r:Room {accessLevel: 'everyone', isActive: true})
+            `MATCH (r:Room)
+             WHERE r.accessLevel = 'everyone' AND r.isActive = true
              RETURN r`
         );
 
         if (result.records.length > 0) {
             const publicRooms = result.records.map(record => record.get('r').properties);
             return { success: true, publicRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
         }
-
-        return { success: false, message: 'No public rooms found' };
     } catch (error) {
         console.error('Error retrieving public rooms:', error);
-        throw error;
+        return { success: false, message: 'An error occurred while retrieving public rooms' };
     } finally {
         await session.close();
     }
 };
-
 
 exports.joinRoom = async (code, userId) => {
     const session = driver.session();

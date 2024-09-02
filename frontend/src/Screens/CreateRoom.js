@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { createRoom } from "../Services/RoomApiService"; // Assuming you have a service function to create a room
+import { createRoom, fetchRandomImage } from "../Services/RoomApiService"; // Assuming you have service functions to create a room and fetch a random image
 import ModalSelector from "react-native-modal-selector";
 
 const CreateRoomScreen = ({ route }) => {
@@ -14,6 +14,12 @@ const CreateRoomScreen = ({ route }) => {
     const [watchParty, setWatchParty] = useState(false);
     const [maxParticipants, setMaxParticipants] = useState("5"); // Default max participants
     const [roomDescription, setRoomDescription] = useState("");
+    const [randomImage, setRandomImage] = useState(null);
+    const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
+
+    useEffect(() => {
+        fetchImage();
+    }, []);
 
     const accessLevelOptions = [
         { key: 0, label: "Everyone" },
@@ -25,9 +31,19 @@ const CreateRoomScreen = ({ route }) => {
         { key: 0, label: "Chat-only" },
         { key: 1, label: "Audio and chat" },
     ];
+
+    const fetchImage = async () => {
+        try {
+            const keyword = keywords[Math.floor(Math.random() * keywords.length)];
+            const image = await fetchRandomImage(keyword);
+            setRandomImage(image);
+        } catch (error) {
+            console.error("Failed to fetch random image:", error);
+        }
+    };
+
     const handleCreateRoom = async () => {
         try {
-            console.log("Room name: ", roomTitle);
             const newRoom = await createRoom(userInfo.userId, {
                 roomName: roomTitle,
                 accessLevel,
@@ -35,9 +51,14 @@ const CreateRoomScreen = ({ route }) => {
                 roomDescription,
                 roomType,
                 createdBy: userInfo.userId, // Assuming userInfo contains userId
+                coverImage: randomImage, // Set the fetched random image as the cover image
             });
 
-            console.log("In CreateRoom.js ", newRoom);
+            if (newRoom.message && newRoom.success === false) {
+                Alert.alert("Oops!", newRoom.message);
+                return;
+            }
+
             if (watchParty) {
                 navigation.navigate("CreateWatchParty", { userInfo, roomId: newRoom.roomId });
             } else {
@@ -50,7 +71,7 @@ const CreateRoomScreen = ({ route }) => {
         }
     };
 
-    const isButtonDisabled = roomTitle === "" || roomDescription === "";
+    const isButtonDisabled = roomTitle === "";
 
     return (
         <View style={styles.container}>
@@ -137,7 +158,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 50,
         justifyContent: "center",
-        // backgroundColor: "#D9D9D9",
         borderRadius: 5,
         borderWidth: 1,
         borderColor: "#ccc",
