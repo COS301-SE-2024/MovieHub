@@ -24,7 +24,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const toggleLike = async () => {
         const body = {
             postId: postId,
-            userId: uid
+            uid: uid
         }
 
         try {

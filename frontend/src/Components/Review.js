@@ -23,7 +23,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
     const toggleLike = async () => {
         const body = {
             reviewId: reviewId,
-            userId: uid,
+            uid: uid,
         };
 
         try {

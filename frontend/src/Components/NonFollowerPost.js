@@ -25,7 +25,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     const toggleLike = async () => {
         const body = {
             postId: postId,
-            userId: uid,
+            uid: userInfo.userId,
         };
 
         try {
