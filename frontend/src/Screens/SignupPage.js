@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, Alert } from "react-native";
 import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
@@ -93,6 +93,8 @@ const SignupPage = () => {
         try {
             //  await signUp(email, password, username);
             const data = await registerUser(email, password, username);
+            console.log("Email verification sent to " + email + ". Please verfiy your email to proceed");
+
             console.log("User Registering???");
             await SecureStore.setItemAsync("userToken", data.data.token);
             setError("");
@@ -103,7 +105,8 @@ const SignupPage = () => {
                 username: data.data.username,
                 //???     token : data.data.token
             };
-            navigation.navigate("ProfileSetup", { userInfo });
+            // navigation.navigate("LoginPage", { userInfo });
+            Alert.alert("Verify Your Email", "A verification email has been sent to your email address. Please verify your email to proceed.", [{ text: "OK", onPress: () => navigation.navigate("LoginPage", { userInfo }) }]);
         } catch (error) {
             let errorMessage = "Error signing up";
             if (error.code === "auth/email-already-in-use") {
@@ -113,6 +116,7 @@ const SignupPage = () => {
             } else if (error.code === "auth/weak-password") {
                 errorMessage = "Password should be at least 6 characters long";
             } else {
+                console.error("Error signing up:", error);
                 errorMessage = error.message; // Default to Firebase's error message
             }
             // console.error("Error signing up:", error);
@@ -140,6 +144,7 @@ const SignupPage = () => {
             color: "#000000",
             fontSize: 30,
             fontWeight: "bold",
+            marginBottom: 10,
         },
         tagline: {
             color: "#7b7b7b",

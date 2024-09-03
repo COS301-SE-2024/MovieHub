@@ -1,31 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,Button,Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
 import { colors, themeStyles } from '../styles/theme';
 import { useNavigation } from '@react-navigation/native';
-
 import { uploadImage } from '../Services/imageUtils';
-
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
     const { userProfile } = route.params;
-    const [avatar, setAvatar] = useState("https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg");
+    const [avatar, setAvatar] = useState(userProfile.avatar);
+    const [avatarChanged, setAvatarChanged] = useState(false);
     const [uploading, setUploading] = useState(false);
 
     const navigation = useNavigation();
 
-    // Set default values for userProfile fields
     const defaultUserProfile = {
         username: "",
         name: "",
         bio: "",
         pronouns: "",
-        favoriteGenres: [],
+        favouriteGenres: [],
         ...userProfile
     };
 
@@ -35,7 +31,7 @@ export default function EditProfile({ route }) {
         currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: defaultUserProfile.bio, tempValue: "" },
         pronouns: { isVisible: false, newValue: defaultUserProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
-        favoriteGenres: { isVisible: false, newValue: defaultUserProfile.favoriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
+        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
     });
 
     const applyChanges = async (field) => {
@@ -56,7 +52,7 @@ export default function EditProfile({ route }) {
                         },
                     });
                     break;
-                case "favoriteGenres":
+                case "favouriteGenres":
                     updatedData[field] = modalContent[field].tempValue.slice(0, 3);
                     setModalContent({
                         ...modalContent,
@@ -74,6 +70,7 @@ export default function EditProfile({ route }) {
                     break;
             }
             const userId = userInfo.userId;
+            console.log("UPDATED DATA", updatedData);
             const updatedUser = await updateUserProfile(userId, updatedData);
             console.log("Update went well", updatedUser);
             
@@ -114,7 +111,7 @@ export default function EditProfile({ route }) {
         try {
             const updatedData = {};
             Object.keys(modalContent).forEach((field) => {
-                if (field === "favoriteGenres") {
+                if (field === "favouriteGenres") {
                     updatedData[field] = modalContent[field].tempValue.slice(0, 3);
                 } else if (modalContent[field].tempValue) {
                     updatedData[field] = modalContent[field].tempValue;
@@ -144,7 +141,7 @@ export default function EditProfile({ route }) {
     const handleOptionPress = (field, option) => {
         if (field === "pronouns") {
             setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: option, isVisible: false, newValue: option } });
-        } else if (field === "favoriteGenres") {
+        } else if (field === "favouriteGenres") {
             const newOptions = [...modalContent[field].tempValue];
             if (newOptions.includes(option)) {
                 newOptions.splice(newOptions.indexOf(option), 1);
@@ -181,9 +178,20 @@ export default function EditProfile({ route }) {
         // console.log('Uploading image', uri, name);
         const avatarUrl = await uploadImage(uri, name, 'profile');
         console.log('Uploaded', avatarUrl);
-        setAvatar(uri);                       
-        applyChanges('avatar');     //From here on I dont know what should be happening
+        setAvatar(uri);   
+        setAvatarChanged(true);
+        console.log("AVATAR", avatar);                    
+        console.log("AVATAR URL", uri);                    
+        // await applyChanges('avatar');     //From here on I dont know what should be happening
     };
+
+    useEffect(() => {
+        if (avatarChanged) {
+            // Call applyChanges only after avatar state is updated
+            applyChanges('avatar');
+            setAvatarChanged(false);
+        }
+    }, [avatar, avatarChanged]);
 
     return (
         <ScrollView style={styles.container}>
@@ -199,8 +207,8 @@ export default function EditProfile({ route }) {
                 <View key={index}>
                     <TouchableOpacity onPress={() => handleFieldPress(field)}>
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>{field === "favoriteGenres" ? "Favorite Genres (Max 3)" : field === "currentlyWatching" ? "Currently Watching" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            {field === "favoriteGenres" ? (
+                            <Text style={styles.sectionTitle}>{field === "favouriteGenres" ? "Favorite Genres (Max 3)" : field === "currentlyWatching" ? "Currently Watching" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                            {field === "favouriteGenres" ? (
                                 <ScrollView horizontal={true} contentContainerStyle={{ flexDirection: "row", paddingTop: 10 }}>
                                     {modalContent[field].newValue.map((option, index) => (
                                         <Text key={index} style={styles.chip}>
@@ -221,8 +229,8 @@ export default function EditProfile({ route }) {
                 <Modal key={index} animationType="fade" transparent={true} visible={modalContent[field].isVisible} onRequestClose={() => setModalContent({ ...modalContent, [field]: { ...modalContent[field], isVisible: false } })}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Change {field === "favoriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            {field === "favoriteGenres" ? (
+                            <Text style={styles.modalTitle}>Change {field === "favouriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+                            {field === "favouriteGenres" ? (
                                 <View>
                                     <ScrollView style={{ maxHeight: 200 }}>
                                         {modalContent[field].options.map((option, index) => (
@@ -325,7 +333,7 @@ const styles = StyleSheet.create({
     entryButtonText: {
         color: "#fff",
         fontSize: 16,
-        fontWeight: "bold",
+        fontWeight: "medium",
     },
     line: {
         height: 1,

@@ -4,7 +4,7 @@
 import { getLocalIP } from './getLocalIP';
 
 const localIP = getLocalIP();
-const API_URL = `http://${localIP}:3000/list`;
+const API_URL = `http://${localIP}:3000/list/`;
 
 
 export const createWatchlist = async (userId, watchlistData) => {
@@ -51,7 +51,7 @@ export const modifyWatchlist = async (watchlistId, updatedData) => {
 
 export const getWatchlistDetails = async (watchlistId) => {
     try {
-      
+
         const response = await fetch(`${API_URL}${watchlistId}`, {
             method: 'GET',
             headers: {

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert,Modal} from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert, Modal} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
@@ -24,7 +24,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const toggleLike = async () => {
         const body = {
             postId: postId,
-            userId: uid
+            uid: uid
         }
 
         try {
@@ -42,7 +42,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             const result = await Share.share({
                 url: '',
                 title: 'MovieHub',
-                message: "Watch Party Invite | Join my watch party at ...[link]",
+                message: "Check this post out on MovieHub: " + postTitle,
             });
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {
@@ -245,10 +245,6 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
-                <View style={styles.stats}>
-                    <Icon name="bookmark-border" size={20} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{saves}</Text>
-                </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
                     <CommIcon name="share-outline" size={20} style={styles.icon} />
@@ -283,8 +279,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             )}
             <Modal animationType="slide"
                 visible={confirmationModalVisible}
-                transparent ={true}
-                
+                transparent={true}
                 onRequestClose={() => setConfirmationModalVisible(false)}>
                 <View style={styles.confirmationModal}>
                     <View style={styles.confirmationContainer}>

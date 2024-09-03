@@ -3,9 +3,9 @@ import responseHandler from '../utils/responseHandler';
 
 exports.getLikesOfUser = async (req, res) => {
     try {
-        const userId = req.params.userId;
-        console.log(`Fetching user likes for ID: ${userId}`);
-        const likes = await likesService.getLikesOfUser(userId);
+        const uid = req.params.uid;
+        console.log(`Fetching user likes for ID: ${uid}`);
+        const likes = await likesService.getLikesOfUser(uid);
         responseHandler(res, 200, 'Likes fetched successfully', likes);
     } catch (error) {
         // console.error('Error fetching likes:', error);
@@ -68,10 +68,10 @@ exports.getLikesOfPost = async (req, res) => {
 };
 
 exports.toggleLikeReview = async (req, res) => {
-    const userId = req.body.userId;
+    const uid = req.body.uid;
     const reviewId = req.body.reviewId;
     try {
-        const liked = await likesService.toggleLikeReview(userId, reviewId);
+        const liked = await likesService.toggleLikeReview(uid, reviewId);
         const message = liked ? 'Review liked successfully' : 'Like removed successfully';
         if (liked !== null)
             responseHandler(res, 200, message);
@@ -84,10 +84,10 @@ exports.toggleLikeReview = async (req, res) => {
 };
 
 exports.toggleLikeComment = async (req, res) => {
-    const userId = req.body.userId;
+    const uid = req.body.uid;
     const commentId = req.body.commentId;
     try {
-        const liked = await likesService.toggleLikeComment(userId, commentId);
+        const liked = await likesService.toggleLikeComment(uid, commentId);
         const message = liked ? 'Comment liked successfully' : 'Like removed successfully';
         if (liked !== null)
             responseHandler(res, 200, message);
@@ -100,10 +100,10 @@ exports.toggleLikeComment = async (req, res) => {
 };
 
 exports.toggleLikeMovie = async (req, res) => {
-    const userId = req.body.userId;
+    const uid = req.body.uid;
     const movieId = req.body.movieId;
     try {
-        const liked = await likesService.toggleLikeMovie(userId, movieId);
+        const liked = await likesService.toggleLikeMovie(uid, movieId);
         const message = liked ? 'Movie liked successfully' : 'Like removed successfully';
         if (liked !== null)
             responseHandler(res, 200, message);
@@ -116,10 +116,11 @@ exports.toggleLikeMovie = async (req, res) => {
 };
 
 exports.toggleLikePost = async (req, res) => {
-    const userId = req.body.userId;
+    const uid = req.body.uid;
     const postId = req.body.postId;
+    console.log('toggleLikePost controller',uid,postId);
     try {
-        const liked = await likesService.toggleLikePost(userId, postId);
+        const liked = await likesService.toggleLikePost(uid, postId);
         const message = liked ? 'Post liked successfully' : 'Like removed successfully';
         if (liked !== null)
             responseHandler(res, 200, message);

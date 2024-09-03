@@ -1,7 +1,7 @@
 // utils/getLocalIP.js
 export const getLocalIP = () => {
     // Replace this with the actual URL you get from Expo CLI
-    const expoURL = 'exp://10.0.26.63:8082';
+    const expoURL = 'exp://10.0.20.160:8081';
 
     // Extract the IP address from the URL
     const urlMatch = expoURL.match(/exp:\/\/([^:]+):\d+/);
