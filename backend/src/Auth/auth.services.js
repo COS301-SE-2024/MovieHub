@@ -1,5 +1,5 @@
 // src/Auth/auth.services.js
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, sendPasswordResetEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, sendPasswordResetEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider,FacebookAuthProvider } from "firebase/auth";
 import firebaseApp from "../Firebase/firebaseConnection";
 import { firebase } from "../Firebase/firebaseConnection";
 import { createUserNode } from "../Users/users.services";
@@ -69,12 +69,100 @@ exports.loginUser = async (email, password) => {
 };
 
 exports.logoutUser = async () => {
-    try {
-        await signOut(auth);
-        return true;
-    } catch (error) {
-        throw error;
+  try {
+    await signOut(auth);
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.signInWithGoogle = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    
+    // Optional: Add any scopes you need
+    provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+    
+    // Optional: Customize OAuth parameters
+    provider.setCustomParameters({
+      'login_hint': 'user@example.com'
+    });
+
+    const result = await signInWithPopup(auth, provider);
+
+    // Get the user and OAuth credentials
+    const user = result.user;
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential.accessToken;
+
+    if (!user) {
+      throw new Error('Google Sign-In failed');
     }
+
+    const userId = user.uid;
+    const username = user.displayName;
+
+    // Create a new user node in Neo4j
+    try {
+      await createUserNode(userId, username);
+    } catch (error) {
+      // If Neo4j user creation fails, delete the created Firebase user
+      await firebase.auth().deleteUser(userId);
+      throw new Error('Failed to create user in Neo4j: ' + error.message);
+    }
+
+    // Generate a custom token for the user
+    const customToken = await firebase.auth().createCustomToken(userId);
+
+    return { user, customToken, token };
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.signInWithFacebook = async () => {
+  try {
+    const provider = new FacebookAuthProvider();
+
+    // Optional: Add any scopes you need
+    provider.addScope('user_birthday');
+    
+    // Optional: Customize OAuth parameters
+    provider.setCustomParameters({
+      'display': 'popup'
+    });
+
+    const result = await signInWithPopup(auth, provider);
+
+    // Get the user and OAuth credentials
+    const user = result.user;
+    const credential = FacebookAuthProvider.credentialFromResult(result);
+    const accessToken = credential.accessToken;
+
+    if (!user) {
+      throw new Error('Facebook Sign-In failed');
+    }
+
+    const userId = user.uid;
+    const username = user.displayName;
+
+    // Create a new user node in Neo4j
+    try {
+      await createUserNode(userId, username);
+    } catch (error) {
+      // If Neo4j user creation fails, delete the created Firebase user
+      await firebase.auth().deleteUser(userId);
+      throw new Error('Failed to create user in Neo4j: ' + error.message);
+    }
+
+    // Generate a custom token for the user
+    const customToken = await firebase.auth().createCustomToken(userId);
+
+    return { user, customToken, accessToken };
+  } catch (error) {
+    throw error;
+  }
 };
 
 exports.checkEmailVerification = async () => {

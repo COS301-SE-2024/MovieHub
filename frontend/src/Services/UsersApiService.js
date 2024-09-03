@@ -260,6 +260,62 @@ export const getFriends = async (userId) => {
     return data;
 };
 
+export const getFollowers = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/followers`, {
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to get followers');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export const getFollowing = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/following`, {
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to get following');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export const getFollowersCount = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/followers/count`, {
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to get followers count');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export const getFollowingCount = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/following/count`, {
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to get following count');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
 // Function to get a user's notifications
 export const getUserNotifications = async (userId) => {
     const headers = await verifyToken();
