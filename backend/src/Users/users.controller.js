@@ -167,3 +167,15 @@ exports.fetchFollowingCount = async (req, res) => {
         res.status(500).json({ message: 'Error fetching following count', error: error.message });
     }
 };
+
+exports.getUserNotifications = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const notifications = await userService.getUserNotifications(userId);
+        return res.status(200).json({ success: true, notifications });
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch notifications' });
+    }
+};
