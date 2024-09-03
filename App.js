@@ -57,6 +57,7 @@ import FollowingPage from "./frontend/src/Screens/FollowingPage";
 import LogBookScreen from "./frontend/src/Screens/LogBookScreen";
 import LogEntriesScreen from "./frontend/src/Screens/LogEntriesScreen";
 import Rooms from "./frontend/src/Screens/Rooms";
+import CreateWatchParty from "./frontend/src/Screens/CreateWatchParty";
 import VerificationPage from "./frontend/src/Screens/VerificationPage";
 import ForgotPasswordPage from "./frontend/src/Screens/ForgotPassword";
 
@@ -394,6 +395,17 @@ export default function App() {
                         />
 
                         <Nav.Screen
+
+                            name="CreateWatchParty"
+                            component={CreateWatchParty}
+                            options={({ navigation }) => ({
+                                title: "",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
+                        />
+                           <Nav.Screen
                             name="VerificationPage"
                             component={VerificationPage}
                             options={({ navigation }) => ({
@@ -414,7 +426,6 @@ export default function App() {
                                 headerTintColor: "black",
                             })}
                         />
-
                     </Nav.Navigator>
                 </NavigationContainer>
             </ThemeProvider>

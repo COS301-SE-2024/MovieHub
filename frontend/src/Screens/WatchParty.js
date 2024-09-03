@@ -1,20 +1,77 @@
-// WatchParty.js
-import React, { useState, useRef, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from "react-native";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    Alert,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    Image,
+    PanResponder,
+} from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import InviteModal from "../Components/InviteModal";
+import {
+    inviteUserToRoom,
+    addMessageToRoom,
+    getMessagesFromRoom,
+    getRoomDetails,
+    getRoomParticipants,
+} from "../Services/RoomApiService"; // Import functions
+import moment from "moment";
 
 const WatchParty = ({ route }) => {
-    const {userInfo} = route.params;
+    const { userInfo, roomId } = route.params;
     const navigation = useNavigation();
     const [message, setMessage] = useState("");
-
+    const [messages, setMessages] = useState([]);
+    const [participants, setParticipants] = useState([]);
+    const [creator, setCreator] = useState(null);
+    const [roomName, setRoomName] = useState("");
+    const flatListRef = useRef(null);
     const bottomSheetRef = useRef(null);
+    const [visibleTimestamp, setVisibleTimestamp] = useState(null);
+    useEffect(() => {
+        const fetchParticipantsAndMessages = async () => {
+            try {
+                // Fetch room participants including creator
+                const { participants: fetchedParticipants, creator: fetchedCreator } = await getRoomParticipants(roomId);
+                setParticipants(fetchedParticipants);
+                setCreator(fetchedCreator);
+
+                // Fetch room details.
+                const roomDetails = await getRoomDetails(roomId);
+                setRoomName(roomDetails.room.roomName || "Unknown Room"); // Set room name
+
+                // Fetch messages
+                const fetchedMessages = await getMessagesFromRoom(roomId);
+                const formattedMessages = Object.entries(fetchedMessages).map(([key, value]) => {
+                    const senderInfo = fetchedParticipants.find(participant => participant.uid === value.userId) || fetchedCreator;
+                    return {
+                        id: key,
+                        sender: value.userId === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
+                        avatar: value.userId === userInfo.userId ? null : senderInfo.avatar || "https://i.pravatar.cc/300", // Placeholder avatar for others
+                        text: value.message,
+                        timestamp: moment(value.timestamp).format("YYYY-MM-DD HH:mm:ss"),
+                    };
+                });
+
+                setMessages(formattedMessages);
+            } catch (error) {
+                console.error("Failed to fetch participants or messages:", error);
+            }
+        };
+
+        fetchParticipantsAndMessages();
+    }, [roomId, userInfo.userId]);
 
     const handleSnapPress = useCallback((index) => {
         bottomSheetRef.current?.snapToIndex(index);
-      }, []);
+    }, []);
 
     const handleInvitePress = () => {
         bottomSheetRef.current?.present();
@@ -31,12 +88,12 @@ const WatchParty = ({ route }) => {
             [
                 {
                     text: "No",
-                    style: "cancel"
+                    style: "cancel",
                 },
                 {
                     text: "Yes",
-                    onPress: () => navigation.dispatch(e.data.action)
-                }
+                    onPress: () => navigation.dispatch(e.data.action),
+                },
             ],
             { cancelable: true }
         );
@@ -49,43 +106,135 @@ const WatchParty = ({ route }) => {
                 handleBackPress(e);
             };
 
-            navigation.addListener('beforeRemove', onBeforeRemove);
+            navigation.addListener("beforeRemove", onBeforeRemove);
 
-            return () => navigation.removeListener('beforeRemove', onBeforeRemove);
+            return () => navigation.removeListener("beforeRemove", onBeforeRemove);
         }, [navigation])
     );
 
-    // TODO: replace with real data
-    const friends = [
-        { id: "1", name: "Rebecca Malope" },
-        { id: "2", name: "Ant Man" },
-        { id: "3", name: "Ryan Reynolds" },
-        { id: "4", name: "Kodak Black" },
-        { id: "5", name: "Mr Beast" },
-        { id: "6", name: "Ant Woman" },
-        { id: "7", name: "Captain America" },
-    ];
+    const sendMessage = async () => {
+        if (message.trim() === "") return;
+
+        const newMessage = {
+            id: Math.random().toString(),
+            sender: userInfo.username,
+            text: message.trim(),
+            timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
+        };
+
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessage("");
+        flatListRef.current.scrollToEnd({ animated: true });
+
+        try {
+            await addMessageToRoom(roomId, userInfo.userId, message.trim());
+        } catch (error) {
+            console.error("Failed to send message:", error);
+            Alert.alert("Error", "Failed to send message.");
+        }
+    };
+
+    const handleInviteUser = async (friend) => {
+        try {
+            await inviteUserToRoom(userInfo.userId, friend.uid, roomId);
+            Alert.alert("Success", `${friend.name} has been invited.`);
+        } catch (error) {
+            Alert.alert("Error", `Failed to invite ${friend.name}: ${error.message}`);
+        }
+    };
+
+    const formatDateDivider = (timestamp) => {
+        const date = moment(timestamp).startOf('day');
+        const today = moment().startOf('day');
+        const yesterday = moment().subtract(1, 'days').startOf('day');
+
+        if (date.isSame(today, 'day')) {
+            return 'Today';
+        } else if (date.isSame(yesterday, 'day')) {
+            return 'Yesterday';
+        } else {
+            return date.format('MMMM D, YYYY');
+        }
+    };
+
+    const renderMessage = ({ item, index }) => {
+        const isUserMessage = item.sender === userInfo.username;
+        const previousMessage = index > 0 ? messages[index - 1] : null;
+        const showName = !previousMessage || previousMessage.sender !== item.sender;
+        const showAvatar = !isUserMessage && (!previousMessage || previousMessage.sender !== item.sender);
+
+        const showDateDivider = !previousMessage || moment(item.timestamp).startOf('day').diff(moment(previousMessage.timestamp).startOf('day'), 'days') !== 0;
+        // Create PanResponder for swipe gesture
+        const panResponder = PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onPanResponderMove: (e, gestureState) => {
+                // Detect swipe to the right
+                if (gestureState.dx > 50) {
+                    setVisibleTimestamp(item.id); // Show timestamp for this message
+                } else if (gestureState.dx < -50) {
+                    setVisibleTimestamp(null); // Hide timestamp if swiped back
+                }
+            },
+            onPanResponderRelease: () => {
+                // Optional: you can reset the state here if needed
+            },
+        });
+
+        return (
+            <View {...panResponder.panHandlers}>
+                {showDateDivider && (
+                    <View style={styles.dateDivider}>
+                        <Text style={styles.dateDividerText}>{formatDateDivider(item.timestamp)}</Text>
+                    </View>
+                )}
+                <View style={[styles.messageContainer, isUserMessage ? styles.userMessageContainer : styles.otherMessageContainer]}>
+                    {showName && !isUserMessage && <Text style={styles.messageSender}>{item.sender}</Text>}
+                    <View style={styles.messageRow}>
+                        {showAvatar && (
+                            <Image
+                                source={{ uri: item.avatar }}
+                                style={styles.avatar}
+                            />
+                        )}
+                        <View
+                            style={[
+                                styles.message,
+                                isUserMessage ? styles.userMessage : styles.otherMessage,
+                                !showAvatar && !isUserMessage ? { marginLeft: 48 } : null,
+                            ]}
+                        >
+                            <Text>{item.text}</Text>
+                            {/* Conditionally render the timestamp */}
+                            {visibleTimestamp === item.id && (
+                                <Text style={styles.timestamp}>{moment(item.timestamp).format('h:mm A')}</Text>
+                            )}
+                        </View>
+                    </View>
+                </View>
+            </View>
+        );
+    };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        >
             <View style={styles.header}>
                 <Text style={styles.title}>Interstellar</Text>
-                {/* <TouchableOpacity>
-                    <Ionicons name="settings" size={24} color="black" />
-                </TouchableOpacity> */}
             </View>
 
             <View style={styles.videoPlayer}>
                 <Text>Video Player Placeholder</Text>
             </View>
 
-            {/* Room Info */}
             <View style={styles.roomInfo}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text>Asa's room</Text>
+                    <Text>Room: {roomName}</Text>
                     <View style={styles.roomDetails}>
                         <Ionicons name="people" size={16} color="black" />
-                        <Text>1</Text>
+                        <Text>{(Array.isArray(participants) ? participants.length : 0) + 1}</Text>
                     </View>
                 </View>
                 <TouchableOpacity onPress={handleInvitePress}>
@@ -93,112 +242,163 @@ const WatchParty = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* Invite Friends */}
-            <View style={styles.chatbox}>
-                <View style={styles.inviteFriends}>
-                    <Text>You seem to be the only one in the room</Text>
-                    <TouchableOpacity onPress={handleInvitePress}>
-                        <Text style={styles.inviteText}>Invite Friends</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            <FlatList
+                ref={flatListRef}
+                data={messages}
+                renderItem={renderMessage}
+                keyExtractor={(item) => item.id}
+                style={styles.chatbox}
+                onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
+            />
 
-            {/* Chat Input */}
             <View style={styles.chatInput}>
                 <View style={styles.inputContainer}>
-                    <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Type a message..."
+                        value={message}
+                        onChangeText={setMessage}
+                        onSubmitEditing={sendMessage}
+                    />
                     <TouchableOpacity>
                         <Ionicons name="happy" size={24} color="black" />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.sendButton}>
+                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
                     <Ionicons name="send" size={24} color="white" />
                 </TouchableOpacity>
             </View>
-            <InviteModal 
-                ref={bottomSheetRef} 
-                friends={friends} 
-                title="Invite Friends" 
-                userInfo={userInfo} 
-            />
-        </View>
+            <InviteModal ref={bottomSheetRef}
+                friends={[]} // Pass an empty array if there are no friends to invite
+                title="Invite Friends" onInvite={handleInviteUser} userInfo={userInfo} />
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
-        position: "relative",
     },
     header: {
+        backgroundColor: "#f2f2f2",
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ddd",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: 16,
-        backgroundColor: "#f1f1f1",
     },
     title: {
         fontSize: 18,
         fontWeight: "bold",
     },
     videoPlayer: {
+        backgroundColor: "#ddd",
         height: 200,
-        backgroundColor: "#d3d3d3",
         justifyContent: "center",
         alignItems: "center",
     },
     roomInfo: {
         flexDirection: "row",
-        alignItems: "center",
         justifyContent: "space-between",
-        padding: 16,
-        backgroundColor: "#f9f9f9",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ddd",
     },
     roomDetails: {
-        marginLeft: 8,
         flexDirection: "row",
         alignItems: "center",
+        marginLeft: 8,
     },
     chatbox: {
-        flex: 1, // Make chatbox take up the remaining space
-    },
-    inviteFriends: {
-        alignItems: "center",
-        padding: 16,
-        justifyContent: "center", // Center content vertically
-        height: "100%",
-    },
-    inviteText: {
-        color: "blue",
-        fontWeight: "bold",
-        fontSize: 16
+        flex: 1,
+        paddingHorizontal: 16,
+        marginTop: 8,
     },
     chatInput: {
         flexDirection: "row",
         alignItems: "center",
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         borderTopWidth: 1,
-        borderTopColor: "#f1f1f1",
-        alignSelf: "flex-end", // Align chat input to the bottom
+        borderTopColor: "#ddd",
     },
     inputContainer: {
+        flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        flex: 1,
-        backgroundColor: "#f1f1f1",
+        borderWidth: 1,
+        borderColor: "#ddd",
         borderRadius: 20,
         paddingHorizontal: 12,
+        marginRight: 8,
     },
     input: {
         flex: 1,
         height: 40,
     },
     sendButton: {
-        backgroundColor: "blue",
+        backgroundColor: "#007aff",
         borderRadius: 20,
         padding: 8,
-        marginLeft: 8,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    messageContainer: {
+        marginVertical: 4,
+    },
+    userMessageContainer: {
+        alignSelf: "flex-end",
+    },
+    otherMessageContainer: {
+        alignSelf: "flex-start",
+    },
+    message: {
+        padding: 8,
+        borderRadius: 16,
+        maxWidth: "80%",
+    },
+    userMessage: {
+        backgroundColor: "#CBC3E3",
+        alignSelf: "flex-end",
+    },
+    otherMessage: {
+        backgroundColor: "#FFF",
+        alignSelf: "flex-start",
+    },
+    messageRow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    messageSender: {
+        fontWeight: "bold",
+        marginBottom: 4,
+    },
+    avatar: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        marginRight: 8,
+    },
+    dateDivider: {
+        alignSelf: "center",
+        paddingVertical: 4,
+        paddingHorizontal: 12,
+        backgroundColor: "#eee",
+        borderRadius: 12,
+        marginVertical: 4,
+    },
+    dateDividerText: {
+        color: "#555",
+    },
+    timestamp: {
+        fontSize: 12,
+        color: "#555",
+        marginTop: 4,
+        alignSelf: "flex-end",
     },
 });
 
