@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from "re
 import Icon from "react-native-vector-icons/MaterialIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { useTheme } from "../styles/ThemeContext";
+import { useNavigation } from "@react-navigation/native";
 
-function CustomDrawer({ navigation }) {
+function CustomDrawer({ route }) {
     const { isDarkMode, toggleTheme, theme } = useTheme();
-
+    const navigation = useNavigation();
     const handleToggleSwitch = () => {
         toggleTheme();
     };

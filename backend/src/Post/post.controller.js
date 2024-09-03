@@ -115,6 +115,18 @@ exports.editComment = async (req, res) => {
     }
 };
 
+exports.updateUserContent = async (req, res) => {
+    const { uid } = req.body;
+    try {
+        await userService.updateUserContent(uid);
+        responseHandler(res, 200, 'User content updated successfully');
+    } catch (error) {
+        console.error('Error updating user content:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+
 // DELETES //
 exports.removePost = async (req, res) => {
     const { postId, uid } = req.body;

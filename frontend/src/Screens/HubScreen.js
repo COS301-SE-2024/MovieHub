@@ -1,61 +1,96 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Modal, TextInput, Switch } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import React, { useState, useCallback } from "react";
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBackground } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import ExploreHub from "../Components/ExploreHub";
+import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 
 const HubScreen = ({ route }) => {
     const { userInfo } = route.params;
     const navigation = useNavigation();
-    const [modalVisible, setModalVisible] = useState(false);
-    const [roomTitle, setRoomTitle] = useState("");
-    const [accessLevel, setAccessLevel] = useState("Everyone");
-    const [roomType, setRoomType] = useState("Chat-only");
-    const [ownsRoom, setOwnsRoom] = useState(false);
-    const [userRoomDetails, setUserRoomDetails] = useState({});
+    const [createdRooms, setCreatedRooms] = useState([]);
+    const [participatingRooms, setParticipatingRooms] = useState([]);
+    const [publicRooms, setPublicRooms] = useState([]);
+    const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
-    // TODO: replace with real data
-    const sections = [
-        {
-            movieTitle: "People You Follow",
-            data: [
-                { roomName: "feel like ranting?", users: 372 },
-                { movieTitle: "My Little Pony", roomName: "Another Room", users: 128 },
-            ],
-        },
-        {
-            movieTitle: "Netflix Hub",
-            data: [
-                { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
-                { roomName: "JSON's Room", users: 56 },
-            ],
-        },
-        {
-            movieTitle: "HBO Hub",
-            data: [
-                { movieTitle: "Shrek 3", roomName: "Shrek Marathon!!", users: 98, live: true },
-                { movieTitle: "Spiderman", roomName: "Spideyy", live: true },
-            ],
-        },
-        {
-            movieTitle: "Hulu Hub",
-            data: [
-                { roomName: "Another Hulu Room", users: 45 },
-                { roomName: "Hulu Fun", users: 67 },
-            ],
-        },
-    ];
+    const fetchRooms = useCallback(async () => {
+        try {
+            const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
 
-    const handleCreateRoom = ({ roomTitle, accessLevel, roomType }) => {
-        // TODO: Add logic to create the room with roomTitle, accessLevel, and roomType
+            const createdRoomsWithCounts = await Promise.all(
+                createdRoomsData.map(async (room) => {
+                    const countResponse = await getRoomParticipantCount(room.roomId);
+                    return {
+                        ...room,
+                        participantsCount: countResponse.participantCount || 0,
+                    };
+                })
+            );
+            setCreatedRooms(createdRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch created rooms:", error);
+        }
 
-        const userRoomDetails = { roomTitle, accessLevel, roomType, ownsRoom };
-        // setUserRoomDetails(userRoomDetails);
-        setOwnsRoom(true);
-        console.log("room created", userRoomDetails);
+        try {
+            const participatingRoomsData = await getUserParticipatedRooms(userInfo.userId);
+
+            const participatingRoomsWithCounts = await Promise.all(
+                participatingRoomsData.map(async (room) => {
+                    const countResponse = await getRoomParticipantCount(room.roomId);
+                    return {
+                        ...room,
+                        participantsCount: countResponse.participantCount || 0,
+                    };
+                })
+            );
+            setParticipatingRooms(participatingRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch participated rooms:", error);
+        }
+
+        try {
+            const publicRoomsData = await getPublicRooms();
+
+            const publicRoomsWithCounts = await Promise.all(
+                publicRoomsData.map(async (room) => {
+                    const countResponse = await getRoomParticipantCount(room.roomId);
+                    return {
+                        ...room,
+                        participantsCount: countResponse.participantCount || 0,
+                    };
+                })
+            );
+            setPublicRooms(publicRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch public rooms:", error);
+        }
+    }, [userInfo.userId]);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchRooms();
+        }, [fetchRooms])
+    );
+
+    const handleCreateRoom = ({ roomTitle, accessLevel, roomType, watchParty }) => {
+        const newRoom = { roomTitle, accessLevel, roomType, watchParty, maxParticipants: 5 };
+        navigation.navigate("HubScreen", { userInfo, newRoom });
     };
+
+    const getRandomKeyword = () => {
+        return keywords[Math.floor(Math.random() * keywords.length)];
+    };
+
+    const renderRoomCard = ({ item }) => (
+        <UserRoomCard
+            roomName={item.roomName}
+            users={item.participantsCount}
+            live={item.roomType !== "Chat-only"}
+            keyword={getRandomKeyword()}
+            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId })}
+            coverImage={item.coverImage}
+        />
+    );
 
     return (
         <ScrollView style={styles.container}>
@@ -70,74 +105,91 @@ const HubScreen = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {ownsRoom && (
-                // TODO: replace with userRoomDetails
+            {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
+                    <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                </View>
+            )}
+
+            {createdRooms.length > 0 && (
                 <View>
-                    <UserRoomCard 
-                        movieTitle="Interstellar" 
-                        roomName="Asa's Room" 
-                        users={0} 
-                        live 
-                        handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: true /** TODO: Replace true with 'room.uId==userInfo.userID' */ })} 
+                    <Text style={styles.sectionTitle}>Rooms You Created</Text>
+                    <FlatList
+                        data={createdRooms}
+                        renderItem={renderRoomCard}
+                        keyExtractor={(item) => item.roomId.toString()}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.roomList}
                     />
                     <View style={styles.divider} />
                 </View>
             )}
 
-            {sections.map((section, index) => (
-                <View key={index} style={styles.section}>
-                    <TouchableOpacity style={styles.sectionHeader} onPress={() => navigation.navigate("Rooms", { userInfo })}>
-                        <Text style={styles.sectionTitle}>{section.movieTitle}</Text>
-                        <MatIcon name="chevron-right" size={24} style={{ marginBottom: 5, marginLeft: 6 }} />
-                    </TouchableOpacity>
-                    <FlatList 
-                        horizontal 
-                        data={section.data} 
-                        renderItem={({ item }) => <Card {...item} handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: false })}/>} 
-                        keyExtractor={(item, index) => index.toString()} 
-                        showsHorizontalScrollIndicator={false} 
-                        contentContainerStyle={styles.cardRow} 
+            {participatingRooms.length > 0 && (
+                <View>
+                    <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
+                    <FlatList
+                        data={participatingRooms}
+                        renderItem={renderRoomCard}
+                        keyExtractor={(item) => item.roomId.toString()}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.roomList}
                     />
                 </View>
-            ))}
+            )}
 
+            {publicRooms.length > 0 && (
+                <View>
+                    <Text style={styles.sectionTitle}>Public Rooms Available</Text>
+                    <FlatList
+                        data={publicRooms}
+                        renderItem={renderRoomCard}
+                        keyExtractor={(item) => item.roomId.toString()}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.roomList}
+                    />
+                </View>
+            )}
         </ScrollView>
     );
 };
 
-const Card = ({ movieTitle, roomName, users, live, handlePress }) => (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
-        {live && (
-            <Text style={styles.liveText}>
-                ● Live - <Text>{movieTitle}</Text>
-            </Text>
-        )}
-        <View style={styles.cardBody}>
-            <Text style={styles.cardTitle}>{roomName}</Text>
-            <View style={styles.cardFooter}>
-                <Icon name="users" size={16} />
-                <Text style={styles.userCount}>{users}</Text>
-            </View>
-        </View>
-    </TouchableOpacity>
-);
+const UserRoomCard = ({ roomName, users, live, handlePress, keyword, coverImage }) => {
+    const [randomImage, setRandomImage] = useState(coverImage);
+    const [fallbackColor, setFallbackColor] = useState("black");
 
-const UserRoomCard = ({ movieTitle, roomName, users, live, handlePress }) => (
-    <TouchableOpacity style={styles.userRoomCard} onPress={handlePress} >
-        {live && (
-            <Text style={styles.liveText}>
-                ● Live - <Text>{movieTitle}</Text>
-            </Text>
-        )}
-        <View style={styles.cardBody}>
-            <Text style={styles.cardTitle}>{roomName}</Text>
-            <View style={styles.cardFooter}>
-                <Icon name="users" size={16} />
-                <Text style={styles.userCount}>{users}</Text>
-            </View>
-        </View>
-    </TouchableOpacity>
-);
+    // Function to generate a random color, excluding white
+    const getRandomColor = () => {
+        const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFAF33", "#57FF33", "#FF5733", "#5733FF", "#33FFA1", "#A133FF", "#FF5733", "#57A1FF", "#FF3357", "#57FF33"];
+        return colors[Math.floor(Math.random() * colors.length)];
+    };
+
+    return (
+        <TouchableOpacity style={styles.userRoomCard} onPress={handlePress}>
+            <ImageBackground
+                source={randomImage ? { uri: randomImage } : null}
+                style={[styles.imageBackground, { backgroundColor: fallbackColor }]}
+                imageStyle={{ borderRadius: 8 }}
+            >
+                <View style={styles.overlay}>
+                    {live && <Text style={styles.liveText}>● Active</Text>}
+                    <View style={styles.cardBody}>
+                        <Text style={styles.cardTitle}>{roomName}</Text>
+                        <View style={styles.cardFooter}>
+                            <Icon name="users" size={16} color="white" />
+                            <Text style={styles.userCount}>{users}</Text>
+                        </View>
+                    </View>
+                </View>
+            </ImageBackground>
+        </TouchableOpacity>
+    );
+};
+
 
 const styles = StyleSheet.create({
     container: {
@@ -159,56 +211,41 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 20,
-        fontWeight: "500",
+        fontWeight: "bold",
     },
     createRoomText: {
         fontSize: 16,
         color: "blue",
     },
-    section: {
-        marginBottom: 25,
-        paddingLeft: 16,
-    },
-    sectionHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 5,
-    },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
-        marginBottom: 8,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: "bold",
-        marginBottom: 4,
-    },
-    cardRow: {
-        flexDirection: "row",
-    },
-    card: {
-        position: "relative",
-        width: 250,
-        height: 180,
-        backgroundColor: "#e0e0e0",
-        borderRadius: 8,
-        padding: 16,
-        marginRight: 16,
+        marginBottom: 15,
+        paddingLeft: 20,
     },
     userRoomCard: {
-        position: "relative",
-        width: "85%",
-        height: 210,
-        backgroundColor: "#e0e0e0",
+        width: 310, // Increase the width of the room card
+        height: 210, // Increase the height of the room card
         borderRadius: 8,
-        padding: 16,
-        margin: "auto",
+        marginHorizontal: 12, // Add some margin to avoid cramped appearance
+        overflow: "hidden",
     },
-    divider: {
-        height: 1,
-        backgroundColor: "#7b7b7b7b",
-        marginVertical: 16,
+    imageBackground: {
+        flex: 1,
+        justifyContent: "flex-end",
+        borderRadius: 8,
+    },
+    overlay: {
+        flex: 1,
+
+        justifyContent: "space-between",
+        padding: 12,
+    },
+    liveText: {
+        fontSize: 14, // Increase font size for better visibility
+        color: "red",
+        marginBottom: 6,
+        
     },
     cardBody: {
         display: "flex",
@@ -220,21 +257,36 @@ const styles = StyleSheet.create({
         left: 16,
         right: 16,
     },
-    liveText: {
-        color: "red",
-        marginBottom: 8,
-    },
     cardTitle: {
-        fontSize: 16,
+        fontSize: 18, // Increase font size for better visibility
         fontWeight: "bold",
+        color: "white",
     },
     cardFooter: {
         flexDirection: "row",
         alignItems: "center",
-        marginTop: 8,
+        marginTop: 6,
     },
     userCount: {
-        marginLeft: 8,
+        fontSize: 16, // Increase font size for better visibility
+        color: "white",
+        marginLeft: 4,
+    },
+    roomList: {
+        paddingHorizontal: 16,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: "#ccc",
+        marginVertical: 16,
+    },
+    emptyContainer: {
+        alignItems: "center",
+        marginVertical: 20,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: "gray",
     },
 });
 

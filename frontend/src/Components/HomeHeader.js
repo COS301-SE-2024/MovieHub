@@ -20,7 +20,7 @@ export default function HomeHeader({ userInfo }) {
 const styles = StyleSheet.create({
     header: { 
         height: 90,
-        paddingTop: 38,
+        paddingTop: 28,
         paddingVertical: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',

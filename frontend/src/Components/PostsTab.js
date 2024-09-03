@@ -1,13 +1,13 @@
-// PostsTab.js
 
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
-import Post from "./Post";
-import Review from "./Review";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
+import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
+import Post from "./Post";
+import Review from "./Review";
 
 export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
@@ -142,8 +142,9 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
 
     if (loading) {
         return (
-            <View style={{ paddingTop: 50 }}>
-                <ActivityIndicator size="large" color="#4a42c0" />
+            <View style={{ paddingTop: 5 }}>
+                <InstagramLoader active />
+                <FacebookLoader active />
             </View>
         );
     }

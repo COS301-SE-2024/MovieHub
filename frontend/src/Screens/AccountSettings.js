@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { deleteUserProfile } from "../Services/UsersApiService";
+import { useNavigation } from "@react-navigation/native";
 
-export default function AccountSettings({ navigation }) {
+export default function AccountSettings({ route }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [deletedModalVisible, setDeletedModalVisible] = useState(false);
-
+    const navigation = useNavigation();
     const confirmDeleteAccount = () => {
         setModalVisible(true);
     };

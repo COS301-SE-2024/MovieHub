@@ -1,4 +1,6 @@
 // backend/users/users.services.js
+import { updateUserContent } from '../Post/post.services';
+
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
 
@@ -15,7 +17,7 @@ exports.getUserProfile = async (userId) => {
             'MATCH (u:User {uid: $userId}) RETURN u',
             { userId }
         );
-        console.log("Letssss see the result " , result);
+        // console.log("Letssss see the result " , result);
         if (result.records.length === 0) {
             return null;
         }
@@ -37,6 +39,7 @@ exports.updateUserProfile = async (userId, updates) => {
         if (result.records.length === 0) {
             return null;
         }
+        updateUserContent(userId);
         return result.records[0].get('u').properties;
     } catch (error) {
         throw error;

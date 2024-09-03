@@ -51,7 +51,7 @@ export const modifyWatchlist = async (watchlistId, updatedData) => {
 
 export const getWatchlistDetails = async (watchlistId) => {
     try {
-      
+
         const response = await fetch(`${API_URL}${watchlistId}`, {
             method: 'GET',
             headers: {

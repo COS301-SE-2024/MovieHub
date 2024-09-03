@@ -118,7 +118,7 @@ export default function CreatePost({ route }) {
                             setThoughts("");
                             setRating(0);
                             setMovieSearch("");
-                            
+
                             navigation.navigate("Home", { userInfo });
                         },
                     },
@@ -134,7 +134,7 @@ export default function CreatePost({ route }) {
     const handleAddReview = async () => {
         const reviewData = {
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
-            movieId: movieId, //LEA
+            movieId: movieId,
             reviewTitle: title,
             text: thoughts,
             img: imageUri,
