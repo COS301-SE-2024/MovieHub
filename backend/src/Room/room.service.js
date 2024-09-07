@@ -20,7 +20,7 @@ const driver = neo4j.driver(
 );
 
 const session = driver.session();
-exports.createRoom = async (userId, roomData) => {
+exports.createRoom = async (uid, roomData) => {
     console.log("In room.service");
 
     // Ensure all required parameters are present
@@ -75,7 +75,7 @@ exports.createRoom = async (userId, roomData) => {
                 roomDescription: $roomDescription,
                 isActive: $isActive
              })
-             MERGE (u:User {uid: $userId})
+             MERGE (u:User {uid: $uid})
              CREATE (u)-[:CREATED]->(r)
              RETURN r`,
             {
@@ -84,13 +84,13 @@ exports.createRoom = async (userId, roomData) => {
                 roomName,
                 accessLevel,
                 coverImage,
-                createdBy: userId,
+                createdBy: uid,
                 createdAt,
                 updatedAt,
                 maxParticipants,
                 roomDescription,
                 isActive,
-                userId
+                uid
             }
         );
 
@@ -104,7 +104,7 @@ exports.createRoom = async (userId, roomData) => {
 
         console.log("Room created successfully.");
 
-        return { success: true, roomId, shortCode, ...roomData, createdBy: userId, createdAt, updatedAt, isActive };
+        return { success: true, roomId, shortCode, ...roomData, createdBy: uid, createdAt, updatedAt, isActive };
     } catch (error) {
         console.error("Error creating room:", error);
         if (tx) await tx.rollback();
@@ -196,13 +196,13 @@ exports.getRoomParticipants = async (roomId) => {
 
 
 // Get all rooms a user has created
-exports.getUserCreatedRooms = async (userId) => {
+exports.getUserCreatedRooms = async (uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {uid: $userId})-[:CREATED]->(r:Room)
+            `MATCH (u:User {uid: $uid})-[:CREATED]->(r:Room)
              RETURN r`,
-            { userId }
+            { uid }
         );
 
         if (result.records.length > 0) {
@@ -222,14 +222,14 @@ exports.getUserCreatedRooms = async (userId) => {
 };
 
 // Get all rooms a user is participating in (but not created)
-exports.getUserParticipatedRooms = async (userId) => {
+exports.getUserParticipatedRooms = async (uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (u:User {uid: $userId})-[:PARTICIPATES_IN]->(r:Room)
+            `MATCH (u:User {uid: $uid})-[:PARTICIPATES_IN]->(r:Room)
              WHERE NOT (u)-[:CREATED]->(r)
              RETURN r`,
-            { userId }
+            { uid }
         );
 
         if (result.records.length > 0) {
@@ -254,7 +254,7 @@ exports.getPublicRooms = async () => {
     try {
         const result = await session.run(
             `MATCH (r:Room)
-             WHERE r.accessLevel = 'everyone' AND r.isActive = true
+             WHERE r.accessLevel = 'Everyone' AND r.isActive = true
              RETURN r`
         );
 
@@ -274,15 +274,15 @@ exports.getPublicRooms = async () => {
     }
 };
 
-exports.joinRoom = async (code, userId) => {
+exports.joinRoom = async (code, uid) => {
     const session = driver.session();
 
     try {
         // Check if the user is already participating in the room
         const userInRoomResult = await session.run(
-            `MATCH (u:User {uid: $userId})-[:PARTICIPATES_IN]->(r:Room {shortCode: $code})
+            `MATCH (u:User {uid: $uid})-[:PARTICIPATES_IN]->(r:Room {shortCode: $code})
              RETURN u`,
-            { code, userId }
+            { code, uid }
         );
 
         if (userInRoomResult.records.length > 0) {
@@ -303,7 +303,7 @@ exports.joinRoom = async (code, userId) => {
 
             // Check if the user can join the room based on the access level
             if (room.accessLevel === 'invite' || room.accessLevel === 'followers') {
-                const hasAccess = await checkUserAccess(userId, room);
+                const hasAccess = await checkUserAccess(uid, room);
                 if (!hasAccess) {
                     return { success: false, message: 'Access denied' };
                 }
@@ -316,8 +316,8 @@ exports.joinRoom = async (code, userId) => {
 
             // Add the user to the room
             await session.run(
-                'MATCH (r:Room {shortCode: $code}), (u:User {uid: $userId}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
-                { code, userId }
+                'MATCH (r:Room {shortCode: $code}), (u:User {uid: $uid}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
+                { code, uid }
             );
             console.log("User has been added to room: ", room.roomName)
             return { success: true, roomId: room.roomId };
@@ -335,7 +335,7 @@ exports.joinRoom = async (code, userId) => {
 
 
 //function to check user access
-async function checkUserAccess(userId, room) {
+async function checkUserAccess(uid, room) {
     const session = driver.session();
     const { roomId, accessLevel, createdBy } = room;
 
@@ -346,18 +346,18 @@ async function checkUserAccess(userId, room) {
         } else if (accessLevel === 'invite') {
             // Check if the user has been invited
             const inviteResult = await session.run(
-                `MATCH (u:User {uid: $userId})-[:INVITED_TO]->(r:Room {roomId: $roomId})
+                `MATCH (u:User {uid: $uid})-[:INVITED_TO]->(r:Room {roomId: $roomId})
                  RETURN u`,
-                { userId, roomId }
+                { uid, roomId }
             );
 
             return inviteResult.records.length > 0;
         } else if (accessLevel === 'friends') {
             // Check if the user is friends with the room admin
             const friendResult = await session.run(
-                `MATCH (u:User {uid: $userId})-[:FRIENDS_WITH]-(a:User {uid: $adminId})
+                `MATCH (u:User {uid: $uid})-[:FRIENDS_WITH]-(a:User {uid: $adminId})
                  RETURN u`,
-                { userId, adminId: createdBy }
+                { uid, adminId: createdBy }
             );
 
             return friendResult.records.length > 0;
@@ -374,7 +374,7 @@ async function checkUserAccess(userId, room) {
 }
 
 // Function to invite a user to a room
-exports.inviteUserToRoom = async (adminId, userId, roomId) => {
+exports.inviteUserToRoom = async (adminId, uid, roomId) => {
     const session = driver.session();
     try {
         // Check if the room is invite-only and the admin is the creator, and get the room's shortCode
@@ -393,14 +393,14 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
 
         // Create an INVITED_TO relationship
         await session.run(
-            `MATCH (u:User {uid: $userId}), (r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid}), (r:Room {roomId: $roomId})
              MERGE (u)-[:INVITED_TO]->(r)`,
-            { userId, roomId }
+            { uid, roomId }
         );
 
         // Send notification to the invited user using Firebase Realtime Database
         const db = getDatabase();
-        const notificationsRef = ref(db, `notifications/${userId}/room_invitations`); // Reference to the user's notifications
+        const notificationsRef = ref(db, `notifications/${uid}/room_invitations`); // Reference to the user's notifications
         const newNotificationRef = push(notificationsRef); // Create a new notification entry
 
         // Set the notification details, including the shortCode
@@ -414,7 +414,7 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
             read: false // Mark notification as unread
         });
 
-        console.log(`User ${userId} invited to room ${roomId} by admin ${adminId}. Notification sent.`);
+        console.log(`User ${uid} invited to room ${roomId} by admin ${adminId}. Notification sent.`);
         return true;
     } catch (error) {
         console.error('Error inviting user to room:', error);
@@ -427,17 +427,17 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
 
 
 // Function to decline a room invite
-exports.declineRoomInvite = async (userId, roomId) => {
+exports.declineRoomInvite = async (uid, roomId) => {
     const session = driver.session();
     try {
         // Delete the INVITED_TO relationship
         await session.run(
-            `MATCH (u:User {uid: $userId})-[i:INVITED_TO]->(r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid})-[i:INVITED_TO]->(r:Room {roomId: $roomId})
              DELETE i`,
-            { userId, roomId }
+            { uid, roomId }
         );
 
-        console.log(`User ${userId} declined invite to room ${roomId}.`);
+        console.log(`User ${uid} declined invite to room ${roomId}.`);
     } catch (error) {
         console.error('Error declining room invite:', error);
         throw error;
@@ -447,23 +447,23 @@ exports.declineRoomInvite = async (userId, roomId) => {
 };
 
 // Function to leave a room
-exports.leaveRoom = async (roomId, userId) => {
+exports.leaveRoom = async (roomId, uid) => {
     const session = driver.session();
     try {
         // Check if the user is the creator of the room
         const userIsCreatorResult = await session.run(
-            `MATCH (u:User {uid: $userId})-[:CREATED]->(r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid})-[:CREATED]->(r:Room {roomId: $roomId})
              RETURN u`,
-            { roomId, userId }
+            { roomId, uid }
         );
 
         if (userIsCreatorResult.records.length > 0) {
             // If the user is the creator, find a new admin
             const newAdminResult = await session.run(
                 `MATCH (r:Room {roomId: $roomId})<-[:PARTICIPATES_IN]-(u:User)
-                 WHERE u.uid <> $userId
+                 WHERE u.uid <> $uid
                  RETURN u LIMIT 1`,
-                { roomId, userId }
+                { roomId, uid }
             );
 
             if (newAdminResult.records.length > 0) {
@@ -485,12 +485,12 @@ exports.leaveRoom = async (roomId, userId) => {
 
         // Remove the user from the room
         await session.run(
-            `MATCH (u:User {uid: $userId})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
              DELETE p`,
-            { roomId, userId }
+            { roomId, uid }
         );
 
-        console.log(`User ${userId} left the room ${roomId}.`);
+        console.log(`User ${uid} left the room ${roomId}.`);
     } catch (error) {
         console.error('Error leaving room:', error);
         throw error;
@@ -500,7 +500,7 @@ exports.leaveRoom = async (roomId, userId) => {
 };
 
 // Function to kick a user from the room
-exports.kickUserFromRoom = async (roomId, adminId, userId) => {
+exports.kickUserFromRoom = async (roomId, adminId, uid) => {
     const session = driver.session();
     try {
         // Check if the admin has the right to kick users
@@ -517,12 +517,12 @@ exports.kickUserFromRoom = async (roomId, adminId, userId) => {
 
         // Remove the user from the room
         await session.run(
-            `MATCH (u:User {uid: $userId})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
              DELETE p`,
-            { roomId, userId }
+            { roomId, uid }
         );
 
-        console.log(`User ${userId} was kicked from the room ${roomId} by admin ${adminId}.`);
+        console.log(`User ${uid} was kicked from the room ${roomId} by admin ${adminId}.`);
         return { success: true, message: 'User kicked successfully.' };
     } catch (error) {
         console.error('Error kicking user from room:', error);
@@ -534,18 +534,18 @@ exports.kickUserFromRoom = async (roomId, adminId, userId) => {
 
 
 // Add a message to the chat room
-exports.addMessageToRoom = async (roomId, userId, message) => {
+exports.addMessageToRoom = async (roomId, uid, message) => {
     try {
         const database = getDatabase(); // Get the database instance
         const messageRef = ref(database, `rooms/${roomId}/messages`);
         const newMessageRef = push(messageRef);
         await set(newMessageRef, {
-            userId,
+            uid,
             message,
             timestamp: new Date().toISOString(),
         });
 
-        console.log(`Message added to room ${roomId} by user ${userId}.`);
+        console.log(`Message added to room ${roomId} by user ${uid}.`);
     } catch (error) {
         console.error('Error adding message to room:', error);
         throw error;
@@ -590,9 +590,9 @@ exports.sendNotificationToUsers = async (roomId, message) => {
 
     const tokens = []; // Array to hold user tokens
 
-    for (const userId in users) {
-        if (users[userId].token) {
-            tokens.push(users[userId].token);
+    for (const uid in users) {
+        if (users[uid].token) {
+            tokens.push(users[uid].token);
         }
     }
 

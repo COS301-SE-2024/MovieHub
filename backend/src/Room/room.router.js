@@ -4,7 +4,7 @@ const roomController = require('./room.controller');
 const router = express.Router();
 
 // Route to create a new room
-router.post('/create/:userId', roomController.createRoom);
+router.post('/create/:uid', roomController.createRoom);////////////////////////////////
 
 // Route to join an existing room
 router.post('/join', roomController.joinRoom);
@@ -13,14 +13,13 @@ router.post('/join', roomController.joinRoom);
 router.get('/:roomId/participants', roomController.getRoomParticipants);
 
 // Route to get all rooms a user has created
-router.get('/created/:userId', roomController.getUserCreatedRooms);
+router.get('/created/:uid', roomController.getUserCreatedRooms); ////////////////////////////////
 
 // Route to get all rooms a user is participating in (but not created)
-router.get('/participated/:userId', roomController.getUserParticipatedRooms);
+router.get('/participated/:uid', roomController.getUserParticipatedRooms); ////////////////////////////////
 
 // Route to get participant count for a specific room
-router.get('/:roomId/participant-count', roomController.getRoomParticipantCount);
-
+router.get('/:roomId/participant-count', roomController.getRoomParticipantCount); ////////////////////////////////
 
 router.get('/public-rooms', roomController.getPublicRooms);
 
