@@ -4,6 +4,7 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, Bottom
 import { Ionicons } from "@expo/vector-icons";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
+import { deleteRoom } from "../Services/RoomApiService"
 
 const RoomModal = forwardRef((props, ref) => {
     const navigation = useNavigation();
@@ -35,8 +36,18 @@ const RoomModal = forwardRef((props, ref) => {
         }
     };
 
-    const handleDeleteRoom = () => {
+    const handleDeleteRoom = async () => {
         console.log("Delete Room");
+        // try {
+        //     await deleteRoom(selectedRoom.id);
+        //     setrooms(rooms.filter(w => w.id !== selectedRoom.id)); // Update state to remove deleted room
+        //     closeModal();
+        //     Alert.alert('Success', 'Room deleted successfully!');
+        // } catch (error) {
+        //     console.error('Error deleting room:', error);
+        //     Alert.alert('Error', 'Failed to delete room. Please try again later.');
+        // }
+        //TODO: get current room id
     };
 
     const handleStartWatchParty = () => {

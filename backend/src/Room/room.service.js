@@ -274,6 +274,33 @@ exports.getPublicRooms = async () => {
     }
 };
 
+exports.getRecentRooms = async (uid) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid})-[:CREATED|PARTICIPATES_IN]->(r:Room)
+            RETURN r
+            ORDER BY r.createdAt DESC
+            LIMIT 5`,
+            { uid }
+        );
+
+        if (result.records.length > 0) {
+            const recentRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, recentRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving recent rooms:', error);
+        return { success: false, message: 'An error occurred while retrieving recent rooms' };
+    } finally {
+        await session.close();
+    }
+};
+
 exports.joinRoom = async (code, uid) => {
     const session = driver.session();
 
@@ -613,6 +640,25 @@ exports.sendNotificationToUsers = async (roomId, message) => {
         }
     }
 };
+
+exports.deleteRoom = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             DETACH DELETE r
+             RETURN COUNT(r) AS removed`,
+            { roomId }
+        );
+        return result.records[0].get('removed').low > 0;
+    } catch (error) {
+        console.error('Error retrieving room participant count:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 // Ensure the driver is closed on application exit
 process.on('exit', async () => {
     await driver.close();

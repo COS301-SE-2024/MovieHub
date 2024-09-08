@@ -126,6 +126,21 @@ exports.getPublicRooms = async (req, res) => {
     }
 };
 
+exports.getRecentRooms = async (req, res) => {
+    const { uid } = req.params;
+    try {
+        const result = await roomService.getRecentRooms(uid);
+        if (result.success) {
+            return res.status(200).json(result.recentRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getRecentRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.joinRoom = async (req, res) => {
     try {
         const { code, uid } = req.body;
@@ -240,5 +255,20 @@ exports.sendNotification = async (req, res) => {
     } catch (error) {
         console.error('Error sending notification:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+exports.deleteRoom = async (req, res) => {
+    const roomId = req.params.roomId;
+
+    try {
+        const result = await roomService.deleteRoom(roomId);
+        if (result) {
+            responseHandler(res, 200, 'Room deleted successfully');
+        } else {
+            res.status(400).json({ message: 'Error deleting room' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
