@@ -133,8 +133,8 @@ export default function ExplorePage({ route }) {
                             username={item.fof.username}
                             userHandle={item.fof.name}
                             userAvatar={item.fof.avatar ? item.fof.avatar : null}
-                            likes={item.post ? item.post.likes : 0}
-                            comments={item.post ? item.post.comments : 0}
+                            likes={item.post.likes ? item.post.likes : 0}
+                            comments={item.post.comments ? item.post.comments : 0}
                             saves={item.post ? item.post.saves : 0}
                             image={item.post ? item.post.img : null}
                             postTitle={item.post ? item.post.postTitle : 'No Title'}

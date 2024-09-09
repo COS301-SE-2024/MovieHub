@@ -179,8 +179,8 @@ export default function ProfilePage({ route }) {
         },
         loadingContainer: {
             flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: "center",
+            alignItems: "center",
             backgroundColor: theme.backgroundColor,
         },
     });
@@ -188,7 +188,7 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress}/>;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "likes":
                 return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "watchlist":
@@ -209,10 +209,7 @@ export default function ProfilePage({ route }) {
 
     return (
         <View style={{ flex: 1 }}>
-            <ScrollView
-                style={[styles.container, { backgroundColor: theme.backgroundColor }]}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
-            >
+            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
                 <View style={styles.accountInfo}>
                     <Image
                         source={{
@@ -239,54 +236,21 @@ export default function ProfilePage({ route }) {
                     </Pressable>
                 </View>
                 <View style={styles.about}>
-                    {userProfile.pronouns !== "Prefer not to say" && (
-                        <Text style={{ color: theme.gray, paddingBottom: 5 }}>
-                            {userProfile.pronouns || "They/Them"}
-                        </Text>
-                    )}
-                    <Text style={{ color: theme.textColor }}>
-                        {userProfile.bio || "No bio here because they can't know me like that"}
-                    </Text>
+                    {userProfile.pronouns !== "Prefer not to say" && <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns || "They/Them"}</Text>}
+                    {userProfile.bio && <Text style={{ color: theme.textColor }}>{userProfile.bio}</Text>}
                     <Text style={{ marginTop: 5 }}>
                         <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? (
-                            <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text>
-                        ) : (
-                            <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>
-                        )}
+                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text> : <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
-                    <TabView
-                        navigationState={{ index, routes }}
-                        renderScene={renderScene}
-                        onIndexChange={setIndex}
-                        initialLayout={{ width: layout.width }}
-                        renderTabBar={(props) => (
-                            <TabBar
-                                {...props}
-                                indicatorStyle={styles.indicator}
-                                labelStyle={styles.label}
-                                style={styles.tabBar}
-                            />
-                        )}
-                    />
+                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
                 </View>
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
-            
-            <CommentsModal    
-                ref={bottomSheetRef} 
-                isPost={isPost}
-                postId={selectedPostId} 
-                userId={userInfo.userId}
-                username={userInfo.username}
-                currentUserAvatar={userProfile.avatar}
-                comments={comments}
-                loadingComments={loadingComments}
-                onFetchComments={fetchComments}
-            />
+
+            <CommentsModal ref={bottomSheetRef} isPost={isPost} postId={selectedPostId} userId={userInfo.userId} username={userInfo.username} currentUserAvatar={userProfile.avatar} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
         </View>
     );
 }

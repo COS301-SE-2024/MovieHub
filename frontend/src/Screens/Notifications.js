@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
-import { getUserNotifications } from "../Services/UsersApiService"; // Import from UsersApiService
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from "react-native";
+import { followUser, getUserNotifications, unfollowUser } from "../Services/UsersApiService"; // Import from UsersApiService
 import { markNotificationAsRead, deleteNotification, clearNotifications } from "../Services/NotifyApiService"; // Import from NotifyApiService
 import { joinRoom, declineRoomInvite } from "../Services/RoomApiService"; // Import RoomApiService
 import BottomHeader from "../Components/BottomHeader";
+import moment from "moment"; // Use moment.js for date formatting
 
 const Notifications = ({ route }) => {
     const { userInfo } = route.params;
-    const mockNotifications = [
+    const [notifications, setNotifications] = useState([
         {
             id: "1",
             message: "You have a new message from John Doe",
@@ -38,8 +39,7 @@ const Notifications = ({ route }) => {
             type: "follow",
             notificationType: "follow",
         },
-    ];
-    const [notifications, setNotifications] = useState(mockNotifications);
+    ]);
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -59,12 +59,14 @@ const Notifications = ({ route }) => {
                                         id,
                                         ...notification,
                                         type: category,
+                                        timestamp: moment(notification.timestamp), // Ensure notification has a timestamp
                                     });
                                 }
                             }
                         }
                     }
                 }
+                flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp)
                 setNotifications(flattenedNotifications);
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
@@ -72,6 +74,7 @@ const Notifications = ({ route }) => {
         };
 
         fetchNotifications();
+
     }, [userInfo.userId]);
 
     const handleMarkAsRead = async (id, type) => {
@@ -121,24 +124,71 @@ const Notifications = ({ route }) => {
             await declineRoomInvite(userInfo.userId, roomId);
             console.log(`Declined room invite with ID: ${roomId}`);
             handleDeleteNotification(roomId, "room_invitations");
-            // TODO: remove the notification from the list
         } catch (error) {
             console.error("Error declining room invite:", error);
         }
     };
 
-    const handleFollow = async (id) => {
+    const handleFollow = async (isFollowing, followerId) => {
         // TODO:Implement follow functionality here
-        console.log(`Followed notification with ID: ${id}`);
+        try {
+            if (isFollowing) {
+                await unfollowUser(userInfo.userId, otherUserInfo.uid);
+            } else {
+                await followUser(userInfo.userId, otherUserInfo.uid);
+            }
+             
+        } catch (error) {
+            console.error("Error toggling follow state:", error);
+        }
+        console.log(`Followed notification with ID: ${followerId}`);
     };
 
-    const renderItem = ({ item }) => (
-        <View style={styles.notificationItem}>
-            <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]}>{item.message}</Text>
+    // Function to categorize notifications by date
+    const categorizeNotifications = (notifications) => {
+        const now = moment();
+        const categorized = {
+            today: [],
+            yesterday: [],
+            week: [],
+            older: [],
+        };
+
+        notifications.forEach((notification) => {
+            const notificationDate = moment(notification.timestamp);
+            if (notificationDate.isSame(now, "day")) {
+                categorized.today.push(notification);
+            } else if (notificationDate.isSame(now.clone().subtract(1, "day"), "day")) {
+                categorized.yesterday.push(notification);
+            } else if (notificationDate.isSameOrAfter(now.clone().subtract(7, "days"), "day")) {
+                categorized.week.push(notification);
+            } else {
+                categorized.older.push(notification);
+            }
+        });
+
+        return categorized;
+    };
+
+    const renderNotificationItem = ({ item }) => (
+        <View style={[styles.notificationItem, !item.read && styles.unreadBackground, !item.read && { borderLeftWidth: 5, borderLeftColor: "#4a42c0" }]}>
+            {item.avatar && <Image source={{ uri: item.avatar }} style={styles.avatar} />}
+            <View style={styles.notificationContent}>
+                {item.user && item.message.includes(item.user) ? (
+                    <Text style={styles.notificationText} numberOfLines={3}>
+                        <Text style={styles.boldText}>{item.user}</Text>
+                        {item.message.replace(item.user, "")}
+                    </Text>
+                ) : (
+                    <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]} numberOfLines={3}>
+                        {item.message}
+                    </Text>
+                )}
+            </View>
             <View style={styles.buttonContainer}>
                 {item.notificationType === "follow" && (
-                    <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.id)}>
-                        <Text style={styles.buttonText}>Follow</Text>
+                    <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
+                        <Text style={styles.buttonText}>{item.isFollowing ? "Following" : "Follow"}</Text>
                     </TouchableOpacity>
                 )}
                 {item.notificationType === "room_invite" && (
@@ -151,6 +201,7 @@ const Notifications = ({ route }) => {
                         </TouchableOpacity>
                     </>
                 )}
+
                 {item.notificationType !== "room_invite" && (
                     <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id, item.type)}>
                         <Text style={styles.buttonText}>Delete</Text>
@@ -160,25 +211,30 @@ const Notifications = ({ route }) => {
         </View>
     );
 
+    const categorizedNotifications = categorizeNotifications(notifications);
+
     return (
         <View style={styles.container}>
-            <View style={styles.listContainer}>
+            <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
                 {notifications.length === 0 ? (
                     <View style={styles.noNotificationsContainer}>
                         <Text style={styles.noNotificationsText}>You have no notifications at the moment</Text>
                     </View>
                 ) : (
-                    <View style={{ paddingHorizontal: 16, flex: 1 }}>
-                        <FlatList
-                            data={notifications}
-                            renderItem={renderItem}
-                            keyExtractor={(item) => item.id.toString()}
-                            contentContainerStyle={styles.listContainer}
-                        />
+                    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        {Object.keys(categorizedNotifications).map(
+                            (category) =>
+                                categorizedNotifications[category].length > 0 && (
+                                    <View key={category}>
+                                        <Text style={styles.sectionHeader}>{category.charAt(0).toUpperCase() + category.slice(1)}</Text>
+                                        <FlatList data={categorizedNotifications[category]} renderItem={renderNotificationItem} keyExtractor={(item) => item.id.toString()} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} />
+                                    </View>
+                                )
+                        )}
                         <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
                             <Text style={styles.buttonText}>Clear All</Text>
                         </TouchableOpacity>
-                    </View>
+                    </ScrollView>
                 )}
             </View>
 
@@ -191,21 +247,37 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingTop: 24,
+        paddingTop: 20,
     },
     listContainer: {
         flexGrow: 1,
-        marginHorizontal: 5,
+        marginHorizontal: 5, // Optional: adjust as needed
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 12, // Increase margin to separate from text
     },
     notificationItem: {
+        flexDirection: "row", // Ensure items are in a row
+        alignItems: "flex-start", // Align items at the start of the container
         marginBottom: 16,
         padding: 12,
-        borderRadius: 8,
-        borderColor: "#ccc",
-        backgroundColor: "#f9f9f9",
+        paddingVertical: 20,
+        borderRadius: 8, // Added border radius for rounded corners
+        backgroundColor: "#f0f0f0", // Light gray background for all notifications
+    },
+    notificationContent: {
+        flex: 1, // Take up available space
     },
     notificationText: {
         fontSize: 16,
+        color: "#333",
+        flexWrap: "wrap", // Wrap text if necessary
+    },
+    boldText: {
+        fontWeight: "bold",
     },
     readText: {
         color: "#888",
@@ -219,47 +291,57 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     button: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        marginLeft: 8,
+        padding: 8,
         borderRadius: 4,
-        alignItems: "center",
-        justifyContent: "center",
+        marginLeft: 8,
     },
     followButton: {
-        backgroundColor: "#4a42c0", // Green button for follow
+        backgroundColor: "#007bff",
     },
     acceptButton: {
-        backgroundColor: "#4CAF50", // Green button for accepting
+        backgroundColor: "#28a745",
     },
     declineButton: {
-        backgroundColor: "#f44336", // Red button for declining
+        backgroundColor: "#dc3545",
     },
     deleteButton: {
-        backgroundColor: "#7b7b7b", // Blue button for deleting
+        backgroundColor: "#6c757d",
     },
-    clearButton: {
-        backgroundColor: "#4a42c0",
-        padding: 10,
-        borderRadius: 5,
-        alignItems: "center",
-        justifyContent: "center",
-        marginVertical: 16,
+    buttonText: {
+        color: "#fff",
+        fontWeight: "bold",
     },
     noNotificationsContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        marginTop: 100,
     },
     noNotificationsText: {
         fontSize: 18,
         color: "#888",
-        textAlign: "center",
     },
-    buttonText: {
-        color: "#fff",
-        fontSize: 14,
+    sectionHeader: {
+        fontSize: 18,
         fontWeight: "bold",
+        marginVertical: 10,
+        marginLeft: 10,
+    },
+    clearButton: {
+        backgroundColor: "#007bff",
+        padding: 10,
+        borderRadius: 5,
+        alignItems: "center",
+        marginVertical: 20,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: "#ccc",
+        marginVertical: 8,
+    },
+    unreadBorder: {
+        borderLeftColor: "#4a42c0", // Purple color for unread notifications
+        borderLeftWidth: 5, // Adjust width as needed
     },
 });
 
