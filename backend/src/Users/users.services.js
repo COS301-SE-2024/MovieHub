@@ -291,6 +291,34 @@ exports.getFollowingCount = async (userId) => {
     }
 };
 
+exports.searchUser = async (searchName) => {
+    const session = driver.session();
+    try {
+        // Perform a fuzzy search on username and name
+        const searchUserResult = await session.run(
+            `
+            MATCH (u:User)
+            WHERE u.username =~ '(?i).*' + $searchName + '.*'
+               OR u.name =~ '(?i).*' + $searchName + '.*'
+            RETURN u
+            `,
+            { searchName }
+        );
+
+        // Check if any users matched the search
+        if (searchUserResult.records.length === 0) {
+            return []; // Return empty array if no matches
+        }
+
+        // Return all matched users
+        return searchUserResult.records.map(record => record.get('u'));
+    } catch (error) {
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 // Get user notifications from Firebase Realtime Database
 exports.getUserNotifications = async (userId) => {
     const db = getDatabase();

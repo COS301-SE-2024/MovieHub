@@ -168,6 +168,17 @@ exports.fetchFollowingCount = async (req, res) => {
     }
 };
 
+exports.searchUser = async (req, res) => {
+    const { searchName } = req.params; 
+
+    try {
+        const users = await userService.searchUser(searchName);
+        res.status(200).json({ users });
+    } catch (error) {
+        res.status(500).json({ message: 'Error searching for users', error: error.message });
+    }
+};
+
 exports.getUserNotifications = async (req, res) => {
     const userId = req.params.id;
 
