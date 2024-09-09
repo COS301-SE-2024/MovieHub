@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView, FlatList } from 'react-native';
-import { useNavigation } from "@react-navigation/native";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, FlatList,TextInput } from 'react-native';
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
 import BottomHeader from '../Components/BottomHeader';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 import NonFollowerPost from '../Components/NonFollowerPost';
 import CategoriesFilters from '../Components/CategoriesFilters';
 import ExploreHub from '../Components/ExploreHub';
 import { getFriendsOfFriendsContent, getRandomUsersContent } from '../Services/ExploreApiService';
 import { FacebookLoader, InstagramLoader } from 'react-native-easy-content-loader';
-import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
+import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; 
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import CommentsModal from '../Components/CommentsModal';
 
@@ -35,27 +37,68 @@ export default function ExplorePage({ route }) {
     ];
 
     useEffect(() => {
-
         const fetchContent = async () => {
             try {
-                // Fetch friends of friends' content
                 const friendsContent = await getFriendsOfFriendsContent(userInfo);
-                setFriendsOfFriendsContent(friendsContent);
 
-                // Now fetch random users' content after the first call completes
+
+                const enrichedFriendsContent = await Promise.all(
+                    friendsContent.map(async (content) => {
+                        // console.log("friendscontnet:", content.post);
+                        if (content.post) {
+                            const likes = await getLikesOfPost(content.post.postId);
+                            const comments = await getCountCommentsOfPost(content.post.postId);
+                            // console.log("Post Likes:", likes.data); 
+                            // console.log("Post Comments:", comments.data); 
+                            return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
+                        }
+                        if (content.review) {
+                            const likes = await getLikesOfReview(content.review.reviewId);
+                            const comments = await getCountCommentsOfReview(content.review.reviewId);
+                            return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
+                        }
+                        return content;
+                    })
+                );
+    
+                setFriendsOfFriendsContent(enrichedFriendsContent);
+    
                 const randomContent = await getRandomUsersContent(userInfo);
-                setRandomUsersContent(randomContent);
+    
+                const enrichedRandomContent = await Promise.all( 
+                    randomContent.map(async (content) => {
+                        if (content.post) {
+                            const likes = await getLikesOfPost(content.post.postId);
+                            const comments = await getCountCommentsOfPost(content.post.postId);
+                            return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
+                        }
+                        if (content.review) {
+                            const likes = await getLikesOfReview(content.review.reviewId);
+                            const comments = await getCountCommentsOfReview(content.review.reviewId);
+                            return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
+                        }
+
+                        return content;
+
+                    })
+                );
+    
+                setRandomUsersContent(enrichedRandomContent);
             } catch (error) {
                 console.error('Error fetching content:', error);
             }
         };
-
+    
         fetchContent();
     }, [userInfo]);
+
 
     const handleOpenHub = () => {
         navigation.navigate("HubScreen", { userInfo });
     };
+
+        console.log("friendsContent",friendsOfFriendsContent)
+        console.log("randomContent",randomUsersContent)
 
     const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
@@ -96,6 +139,14 @@ export default function ExplorePage({ route }) {
     return (
         <View style={styles.container}>
             <ScrollView>
+
+            <View style={styles.searchBarSize}>
+            <View style={styles.searchBar}>
+                <Icon name="search" size={30} style={{ marginRight: 8 }} />
+
+                <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
+            </View>
+            </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <CategoriesFilters categoryName="Top Reviews" selectedCategory={selectedCategory} />
                     <CategoriesFilters categoryName="Latests Posts" selectedCategory={selectedCategory} />
@@ -133,8 +184,8 @@ export default function ExplorePage({ route }) {
                             username={item.fof.username}
                             userHandle={item.fof.name}
                             userAvatar={item.fof.avatar ? item.fof.avatar : null}
-                            likes={item.post ? item.post.likes : 0}
-                            comments={item.post ? item.post.comments : 0}
+                            likes={item.post.likeCount ?? 0}
+                            comments={item.post.commentCount ?? 0}
                             saves={item.post ? item.post.saves : 0}
                             image={item.post ? item.post.img : null}
                             postTitle={item.post ? item.post.postTitle : 'No Title'}
@@ -153,8 +204,8 @@ export default function ExplorePage({ route }) {
                             username={item.user.username}
                             userHandle={item.user.name}
                             userAvatar={item.user.avatar ? item.user.avatar : null}
-                            likes={item.post.likes ? item.post.likes : 0}
-                            comments={item.post.comments ? item.post.comments : 0}
+                            likes={item.post.likeCount ?? 0}
+                            comments={item.post.commentCount ?? 0}
                             saves={item.post ? item.post.saves : 0}
                             image={item.post ? item.post.img : null}
                             postTitle={item.post ? item.post.postTitle : 'No Title'}
@@ -188,7 +239,20 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVerical: 10,
         backgroundColor: '#ffffff',
-
+        
+    },
+    searchBar: {
+        flexDirection: "row",
+        backgroundColor: "#e0e0e0",
+        borderRadius: 10,
+        width: '95%',
+        padding: 10,
+        marginTop: 15,
+        alignItems: "center",
+        
+    },
+    searchBarSize: {
+        alignItems: "center",   
     },
     heading: {
         fontFamily: "Roboto",
@@ -204,6 +268,10 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     postsContainer: {
+    },
+    input: {
+        flex: 1,
+        marginRight: 30,
     },
 
 });
