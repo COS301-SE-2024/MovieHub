@@ -1,18 +1,32 @@
-import React from "react";
-import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Image, TouchableOpacity, Text } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import { colors } from "../styles/theme";
+import { getUnreadNotifications } from "../Services/UsersApiService";
 
 export default function BottomHeader({ userInfo }) {
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
     const navigation = useNavigation();
     const route = useRoute();
-    console.log("The users info in BottomHeader.js: ", userInfo);
     const isActive = (screen) => route.name === screen;
+    useEffect(() => {
+        // Fetch unread notifications count when the component mounts
+        const fetchUnreadNotifications = async () => {
+            try {
+                const data = await getUnreadNotifications(userInfo.userId);
+                
+                setUnreadNotifications(data.unreadCount.unreadCount); // Adjust according to your API response
+            } catch (error) {
+                console.error("Failed to fetch unread notifications", error);
+            }
+        };
+
+        fetchUnreadNotifications();
+    }, [userInfo.userId]);
 
     return (
-        ///// add user info parameter to other pages as necessary /////////
         <View style={styles.header}>
             <View style={styles.iconRow}>
                 <TouchableOpacity onPress={() => navigation.navigate("Home", { userInfo })} style={styles.iconContainer}>
@@ -20,10 +34,14 @@ export default function BottomHeader({ userInfo }) {
                     {isActive("Home") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Notifications", { userInfo })} style={styles.iconContainer}>
-                    <Icon name="notifications" size={30} style={[styles.icon, isActive("Notifications") && styles.activeIcon]} />
+                    <View style={styles.notificationIconContainer}>
+                        <Icon name="notifications" size={30} style={[styles.icon, isActive("Notifications") && styles.activeIcon]} />
+                        {unreadNotifications > 0 && (
+                            <View style={styles.notificationBadge} />
+                        )}
+                    </View>
                     {isActive("Notifications") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                
                 <TouchableOpacity onPress={() => navigation.navigate("CreatePost", { userInfo })} style={styles.iconContainer}>
                     <Icon name="add-circle-outline" size={30} style={[styles.icon, isActive("CreatePost") && styles.activeIcon]} />
                     {isActive("CreatePost") && <View style={styles.activeIndicator} />}
@@ -83,5 +101,22 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
         borderRadius: 2.5,
         marginTop: 4,
+    },
+    notificationIconContainer: {
+        position: 'relative',
+    },
+    notificationBadge: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        backgroundColor: "#ff0000", // Red color
+        borderRadius: 5, // Circular dot
+        width: 8, // Size of the dot
+        height: 8,
+    },
+    notificationBadgeText: {
+        color: colors.white,
+        fontSize: 12,
+        fontWeight: 'bold',
     },
 });
