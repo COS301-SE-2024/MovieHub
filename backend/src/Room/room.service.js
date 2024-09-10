@@ -114,21 +114,19 @@ exports.createRoom = async (uid, roomData) => {
     }
 };
 
-exports.getRoomDetails = async (roomIdentifier) => {
+exports.getRoomDetails = async (roomId) => {
     const session = driver.session();
     try {
         const result = await session.run(
             `MATCH (r:Room)
-             WHERE r.roomId = $identifier OR r.shortCode = $identifier
-             OPTIONAL MATCH (u:User)-[:CREATED]->(r)
-             RETURN r, u`,
-            { identifier: roomIdentifier }
+             WHERE r.roomId = $roomId OR r.shortCode = $roomId
+             RETURN r`,
+            { roomId }
         );
 
         if (result.records.length > 0) {
             const room = result.records[0].get('r').properties;
-            const creator = result.records[0].get('u') ? result.records[0].get('u').properties : null;
-            return { success: true, room, creator };
+            return { success: true, room };
         }
 
         return { success: false, message: 'Room not found' };

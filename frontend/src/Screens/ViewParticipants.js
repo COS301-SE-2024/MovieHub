@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { getRoomParticipants } from "../Services/RoomApiService";
 
 const participantsData = [
     { id: "1", name: "Itumeleng", username: "@ElectricTance" },
@@ -12,12 +13,34 @@ const participantsData = [
 ];
 
 const ViewParticipants = ({ route }) => {
-    const { IsRoomCreator } = route.params;
+    console.log("Route",route);
+    const { roomId } = route.params;
+    console.log("RoomId", roomId);
+    const { isRoomCreator } = route.params;
+    console.log("Is room creator ", isRoomCreator);
     const [participants, setParticipants] = useState(participantsData);
 
     const handleFollowPress = (id) => {
         setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.id === id ? { ...participant, followed: !participant.followed } : participant)));
     };
+
+    useEffect(() => {
+        const fetchRoomParticipants = async () => {
+            try {
+                const roomId = route.params.roomId;
+                console.log("The rooms ID in ViewRoom: ", roomId);
+                const response = await getRoomParticipants(roomId);
+                console.log("Room participants: ", response);
+                setParticipants(response.participants);
+            } catch (error) {
+                console.error("Failed to fetch room participants:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRoomParticipants();
+    }, [route.params.roomId]);
 
     const renderItem = ({ item }) => (
         <View style={styles.participantItem}>
@@ -33,7 +56,7 @@ const ViewParticipants = ({ route }) => {
                 <TouchableOpacity style={[styles.followButton, item.followed && styles.followingButton]} onPress={() => handleFollowPress(item.id)}>
                     <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{item.followed ? "Following" : "Follow"}</Text>
                 </TouchableOpacity>
-                {IsRoomCreator &&
+                {isRoomCreator &&
                     <TouchableOpacity style={[styles.removeButton]} onPress={() => handleFollowPress(item.id)}>
                     <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Remove"}</Text>
                 </TouchableOpacity>}

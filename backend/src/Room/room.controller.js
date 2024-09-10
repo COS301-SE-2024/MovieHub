@@ -18,8 +18,8 @@ exports.createRoom = async (req, res) => {
 
 exports.getRoomDetails = async (req, res) => {
     try {
-        const roomIdentifier = req.params.identifier; // Assuming the identifier is provided in the URL params
-        const result = await roomService.getRoomDetails(roomIdentifier);
+        const roomId = req.params.roomId; // Assuming the identifier is provided in the URL params
+        const result = await roomService.getRoomDetails(roomId);
 
         if (result.success) {
             res.status(200).json(result);
@@ -36,7 +36,6 @@ exports.getRoomDetails = async (req, res) => {
 // Controller function to handle getting room participants
 exports.getRoomParticipants = async (req, res) => {
     const { roomId } = req.params;
-
     try {
         const result = await roomService.getRoomParticipants(roomId);
 

@@ -15,6 +15,15 @@ const platformLogos = {
     Showmax: ShowmaxLogo,
     "Apple TV": AppleTVLogo,
 };
+/*
+{
+    "key": "ViewRoom-aoKqE-IGTnLfFrcQO5qNJ", 
+    "name": "ViewRoom", 
+    "params": {
+        "isUserRoom": undefined, 
+        "roomId": "5cfc6566-ae1a-4ab4-8444-f9d2acf5bb48", 
+    "userInfo": {"userId": "gPy1yCpiX3gY1sGmwvSGSbKgeNG3", "username": "MsCharliemander"}}, "path": undefined}
+*/
 
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
@@ -65,7 +74,7 @@ const ViewRoom = ({ route }) => {
                 console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
-                setIsRoomCreator(response.creator.username == userInfo.username);
+                setIsRoomCreator(response.room.createdBy == userInfo.userId);
                 console.log("username: ", userInfo.username, isRoomCreator);
                 console.log("Room details fetched: ", response);
                 // Fetch participant count
@@ -138,7 +147,7 @@ const ViewRoom = ({ route }) => {
                         <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
                             <Text style={styles.enterText}>Enter</Text>
                         </TouchableOpacity>
-                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator })}>
+                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
                             <FAIcon name="users" size={16} />
                             <Text style={styles.participantsText}>{participantCount}</Text>
                         </Pressable>

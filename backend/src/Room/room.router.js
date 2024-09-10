@@ -49,7 +49,7 @@ router.get('/listen/:roomId', roomController.listenForMessages);
 router.post('/notify', roomController.sendNotification);
 
 // Route to get room details by roomId or shortCode
-router.get('/:identifier', roomController.getRoomDetails);
+router.get('/:roomId', roomController.getRoomDetails);
 
 router.delete('/:roomId', roomController.deleteRoom);
 
