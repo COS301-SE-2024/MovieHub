@@ -90,6 +90,8 @@ const formatDate = (date) => {
 
 const Home = ({ route }) => {
     const { userInfo } = route.params;
+    const { avatar } = route.params;
+    console.log(avatar);
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
     const [userProfile, setUserProfile] = useState(null);
