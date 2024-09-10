@@ -288,6 +288,23 @@ export const getFollowing = async (userId) => {
     return data;
 };
 
+export const searchUser = async (searchName) => {
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/search/${encodeURIComponent(searchName)}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to search for users');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
 export const getFollowersCount = async (userId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/${userId}/followers/count`, {
