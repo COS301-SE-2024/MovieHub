@@ -1,5 +1,6 @@
 // backend/users/users.services.js
 import { updateUserContent } from '../Post/post.services';
+const { getDatabase, ref, get} = require('firebase/database');
 
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
