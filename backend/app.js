@@ -23,7 +23,7 @@ const port = process.env.PORT;
 
 app.use(
     cors({
-        origin: ["http://localhost:8081", "exp://192.168.8.35:8081"], // all ports used in frontend web and exp
+        origin: ["http://localhost:8081", "exp://10.5.54.63:8081"], // all ports used in frontend web and exp
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })
