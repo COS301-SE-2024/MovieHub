@@ -1,5 +1,6 @@
 // backend/users/users.services.js
 import { updateUserContent } from '../Post/post.services';
+const { getDatabase, ref, get} = require('firebase/database');
 
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
@@ -285,6 +286,34 @@ exports.getFollowingCount = async (userId) => {
         return followingCount;
     } catch (error) {
         console.error("Error fetching following count:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.searchUser = async (searchName) => {
+    const session = driver.session();
+    try {
+        // Perform a fuzzy search on username and name
+        const searchUserResult = await session.run(
+            `
+            MATCH (u:User)
+            WHERE u.username =~ '(?i).*' + $searchName + '.*'
+               OR u.name =~ '(?i).*' + $searchName + '.*'
+            RETURN u
+            `,
+            { searchName }
+        );
+
+        // Check if any users matched the search
+        if (searchUserResult.records.length === 0) {
+            return []; // Return empty array if no matches
+        }
+
+        // Return all matched users
+        return searchUserResult.records.map(record => record.get('u'));
+    } catch (error) {
         throw error;
     } finally {
         await session.close();
