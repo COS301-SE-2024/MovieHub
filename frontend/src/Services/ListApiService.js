@@ -72,6 +72,23 @@ export const getWatchlistDetails = async (watchlistId) => {
     }
 };
 
+export const getCollaborators = async (watchlistId) => {
+    const token = await getToken(); // Assuming there's a function to get the token
+    const response = await fetch(`${API_URL}/${encodeURIComponent(watchlistId)}/collaborators`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch collaborators');
+    }
+
+    const data = await response.json();
+    return data.collaborators;
+};
+
 export const deleteWatchlist = async (watchlistId) => {
     try {
         const response = await fetch(`${API_URL}${watchlistId}`, {

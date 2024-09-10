@@ -181,6 +181,42 @@ exports.getWatchlistDetails = async (watchlistId) => {
     }
 };
 
+exports.getCollaborators = async (watchlistId) => {
+    const session = driver.session();
+
+    try {
+        console.log("Fetching collaborators for watchlist:", watchlistId);
+
+        // Run a query to find all users with a HAS_WATCHLIST relationship to the watchlist
+        const result = await session.run(
+            `MATCH (w:Watchlist {id: $watchlistId})<-[:HAS_WATCHLIST]-(u:User)
+             RETURN u.uid AS userId, u.name AS name, u.username AS username, u.avatar AS avatar`,
+            { watchlistId }
+        );
+
+        if (result.records.length === 0) {
+            console.log("No collaborators found for this watchlist.");
+            return [];
+        }
+
+        // Process the result to return an array of collaborators
+        const collaborators = result.records.map(record => ({
+            userId: record.get('userId'),
+            name: record.get('name'),
+            username: record.get('username'),
+            avatar: record.get('avatar')
+        }));
+
+        console.log("Collaborators fetched successfully.");
+
+        return collaborators;
+    } catch (error) {
+        console.error("Error fetching collaborators:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
 
 
 exports.deleteWatchlist = async (watchlistId) => {
