@@ -136,8 +136,21 @@ exports.followUser = async (followerId, followeeId) => {
 
         // If followee follows follower, create FRIENDS relationship
         if (isFolloweeFollowing) {
-            await session.run(`MERGE (follower:User {uid: $followerId})-[:FRIENDS]-(followee:User {uid: $followeeId})`, { followerId, followeeId });
+            await session.run(
+                `MERGE (follower:User {uid: $followerId})-[:FRIENDS]-(followee:User {uid: $followeeId})`,
+                { followerId, followeeId }
+            );
         }
+
+        // Fetch follower's name
+        const followerResult = await session.run(
+            `MATCH (follower:User {uid: $followerId})
+             RETURN follower.name AS followerName`,
+            { followerId }
+        );
+
+        const followerName = followerResult.records[0].get("followerName");
+        console.log("User services: follower name", followerName);
 
         // Send notification to the followee
         const db = getDatabase();
@@ -145,7 +158,7 @@ exports.followUser = async (followerId, followeeId) => {
         const newNotificationRef = push(notificationRef);
 
         await set(newNotificationRef, {
-            message: `${followerId} started following you`,
+            message: `${followerName} started following you`,  // Use follower's name in the notification
             notificationType: "follow",
             read: false,
             followerId: followerId,
@@ -161,6 +174,7 @@ exports.followUser = async (followerId, followeeId) => {
         await session.close();
     }
 };
+
 
 // Unfollow a user
 exports.unfollowUser = async (userId, targetUserId) => {
