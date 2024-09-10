@@ -133,6 +133,7 @@ exports.followUser = async (followerId, followeeId) => {
         );
 
         const isFolloweeFollowing = result.records[0].get("isFollowing");
+        console.log("User services: isFolloweeFollowing", isFolloweeFollowing);
 
         // If followee follows follower, create FRIENDS relationship
         if (isFolloweeFollowing) {
@@ -149,7 +150,18 @@ exports.followUser = async (followerId, followeeId) => {
             { followerId }
         );
 
-        const followerName = followerResult.records[0].get("followerName");
+        console.log("User services: follower result", followerResult.records);
+
+        // Filter valid followerName records
+        const validFollowerRecord = followerResult.records.find(
+            record => record.get("followerName") !== null
+        );
+
+        if (!validFollowerRecord) {
+            throw new Error("Follower name is missing for user with ID: " + followerId);
+        }
+
+        const followerName = validFollowerRecord.get("followerName");
         console.log("User services: follower name", followerName);
 
         // Send notification to the followee
@@ -174,6 +186,7 @@ exports.followUser = async (followerId, followeeId) => {
         await session.close();
     }
 };
+
 
 
 // Unfollow a user

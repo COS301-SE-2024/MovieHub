@@ -123,7 +123,8 @@ export default function ExplorePage({ route }) {
                 <FacebookLoader active loading={friendsOfFriendsContent.length === 0 && randomUsersContent.length === 0} />
                 <FacebookLoader active loading={friendsOfFriendsContent.length === 0 && randomUsersContent.length === 0} />
                 <View style={styles.postsContainer}>
-                    {friendsOfFriendsContent.map((item, index) => (
+                    {friendsOfFriendsContent.map((item, index) => {
+                        if (!item.fof.postId) return null;
                         <NonFollowerPost
                             key={`fof-${index}`}
                             postId={item.post.postId}
@@ -143,7 +144,7 @@ export default function ExplorePage({ route }) {
                             isUserPost={item.uid === userInfo.userId}
                             handleCommentPress={handleCommentPress}
                         />
-                    ))}
+                    })}
                     {randomUsersContent.map((item, index) => (
                         <NonFollowerPost
                             key={`random-${index}`}
