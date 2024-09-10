@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { getUserProfile } from "../Services/UsersApiService";
 
 import { colors } from "../styles/theme";
 
@@ -10,6 +11,26 @@ export default function BottomHeader({ userInfo }) {
     const route = useRoute();
     console.log("The users info in BottomHeader.js: ", userInfo);
     const isActive = (screen) => route.name === screen;
+    const [loading, setLoading] = useState(true); // Add this line
+    const [avatar, setAvatar] = useState(null)
+
+    const fetchData = async () => {
+        try {
+            const userId = userInfo.userId;
+            const response = await getUserProfile(userId);
+            console.log("Response:", response);
+            setAvatar(response.avatar)
+
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        } finally {
+            setLoading(false); // Set loading to false after data is fetched
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     return (
         ///// add user info parameter to other pages as necessary /////////
@@ -34,7 +55,7 @@ export default function BottomHeader({ userInfo }) {
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("ProfilePage", { userInfo })} style={styles.iconContainer}>
                     <Image 
-                        source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} 
+                        source={{ uri: avatar }} 
                         style={[styles.image, isActive("ProfilePage") && styles.activeImage]} 
                     />
                     {isActive("ProfilePage") && <View style={styles.activeIndicator} />}
@@ -72,6 +93,8 @@ const styles = StyleSheet.create({
         height: 40,
         width: 40,
         borderRadius: 20,
+        borderColor: "black",
+        borderWidth: 2
     },
     activeImage: {
         borderColor: colors.primary,
