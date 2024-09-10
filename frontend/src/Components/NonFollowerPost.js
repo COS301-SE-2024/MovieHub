@@ -250,10 +250,10 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                 <View style={styles.nameAndHandleContainer}>
                     <View style={{ flex: 1 }}>
                         <Text style={styles.username} numberOfLines={1} ellipsizeMode="tail">
-                            {username}
+                            {userHandle}
                         </Text>
                         <Text style={styles.userHandle}>
-                            {userHandle} &bull; {timeDifference()}
+                            {username} &bull; {timeDifference()}
                         </Text>
                     </View>
                 </View>
