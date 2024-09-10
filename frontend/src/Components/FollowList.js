@@ -27,8 +27,8 @@ const FollowList = ({ route, username, userHandle, userAvatar, avatar, }) => {
             // shadowRadius: 3.84,
             borderColor: '#000000',
             // elevation: 5,
-            borderTopWidth: 0, 
-            borderBottomWidth: 0.3, 
+            // borderTopWidth: 0, 
+            // borderBottomWidth: 0.3, 
         },
         avatar: {
             width: 50,

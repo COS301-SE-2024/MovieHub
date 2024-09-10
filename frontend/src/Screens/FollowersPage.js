@@ -1,19 +1,47 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, StyleSheet, Text } from 'react-native';
 import FollowList from '../Components/FollowList';
+import { getFollowers } from '../Services/UsersApiService';
 
-const FollowersPage = ({ route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) => {
+const FollowersPage = ({ route }) => {
+    const { userInfo } = route.params; // Assuming userInfo is passed via route params
+    const [followers, setFollowers] = useState([]);
+
+    // Fetch followers list
+    const fetchFollowers = async () => {
+        try {
+            const response = await getFollowers(userInfo.userId); // Fetch followers using userId
+            setFollowers(response);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchFollowers();
+    }, []); // Run only once on mount
+
+    // Render individual follower items
+    const renderFollower = ({ item }) => (
+        <FollowList 
+            username={item.username}
+            userHandle={item.name}
+            userAvatar={item.avatar}
+        />
+    );
+
     return (
-
-        <ScrollView style={styles.container}>
-        <View >
-            <FollowList/>
-            <FollowList/>
-            <FollowList/>
-            <FollowList/>
-
+        <View style={styles.container}>
+            {followers.length > 0 ? (
+                <FlatList 
+                    data={followers}
+                    renderItem={renderFollower}
+                    keyExtractor={(item, index) => index.toString()} // Ensure unique key for each item
+                />
+            ) : (
+                <Text style={styles.noFollowersText}>No followers found</Text>
+            )}
         </View>
-        </ScrollView>
     );
 };
 
@@ -21,11 +49,13 @@ const styles = StyleSheet.create({
     container: {
         paddingTop: 10,
         flex: 1,
-        backgroundColor:'#ffffff', // Set the background color to black
+        backgroundColor: '#ffffff', // Set the background color to white
     },
-    text: {
-        color: '#fff', // Set the text color to white
-        fontSize: 18,
+    noFollowersText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 16,
+        color: '#999',
     },
 });
 

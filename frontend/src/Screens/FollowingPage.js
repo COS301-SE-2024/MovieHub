@@ -37,6 +37,7 @@ const FollowingPage = ({ route }) => {
                     data={followers}
                     renderItem={renderFollower}
                     keyExtractor={(item, index) => index.toString()}  // Use index or unique id
+                    ItemSeparatorComponent={() => <View style={{ borderColor: '#ddd', borderBottomWidth: 1 }} />}
                 />
             ) : (
                 <Text style={styles.noFollowersText}>No followers found</Text>
