@@ -66,7 +66,7 @@ const Notifications = ({ route }) => {
                         }
                     }
                 }
-                flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp)
+                flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
                 setNotifications(flattenedNotifications);
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
@@ -74,7 +74,6 @@ const Notifications = ({ route }) => {
         };
 
         fetchNotifications();
-
     }, [userInfo.userId]);
 
     const handleMarkAsRead = async (id, type) => {
@@ -137,7 +136,6 @@ const Notifications = ({ route }) => {
             } else {
                 await followUser(userInfo.userId, otherUserInfo.uid);
             }
-             
         } catch (error) {
             console.error("Error toggling follow state:", error);
         }
@@ -150,7 +148,7 @@ const Notifications = ({ route }) => {
         const categorized = {
             today: [],
             yesterday: [],
-            week: [],
+            lastWeek: [],
             older: [],
         };
 
@@ -161,7 +159,7 @@ const Notifications = ({ route }) => {
             } else if (notificationDate.isSame(now.clone().subtract(1, "day"), "day")) {
                 categorized.yesterday.push(notification);
             } else if (notificationDate.isSameOrAfter(now.clone().subtract(7, "days"), "day")) {
-                categorized.week.push(notification);
+                categorized.lastWeek.push(notification);
             } else {
                 categorized.older.push(notification);
             }
@@ -226,7 +224,7 @@ const Notifications = ({ route }) => {
                             (category) =>
                                 categorizedNotifications[category].length > 0 && (
                                     <View key={category}>
-                                        <Text style={styles.sectionHeader}>{category.charAt(0).toUpperCase() + category.slice(1)}</Text>
+                                        <Text style={styles.sectionHeader}>{category === "today" ? "Today" : category === "yesterday" ? "Yesterday" : category === "lastWeek" ? "Last Week" : "Older Notifications"}</Text>
                                         <FlatList data={categorizedNotifications[category]} renderItem={renderNotificationItem} keyExtractor={(item) => item.id.toString()} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} />
                                     </View>
                                 )
