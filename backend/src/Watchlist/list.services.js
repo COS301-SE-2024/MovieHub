@@ -13,7 +13,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
     console.log("In list.services");
 
     // Ensure all required parameters are present
-    const requiredParams = ['name', 'tags', 'visibility', 'ranked', 'description', 'collaborative', 'movies'];
+    const requiredParams = ['name', 'tags', 'visibility', 'ranked', 'description', 'collaborative', 'movies', 'collabUserIds'];
     for (const param of requiredParams) {
         if (!(param in watchlistData)) {
             console.error(`Missing required parameter: ${param}`);
@@ -23,7 +23,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
 
     const session = driver.session();
     const watchlistId = uuidv4();
-    const { name, tags, visibility, ranked, description, collaborative, movies } = watchlistData;
+    const { name, tags, visibility, ranked, description, collaborative, movies, collabUserIds } = watchlistData;
 
     try {
         console.log("All parameters are present. Proceeding with database query.");
@@ -62,7 +62,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
             { watchlistId, name, tags, visibility, ranked, description, collaborative, userId }
         );
 
-        console.log("Database query executed.");
+        console.log("Watchlist created and associated with the user.");
         if (result.records.length === 0) {
             throw new Error("Failed to create watchlist.");
         }
@@ -76,10 +76,19 @@ exports.createWatchlist = async (userId, watchlistData) => {
             );
         }
 
+        // Associate collaborator users with the watchlist
+        for (const colabUserId of collabUserIds) {
+            await tx.run(
+                `MERGE (u:User {uid: $colabUserId})
+                 CREATE (u)-[:HAS_WATCHLIST]->(w)`,
+                { watchlistId, colabUserId }
+            );
+        }
+
         // Commit the transaction
         await tx.commit();
 
-        console.log("Movies associated with the watchlist.");
+        console.log("Movies and collaborators associated with the watchlist.");
 
         return { id: watchlistId, ...watchlistData };
     } catch (error) {
@@ -90,6 +99,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
         await session.close();
     }
 };
+
 
 exports.modifyWatchlist = async (watchlistId, updatedData) => {
     const session = driver.session();

@@ -8,6 +8,8 @@ const API_URL = `http://${localIP}:3000/list/`;
 
 
 export const createWatchlist = async (userId, watchlistData) => {
+    // collabUserIds is the array that contaions all the user IDs that collabarate
+    //also the array is stored in the wathclist details
     try {
         const response = await fetch(`${API_URL}${userId}`, {
             method: 'POST',
