@@ -51,6 +51,7 @@ import WatchParty from "./frontend/src/Screens/WatchParty";
 import HubScreen from "./frontend/src/Screens/HubScreen";
 import CreateRoom from "./frontend/src/Screens/CreateRoom";
 import ViewRoom from "./frontend/src/Screens/ViewRoom";
+import ViewParticipants from "./frontend/src/Screens/ViewParticipants";
 import FollowersProfilePage from "./frontend/src/Screens/FollowersProfilePage";
 import FollowersPage from "./frontend/src/Screens/FollowersPage";
 import FollowingPage from "./frontend/src/Screens/FollowingPage";
@@ -305,6 +306,7 @@ export default function App() {
                         <Nav.Screen name="UsingMovieHub" component={UsingMovieHub} options={{ title: "Using MovieHub", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
                         <Nav.Screen name="FAQs" component={FAQs} />
                         <Nav.Screen name="ViewRoom" component={ViewRoom} options={{ headerShown: false }} />
+                        <Nav.Screen name="ViewParticipants" component={ViewParticipants} options={{ headerShown: false }} />
                         <Nav.Screen
                             name="Notifications"
                             component={Notifications}

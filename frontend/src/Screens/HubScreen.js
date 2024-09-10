@@ -1,9 +1,9 @@
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBackground } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
+import UserRoomCard from "../Components/UserRoomCard";
 
 const HubScreen = ({ route }) => {
     const { userInfo } = route.params;
@@ -138,6 +138,7 @@ const HubScreen = ({ route }) => {
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.roomList}
                     />
+                    <View style={styles.divider} />
                 </View>
             )}
 
@@ -152,44 +153,12 @@ const HubScreen = ({ route }) => {
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.roomList}
                     />
+                    <View style={styles.divider} />
                 </View>
             )}
         </ScrollView>
     );
 };
-
-const UserRoomCard = ({ roomName, users, live, handlePress, keyword, coverImage }) => {
-    const [randomImage, setRandomImage] = useState(coverImage);
-    const [fallbackColor, setFallbackColor] = useState("black");
-
-    // Function to generate a random color, excluding white
-    const getRandomColor = () => {
-        const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFAF33", "#57FF33", "#FF5733", "#5733FF", "#33FFA1", "#A133FF", "#FF5733", "#57A1FF", "#FF3357", "#57FF33"];
-        return colors[Math.floor(Math.random() * colors.length)];
-    };
-
-    return (
-        <TouchableOpacity style={styles.userRoomCard} onPress={handlePress}>
-            <ImageBackground
-                source={randomImage ? { uri: randomImage } : null}
-                style={[styles.imageBackground, { backgroundColor: fallbackColor }]}
-                imageStyle={{ borderRadius: 8 }}
-            >
-                <View style={styles.overlay}>
-                    {live && <Text style={styles.liveText}>● Active</Text>}
-                    <View style={styles.cardBody}>
-                        <Text style={styles.cardTitle}>{roomName}</Text>
-                        <View style={styles.cardFooter}>
-                            <Icon name="users" size={16} color="white" />
-                            <Text style={styles.userCount}>{users}</Text>
-                        </View>
-                    </View>
-                </View>
-            </ImageBackground>
-        </TouchableOpacity>
-    );
-};
-
 
 const styles = StyleSheet.create({
     container: {

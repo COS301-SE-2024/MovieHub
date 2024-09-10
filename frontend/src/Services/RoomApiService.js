@@ -116,6 +116,21 @@ export const getPublicRooms = async () => {
     return data;
 };
 
+export const getRecentRooms = async (uid) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/recent-rooms/${uid}`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch recent rooms');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
 // Get the participant count of a room
 export const getRoomParticipantCount = async (roomId) => {
     const headers = await verifyToken();
@@ -306,5 +321,23 @@ export const fetchRandomImage = async (keyword) => {
     } catch (error) {
         console.error('Failed to fetch image:', error);
         return null;
+    }
+};
+
+export const deleteRoom = async (roomId) => {
+    try {
+        const response = await fetch(`${API_URL}${roomId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete room.');
+        }
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        throw new Error('Failed to delete room.');
     }
 };

@@ -1,12 +1,12 @@
 const roomService = require('./room.service');
 
 exports.createRoom = async (req, res) => {
-    const userId = req.params.userId;
+    const uid = req.params.uid;
     const roomData = req.body;
     console.log("In createRoom controller");
     try {
-        console.log("Creating room for user " + userId);
-        const room = await roomService.createRoom(userId, roomData);
+        console.log("Creating room for user " + uid);
+        const room = await roomService.createRoom(uid, roomData);
         console.log(room);
         res.status(201).json(room);
         console.log("The response " + res);
@@ -18,8 +18,8 @@ exports.createRoom = async (req, res) => {
 
 exports.getRoomDetails = async (req, res) => {
     try {
-        const roomIdentifier = req.params.identifier; // Assuming the identifier is provided in the URL params
-        const result = await roomService.getRoomDetails(roomIdentifier);
+        const roomId = req.params.roomId; // Assuming the identifier is provided in the URL params
+        const result = await roomService.getRoomDetails(roomId);
 
         if (result.success) {
             res.status(200).json(result);
@@ -36,7 +36,6 @@ exports.getRoomDetails = async (req, res) => {
 // Controller function to handle getting room participants
 exports.getRoomParticipants = async (req, res) => {
     const { roomId } = req.params;
-
     try {
         const result = await roomService.getRoomParticipants(roomId);
 
@@ -63,10 +62,10 @@ exports.getRoomParticipants = async (req, res) => {
 
 // Controller to get all rooms a user has created
 exports.getUserCreatedRooms = async (req, res) => {
-    const { userId } = req.params;
+    const { uid } = req.params;
 
     try {
-        const result = await roomService.getUserCreatedRooms(userId);
+        const result = await roomService.getUserCreatedRooms(uid);
         if (result.success) {
             return res.status(200).json(result.createdRooms);
         } else {
@@ -80,10 +79,10 @@ exports.getUserCreatedRooms = async (req, res) => {
 
 // Controller to get all rooms a user is participating in (but not created)
 exports.getUserParticipatedRooms = async (req, res) => {
-    const { userId } = req.params;
+    const { uid } = req.params;
 
     try {
-        const result = await roomService.getUserParticipatedRooms(userId);
+        const result = await roomService.getUserParticipatedRooms(uid);
         if (result.success) {
             return res.status(200).json(result.participatedRooms);
         } else {
@@ -126,10 +125,25 @@ exports.getPublicRooms = async (req, res) => {
     }
 };
 
+exports.getRecentRooms = async (req, res) => {
+    const { uid } = req.params;
+    try {
+        const result = await roomService.getRecentRooms(uid);
+        if (result.success) {
+            return res.status(200).json(result.recentRooms);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getRecentRooms controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.joinRoom = async (req, res) => {
     try {
-        const { code, userId } = req.body;
-        const result = await roomService.joinRoom(code, userId);
+        const { code, uid } = req.body;
+        const result = await roomService.joinRoom(code, uid);
 
         if (result.success) {
             res.status(200).json({ roomId: result.roomId });
@@ -143,10 +157,10 @@ exports.joinRoom = async (req, res) => {
 };
 
 exports.inviteUserToRoom = async (req, res) => {
-    const { adminId, userId, roomId } = req.body;
+    const { adminId, uid, roomId } = req.body;
     try {
-        await roomService.inviteUserToRoom(adminId, userId, roomId);
-        res.status(200).json({ message: `User ${userId} invited to room ${roomId}` });
+        await roomService.inviteUserToRoom(adminId, uid, roomId);
+        res.status(200).json({ message: `User ${uid} invited to room ${roomId}` });
     } catch (error) {
         console.error('Error inviting user to room:', error);
         res.status(500).json({ error: error.message });
@@ -154,10 +168,10 @@ exports.inviteUserToRoom = async (req, res) => {
 };
 
 exports.declineRoomInvite = async (req, res) => {
-    const { userId, roomId } = req.body;
+    const { uid, roomId } = req.body;
     try {
-        await roomService.declineRoomInvite(userId, roomId);
-        res.status(200).json({ message: `User ${userId} declined invite to room ${roomId}` });
+        await roomService.declineRoomInvite(uid, roomId);
+        res.status(200).json({ message: `User ${uid} declined invite to room ${roomId}` });
     } catch (error) {
         console.error('Error declining room invite:', error);
         res.status(500).json({ error: error.message });
@@ -165,10 +179,10 @@ exports.declineRoomInvite = async (req, res) => {
 };
 // Controller to leave a room
 exports.leaveRoom = async (req, res) => {
-    const { roomId, userId } = req.body;
+    const { roomId, uid } = req.body;
     try {
-        await roomService.leaveRoom(roomId, userId);
-        res.status(200).json({ message: `User ${userId} left the room ${roomId}.` });
+        await roomService.leaveRoom(roomId, uid);
+        res.status(200).json({ message: `User ${uid} left the room ${roomId}.` });
     } catch (error) {
         console.error('Error leaving room:', error);
         res.status(500).json({ error: error.message });
@@ -177,9 +191,9 @@ exports.leaveRoom = async (req, res) => {
 
 // Controller to kick a user from a room
 exports.kickUserFromRoom = async (req, res) => {
-    const { roomId, adminId, userId } = req.body;
+    const { roomId, adminId, uid } = req.body;
     try {
-        const result = await roomService.kickUserFromRoom(roomId, adminId, userId);
+        const result = await roomService.kickUserFromRoom(roomId, adminId, uid);
         if (result.success) {
             res.status(200).json({ message: result.message });
         } else {
@@ -194,9 +208,9 @@ exports.kickUserFromRoom = async (req, res) => {
 
 // New function to add a message to a room
 exports.addMessageToRoom = async (req, res) => {
-    const { roomId, userId, message } = req.body;
+    const { roomId, uid, message } = req.body;
     try {
-        await roomService.addMessageToRoom(roomId, userId, message);
+        await roomService.addMessageToRoom(roomId, uid, message);
         res.status(201).json({ message: 'Message sent' });
     } catch (error) {
         console.error('Error adding message to room:', error);
@@ -240,5 +254,20 @@ exports.sendNotification = async (req, res) => {
     } catch (error) {
         console.error('Error sending notification:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+exports.deleteRoom = async (req, res) => {
+    const roomId = req.params.roomId;
+
+    try {
+        const result = await roomService.deleteRoom(roomId);
+        if (result) {
+            responseHandler(res, 200, 'Room deleted successfully');
+        } else {
+            res.status(400).json({ message: 'Error deleting room' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };

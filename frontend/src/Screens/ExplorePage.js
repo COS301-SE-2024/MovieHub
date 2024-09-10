@@ -13,6 +13,8 @@ import { FacebookLoader, InstagramLoader } from 'react-native-easy-content-loade
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; 
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import CommentsModal from '../Components/CommentsModal';
+import { getRecentRooms, getUserCreatedRooms, getUserParticipatedRooms, getRoomParticipantCount } from "../Services/RoomApiService";
+import UserRoomCard from '../Components/UserRoomCard';
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
@@ -28,13 +30,8 @@ export default function ExplorePage({ route }) {
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null); 
-
-    const rooms = [
-        { movieTitle: "Another Room", roomName: "Another Room", users: 128, live: true },
-        { roomName: "feel like ranting?", users: 372 },
-        { movieTitle: "Marley & Me", roomName: "The Lover's Club", users: 34, live: true },
-        { roomName: "JSON's Room", users: 56 },
-    ];
+    const [recentRooms, setRecentRooms] = useState([]);
+    const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -92,6 +89,11 @@ export default function ExplorePage({ route }) {
         fetchContent();
     }, [userInfo]);
 
+    useFocusEffect(
+        useCallback(() => {
+            fetchRooms();
+        }, [fetchRooms])
+    );
 
     const handleOpenHub = () => {
         navigation.navigate("HubScreen", { userInfo });
@@ -135,7 +137,40 @@ export default function ExplorePage({ route }) {
         bottomSheetRef.current?.present();
     };
 
+    const fetchRooms = useCallback(async () => {
+        try {
+            const recentRoomsData = await getRecentRooms(userInfo.userId);
 
+            const recentRoomsWithCounts = await Promise.all(
+                recentRoomsData.map(async (room) => {
+                    const countResponse = await getRoomParticipantCount(room.roomId);
+                    return {
+                        ...room,
+                        participantsCount: countResponse.participantCount || 0,
+                    };
+                })
+            );
+            setRecentRooms(recentRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch recent rooms:", error);
+        }
+    }, [userInfo.userId]);
+    
+    const renderRoomCard = ({ item }) => (
+        <UserRoomCard
+            roomName={item.roomName}
+            users={item.participantsCount}
+            live={item.roomType !== "Chat-only"}
+            keyword={getRandomKeyword()}
+            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId })}
+            coverImage={item.coverImage}
+        />
+    );
+
+    const getRandomKeyword = () => {
+        return keywords[Math.floor(Math.random() * keywords.length)];
+    };
+    
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -160,14 +195,19 @@ export default function ExplorePage({ route }) {
                     <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }}  onPress={handleOpenHub} />
                 </View>
 
-                <FlatList 
-                    horizontal 
-                    showsHorizontalScrollIndicator={false} 
-                    data={rooms} 
-                    renderItem={({ item }) => <ExploreHub userInfo={userInfo} roomData={item} />} 
-                    keyExtractor={(item, index) => index.toString()} 
-                    contentContainerStyle={styles.cardRow}
-                />
+                {recentRooms.length > 0 && (
+                    <View>
+                        <FlatList
+                            data={recentRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
+                        <View style={styles.divider} />
+                    </View>
+                )}
 
                 {/** POSTS */}
                 <InstagramLoader active loading={friendsOfFriendsContent.length === 0 && randomUsersContent.length === 0} />
@@ -272,6 +312,9 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         marginRight: 30,
+    divider: {
+        height: 1,
+        backgroundColor: "#ccc",
+        marginVertical: 16,
     },
-
 });
