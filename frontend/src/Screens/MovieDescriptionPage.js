@@ -134,7 +134,9 @@ export default function MovieDescriptionPage({ userInfo }) {
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
                             <Text style={styles.movietitle2}> | </Text>
-                            <Text style={styles.movietitle2}>{runtime.hours > 0 ? `${runtime.hours} h ` : ''}{runtime.mins} mins</Text>
+                            <Text style={styles.movietitle2}> {runtime ? 
+                            `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins` 
+                            : 'NoN'}</Text>
                         </View>
                         <View style={styles.icons}>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.iconsContent}>
