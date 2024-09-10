@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import FollowList from '../Components/FollowList';
 import { getFollowers } from '../Services/UsersApiService';
 
 const FollowersPage = ({ route }) => {
-    const { userInfo } = route.params; // Assuming userInfo is passed via route params
+    const { userInfo } = route.params; 
     const [followers, setFollowers] = useState([]);
+    const [loading, setLoading] = useState(true); 
 
     // Fetch followers list
     const fetchFollowers = async () => {
@@ -14,14 +15,15 @@ const FollowersPage = ({ route }) => {
             setFollowers(response);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false); 
         }
     };
 
     useEffect(() => {
         fetchFollowers();
-    }, []); // Run only once on mount
+    }, []);
 
-    // Render individual follower items
     const renderFollower = ({ item }) => (
         <FollowList 
             username={item.username}
@@ -32,12 +34,14 @@ const FollowersPage = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            {followers.length > 0 ? (
+            {loading ? ( 
+                <ActivityIndicator size="large" color="#4a42c0" style={styles.loader} />
+            ) : followers.length > 0 ? ( 
                 <FlatList 
                     data={followers}
                     renderItem={renderFollower}
                     keyExtractor={(item, index) => index.toString()} // Ensure unique key for each item
-                    ItemSeparatorComponent={() => <View style={{ borderColor: '#ddd', borderBottomWidth: 1 }} />}
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
                 />
             ) : (
                 <Text style={styles.noFollowersText}>No followers found</Text>
@@ -50,13 +54,20 @@ const styles = StyleSheet.create({
     container: {
         paddingTop: 10,
         flex: 1,
-        backgroundColor: '#ffffff', // Set the background color to white
+        backgroundColor: '#ffffff', 
+    },
+    loader: {
+        marginTop: 20,
     },
     noFollowersText: {
         textAlign: 'center',
         marginTop: 20,
         fontSize: 16,
         color: '#999',
+    },
+    separator: {
+        borderColor: '#ddd',
+        borderBottomWidth: 1,
     },
 });
 

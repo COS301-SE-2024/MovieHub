@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import FollowList from '../Components/FollowList';
 import { getFollowing } from '../Services/UsersApiService';
 
 const FollowingPage = ({ route }) => {
     const { userInfo } = route.params;
     const [followers, setFollowing] = useState([]);
+    const [loading, setLoading] = useState(true); 
 
     const fetchFollowing = async () => {
         try {
@@ -13,15 +14,16 @@ const FollowingPage = ({ route }) => {
             setFollowing(response);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false); 
         }
     };
 
-    // Run the effect only once on mount
     useEffect(() => {
         fetchFollowing();
-    }, []); // Empty dependency array so it only runs once
+    }, []); 
 
-    // Render individual follower items
+
     const renderFollower = ({ item }) => (
         <FollowList 
             username={item.username}
@@ -32,12 +34,15 @@ const FollowingPage = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            {followers.length > 0 ? (
+            {loading ? (
+                // Show loading indicator while fetching followers
+                <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+            ) : followers.length > 0 ? (
                 <FlatList 
                     data={followers}
                     renderItem={renderFollower}
-                    keyExtractor={(item, index) => index.toString()}  // Use index or unique id
-                    ItemSeparatorComponent={() => <View style={{ borderColor: '#ddd', borderBottomWidth: 1 }} />}
+                    keyExtractor={(item, index) => index.toString()} 
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
                 />
             ) : (
                 <Text style={styles.noFollowersText}>No followers found</Text>
@@ -52,11 +57,18 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#ffffff',
     },
+    loader: {
+        marginTop: 20, 
+    },
     noFollowersText: {
         textAlign: 'center',
         marginTop: 20,
         fontSize: 16,
-        color: '#999',
+        color: '#4a42c0',
+    },
+    separator: {
+        borderColor: '#ddd',
+        borderBottomWidth: 1,
     },
 });
 

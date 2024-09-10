@@ -232,11 +232,11 @@ export default function ProfilePage({ route }) {
                     <Text style={styles.userHandle}>@{userProfile.username || "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, userProfile })}>
+                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, userProfile, followerCount })}>
                         <Text style={styles.number}>{followerCount} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
-                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, userProfile })}>
+                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, userProfile, followingCount })}>
                         <Text style={styles.number}>{followingCount} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
