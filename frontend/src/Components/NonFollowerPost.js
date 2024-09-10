@@ -20,7 +20,8 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         setModalVisible(!modalVisible);
     };
 
-    console.log(postId)
+    // console.log(postId)
+    // console.log("helllloo", likes)
 
     const toggleLike = async () => {
         const body = {
@@ -271,7 +272,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats}>
                     <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} onPress={toggleLike} />
-                    <Text style={styles.statsNumber}>{likes}</Text>
+                    <Text style={styles.statsNumber}>{likes > 0 ? likes : 0}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable
@@ -280,7 +281,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                         }}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
-                    <Text style={styles.statsNumber}>{comments}</Text>
+                    <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
