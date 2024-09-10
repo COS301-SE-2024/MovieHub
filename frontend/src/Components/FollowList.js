@@ -9,7 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { removePost } from "../Services/PostsApiServices";
 import { toggleLikePost } from "../Services/LikesApiService";
 
-const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) => {
+const FollowList = ({ route, username, userHandle, userAvatar, avatar, }) => {
 
     const { theme } = useTheme();
 
@@ -63,11 +63,11 @@ const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, imag
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
-                    <Text style={styles.username}>Itumeleng</Text>
-                    <Text style={styles.userHandle}>@ElectricTance</Text>
+                    <Text style={styles.username}>{userHandle}</Text>
+                    <Text style={styles.userHandle}>{username}</Text>
                 </View>
             </View>
-            {image && <Image source={{ uri: image }} style={styles.postImage} />}
+            {avatar && <Image source={{ uri: avatar }} style={styles.postImage} />}
             <View style={styles.statsContainer}>
     
             </View>
