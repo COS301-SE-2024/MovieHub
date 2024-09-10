@@ -147,7 +147,7 @@ exports.getFollowing = async (req, res) => {
 };
 
 exports.fetchFollowerCount = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.params;
 
     try {
         const followerCount = await userService.getFollowerCount(userId);
@@ -158,7 +158,7 @@ exports.fetchFollowerCount = async (req, res) => {
 };
 
 exports.fetchFollowingCount = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.params;
 
     try {
         const followingCount = await userService.getFollowingCount(userId);
