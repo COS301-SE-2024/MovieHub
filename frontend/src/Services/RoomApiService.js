@@ -31,7 +31,7 @@ const verifyToken = async () => {
 
 // Create a new room
 export const createRoom = async (userId, roomData) => {
-    console.log("Check the body: ", roomData);
+    // console.log("Check the body: ", roomData);
     const headers = await verifyToken();
     // Add Content-Type header to ensure the body is treated as JSON
     headers['Content-Type'] = 'application/json';
@@ -40,7 +40,7 @@ export const createRoom = async (userId, roomData) => {
         headers,
         body: JSON.stringify(roomData),
     });
-    console.log("Check the body after res: ", roomData);
+    // console.log("Check the body after res: ", roomData);
     if (!response.ok) {
         throw new Error('Failed to create room');
     }
@@ -95,7 +95,7 @@ export const getRoomParticipants = async (roomId) => {
     }
 
     const data = await response.json();
-    console.log("Here we go agaaaaaaaaaain", data);
+    // console.log("Here we go agaaaaaaaaaain", data);
     return data; // Return the entire data object, including participants and creator
 };
 
@@ -122,12 +122,18 @@ export const getRecentRooms = async (uid) => {
         method: 'GET',
         headers,
     });
-
+    console.log("API response", response);
     if (!response.ok) {
+        console.log(response.ok);
         throw new Error('Failed to fetch recent rooms');
     }
-
-    const data = await response.json();
+    let data = [];
+    const contentLength = response.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > 0) {
+        console.log("Content length is not 0");
+        data = await response.json();
+        console.log("Data from API: ", data);
+    }
     return data;
 };
 
@@ -148,15 +154,15 @@ export const getRoomParticipantCount = async (roomId) => {
 };
 
 // Join an existing room
-export const joinRoom = async (code, userId) => {
+export const joinRoom = async (code, uid) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/join`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ code, userId }),
+        body: JSON.stringify({ code, uid }),
     });
 
-    console.log("RoomApiService joinRoom response: " + JSON.stringify(response));
+    // console.log("RoomApiService joinRoom response: " + JSON.stringify(response));
 
     if (!response.ok) {
         const errorData = await response.json();

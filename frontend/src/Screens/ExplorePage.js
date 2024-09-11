@@ -13,7 +13,7 @@ import { FacebookLoader, InstagramLoader } from 'react-native-easy-content-loade
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; 
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import CommentsModal from '../Components/CommentsModal';
-import { getRecentRooms, getUserCreatedRooms, getUserParticipatedRooms, getRoomParticipantCount } from "../Services/RoomApiService";
+import { getRecentRooms, getPublicRooms, getUserCreatedRooms, getUserParticipatedRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from '../Components/UserRoomCard';
 
 export default function ExplorePage({ route }) {
@@ -99,8 +99,8 @@ export default function ExplorePage({ route }) {
         navigation.navigate("HubScreen", { userInfo });
     };
 
-        console.log("friendsContent",friendsOfFriendsContent)
-        console.log("randomContent",randomUsersContent)
+        // console.log("friendsContent",friendsOfFriendsContent)
+        // console.log("randomContent",randomUsersContent)
 
     const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
@@ -140,19 +140,36 @@ export default function ExplorePage({ route }) {
     const fetchRooms = useCallback(async () => {
         try {
             const recentRoomsData = await getRecentRooms(userInfo.userId);
-
-            const recentRoomsWithCounts = await Promise.all(
-                recentRoomsData.map(async (room) => {
-                    const countResponse = await getRoomParticipantCount(room.roomId);
-                    return {
-                        ...room,
-                        participantsCount: countResponse.participantCount || 0,
-                    };
-                })
-            );
-            setRecentRooms(recentRoomsWithCounts);
+            console.log(recentRoomsData);
+            if (recentRoomsData.length > 0) {
+                console.log("recentRoomsData length is not 0");
+                const recentRoomsWithCounts = await Promise.all(
+                    recentRoomsData.map(async (room) => {
+                        const countResponse = await getRoomParticipantCount(room.roomId);
+                        return {
+                            ...room,
+                            participantsCount: countResponse.participantCount || 0,
+                        };
+                    })
+                );
+                setRecentRooms(recentRoomsWithCounts);
+            } else {
+                const publicRoomsData = await getPublicRooms();
+                if (publicRoomsData.length > 0) {
+                    const recentRoomsWithCounts = await Promise.all(
+                        publicRoomsData.map(async (room) => {
+                            const countResponse = await getRoomParticipantCount(room.roomId);
+                            return {
+                                ...room,
+                                participantsCount: countResponse.participantCount || 0,
+                            };
+                        })
+                    );
+                    setRecentRooms(recentRoomsWithCounts);
+                }
+            }
         } catch (error) {
-            console.error("Failed to fetch recent rooms:", error);
+            console.error("Failed to fetch recent rooms explore page:", error);
         }
     }, [userInfo.userId]);
     
@@ -312,6 +329,7 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         marginRight: 30,
+    },
     divider: {
         height: 1,
         backgroundColor: "#ccc",
