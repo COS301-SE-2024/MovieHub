@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 const WebSocket = require('ws');
 const axios = require('axios');
+const { getDatabase, ref, push } = require('firebase/database');
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -60,9 +61,9 @@ exports.scheduleWatchParty = async (userId, partyData) => {
 };
 
 // Function to create a watch party
-exports.createWatchParty = async (userId, partyData) => {
+exports.createWatchParty = async (userId,roomId, partyData) => {
     const session = driver.session();
-    const partyId = uuidv4();
+    const partyId = uuidv4(); 
     const createdAt = new Date().toISOString();
     const { partyName, startTime, streamingPlatform } = partyData;
 
@@ -70,6 +71,7 @@ exports.createWatchParty = async (userId, partyData) => {
         // Create a Hyperbeam session
         const hyperbeamSession = await createHyperbeamSession(streamingPlatform);
 
+        console.log("Transaction??");
         // Start a transaction
         const tx = session.beginTransaction();
 
@@ -129,7 +131,7 @@ exports.createWatchParty = async (userId, partyData) => {
 async function createHyperbeamSession(streamingPlatform) {
     try {
         const platformUrls = {
-            'Netflix': `https://www.netflix.com/za/`,
+            'Netflix': `https://www.netflix.com`,
             'Hulu': `https://www.hulu.com/watch`,
             'DisneyPlus': `https://www.disneyplus.com/video`,
             'AmazonPrime': `https://www.amazon.com/dp`,
@@ -137,7 +139,7 @@ async function createHyperbeamSession(streamingPlatform) {
         };
 
         const websiteUrl = platformUrls[streamingPlatform];
-
+        console.log("Check the website: " + websiteUrl);
         if (!websiteUrl) {
             throw new Error('Unsupported streaming platform');
         }
@@ -212,14 +214,22 @@ async function sendToExtension(partyId, data) {
 // Function to send the Hyperbeam embed URL to the room
 //TO DO: Add paramater to attach the movie's playback timestamp
 async function sendWatchPartyUrlToRoom(roomId, hyperbeamUrl) {
-    const message = `A new watch party has been created. Join using this link: ${hyperbeamUrl}`;
+    try {
+        const database = getDatabase(); // Get the database instance
+        const watchPartyRef = ref(database, `rooms/${roomId}/WatchParty`);
 
-    // Push the message (embed URL) to the room members using Firebase or another service
-    await firebase.database().ref(`rooms/${roomId}/WatchParty`).push({
-        text: message,
-        embed_url: hyperbeamUrl,
-        timestamp: Date.now(),
-    });
+        const message = `A new watch party has been created. Join using this link: ${hyperbeamUrl}`;
+
+        // Push the message to the room members
+        await push(watchPartyRef, {
+            text: message,
+            embed_url: hyperbeamUrl,
+            timestamp: Date.now(),
+        });
+    } catch (error) {
+        console.error('Error sending watch party URL to room:', error);
+        throw error;
+    }
 }
 
 // Ensure the driver is closed on application exit

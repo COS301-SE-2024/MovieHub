@@ -20,10 +20,11 @@ exports.scheduleWatchParty = async (req, res) => {
 
 exports.createWatchParty = async (req, res) => {
     const userId = req.params.userId;
+    const roomId = req.params.roomId;
     const partyData = req.body;
 
     try {
-        const watchParty = await partyService.createWatchParty(userId, partyData);
+        const watchParty = await partyService.createWatchParty(userId,roomId, partyData);
         // Sync with extension
       //  await partyService.syncWithExtension(watchParty.partyId, partyData);
         res.status(201).json(watchParty);

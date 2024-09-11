@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
 import Octicons from "react-native-vector-icons/Octicons";
-import SimpLine from "react-native-vector-icons/SimpleLineIcons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import NetflixLogo from "../../../assets/netflix-logo.svg";
 import ShowmaxLogo from "../../../assets/showmax-logo.svg";
 import AppleTVLogo from "../../../assets/apple-tv.svg";
+import { createWatchParty } from "../Services/PartyApiService";
 
 const platformLogos = {
     Netflix: NetflixLogo,
@@ -14,6 +14,8 @@ const platformLogos = {
 };
 
 const CreateWatchParty = ({ route }) => {
+    const { userInfo, roomId } = route.params; // Get the userInfo passed from the previous screen
+    const userId = userInfo?.userId; // Assuming userInfo contains the user's ID
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [partyTitle, setPartyTitle] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
@@ -30,7 +32,7 @@ const CreateWatchParty = ({ route }) => {
     };
 
     const handleConfirm = (date) => {
-        setSelectedDate(date.toLocaleString());
+        setSelectedDate(date.toISOString());
         hideDatePicker();
     };
 
@@ -38,10 +40,29 @@ const CreateWatchParty = ({ route }) => {
         setSelectedPlatform(platform);
     };
 
-    const handleCreateParty = () => {
-        // TODO: Handle create party logic here
-        // Pick which page to navigate to based on the selected platform?
-        console.log("Let's get this party started!: ", partyTitle, selectedDate, selectedPlatform);
+    const handleCreateParty = async () => {
+        try {
+            const createdAt = new Date().toISOString(); // Set current time as `createdAt`
+            console.log("Check streaming Plat: " + selectedPlatform);
+            const response = await createWatchParty(userId, roomId, {
+                partyName: partyTitle,
+                startTime: selectedDate,
+                streamingPlatform: selectedPlatform,
+                 createdBy: userId, // Use the userId from userInfo
+                // createdAt: createdAt,
+            });
+
+            console.log("Here's the response:", response);
+            if (response) {
+                Alert.alert("Success", "Watch party created successfully!");
+                // Navigate to the watch party or another screen as needed
+            } else {
+                Alert.alert("Error", "Failed to create watch party. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error creating watch party:", error);
+            Alert.alert("Error", "An unexpected error occurred. Please try again.");
+        }
     };
 
     const toggleTooltip = () => {
@@ -55,7 +76,7 @@ const CreateWatchParty = ({ route }) => {
 
             <Text style={styles.label}>Party Date and Time</Text>
             <TouchableOpacity onPress={showDatePicker} style={[styles.dateInput]}>
-                <Text style={{ color: "#7b7b7b" }}>{selectedDate || "Select a Date and Time"}</Text>
+                <Text style={{ color: "#7b7b7b" }}>{selectedDate ? new Date(selectedDate).toLocaleString() : "Select a Date and Time"}</Text>
             </TouchableOpacity>
             <DateTimePickerModal isVisible={isDatePickerVisible} mode="datetime" onConfirm={handleConfirm} onCancel={hideDatePicker} />
 
@@ -165,7 +186,6 @@ const styles = StyleSheet.create({
         color: "#000",
         fontSize: 12,
     },
-    
 });
 
 export default CreateWatchParty;
