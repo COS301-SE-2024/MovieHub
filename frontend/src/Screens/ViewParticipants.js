@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { getRoomParticipants } from "../Services/RoomApiService";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable } from "react-native";
+import { getRoomParticipants, kickUserFromRoom } from "../Services/RoomApiService";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import RoomModal from "../Components/RoomModal";
+import { useNavigation } from "@react-navigation/native";
 
 const participantsData = [
     { id: "1", name: "Itumeleng", username: "@ElectricTance" },
@@ -13,14 +16,22 @@ const participantsData = [
 ];
 
 const ViewParticipants = ({ route }) => {
-    console.log("Route",route);
-    const { roomId, isRoomCreator } = route.params;
-    console.log("RoomId", roomId);
-    console.log("Is room creator ", isRoomCreator);
+    const navigation = useNavigation();
+    const { roomId, isRoomCreator, roomName } = route.params;
     const [participants, setParticipants] = useState(participantsData);
 
     const handleFollowPress = (id) => {
         setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.id === id ? { ...participant, followed: !participant.followed } : participant)));
+    };
+
+    const handleKickPress = async (userId) => {
+
+    };
+    
+    const bottomSheetRef = useRef(null);
+
+    const handleOpenBottomSheet = () => {
+        bottomSheetRef.current?.present();
     };
 
     useEffect(() => {
@@ -56,7 +67,7 @@ const ViewParticipants = ({ route }) => {
                 </TouchableOpacity>
                 {isRoomCreator &&
                     <TouchableOpacity style={[styles.removeButton]} onPress={() => handleFollowPress(item.id)}>
-                    <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Remove"}</Text>
+                    <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Kick"}</Text>
                 </TouchableOpacity>}
             </View>
         </View>
@@ -64,7 +75,19 @@ const ViewParticipants = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.id} />
+            <ScrollView>
+                <View style={styles.header}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
+                        <Text style={styles.roomName}>{roomName || "Asa's Room"} Participants</Text>
+                    </View>
+                    <Pressable onPress={handleOpenBottomSheet}>
+                        <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
+                    </Pressable>
+                </View>
+                <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.id} />
+            </ScrollView>
+            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} />
         </View>
     );
 };
@@ -73,7 +96,21 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingTop: 10,
+    },
+    header: {
+        marginTop: 16,
+        height: 50,
+        marginBottom: 30,
+        backgroundColor: "#fff",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 16,
+    },
+    roomName: {
+        marginLeft: 35,
+        fontSize: 20,
+        fontWeight: "500",
     },
     participantItem: {
         flexDirection: "row",
