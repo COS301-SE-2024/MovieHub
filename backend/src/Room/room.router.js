@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/create/:uid', roomController.createRoom);////////////////////////////////
 
 // Route to join an existing room
-router.post('/join', roomController.joinRoom);
+router.post('/join', roomController.joinRoom); ////////////////////////////////
 
 // Route to get participants of a room
 router.get('/:roomId/participants', roomController.getRoomParticipants);
@@ -31,7 +31,7 @@ router.post('/invite', roomController.inviteUserToRoom);
 router.post('/decline', roomController.declineRoomInvite);
 
 // Route to leave a room
-router.post('/leave', roomController.leaveRoom);
+router.post('/leave', roomController.leaveRoom); ////////////////////////////////
 
 // Route to kick a user from a room
 router.post('/kick', roomController.kickUserFromRoom);
@@ -49,7 +49,7 @@ router.get('/listen/:roomId', roomController.listenForMessages);
 router.post('/notify', roomController.sendNotification);
 
 // Route to get room details by roomId or shortCode
-router.get('/:roomId', roomController.getRoomDetails);
+router.get('/:roomId', roomController.getRoomDetails); ////////////////////////////////
 
 router.delete('/:roomId', roomController.deleteRoom);
 

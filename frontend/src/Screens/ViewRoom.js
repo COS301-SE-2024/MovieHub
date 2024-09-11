@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, FlatList, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getRoomDetails, getRoomParticipantCount } from "../Services/RoomApiService";
+import { getRoomDetails, getRoomParticipantCount, joinRoom, leaveRoom } from "../Services/RoomApiService";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import FAIcon from "react-native-vector-icons/FontAwesome";
@@ -15,19 +15,10 @@ const platformLogos = {
     Showmax: ShowmaxLogo,
     "Apple TV": AppleTVLogo,
 };
-/*
-{
-    "key": "ViewRoom-aoKqE-IGTnLfFrcQO5qNJ", 
-    "name": "ViewRoom", 
-    "params": {
-        "isUserRoom": undefined, 
-        "roomId": "5cfc6566-ae1a-4ab4-8444-f9d2acf5bb48", 
-    "userInfo": {"userId": "gPy1yCpiX3gY1sGmwvSGSbKgeNG3", "username": "MsCharliemander"}}, "path": undefined}
-*/
 
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
-    const { userInfo } = route.params;
+    const { userInfo, roomId } = route.params;
     const [isRoomCreator, setIsRoomCreator] = useState(false);
     const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
     const [participantCount, setParticipantCount] = useState(0); // State to hold participant count
@@ -70,7 +61,6 @@ const ViewRoom = ({ route }) => {
     useEffect(() => {
         const fetchRoomDetails = async () => {
             try {
-                const roomId = route.params.roomId; // Assuming roomId is passed in route params
                 console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
@@ -111,7 +101,24 @@ const ViewRoom = ({ route }) => {
     }
 
     // Destructure the roomDetails object for easier access
-    const { roomName, maxParticipants, roomDescription, participants = [] } = roomDetails;
+    const { roomName, maxParticipants, roomDescription, participants, shortCode = [] } = roomDetails;
+
+    const handleJoinPress = async () => {
+        try {
+            const response = await joinRoom(shortCode, userInfo.userId);
+        } catch (error) {
+            console.error("Failed to join room:", error);
+        }
+    };
+
+    const handleLeavePress = async () => {
+        try {
+            const response = await leaveRoom(roomId, userInfo.userId);
+        } catch (error) {
+            console.error("Failed to leave room:", error);
+        }
+    };
+
 
     return (
         <View style={styles.container}>
@@ -146,6 +153,10 @@ const ViewRoom = ({ route }) => {
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                         <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
                             <Text style={styles.enterText}>Enter</Text>
+                        </TouchableOpacity>
+                        {/*TODO: when user has joined room this must become a leave button, using the handleLeavePress function onPress */}
+                        <TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
+                            <Text style={styles.enterText}>Join Room</Text>
                         </TouchableOpacity>
                         <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
                             <FAIcon name="users" size={16} />

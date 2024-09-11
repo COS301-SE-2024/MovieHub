@@ -30,12 +30,12 @@ const verifyToken = async () => {
 };
 
 // Create a new room
-export const createRoom = async (userId, roomData) => {
+export const createRoom = async (uid, roomData) => {
     // console.log("Check the body: ", roomData);
     const headers = await verifyToken();
     // Add Content-Type header to ensure the body is treated as JSON
     headers['Content-Type'] = 'application/json';
-    const response = await fetch(`${API_URL}/create/${userId}`, {
+    const response = await fetch(`${API_URL}/create/${uid}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(roomData),
@@ -50,9 +50,9 @@ export const createRoom = async (userId, roomData) => {
 };
 
 // Function to get all rooms a user has created
-export const getUserCreatedRooms = async (userId) => {
+export const getUserCreatedRooms = async (uid) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/created/${userId}`, {
+    const response = await fetch(`${API_URL}/created/${uid}`, {
         method: 'GET',
         headers,
     });
@@ -66,9 +66,9 @@ export const getUserCreatedRooms = async (userId) => {
 };
 
 // Function to get all rooms a user is participating in
-export const getUserParticipatedRooms = async (userId) => {
+export const getUserParticipatedRooms = async (uid) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/participated/${userId}`, {
+    const response = await fetch(`${API_URL}/participated/${uid}`, {
         method: 'GET',
         headers,
     });
@@ -122,7 +122,6 @@ export const getRecentRooms = async (uid) => {
         method: 'GET',
         headers,
     });
-    console.log("API response", response);
     if (!response.ok) {
         console.log(response.ok);
         throw new Error('Failed to fetch recent rooms');
@@ -130,9 +129,7 @@ export const getRecentRooms = async (uid) => {
     let data = [];
     const contentLength = response.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > 0) {
-        console.log("Content length is not 0");
         data = await response.json();
-        console.log("Data from API: ", data);
     }
     return data;
 };
@@ -161,12 +158,9 @@ export const joinRoom = async (code, uid) => {
         headers,
         body: JSON.stringify({ code, uid }),
     });
-
-    // console.log("RoomApiService joinRoom response: " + JSON.stringify(response));
-
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to join room');
+        throw new Error(errorData.error || 'Failed to join room');
     }
 
     const data = await response.json();
@@ -191,12 +185,12 @@ export const getRoomDetails = async (roomIdentifier) => {
 
 
 // Invite a user to the room
-export const inviteUserToRoom = async (adminId, userId, roomId) => {
+export const inviteUserToRoom = async (adminId, uid, roomId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/invite`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ adminId, userId, roomId }),
+        body: JSON.stringify({ adminId, uid, roomId }),
     });
 
     if (!response.ok) {
@@ -208,12 +202,12 @@ export const inviteUserToRoom = async (adminId, userId, roomId) => {
 };
 
 // Decline a room invite
-export const declineRoomInvite = async (userId, roomId) => {
+export const declineRoomInvite = async (uid, roomId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/decline`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ userId, roomId }),
+        body: JSON.stringify({ uid, roomId }),
     });
 
     if (!response.ok) {
@@ -225,14 +219,13 @@ export const declineRoomInvite = async (userId, roomId) => {
 };
 
 // Leave a room
-export const leaveRoom = async (roomId, userId) => {
+export const leaveRoom = async (roomId, uid) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/leave`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ roomId, userId }),
+        body: JSON.stringify({ roomId, uid }),
     });
-
     if (!response.ok) {
         throw new Error('Failed to leave room');
     }
@@ -242,12 +235,12 @@ export const leaveRoom = async (roomId, userId) => {
 };
 
 // Kick a user from the room
-export const kickUserFromRoom = async (roomId, adminId, userId) => {
+export const kickUserFromRoom = async (roomId, adminId, uid) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/kick`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ roomId, adminId, userId }),
+        body: JSON.stringify({ roomId, adminId, uid }),
     });
 
     if (!response.ok) {
@@ -260,12 +253,12 @@ export const kickUserFromRoom = async (roomId, adminId, userId) => {
 };
 
 // Add a message to a room
-export const addMessageToRoom = async (roomId, userId, message) => {
+export const addMessageToRoom = async (roomId, uid, message) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/message`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ roomId, userId, message }),
+        body: JSON.stringify({ roomId, uid, message }),
     });
 
     if (!response.ok) {

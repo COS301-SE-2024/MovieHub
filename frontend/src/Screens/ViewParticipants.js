@@ -14,9 +14,8 @@ const participantsData = [
 
 const ViewParticipants = ({ route }) => {
     console.log("Route",route);
-    const { roomId } = route.params;
+    const { roomId, isRoomCreator } = route.params;
     console.log("RoomId", roomId);
-    const { isRoomCreator } = route.params;
     console.log("Is room creator ", isRoomCreator);
     const [participants, setParticipants] = useState(participantsData);
 
@@ -27,18 +26,17 @@ const ViewParticipants = ({ route }) => {
     useEffect(() => {
         const fetchRoomParticipants = async () => {
             try {
-                const roomId = route.params.roomId;
                 console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomParticipants(roomId);
                 console.log("Room participants: ", response);
-                setParticipants(response.participants);
+                const allParticipants = [response.creator, ...response.participants];
+                setParticipants(allParticipants);
             } catch (error) {
                 console.error("Failed to fetch room participants:", error);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchRoomParticipants();
     }, [route.params.roomId]);
 
