@@ -25,7 +25,13 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
             index: 'movies',
             body: {
                 query: {
-                    terms: { 'genre_ids': genreQuery },
+                    bool: {
+                        should: [
+                            { match: { overview: tmdbMovie.overview } }, // Prioritize matching overview
+                            { terms: { 'genre_ids': genreQuery } } // Consider genres as well
+                        ],
+                        minimum_should_match: 1
+                    }
                 },
                 size: 100 // Retrieve up to 100 movies for comparison
             },
@@ -74,6 +80,7 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
 
         // Sort the movies by similarity in descending order (most relevant first)
         cosineSimilarities.sort((a, b) => b.similarity - a.similarity);
+        console.log("Cosine similarities ", cosineSimilarities);
 
         // Ensure at least 5 recommendations
         const topRecommendations = cosineSimilarities.slice(0, Math.max(5, cosineSimilarities.length)).map(rec => rec.movie);
@@ -93,7 +100,8 @@ const combineFeatures = (movie) => {
     const music = movie.music || '';
 
     // Combine all available features into a single string
-    return `${genres} ${overview} ${title} ${director} ${cast} ${music}`.trim();
+    // You might adjust weights if needed by adjusting how features are concatenated or processed
+    return `${overview} ${genres} ${title} ${director} ${cast} ${music}`.trim();
 };
 
 module.exports = { recommendMoviesByTMDBId };
