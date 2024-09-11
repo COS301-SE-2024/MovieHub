@@ -1,20 +1,22 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-
+import {useUser} from "../Services/UseridContext";
 import { removeReview } from "../Services/PostsApiServices";
-import { toggleLikeReview } from "../Services/LikesApiService";
+import { toggleLikeReview, checkUserLike } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
 export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete }) {
     const { theme } = useTheme();
+    const [hasLiked,setHasLiked] = useState(false);
     const [liked, setLiked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { userInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -35,6 +37,19 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
 
         setLiked(!liked);
     };
+
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const data = await checkUserLike(userInfo.userId, reviewId, 'Review');
+                setHasLiked(data.hasLiked); // Adjust based on your backend response
+            } catch (error) {
+                console.error('Error fetching like status:', error);
+            }
+        };
+
+        fetchLikeStatus();
+    }, [userInfo.userId, reviewId]);
 
     const handleShare = async () => {
         try {
