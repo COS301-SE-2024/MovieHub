@@ -181,8 +181,10 @@ exports.declineRoomInvite = async (req, res) => {
 exports.leaveRoom = async (req, res) => {
     const { roomId, uid } = req.body;
     try {
-        await roomService.leaveRoom(roomId, uid);
-        res.status(200).json({ message: `User ${uid} left the room ${roomId}.` });
+        const result = await roomService.leaveRoom(roomId, uid);
+        if (result.status === 'success') {
+            res.status(200).json({ message: `User ${uid} left the room ${roomId}.` });
+        }
     } catch (error) {
         console.error('Error leaving room:', error);
         res.status(500).json({ error: error.message });
