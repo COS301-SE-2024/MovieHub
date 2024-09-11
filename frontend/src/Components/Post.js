@@ -14,6 +14,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [hasLiked,setHasLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(likes);
     const [LoggedUser, setLoggedUserInfo] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
@@ -32,6 +33,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
 
         try {
             await toggleLikePost(body);
+            setHasLiked(!hasLiked);
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
             console.log('Toggle like successful');
         } catch (error) {
             console.error('Error toggling like:', error);
@@ -258,7 +261,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     color={hasLiked ? 'red' : 'black'}
                     style={{ marginRight: 5 }}
                 />
-                    <Text style={styles.statsNumber}>{likes}</Text>
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable onPress={() => {handleCommentPress(postId, false)}}>
