@@ -12,6 +12,7 @@ import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
 import { getCommentsOfPost, getCommentsOfReview } from "../Services/PostsApiServices";
+import {useUser} from "../Services/UseridContext";
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 
 export default function ProfilePage({ route }) {
@@ -24,10 +25,12 @@ export default function ProfilePage({ route }) {
         { key: "watchlist", title: "Watchlist" },
     ]);
 
+
+
     const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
-
+    const { setUserInfo } = useUser();
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
     const [following, setFollowing] = useState(0);
@@ -43,6 +46,7 @@ export default function ProfilePage({ route }) {
     const fetchData = async () => {
         try {
             const userId = userInfo.userId;
+            setUserInfo({  userId }); 
             const response = await getUserProfile(userId);
             setUserProfile(response);
             console.log("Response:", response);
