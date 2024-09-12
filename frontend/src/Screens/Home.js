@@ -279,7 +279,7 @@ const Home = ({ route }) => {
                                     <Post
                                         key={index}
                                         postId={content.post.postId}
-                                        uid={content.friend.uid}
+                                        uid={userInfo.userId}
                                         username={content.friend.username}
                                         userAvatar={content.friend.avatar}
                                         userHandle={`${content.friend.username}`}
@@ -291,6 +291,7 @@ const Home = ({ route }) => {
                                         preview={content.post.text}
                                         isUserPost={userInfo.userId == content.post.uid}
                                         handleCommentPress={handleCommentPress}
+                                        Otheruid={content.friend.uid}
                                     />
                                 ) : null // Render nothing if post property does not exist
                             )}
@@ -299,7 +300,7 @@ const Home = ({ route }) => {
                                     <Review
                                         key={index}
                                         reviewId={content.review.reviewId}
-                                        uid={content.friend.uid}
+                                        uid={userInfo.userId}
                                         username={content.friend.username}
                                         userHandle={`${content.friend.username}`}
                                         userAvatar={content.friend.avatar}
@@ -313,6 +314,7 @@ const Home = ({ route }) => {
                                         rating={content.review.rating}
                                         isUserReview={userInfo.userId == content.review.uid}
                                         handleCommentPress={handleCommentPress}
+                                        Otheruid={content.friend.uid}
                                     />
                                 ) : null // Render nothing if review property does not exist
                             )}
