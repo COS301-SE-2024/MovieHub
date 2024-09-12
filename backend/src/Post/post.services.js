@@ -270,7 +270,7 @@ exports.removePost = async (postId, uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (p:Post {postId: $postId, uid: $uid})
+            `MATCH (p {postId: $postId, uid: $uid})
              DETACH DELETE p`,
             { postId, uid }
         );
@@ -289,7 +289,7 @@ exports.removeReview = async (reviewId, uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
+            `MATCH (r {reviewId: $reviewId, uid: $uid})
              DETACH DELETE r`,
             { reviewId, uid }
         );
@@ -308,7 +308,8 @@ exports.removeComment = async (commentId, uid) => {
     try {
         const result = await session.run(
             `MATCH (c:Comment {comId: $commentId, uid: $uid})
-             DETACH DELETE c`,
+             OPTIONAL MATCH (c)<-[:COMMENTED_ON*]-(nestedComments)
+             DETACH DELETE c, nestedComments`,
             { commentId, uid }
         );
         return true;
