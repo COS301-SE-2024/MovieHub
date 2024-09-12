@@ -10,10 +10,11 @@ import { removeReview } from "../Services/PostsApiServices";
 import { toggleLikeReview, checkUserLike } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
-export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete }) {
+export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete,Otheruid }) {
     const { theme } = useTheme();
     const [hasLiked,setHasLiked] = useState(false);
     const [liked, setLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
     const { userInfo, setUserInfo } = useUser();
@@ -30,9 +31,11 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
 
         try {
             await toggleLikeReview(body);
-            console.log("Toggle like successful");
+            setHasLiked(!hasLiked);
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
+            console.log('Toggle like successful');
         } catch (error) {
-            console.error("Error toggling like:", error);
+            console.error('Error toggling like:', error);
         }
 
         setLiked(!liked);
@@ -240,9 +243,14 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             <Text style={styles.reviewTitle}>{reviewTitle}</Text>
             <Text style={styles.reviewPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
-                    <Text style={styles.statsNumber}>{likes}</Text>
+            <TouchableOpacity style={styles.stats} onPress={toggleLike}>
+                <Icon
+                    name={hasLiked ? 'favorite' : 'favorite-border'}
+                    size={20}
+                    color={hasLiked ? 'red' : 'black'}
+                    style={{ marginRight: 5 }}
+                />
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable
