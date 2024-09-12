@@ -308,7 +308,8 @@ exports.removeComment = async (commentId, uid) => {
     try {
         const result = await session.run(
             `MATCH (c:Comment {comId: $commentId, uid: $uid})
-             DETACH DELETE c`,
+             OPTIONAL MATCH (c)<-[:COMMENTED_ON*]-(nestedComments)
+             DETACH DELETE c, nestedComments`,
             { commentId, uid }
         );
         return true;
