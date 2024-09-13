@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable } from "react-native";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal } from "react-native";
 import { getRoomParticipants, kickUserFromRoom } from "../Services/RoomApiService";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import RoomModal from "../Components/RoomModal";
 import { useNavigation } from "@react-navigation/native";
+// import BottomSheet from "@gorhom/bottom-sheet"; // Assuming you're using the Gorhom Bottom Sheet library
 
 const participantsData = [
     { id: "1", name: "Itumeleng", username: "@ElectricTance" },
@@ -19,19 +20,38 @@ const ViewParticipants = ({ route }) => {
     const navigation = useNavigation();
     const { roomId, isRoomCreator, roomName } = route.params;
     const [participants, setParticipants] = useState(participantsData);
-
-    const handleFollowPress = (id) => {
-        setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.id === id ? { ...participant, followed: !participant.followed } : participant)));
-    };
-
-    const handleKickPress = async (userId) => {
-
-    };
-    
-    const bottomSheetRef = useRef(null);
+    const [selectedParticipant, setSelectedParticipant] = useState(null); // For the modal
+    const [isAdminModalVisible, setIsAdminModalVisible] = useState(false);
+    const bottomSheetRef = useRef(null); // Reference for the BottomSheet
 
     const handleOpenBottomSheet = () => {
         bottomSheetRef.current?.present();
+    }
+
+    const handleFollowPress = (id) => {
+        setParticipants((prevParticipants) =>
+            prevParticipants.map((participant) =>
+                participant.id === id ? { ...participant, followed: !participant.followed } : participant
+            )
+        );
+    };
+
+    const handleKickPress = async (userId) => {
+        // Add functionality for kicking a participant from the room
+    };
+
+    const handleOpenAdminModal = (participant) => {
+        setSelectedParticipant(participant);
+        setIsAdminModalVisible(true);
+    };
+
+    const handleMakeAdmin = () => {
+        // Implement logic for making a participant an admin
+        setIsAdminModalVisible(false);
+    };
+
+    const handleProfilePress = (participant) => {
+        // navigation.navigate("FollowersProfilePage", { participant });
     };
 
     useEffect(() => {
@@ -44,8 +64,6 @@ const ViewParticipants = ({ route }) => {
                 setParticipants(allParticipants);
             } catch (error) {
                 console.error("Failed to fetch room participants:", error);
-            } finally {
-                setLoading(false);
             }
         };
         fetchRoomParticipants();
@@ -53,22 +71,24 @@ const ViewParticipants = ({ route }) => {
 
     const renderItem = ({ item }) => (
         <View style={styles.participantItem}>
-            <Image
-                source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for profile picture
-                style={styles.profilePicture}
-            />
+            <TouchableOpacity onPress={() => handleProfilePress(item)}>
+                <Image source={{ uri: item.avatar }} style={styles.profilePicture} />
+            </TouchableOpacity>
             <View style={styles.infoContainer}>
-                <Text style={styles.nameText}>{item.name}</Text>
-                <Text style={styles.usernameText}>{item.username}</Text>
+                <TouchableOpacity onPress={() => handleOpenAdminModal(item)}>
+                    <Text style={styles.nameText}>{item.name}</Text>
+                    <Text style={styles.usernameText}>{item.username}</Text>
+                </TouchableOpacity>
             </View>
-            <View style={{display: "flex", flexDirection: "row"}}>
+            <View style={{ display: "flex", flexDirection: "row" }}>
                 <TouchableOpacity style={[styles.followButton, item.followed && styles.followingButton]} onPress={() => handleFollowPress(item.id)}>
                     <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{item.followed ? "Following" : "Follow"}</Text>
                 </TouchableOpacity>
-                {isRoomCreator &&
-                    <TouchableOpacity style={[styles.removeButton]} onPress={() => handleFollowPress(item.id)}>
-                    <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Kick"}</Text>
-                </TouchableOpacity>}
+                {isRoomCreator && (
+                    <TouchableOpacity style={styles.removeButton} onPress={() => handleKickPress(item.id)}>
+                        <Text style={styles.followButtonText}>{"Kick"}</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     );
@@ -79,7 +99,7 @@ const ViewParticipants = ({ route }) => {
                 <View style={styles.header}>
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                         <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
-                        <Text style={styles.roomName}>{roomName || "Asa's Room"} Participants</Text>
+                        <Text style={styles.roomName}>{roomName} Participants</Text>
                     </View>
                     <Pressable onPress={handleOpenBottomSheet}>
                         <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
@@ -87,6 +107,21 @@ const ViewParticipants = ({ route }) => {
                 </View>
                 <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.id} />
             </ScrollView>
+
+            {/* Admin Modal */}
+            <Modal visible={isAdminModalVisible} transparent={true} animationType="slide">
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Make {selectedParticipant?.name} an Admin?</Text>
+                        <TouchableOpacity style={styles.modalButton} onPress={handleMakeAdmin}>
+                            <Text style={styles.modalButtonText}>Make Admin</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: "red" }]} onPress={() => setIsAdminModalVisible(false)}>
+                            <Text style={styles.modalButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
             <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} />
         </View>
     );
@@ -161,6 +196,35 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         borderRadius: 20,
         backgroundColor: "#d10000",
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    modalContent: {
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 15,
+    },
+    modalButton: {
+        backgroundColor: "#4A42C0",
+        padding: 10,
+        borderRadius: 20,
+        marginTop: 10,
+        width: 150,
+        alignItems: "center",
+    },
+    modalButtonText: {
+        color: "#fff",
+        fontWeight: "bold",
     },
 });
 
