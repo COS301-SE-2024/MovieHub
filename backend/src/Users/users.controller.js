@@ -79,10 +79,13 @@ exports.getUserWatchlists = async (req, res) => {
 // Follow a user
 exports.followUser = async (req, res) => {
     const { followerId, followeeId } = req.body;
+    console.log('followUser called in user.controller', followerId, followeeId);
     if (!followerId || !followeeId) {
+        console.error('Follower ID and Followee ID are required');
         return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
     }
     try {
+        console.log(`Follower ID: ${followerId}, Followee ID: ${followeeId}`);
         const response = await userService.followUser(followerId, followeeId);
         res.status(200).json(response);
     } catch (error) {

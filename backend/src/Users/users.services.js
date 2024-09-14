@@ -116,6 +116,7 @@ exports.createUserNode = async (uid, username) => {
 exports.followUser = async (followerId, followeeId) => {
     const session = driver.session();
 
+    console.log("inside followUser services", followerId, followeeId);
     try {
         // Create the follow relationship from follower to followee
         await session.run(
@@ -151,7 +152,7 @@ exports.followUser = async (followerId, followeeId) => {
             { followerId }
         );
 
-        console.log("User services: follower result", followerResult.records);
+        // console.log("User services: follower result", followerResult.records);
 
         // Filter valid followerName records
         const validFollowerRecord = followerResult.records.find(
