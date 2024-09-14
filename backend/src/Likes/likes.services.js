@@ -267,8 +267,8 @@ const processGets= async(datas) =>{
     console.log('Enter processGets with ',datas);
   return datas.map(data => {
     // Access the ID
-    console.log(data);
-    console.log(data.id);
+    // console.log(data);
+    // console.log(data.id);
     const id = data.id.toNumber(); // Convert neo4j.Integer to JavaScript number
     console.log(id);
     // Access the node properties

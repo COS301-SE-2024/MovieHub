@@ -79,7 +79,6 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             // shadowRadius: 3.84,
             // elevation: 5,
             borderBottomWidth: 0.8,
-            borderTopWidth: 0.5,
             borderBottomColor: theme.borderColor,
         },
         avatar: {

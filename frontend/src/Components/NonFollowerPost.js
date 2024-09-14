@@ -68,6 +68,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         navigation.navigate("Profile", {
             userInfo,
             otherUserInfo,
+            isFollowing: false
         });
     };
 
@@ -117,10 +118,8 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             //     width: 0,
             //     height: 2,
             // },
-            borderColor: "#000000",
-            borderTopWidth: 0,
-            borderBottomWidth: 0.3,
-            // borderTopWidth: 0.3,
+            borderBottomWidth: 0.8,
+            borderBottomColor: theme.borderColor,
         },
         avatar: {
             width: 50,

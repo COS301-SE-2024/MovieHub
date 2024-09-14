@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
-import Post from "./Post";
-
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
+import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
+import Post from "./Post";
 import Review from "./Review";
 
 export default function FollowerLikesTab({ userInfo, userProfile, handleCommentPress, orginalUserinfo}) {
     const [likedPosts, setLikedPosts] = useState([]);
-
     const [loading, setLoading] = useState(false);
 
     console.log("followers likes",userInfo);
     console.log("followers profile",userProfile);
-
-    const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     const formatTimeAgoFromDB = (dateString) => {
         const date = new Date(dateString);
@@ -101,12 +98,21 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
         }
     };
 
+    if (loading) {
+        return (
+            <View style={{ paddingTop: 5 }}>
+                <InstagramLoader active />
+                <FacebookLoader active />
+            </View>
+        );
+    }
+
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
                 {likedPosts.length === 0 ? (
                     <View style={styles.container}>
-                        <Text style={styles.title}>No likes</Text>
+                        <Text style={styles.title}>No liked posts</Text>
                     </View>
                 ) : (
                     likedPosts.map((item, index) =>
@@ -122,7 +128,6 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
                                 likes={item.likesCount}
                                 comments={item.commentsCount}
                                 preview={item.properties.text}
-                                saves={getRandomNumber(0, 18)}
                                 image={item.properties.img || null}
                                 isUserPost={item.properties.uid === userInfo.userId}
                                 handleCommentPress={handleCommentPress}
@@ -141,7 +146,6 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
                                 likes={item.likesCount}
                                 comments={item.commentsCount}
                                 preview={item.properties.text}
-                                saves={getRandomNumber(0, 18)}
                                 image={item.properties.img || null}
                                 isUserReview={item.properties.uid === userInfo.userId}
                                 handleCommentPress={handleCommentPress}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";

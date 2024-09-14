@@ -39,6 +39,7 @@ export default function ProfilePage({ route }) {
     const [isPost, setIsPost] = useState(false);
 
     const fetchData = async () => {
+        // console.log("User Info:", userInfo);
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);

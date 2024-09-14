@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
-import Post from "./FollowerPost";
-import Review from "./FollowerReview";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
+import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
+import Post from "./FollowerPost";
+import Review from "./FollowerReview";
 
 export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,handleCommentPress }) {
     const { theme } = useTheme();
@@ -143,8 +144,9 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,hand
 
     if (loading) {
         return (
-            <View style={{ paddingTop: 50 }}>
-                <ActivityIndicator size="large" color="#4a42c0" />
+            <View style={{ paddingTop: 5 }}>
+                <InstagramLoader active />
+                <FacebookLoader active />
             </View>
         );
     }

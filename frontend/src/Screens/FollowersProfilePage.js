@@ -19,25 +19,10 @@ export default function FollowersProfilePage({ route }) {
     console.log("FollowerPostTab - Other User Info:", otherUserInfo);
     const { theme } = useTheme();
     const layout = useWindowDimensions();
-    const [index, setIndex] = useState(0);
-    const [routes] = useState([
-        { key: "posts", title: "Posts" },
-        { key: "likes", title: "Likes" },
-        { key: "watchlist", title: "Watchlist" },
-    ]);
-
-    // const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
-
-    const { userInfo, otherUserInfo } = route.params;
-    // console.log("hai User Info:", otherUserInfo);
-    const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
-
-    console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
-    console.log("FollowerPostTab() - Other User Info:", userInfo);
-
-
+    const [index, setIndex] = useState(0);
+    const [isFollowing, setIsFollowing] = useState(route.params.isFollowing);
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
     const [following, setFollowing] = useState(0);
@@ -46,22 +31,36 @@ export default function FollowersProfilePage({ route }) {
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [routes] = useState([
+        { key: "posts", title: "Posts" },
+        { key: "likes", title: "Likes" },
+        { key: "watchlist", title: "Watchlist" },
+    ]);
+
+    // const { userInfo } = route.params;
+
+    const { userInfo, otherUserInfo } = route.params;
+    // console.log("hai User Info:", otherUserInfo);
+    const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
+
+    // console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
+    // console.log("FollowerPostTab() - Other User Info:", userInfo);
 
     const handlePressFollowers = () => {
-        navigation.navigate("FollowersPage", { route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted });
+        navigation.navigate("FollowersPage", { route, username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted });
     };
 
     const handlePressFollowing = () => {
-        navigation.navigate("FollowingPage", { route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted } );
+        navigation.navigate("FollowingPage", { route, username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted });
     };
 
     const fetchData = async () => {
         try {
             const userId = otherUserInfo.uid;
-            console.log("Other User Info:", userId);
+            // console.log("Other User Info:", userId);
             const response = await getUserProfile(userId);
             setUserProfile(response);
-            console.log("Response:", response);
+            // console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);
@@ -107,25 +106,23 @@ export default function FollowersProfilePage({ route }) {
         bottomSheetRef.current?.present();
     };
 
-    const [isFollowing, setIsFollowing] = useState(false);
-
     const handlePress = async () => {
         try {
             if (isFollowing) {
-                await unfollowUser(otherUserInfo.userId, userProfile.id);
+                await unfollowUser(otherUserInfo.userId, userProfile.uid);
                 setIsFollowing(false);
-                setFollowers(prev => prev - 1);
+                if (followers <= 0) {return}
+                    
+                setFollowers((prev) => prev - 1);
             } else {
-                await followUser(userInfo.userId, userProfile.id);
+                await followUser(userInfo.userId, userProfile.uid);
                 setIsFollowing(true);
-                setFollowers(prev => prev + 1);
+                setFollowers((prev) => prev + 1);
             }
         } catch (error) {
             console.error("Error updating follow status:", error);
         }
     };
-
-    
 
     const styles = StyleSheet.create({
         container: {
@@ -136,12 +133,19 @@ export default function FollowersProfilePage({ route }) {
             height: 80,
             borderRadius: 50,
         },
-        button: {
-            backgroundColor: "#000",
+        followButton: {
+            backgroundColor: "#4a42c0",
+            padding: 10,
+            paddingHorizontal: 12,
+            borderRadius: 5,
+            width: 120,
+        },
+        followingButton: {
+            backgroundColor: "#7b7b7b",
             padding: 10,
             paddingHorizontal: 20,
             borderRadius: 5,
-            width: 190,
+            width: 140,
         },
         buttonText: {
             color: "#fff",
@@ -203,15 +207,16 @@ export default function FollowersProfilePage({ route }) {
         },
         loadingContainer: {
             flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: "center",
+            alignItems: "center",
             backgroundColor: theme.backgroundColor,
         },
     });
 
     const renderScene = ({ route }) => {
         switch (route.key) {
-            case "posts": return <PostsTab userInfo={otherUserInfo} otherinfo={userInfo} userProfile={userProfile} />;
+            case "posts":
+                return <PostsTab userInfo={otherUserInfo} otherinfo={userInfo} userProfile={userProfile} />;
             case "likes":
                 return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} orginalUserinfo={userInfo} />;
             case "watchlist":
@@ -232,10 +237,7 @@ export default function FollowersProfilePage({ route }) {
 
     return (
         <View style={{ flex: 1 }}>
-            <ScrollView
-                style={[styles.container, { backgroundColor: theme.backgroundColor }]}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
-            >
+            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
                 <View style={styles.accountInfo}>
                     <Image
                         source={{
@@ -247,74 +249,40 @@ export default function FollowersProfilePage({ route }) {
                     <Text style={styles.userHandle}>@{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                <TouchableOpacity onPress={handlePressFollowers}>
-                    <Text>
-                        <Text style={styles.number}>{followers} </Text>
-                        <Text style={styles.label}>Followers</Text>
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handlePressFollowing}>
-                    <Text>
-                        <Text style={styles.number}>{following} </Text>
-                        <Text style={styles.label}>Following</Text>
-                    </Text>
-                </TouchableOpacity>
+                    <TouchableOpacity onPress={handlePressFollowers}>
+                        <Text>
+                            <Text style={styles.number}>{followers} </Text>
+                            <Text style={styles.label}>Followers</Text>
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handlePressFollowing}>
+                        <Text>
+                            <Text style={styles.number}>{following} </Text>
+                            <Text style={styles.label}>Following</Text>
+                        </Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.buttonContainer}>
-                <Pressable style={themeStyles.button} onPress={handlePress}>
-                    <Text style={styles.buttonText}>
-                        {isFollowing ? 'Following' : 'Follow'}
-                    </Text>
-                </Pressable>
+                    <Pressable style={isFollowing ? styles.followingButton : styles.followButton} onPress={handlePress}>
+                        <Text style={styles.buttonText}>{isFollowing ? "Following" : "Follow"}</Text>
+                    </Pressable>
                 </View>
                 <View style={styles.about}>
-                    {userProfile.pronouns !== "Prefer not to say" && (
-                        <Text style={{ color: theme.gray, paddingBottom: 5 }}>
-                            {userProfile.pronouns || "They/Them"}
-                        </Text>
-                    )}
-                    <Text style={{ color: theme.textColor }}>
-                        {userProfile.bio || "No bio here because they can't know me like that"}
-                    </Text>
+                    {userProfile.pronouns !== "Prefer not to say" && <Text style={{ color: theme.gray, paddingBottom: 5 }}>{userProfile.pronouns || "They/Them"}</Text>}
+                    <Text style={{ color: theme.textColor }}>{userProfile.bio || "No bio here because they can't know me like that"}</Text>
                     <Text style={{ marginTop: 5 }}>
                         <Text style={{ fontWeight: "bold", color: theme.textColor }}>Favourite genres: </Text>
-                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? (
-                            <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text>
-                        ) : (
-                            <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>
-                        )}
+                        {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text> : <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>}
                     </Text>
                 </View>
                 <View style={styles.tabContainer}>
-                    <TabView
-                        navigationState={{ index, routes }}
-                        renderScene={renderScene}
-                        onIndexChange={setIndex}
-                        initialLayout={{ width: layout.width }}
-                        renderTabBar={(props) => (
-                            <TabBar
-                                {...props}
-                                indicatorStyle={styles.indicator}
-                                labelStyle={styles.label}
-                                style={styles.tabBar}
-                            />
-                        )}
-                    />
+                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
                 </View>
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
-            
-            <CommentsModal    
-                ref={bottomSheetRef} 
-                postId={selectedPostId} 
-                userId={otherUserInfo.userId}
-                username={otherUserInfo.username}
-                currentUserAvatar={userProfile.avatar}
-                comments={comments}
-                loadingComments={loadingComments}
-                onFetchComments={fetchComments}
-            />
+
+            <CommentsModal ref={bottomSheetRef} postId={selectedPostId} userId={otherUserInfo.userId} username={otherUserInfo.username} currentUserAvatar={userProfile.avatar} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
         </View>
     );
 }

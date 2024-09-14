@@ -279,9 +279,11 @@ const Home = ({ route }) => {
                                         key={index}
                                         postId={content.post.postId}
                                         uid={content.friend.uid}
+                                        userInfo={userInfo}
+                                        otherUserInfo={content.friend}
                                         username={content.post.name}
                                         userAvatar={content.friend.avatar}
-                                        userHandle={`@${content.post.username}`}
+                                        userHandle={`${content.post.username}`}
                                         likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
                                         comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
                                         postTitle={content.post.postTitle}
@@ -358,9 +360,6 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         margin: 0,
         marginBottom: 10,
-    },
-    friendsContent: {
-        paddingVertical: 4,
     },
     sectionTitle: {
         fontSize: 24,
