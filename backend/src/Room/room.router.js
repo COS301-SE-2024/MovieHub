@@ -4,25 +4,25 @@ const roomController = require('./room.controller');
 const router = express.Router();
 
 // Route to create a new room
-router.post('/create/:userId', roomController.createRoom);
+router.post('/create/:uid', roomController.createRoom);////////////////////////////////
 
 // Route to join an existing room
-router.post('/join', roomController.joinRoom);
+router.post('/join', roomController.joinRoom); ////////////////////////////////
 
 // Route to get participants of a room
 router.get('/:roomId/participants', roomController.getRoomParticipants);
 
 // Route to get all rooms a user has created
-router.get('/created/:userId', roomController.getUserCreatedRooms);
+router.get('/created/:uid', roomController.getUserCreatedRooms); ////////////////////////////////
 
 // Route to get all rooms a user is participating in (but not created)
-router.get('/participated/:userId', roomController.getUserParticipatedRooms);
+router.get('/participated/:uid', roomController.getUserParticipatedRooms); ////////////////////////////////
 
 // Route to get participant count for a specific room
-router.get('/:roomId/participant-count', roomController.getRoomParticipantCount);
+router.get('/:roomId/participant-count', roomController.getRoomParticipantCount); ////////////////////////////////
 
-
-router.get('/public-rooms', roomController.getPublicRooms);
+router.get('/public-rooms', roomController.getPublicRooms); ////////////////////////////////
+router.get('/recent-rooms/:uid', roomController.getRecentRooms); ////////////////////////////////
 
 // Route to invite a user to a room
 router.post('/invite', roomController.inviteUserToRoom);
@@ -31,7 +31,7 @@ router.post('/invite', roomController.inviteUserToRoom);
 router.post('/decline', roomController.declineRoomInvite);
 
 // Route to leave a room
-router.post('/leave', roomController.leaveRoom);
+router.post('/leave', roomController.leaveRoom); ////////////////////////////////
 
 // Route to kick a user from a room
 router.post('/kick', roomController.kickUserFromRoom);
@@ -49,6 +49,8 @@ router.get('/listen/:roomId', roomController.listenForMessages);
 router.post('/notify', roomController.sendNotification);
 
 // Route to get room details by roomId or shortCode
-router.get('/:identifier', roomController.getRoomDetails);
+router.get('/:roomId', roomController.getRoomDetails); ////////////////////////////////
+
+router.delete('/:roomId', roomController.deleteRoom);
 
 module.exports = router;

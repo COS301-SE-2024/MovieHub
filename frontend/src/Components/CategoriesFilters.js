@@ -41,6 +41,7 @@ const CategoriesFilters = ({ categoryName , selectedCategory}) => {
 const styles = StyleSheet.create({
     container:{
         paddingBottom: 12,
+        paddingTop: 14,
         backgroundColor: '#ffffff',
         borderColor: '#000000',
         borderBottomWidth: 0.3, 

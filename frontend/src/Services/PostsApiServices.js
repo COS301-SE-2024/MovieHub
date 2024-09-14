@@ -57,7 +57,7 @@ export const addPost = async (bodyData) => {
     // console.log('types:', imgType, isReviewType, movieIdType, postTitleType, ratingType, textType, uidType);
 
     const stringed = JSON.stringify(bodyData);
-    console.log('stringed:', stringed);
+    // console.log('stringed:', stringed);
 
 
     try {
@@ -65,7 +65,7 @@ export const addPost = async (bodyData) => {
             method: 'POST',
             body: JSON.stringify(bodyData),
         });
-        console.log('response', response);
+        // console.log('response', response);
         return response;
     } catch (error) {
         throw new Error('Failed to add post: ' + error.message);

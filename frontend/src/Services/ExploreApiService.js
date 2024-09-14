@@ -50,9 +50,9 @@ export const getFriendsContent = async (userInfo) => {
 // Function to fetch friends of friends' content
 export const getFriendsOfFriendsContent = async (userInfo) => {
     const headers = await createHeadersWithUserId(userInfo);
-    console.log("About to get content...");
+    // console.log("About to get content...");
     const response = await fetch(`${API_URL}/friends-of-friends-content`, { headers });
-    console.log("+++++++++");
+    // console.log("+++++++++");
 
     if (!response.ok) {
         throw new Error("Failed to fetch friends of friends' content");

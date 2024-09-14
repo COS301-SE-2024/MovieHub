@@ -8,6 +8,8 @@ const API_URL = `http://${localIP}:3000/list/`;
 
 
 export const createWatchlist = async (userId, watchlistData) => {
+    // collabUserIds is the array that contaions all the user IDs that collabarate
+    //also the array is stored in the wathclist details
     try {
         const response = await fetch(`${API_URL}${userId}`, {
             method: 'POST',
@@ -68,6 +70,23 @@ export const getWatchlistDetails = async (watchlistId) => {
         console.error('Error fetching watchlist details:', error);
         throw new Error('Failed to fetch watchlist details.');
     }
+};
+
+export const getCollaborators = async (watchlistId) => {
+    const token = await getToken(); // Assuming there's a function to get the token
+    const response = await fetch(`${API_URL}/${encodeURIComponent(watchlistId)}/collaborators`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch collaborators');
+    }
+
+    const data = await response.json();
+    return data.collaborators;
 };
 
 export const deleteWatchlist = async (watchlistId) => {
