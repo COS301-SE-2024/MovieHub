@@ -147,7 +147,7 @@ const ViewRoom = ({ route }) => {
                             </View>
                         </View>
                     ) : (
-                        <Text style={[styles.movieDescription, { paddingVertical: 20 }]}>{roomDescription}</Text>
+                        roomDescription && <Text style={[styles.movieDescription, { paddingVertical: 20 }]}>{roomDescription}</Text>
                     )}
 
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>

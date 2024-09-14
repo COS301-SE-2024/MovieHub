@@ -1,6 +1,6 @@
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import React, { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBackground } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from "../Components/UserRoomCard";
@@ -11,12 +11,12 @@ const HubScreen = ({ route }) => {
     const [createdRooms, setCreatedRooms] = useState([]);
     const [participatingRooms, setParticipatingRooms] = useState([]);
     const [publicRooms, setPublicRooms] = useState([]);
+    const [loading, setLoading] = useState(true); // State to manage loading status
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
     const fetchRooms = useCallback(async () => {
         try {
             const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
-
             const createdRoomsWithCounts = await Promise.all(
                 createdRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -27,13 +27,8 @@ const HubScreen = ({ route }) => {
                 })
             );
             setCreatedRooms(createdRoomsWithCounts);
-        } catch (error) {
-            console.error("Failed to fetch created rooms:", error);
-        }
 
-        try {
             const participatingRoomsData = await getUserParticipatedRooms(userInfo.userId);
-
             const participatingRoomsWithCounts = await Promise.all(
                 participatingRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -44,13 +39,8 @@ const HubScreen = ({ route }) => {
                 })
             );
             setParticipatingRooms(participatingRoomsWithCounts);
-        } catch (error) {
-            console.error("Failed to fetch participated rooms:", error);
-        }
 
-        try {
             const publicRoomsData = await getPublicRooms();
-
             const publicRoomsWithCounts = await Promise.all(
                 publicRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -62,7 +52,9 @@ const HubScreen = ({ route }) => {
             );
             setPublicRooms(publicRoomsWithCounts);
         } catch (error) {
-            console.error("Failed to fetch public rooms:", error);
+            console.error("Failed to fetch rooms:", error);
+        } finally {
+            setLoading(false); // Set loading to false when data fetching is complete
         }
     }, [userInfo.userId]);
 
@@ -105,56 +97,62 @@ const HubScreen = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
-                <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
-                    <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
-                </View>
-            )}
+            {loading ? (
+                <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+            ) : (
+                <>
+                    {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
+                            <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                        </View>
+                    )}
 
-            {createdRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Rooms You Created</Text>
-                    <FlatList
-                        data={createdRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
+                    {createdRooms.length > 0 && (
+                        <View>
+                            <Text style={styles.sectionTitle}>Rooms You Created</Text>
+                            <FlatList
+                                data={createdRooms}
+                                renderItem={renderRoomCard}
+                                keyExtractor={(item) => item.roomId.toString()}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.roomList}
+                            />
+                            <View style={styles.divider} />
+                        </View>
+                    )}
 
-            {participatingRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
-                    <FlatList
-                        data={participatingRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
+                    {participatingRooms.length > 0 && (
+                        <View>
+                            <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
+                            <FlatList
+                                data={participatingRooms}
+                                renderItem={renderRoomCard}
+                                keyExtractor={(item) => item.roomId.toString()}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.roomList}
+                            />
+                            <View style={styles.divider} />
+                        </View>
+                    )}
 
-            {publicRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Public Rooms Available</Text>
-                    <FlatList
-                        data={publicRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
+                    {publicRooms.length > 0 && (
+                        <View>
+                            <Text style={styles.sectionTitle}>Public Rooms Available</Text>
+                            <FlatList
+                                data={publicRooms}
+                                renderItem={renderRoomCard}
+                                keyExtractor={(item) => item.roomId.toString()}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.roomList}
+                            />
+                            <View style={styles.divider} />
+                        </View>
+                    )}
+                </>
             )}
         </ScrollView>
     );
@@ -193,28 +191,16 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
     },
     userRoomCard: {
-        width: 310, // Increase the width of the room card
-        height: 210, // Increase the height of the room card
+        width: 310,
+        height: 210,
         borderRadius: 8,
-        marginHorizontal: 12, // Add some margin to avoid cramped appearance
+        marginHorizontal: 12,
         overflow: "hidden",
     },
     imageBackground: {
         flex: 1,
         justifyContent: "flex-end",
         borderRadius: 8,
-    },
-    overlay: {
-        flex: 1,
-
-        justifyContent: "space-between",
-        padding: 12,
-    },
-    liveText: {
-        fontSize: 14, // Increase font size for better visibility
-        color: "red",
-        marginBottom: 6,
-        
     },
     cardBody: {
         display: "flex",
@@ -227,19 +213,9 @@ const styles = StyleSheet.create({
         right: 16,
     },
     cardTitle: {
-        fontSize: 18, // Increase font size for better visibility
+        fontSize: 18,
         fontWeight: "bold",
         color: "white",
-    },
-    cardFooter: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 6,
-    },
-    userCount: {
-        fontSize: 16, // Increase font size for better visibility
-        color: "white",
-        marginLeft: 4,
     },
     roomList: {
         paddingHorizontal: 16,
@@ -256,6 +232,9 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         color: "gray",
+    },
+    loadingIndicator: {
+        marginTop: 30,
     },
 });
 

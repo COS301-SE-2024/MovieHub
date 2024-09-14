@@ -26,12 +26,6 @@ function CustomDrawer({ route }) {
             <Text style={[styles.label, { color: theme.gray }]}>Activity</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                    <Icon name="bookmark" style={[styles.icon, { color: theme.iconColor }]} size={24} />
-                    <Text style={[styles.drawerItem, { color: theme.textColor }]}>Saved</Text>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
-                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <IonIcon name="stats-chart-sharp" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Stats</Text>
                 </View>

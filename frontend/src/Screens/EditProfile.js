@@ -31,7 +31,7 @@ export default function EditProfile({ route }) {
         currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: defaultUserProfile.bio, tempValue: "" },
         pronouns: { isVisible: false, newValue: defaultUserProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
-        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
+        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favoriteGenres, tempValue: [], options: ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"] },
     });
 
     const applyChanges = async (field) => {
@@ -141,6 +141,7 @@ export default function EditProfile({ route }) {
     const handleOptionPress = (field, option) => {
         if (field === "pronouns") {
             setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: option, isVisible: false, newValue: option } });
+            // update field 
         } else if (field === "favouriteGenres") {
             const newOptions = [...modalContent[field].tempValue];
             if (newOptions.includes(option)) {
@@ -180,9 +181,8 @@ export default function EditProfile({ route }) {
         console.log('Uploaded', avatarUrl);
         setAvatar(uri);   
         setAvatarChanged(true);
-        console.log("AVATAR", avatar);                    
-        console.log("AVATAR URL", uri);                    
-        // await applyChanges('avatar');     //From here on I dont know what should be happening
+        // console.log("AVATAR", avatar);                    
+        // console.log("AVATAR URL", uri);                    
     };
 
     useEffect(() => {
@@ -235,7 +235,7 @@ export default function EditProfile({ route }) {
                                     <ScrollView style={{ maxHeight: 200 }}>
                                         {modalContent[field].options.map((option, index) => (
                                             <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#4a42c0" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
                                             </TouchableOpacity>
                                         ))}
                                     </ScrollView>
@@ -252,7 +252,7 @@ export default function EditProfile({ route }) {
                                 <ScrollView>
                                     {modalContent[field].options.map((option, index) => (
                                         <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                            <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                            <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? "#4a42c0" : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </ScrollView>
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
         padding: 10,
         margin: 6,
         borderRadius: 10,
-        backgroundColor: "#7b7b7b",
+        backgroundColor: "#4a42c0",
         color: "#fff",
     },
 });
