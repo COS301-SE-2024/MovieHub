@@ -36,10 +36,9 @@ const ViewParticipants = ({ route }) => {
         );
     };
 
-    const handleKickPress = async (userId) => {
-        // Add functionality for kicking a participant from the room
+    const handleKickPress = async (uid) => {
+        const response = await kickUserFromRoom(roomId, adminId, uid);
     };
-
     const handleOpenAdminModal = (participant) => {
         setSelectedParticipant(participant);
         setIsAdminModalVisible(true);
