@@ -18,9 +18,10 @@ const participantsData = [
 
 const ViewParticipants = ({ route }) => {
     const navigation = useNavigation();
-    const { roomId, isRoomCreator, roomName } = route.params;
+    const { roomId, isRoomCreator, roomName, admin } = route.params;
     const [participants, setParticipants] = useState(participantsData);
     const [selectedParticipant, setSelectedParticipant] = useState(null); // For the modal
+    const [isKickModalVisible, setIsKickModalVisible] = useState(false);
     const [isAdminModalVisible, setIsAdminModalVisible] = useState(false);
     const bottomSheetRef = useRef(null); // Reference for the BottomSheet
 
@@ -36,9 +37,16 @@ const ViewParticipants = ({ route }) => {
         );
     };
 
-    const handleKickPress = async (uid) => {
-        const response = await kickUserFromRoom(roomId, adminId, uid);
+    const handleOpenKickModal = (participant) => {
+        setSelectedParticipant(participant);
+        setIsKickModalVisible(true);
     };
+
+    const handleKick = async () => {
+        const response = await kickUserFromRoom(roomId, adminId, uid);
+        setIsKickModalVisible(false);
+    };
+
     const handleOpenAdminModal = (participant) => {
         setSelectedParticipant(participant);
         setIsAdminModalVisible(true);
@@ -84,7 +92,7 @@ const ViewParticipants = ({ route }) => {
                     <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{item.followed ? "Following" : "Follow"}</Text>
                 </TouchableOpacity>
                 {isRoomCreator && (
-                    <TouchableOpacity style={styles.removeButton} onPress={() => handleKickPress(item.id)}>
+                    <TouchableOpacity style={styles.removeButton} onPress={() => handleOpenKickModal(item)}>
                         <Text style={styles.followButtonText}>{"Kick"}</Text>
                     </TouchableOpacity>
                 )}
@@ -94,18 +102,16 @@ const ViewParticipants = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <View style={styles.header}>
-                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
-                        <Text style={styles.roomName}>{roomName} Participants</Text>
-                    </View>
-                    <Pressable onPress={handleOpenBottomSheet}>
-                        <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
-                    </Pressable>
+            <View style={styles.header}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
+                    <Text style={styles.roomName}>{roomName} Participants</Text>
                 </View>
-                <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.id} />
-            </ScrollView>
+                <Pressable onPress={handleOpenBottomSheet}>
+                    <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
+                </Pressable>
+            </View>
+            <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.id} />
 
             {/* Admin Modal */}
             <Modal visible={isAdminModalVisible} transparent={true} animationType="slide">
@@ -121,6 +127,22 @@ const ViewParticipants = ({ route }) => {
                     </View>
                 </View>
             </Modal>
+
+            {/*Kick Modal*/}
+            <Modal visible={isKickModalVisible} transparent={true} animationType="slide">
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Kick {selectedParticipant?.name} from room?</Text>
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: "red" }]} onPress={handleKick}>
+                            <Text style={styles.modalButtonText}>Kick</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.modalButton} onPress={() => setIsKickModalVisible(false)}>
+                            <Text style={styles.modalButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
             <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} />
         </View>
     );
