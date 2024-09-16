@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "../styles/ThemeContext";
 import Svg from "react-native-svg";
 
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -30,12 +31,15 @@ const BACKDROP_HEIGHT = height * 0.65;
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
 const Loading = () => (
-    <View style={styles.loadingContainer}>
+    <View style={[styles.loadingContainer]}>
         <Text style={styles.paragraph}>Loading...</Text>
     </View>
 );
 
 const Backdrop = ({ movies, scrollX }) => {
+    const { theme } = useTheme();
+    const { isDarkMode } = useTheme();
+
     return (
         <View style={{ height: BACKDROP_HEIGHT, width, position: "absolute" }}>
             <FlatList
@@ -68,7 +72,7 @@ const Backdrop = ({ movies, scrollX }) => {
                 }}
             />
             <LinearGradient
-                colors={["rgba(0, 0, 0, 0)", "white"]}
+                colors={["rgba(0, 0, 0, 0)", theme.backgroundColor]}
                 style={{
                     height: BACKDROP_HEIGHT,
                     width,
@@ -91,6 +95,7 @@ const formatDate = (date) => {
 
 const Home = ({ route }) => {
     const { userInfo } = route.params;
+    const { theme } = useTheme();
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
     const [userProfile, setUserProfile] = useState(null);
@@ -196,10 +201,24 @@ const Home = ({ route }) => {
         bottomSheetRef.current?.present();
     };
 
+    const homeStyles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        sectionTitle: {
+            color: theme.textColor,
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 10,
+            textAlign: "center",
+        },
+    });
+
     return (
-        <View style={styles.container}>
+        <View style={homeStyles.container}>
             <VirtualizedList style={{ flex: 1 }}>
-                <View style={styles.container}>
+                <View style={homeStyles.container}>
                     <HomeHeader userInfo={userInfo} />
                     <Backdrop movies={movies} scrollX={scrollX} />
                     <StatusBar hidden />
@@ -247,20 +266,20 @@ const Home = ({ route }) => {
                                                 padding: SPACING * 2,
                                                 alignItems: "center",
                                                 transform: [{ translateY }],
-                                                backgroundColor: "white",
+                                                backgroundColor: theme.backgroundColor,
                                                 borderRadius: 34,
                                             }}>
                                             <Image source={{ uri: item.poster }} style={styles.posterImage} />
-                                            <Text style={{ fontSize: 24 }} numberOfLines={1}>
+                                            <Text style={{ fontSize: 24, color: theme.textColor }} numberOfLines={1}>
                                                 {item.title}
                                             </Text>
                                             <Rating rating={item.rating} />
                                             <Genres genres={item.genres} />
-                                            <Text style={{ fontSize: 12 }} numberOfLines={3}>
+                                            <Text style={{ fontSize: 12, color: theme.textColor }} numberOfLines={3}>
                                                 {item.description}
                                             </Text>
                                             <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
-                                                <Text style={{ fontSize: 12, fontWeight: "500", color: "blue" }}>Read more</Text>
+                                                <Text style={{ fontSize: 12, fontWeight: "500", color: theme.primaryColor, marginTop: 10 }}>Read more</Text>
                                             </Pressable>
                                         </Animated.View>
                                     </Pressable>
@@ -272,67 +291,59 @@ const Home = ({ route }) => {
 
                     {sortedContent.length > 0 && (
                         <View style={styles.friendsContent}>
-                            <Text style={styles.sectionTitle}>Feed</Text>
-                            {sortedContent.map((content, index) =>
-                                content.post ? ( // Check if post property exists
-                                    <Post
-                                        key={index}
-                                        postId={content.post.postId}
-                                        uid={content.friend.uid}
-                                        userInfo={userInfo}
-                                        otherUserInfo={content.friend}
-                                        username={content.post.name}
-                                        userAvatar={content.friend.avatar}
-                                        userHandle={`${content.post.username}`}
-                                        likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
-                                        comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
-                                        postTitle={content.post.postTitle}
-                                        image={content.post.img}
-                                        datePosted={formatDate(content.post.createdAt)} // Format the date
-                                        preview={content.post.text}
-                                        isUserPost={userInfo.userId == content.post.uid}
-                                        handleCommentPress={handleCommentPress}
-                                    />
-                                ) : null // Render nothing if post property does not exist
+                            <Text style={homeStyles.sectionTitle}>Feed</Text>
+                            {sortedContent.map(
+                                (content, index) =>
+                                    content.post ? ( // Check if post property exists
+                                        <Post
+                                            key={index}
+                                            postId={content.post.postId}
+                                            uid={content.friend.uid}
+                                            userInfo={userInfo}
+                                            otherUserInfo={content.friend}
+                                            username={content.post.name}
+                                            userAvatar={content.friend.avatar}
+                                            userHandle={`${content.post.username}`}
+                                            likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
+                                            comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
+                                            postTitle={content.post.postTitle}
+                                            image={content.post.img}
+                                            datePosted={formatDate(content.post.createdAt)} // Format the date
+                                            preview={content.post.text}
+                                            isUserPost={userInfo.userId == content.post.uid}
+                                            handleCommentPress={handleCommentPress}
+                                        />
+                                    ) : null // Render nothing if post property does not exist
                             )}
-                            {sortedContent.map((content, index) =>
-                                content.review ? ( // Check if review property exists
-                                    <Review
-                                        key={index}
-                                        reviewId={content.review.reviewId}
-                                        uid={content.friend.uid}
-                                        username={content.friend.username}
-                                        userHandle={`${content.friend.username}`}
-                                        userAvatar={content.friend.avatar}
-                                        likes={content.review.likeCount ?? 0} // Update with actual likes data if available
-                                        comments={content.review.commentCount ?? 0} // Update with actual comments data if available
-                                        reviewTitle={content.review.reviewTitle}
-                                        preview={content.review.text}
-                                        dateReviewed={formatDate(content.review.createdAt)}
-                                        movieName={content.review.movieTitle}
-                                        image={content.review.img}
-                                        rating={content.review.rating}
-                                        isUserReview={userInfo.userId == content.review.uid}
-                                        handleCommentPress={handleCommentPress}
-                                    />
-                                ) : null // Render nothing if review property does not exist
+                            {sortedContent.map(
+                                (content, index) =>
+                                    content.review ? ( // Check if review property exists
+                                        <Review
+                                            key={index}
+                                            reviewId={content.review.reviewId}
+                                            uid={content.friend.uid}
+                                            username={content.friend.username}
+                                            userHandle={`${content.friend.username}`}
+                                            userAvatar={content.friend.avatar}
+                                            likes={content.review.likeCount ?? 0} // Update with actual likes data if available
+                                            comments={content.review.commentCount ?? 0} // Update with actual comments data if available
+                                            reviewTitle={content.review.reviewTitle}
+                                            preview={content.review.text}
+                                            dateReviewed={formatDate(content.review.createdAt)}
+                                            movieName={content.review.movieTitle}
+                                            image={content.review.img}
+                                            rating={content.review.rating}
+                                            isUserReview={userInfo.userId == content.review.uid}
+                                            handleCommentPress={handleCommentPress}
+                                        />
+                                    ) : null // Render nothing if review property does not exist
                             )}
                         </View>
                     )}
                 </View>
             </VirtualizedList>
             <BottomHeader userInfo={userInfo} />
-            <CommentsModal    
-                ref={bottomSheetRef} 
-                isPost={isPost}
-                postId={selectedPostId} 
-                userId={userInfo.userId}
-                username={userInfo.username}
-                currentUserAvatar={userProfile ? userProfile.avatar : null}
-                comments={comments}
-                loadingComments={loadingComments}
-                onFetchComments={fetchComments}
-            />
+            <CommentsModal ref={bottomSheetRef} isPost={isPost} postId={selectedPostId} userId={userInfo.userId} username={userInfo.username} currentUserAvatar={userProfile ? userProfile.avatar : null} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
         </View>
     );
 };

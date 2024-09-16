@@ -5,11 +5,12 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
-
+import useTheme from "@react-navigation/native";
 import { addPost, editPost } from "../Services/PostsApiServices";
 
 export default function EditPost({route}) {
     const { username, uid, titleParam, thoughtsParam, imageUriParam, postId } = route.params;
+    const { theme } = useTheme();
     const userInfo = { username, userId: uid };
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState(titleParam);
@@ -144,6 +145,149 @@ export default function EditPost({route}) {
         return ratingOptions;
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 10,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 25,
+        },
+        toggleContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        label: {
+            fontSize: 16,
+            fontWeight: "600",
+            paddingBottom: 10,
+        },
+        input: {
+            height: 45,
+            borderRadius: 10,
+            backgroundColor: "#D9D9D9",
+            paddingHorizontal: 10,
+            marginBottom: 20,
+        },
+        textArea: {
+            height: 100,
+            textAlignVertical: "top",
+            paddingTop: 8,
+        },
+        movieResult: {
+            padding: 10,
+            backgroundColor: "#f0f0f0",
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+        },
+        actionsContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        iconsContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "30%",
+        },
+        allowCommentsContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+        },
+        allowComments: {
+            marginTop: 4
+        },
+        footer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingBottom: 45,
+        },
+        saveDrafts: {
+            color: "#0f5bd1",
+            fontWeight: "600",
+        },
+        postButton: {
+            backgroundColor: theme.primaryColor,
+            paddingVertical: 10,
+            paddingHorizontal: 35,
+            borderRadius: 10,
+            opacity: 1,
+        },
+        postButtonDisabled: {
+            opacity: 0.7
+        },
+        postButtonText: {
+            color: "#fff",
+            fontWeight: "bold",
+        },
+        imagePreviewContainer: {
+            position: "relative",
+            marginBottom: 20,
+        },
+        imagePreview: {
+            width: "100%",
+            height: 400,
+            borderRadius: 10,
+            marginBottom: 10,
+            objectFit: "contain"
+        },
+        removeImageButton: {
+            position: "absolute",
+            top: 10,
+            right: 25,
+            backgroundColor: theme.primaryColor,
+            borderRadius: 50,
+        },
+        replaceImageButton: {
+            position: "absolute",
+            top: 10,
+            right: 60,
+            backgroundColor: theme.primaryColor,
+            borderRadius: 50,
+        },
+        ratingContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 20,
+        },
+        ratingOption: {
+            padding: 8,
+            borderWidth: 1,
+            borderColor: theme.borderColor,
+            borderRadius: 5,
+        },
+        ratingOptionSelected: {
+            backgroundColor: "#827DC3",
+            borderColor: theme.primaryColor,
+        },
+        ratingText: {
+            fontSize: 16,
+        },
+        feedbackContainer: {
+            flexShrink: 1,
+            flexWrap: "wrap",
+            alignSelf: "center",
+            display: "flex",
+            alignItems: "center",
+            padding: 15,
+            borderRadius: 10,
+        },
+        feedback: {
+            color: "#fff",
+        },
+        success: {
+            backgroundColor: "#31B978",
+        },
+        error: {
+            backgroundColor: "#FF4C4C",
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.toggleContainer}>
@@ -212,147 +356,3 @@ export default function EditPost({route}) {
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 10,
-        backgroundColor: "#fff",
-        paddingHorizontal: 25,
-    },
-    toggleContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: "600",
-        paddingBottom: 10,
-    },
-    input: {
-        height: 45,
-        borderRadius: 10,
-        backgroundColor: "#D9D9D9",
-        paddingHorizontal: 10,
-        marginBottom: 20,
-    },
-    textArea: {
-        height: 100,
-        textAlignVertical: "top",
-        paddingTop: 8,
-    },
-    movieResult: {
-        padding: 10,
-        backgroundColor: "#f0f0f0",
-        borderBottomWidth: 1,
-        borderBottomColor: "#ccc",
-    },
-    actionsContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    iconsContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "30%",
-    },
-    allowCommentsContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    allowComments: {
-        marginTop: 4
-    },
-    footer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingBottom: 45,
-    },
-    saveDrafts: {
-        color: "#0f5bd1",
-        fontWeight: "600",
-    },
-    postButton: {
-        backgroundColor: colors.primary,
-        paddingVertical: 10,
-        paddingHorizontal: 35,
-        borderRadius: 10,
-        opacity: 1,
-    },
-    postButtonDisabled: {
-        opacity: 0.7
-    },
-    postButtonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-    imagePreviewContainer: {
-        position: "relative",
-        marginBottom: 20,
-    },
-    imagePreview: {
-        width: "100%",
-        height: 400,
-        borderRadius: 10,
-        marginBottom: 10,
-        objectFit: "contain"
-    },
-    removeImageButton: {
-        position: "absolute",
-        top: 10,
-        right: 25,
-        backgroundColor: colors.primary,
-        
-        borderRadius: 50,
-    },
-    replaceImageButton: {
-        position: "absolute",
-        top: 10,
-        right: 60,
-        backgroundColor: colors.primary,
-        borderRadius: 50,
-    },
-    ratingContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 20,
-    },
-    ratingOption: {
-        padding: 8,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 5,
-    },
-    ratingOptionSelected: {
-        backgroundColor: "#827DC3",
-        borderColor: "#4A42C0",
-    },
-    ratingText: {
-        fontSize: 16,
-    },
-    feedbackContainer: {
-        flexShrink: 1,
-        flexWrap: "wrap",
-        alignSelf: "center",
-        display: "flex",
-        alignItems: "center",
-        padding: 15,
-        borderRadius: 10,
-    },
-    feedback: {
-        color: "#fff",
-    },
-    success: {
-        backgroundColor: "#31B978",
-    },
-    error: {
-        backgroundColor: "#FF4C4C",
-    },
-});

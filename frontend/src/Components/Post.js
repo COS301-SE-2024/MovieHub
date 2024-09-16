@@ -146,6 +146,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         },
         icon: {
             marginRight: 5,
+            color: theme.textColor,
         },
         statsContainer: {
             display: "flex",
@@ -170,7 +171,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -188,7 +189,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         confirmationModal: {
@@ -246,7 +247,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     </View>
                 </Pressable>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                    <Icon name="more-vert" size={20} />
+                    <Icon name="more-vert" size={20} color={theme.iconColor} />
                 </Pressable>
             </View>
             {image && <Image source={{ uri: image }} style={styles.postImage} resizeMode="cover" />}
@@ -254,7 +255,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>

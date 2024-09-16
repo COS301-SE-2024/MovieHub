@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
@@ -9,6 +10,7 @@ import Review from "./Review";
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
     const [likedPosts, setLikedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { theme } = useTheme();
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -104,6 +106,27 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
         );
     }
 
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 35,
+            paddingTop: 55,
+            textAlign: "center",
+        },
+        title: {
+            fontSize: 18,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 6,
+            color: theme.textColor,
+        },
+        subtitle: {
+            fontSize: 14,
+            textAlign: "center",
+            color: theme.gray,
+        },
+    });
+
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
@@ -162,22 +185,4 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-        paddingHorizontal: 35,
-        paddingTop: 55,
-        textAlign: "center",
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: 6,
-    },
-    subtitle: {
-        fontSize: 14,
-        textAlign: "center",
-        color: "#7b7b7b",
-    },
-});
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
@@ -8,15 +8,10 @@ import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loade
 import Post from "./FollowerPost";
 import Review from "./FollowerReview";
 
-export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,handleCommentPress }) {
+export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, handleCommentPress }) {
     const { theme } = useTheme();
-    const username = userProfile.name;
-    const userHandle = "@" + userInfo.username;
-    const avatar = userProfile.avatar;
     const navigation = useNavigation();
-
     const [posts, setPosts] = useState([]);
-    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -94,7 +89,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,hand
     const handleDeletePost = async (postId) => {
         try {
             await removePost({ postId, uid: userInfo.userId });
-            setPosts(posts.filter(post => post.postId !== postId));
+            setPosts(posts.filter((post) => post.postId !== postId));
         } catch (error) {
             console.error("Error deleting post:", error);
             Alert.alert("Error", "Failed to delete post");
@@ -104,7 +99,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,hand
     const handleDeleteReview = async (reviewId) => {
         try {
             await removeReview({ reviewId: reviewId, uid: userInfo.userId });
-            setPosts(posts.filter(review => review.reviewId !== reviewId));
+            setPosts(posts.filter((review) => review.reviewId !== reviewId));
         } catch (error) {
             console.error("Error deleting review:", error);
             Alert.alert("Error", "Failed to delete review");
@@ -156,7 +151,6 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,hand
             {posts.length === 0 ? (
                 <View style={styles.container}>
                     <Text style={styles.title}>No posts</Text>
-                    
                 </View>
             ) : (
                 posts.map((item, index) =>

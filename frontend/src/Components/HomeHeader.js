@@ -3,8 +3,10 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { colors, themeStyles } from '../styles/theme';
+import { useTheme } from '../styles/ThemeContext';
 
 export default function HomeHeader({ userInfo }) {
+    const { theme } = useTheme();
     const navigation = useNavigation(); // Access the navigation prop using the hook
 
     return (
@@ -25,7 +27,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         zIndex: 1,
-        
     },
     logo: {
         paddingLeft: 20,

@@ -1,29 +1,29 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { StyleSheet, Text, View, ScrollView, FlatList, TextInput } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import BottomHeader from "../Components/BottomHeader";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import IonIcon from "react-native-vector-icons/Ionicons";
-import NonFollowerPost from "../Components/NonFollowerPost";
-import CategoriesFilters from "../Components/CategoriesFilters";
-import ExploreHub from "../Components/ExploreHub";
 import { getFriendsOfFriendsContent, getRandomUsersContent } from "../Services/ExploreApiService";
-import ContentLoader, { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
+import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
-import CommentsModal from "../Components/CommentsModal";
 import { getRecentRooms, getPublicRooms, getUserCreatedRooms, getUserParticipatedRooms, getRoomParticipantCount } from "../Services/RoomApiService";
+import BottomHeader from "../Components/BottomHeader";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import NonFollowerPost from "../Components/NonFollowerPost";
+import CategoriesFilters from "../Components/CategoriesFilters";
+import CommentsModal from "../Components/CommentsModal";
 import UserRoomCard from "../Components/UserRoomCard";
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
+    const { theme } = useTheme();
     const navigation = useNavigation();
+    const bottomSheetRef = useRef(null);
 
     const [friendsOfFriendsContent, setFriendsOfFriendsContent] = useState([]);
     const [randomUsersContent, setRandomUsersContent] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
-    const bottomSheetRef = useRef(null);
     const [userProfile, setUserProfile] = useState(null);
     const [movies, setMovies] = useState([]);
     const [isPost, setIsPost] = useState(false);
@@ -177,14 +177,59 @@ export default function ExplorePage({ route }) {
         return keywords[Math.floor(Math.random() * keywords.length)];
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            paddingVerical: 10,
+            backgroundColor: theme.backgroundColor,
+        },
+        searchBar: {
+            flexDirection: "row",
+            backgroundColor: theme.borderColor,
+            borderRadius: 50,
+            width: "95%",
+            padding: 10,
+            paddingHorizontal: 16,
+            marginTop: 15,
+            alignItems: "center",
+        },
+        searchBarSize: {
+            alignItems: "center",
+        },
+        heading: {
+            fontFamily: "Roboto",
+            color: theme.textColor,
+            fontSize: 23,
+            fontWeight: "bold",
+            paddingLeft: 10,
+            paddingTop: 1,
+        },
+        header: {
+            flexDirection: "row",
+            paddingTop: 15,
+            padding: 10,
+        },
+        postsContainer: {},
+        input: {
+            flex: 1,
+            marginRight: 30,
+            borderRadius: 10,
+        },
+        divider: {
+            height: 1,
+            backgroundColor: theme.borderColor,
+            marginVertical: 16,
+        },
+    });
+
     return (
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.searchBarSize}>
                     <View style={styles.searchBar}>
-                        <Icon name="search" size={30} style={{ marginRight: 8 }} />
+                        <Icon name="search" size={30} color={theme.iconColor} style={{ marginRight: 8 }} />
 
-                        <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
+                        <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={theme.gray} onChangeText={(text) => handleSearch(text)} />
                     </View>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -197,7 +242,7 @@ export default function ExplorePage({ route }) {
 
                 <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
-                    <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }} onPress={handleOpenHub} />
+                    <Ionicons name="chevron-forward" size={24} color={theme.iconColor} style={{ marginLeft: "auto" }} onPress={handleOpenHub} />
                 </View>
 
                 {recentRooms.length > 0 && (
@@ -262,47 +307,3 @@ export default function ExplorePage({ route }) {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingVerical: 10,
-        backgroundColor: "#ffffff",
-    },
-    searchBar: {
-        flexDirection: "row",
-        backgroundColor: "#e0e0e0",
-        borderRadius: 10,
-        width: "95%",
-        padding: 10,
-        paddingHorizontal: 16,
-        marginTop: 15,
-        alignItems: "center",
-    },
-    searchBarSize: {
-        alignItems: "center",
-    },
-    heading: {
-        fontFamily: "Roboto",
-        color: "#000000",
-        fontSize: 23,
-        fontWeight: "bold",
-        paddingLeft: 10,
-        paddingTop: 1,
-    },
-    header: {
-        flexDirection: "row",
-        paddingTop: 15,
-        padding: 10,
-    },
-    postsContainer: {},
-    input: {
-        flex: 1,
-        marginRight: 30,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: "#ccc",
-        marginVertical: 16,
-    },
-});

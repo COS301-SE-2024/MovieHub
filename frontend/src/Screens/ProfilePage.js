@@ -21,7 +21,7 @@ export default function ProfilePage({ route }) {
     const [routes] = useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
-        { key: "watchlist", title: "Watchlist" },
+        { key: "watchlist", title: "Watchlists" },
     ]);
 
     const { userInfo } = route.params;
@@ -172,7 +172,7 @@ export default function ProfilePage({ route }) {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 1,
-            borderBottomColor: "#ddd",
+            borderBottomColor: theme.borderColor,
         },
         indicator: {
             backgroundColor: colors.primary,

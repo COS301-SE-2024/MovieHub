@@ -1,7 +1,40 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 
 const PrivacyPolicy = () => {
+    const { theme } = useTheme();
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 20,
+            backgroundColor: theme.backgroundColor,
+        },
+        section: {
+            marginBottom: 20,
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        heading: {
+            fontSize: 20,
+            fontWeight: "bold",
+            marginBottom: 10,
+            color: theme.textColor,
+        },
+        subHeading: {
+            fontSize: 16,
+            fontWeight: "bold",
+            marginBottom: 5,
+            color: theme.textColor,
+        },
+        paragraph: {
+            marginBottom: 10,
+            fontSize: 16,
+            color: theme.textColor,
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.section}>
@@ -79,30 +112,5 @@ const PrivacyPolicy = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: "#fff",
-    },
-    section: {
-        marginBottom: 20,
-        fontSize: 16,
-    },
-    heading: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
-    subHeading: {
-        fontSize: 16,
-        fontWeight: "bold",
-        marginBottom: 5,
-    },
-    paragraph: {
-        marginBottom: 10,
-        fontSize: 16,
-    },
-});
 
 export default PrivacyPolicy;

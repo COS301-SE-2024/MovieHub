@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
@@ -9,6 +10,7 @@ import Review from "./Review";
 export default function FollowerLikesTab({ userInfo, userProfile, handleCommentPress, orginalUserinfo}) {
     const [likedPosts, setLikedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { theme } = useTheme();
 
     console.log("followers likes",userInfo);
     console.log("followers profile",userProfile);
@@ -107,6 +109,26 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
         );
     }
 
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 35,
+            paddingTop: 55,
+            textAlign: "center",
+        },
+        title: {
+            fontSize: 16,
+            color: theme.textColor,
+            textAlign: "center",
+        },
+        subtitle: {
+            fontSize: 14,
+            textAlign: "center",
+            color: theme.gray,
+        },
+    });
+    
+
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
@@ -162,21 +184,3 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-        paddingHorizontal: 35,
-        paddingTop: 55,
-        textAlign: "center",
-    },
-    title: {
-        fontSize: 16,
-        color: "#666",
-        textAlign: "center",
-    },
-    subtitle: {
-        fontSize: 14,
-        textAlign: "center",
-        color: "#7b7b7b",
-    },
-});

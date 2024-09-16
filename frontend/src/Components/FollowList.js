@@ -1,21 +1,13 @@
-import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TouchableOpacity } from "react-native";
+import React from "react";
+import { View, Text, Image, StyleSheet, } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
-import { useNavigation } from "@react-navigation/native";
 
-import { removePost } from "../Services/PostsApiServices";
-import { toggleLikePost } from "../Services/LikesApiService";
-
-const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) => {
-
+const FollowList = ({ route, username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) => {
     const { theme } = useTheme();
 
     const styles = StyleSheet.create({
         container: {
-            backgroundColor: '#ffffff',
+            backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
             shadowColor: "#000",
@@ -23,12 +15,9 @@ const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, imag
                 width: 0,
                 height: 2,
             },
-            // shadowOpacity: 0.17,
-            // shadowRadius: 3.84,
-            borderColor: '#000000',
-            // elevation: 5,
-            borderTopWidth: 0, 
-            borderBottomWidth: 0.3, 
+            borderColor: "#000000",
+            borderTopWidth: 0,
+            borderBottomWidth: 0.3,
         },
         avatar: {
             width: 50,
@@ -38,7 +27,7 @@ const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, imag
             alignItems: "center",
             justifyContent: "center",
             marginRight: 10,
-            backgroundColor: 'black',
+            backgroundColor: "black",
             paddingLeft: 10,
         },
         username: {
@@ -68,14 +57,9 @@ const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, imag
                 </View>
             </View>
             {image && <Image source={{ uri: image }} style={styles.postImage} />}
-            <View style={styles.statsContainer}>
-    
-            </View>
-            
-                </View>
+            <View style={styles.statsContainer}></View>
+        </View>
     );
 };
-
-
 
 export default FollowList;

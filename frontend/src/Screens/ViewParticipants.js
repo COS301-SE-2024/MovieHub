@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { getRoomParticipants } from "../Services/RoomApiService";
+import { useTheme } from "../styles/ThemeContext";
 
 const participantsData = [
     { id: "1", name: "Itumeleng", username: "@ElectricTance" },
@@ -13,8 +14,9 @@ const participantsData = [
 ];
 
 const ViewParticipants = ({ route }) => {
-    console.log("Route",route);
+    const { theme, isDarkMode } = useTheme();
     const { roomId, isRoomCreator } = route.params;
+    console.log("Route",route);
     console.log("RoomId", roomId);
     console.log("Is room creator ", isRoomCreator);
     const [participants, setParticipants] = useState(participantsData);
@@ -60,7 +62,66 @@ const ViewParticipants = ({ route }) => {
                 </TouchableOpacity>}
             </View>
         </View>
-    );
+        );
+    
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+            paddingTop: 10,
+        },
+        participantItem: {
+            flexDirection: "row",
+            alignItems: "center",
+            padding: 10,
+            borderBottomWidth: 1,
+            borderColor: theme.borderColor,
+        },
+        profilePicture: {
+            marginLeft: 10,
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            marginRight: 10,
+            backgroundColor: "#000",
+        },
+        infoContainer: {
+            flex: 1,
+            justifyContent: "center",
+        },
+        nameText: {
+            fontSize: 16,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        usernameText: {
+            fontSize: 14,
+            color: "#888",
+        },
+        followButton: {
+            marginRight: 10,
+            paddingVertical: 5,
+            paddingHorizontal: 15,
+            borderRadius: 20,
+            backgroundColor: theme.primaryColor,
+        },
+        followButtonText: {
+            color: "#fff",
+            fontWeight: "bold",
+        },
+        followingButton: {
+            backgroundColor: "#E1E8ED",
+        },
+        followingButtonText: {
+            color: "#657786",
+        },
+        removeButton: {
+            paddingVertical: 5,
+            paddingHorizontal: 15,
+            borderRadius: 20,
+            backgroundColor: "#d10000",
+        },
+    });
 
     return (
         <View style={styles.container}>
@@ -69,62 +130,6 @@ const ViewParticipants = ({ route }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        paddingTop: 10,
-    },
-    participantItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        padding: 10,
-        borderBottomWidth: 1,
-        borderColor: "#ccc",
-    },
-    profilePicture: {
-        marginLeft: 10,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginRight: 10,
-        backgroundColor: "#000",
-    },
-    infoContainer: {
-        flex: 1,
-        justifyContent: "center",
-    },
-    nameText: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    usernameText: {
-        fontSize: 14,
-        color: "#888",
-    },
-    followButton: {
-        marginRight: 10,
-        paddingVertical: 5,
-        paddingHorizontal: 15,
-        borderRadius: 20,
-        backgroundColor: "#4A42C0",
-    },
-    followButtonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-    followingButton: {
-        backgroundColor: "#E1E8ED",
-    },
-    followingButtonText: {
-        color: "#657786",
-    },
-    removeButton: {
-        paddingVertical: 5,
-        paddingHorizontal: 15,
-        borderRadius: 20,
-        backgroundColor: "#d10000",
-    },
-});
+
 
 export default ViewParticipants;

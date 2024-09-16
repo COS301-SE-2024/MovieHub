@@ -142,6 +142,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
         },
         icon: {
             marginRight: 5,
+            color: theme.iconColor
         },
         statsContainer: {
             display: "flex",
@@ -241,7 +242,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
             <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
+                <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
                 <Text style={styles.statsNumber}>{liked ? likes + 1 : likes}</Text>
             </TouchableOpacity>
                 <View style={styles.stats}>
@@ -249,10 +250,6 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
-                </View>
-                <View style={styles.stats}>
-                    <Icon name="bookmark-border" size={20} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{saves}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>

@@ -175,6 +175,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         },
         icon: {
             marginRight: 5,
+            color: theme.iconColor,
         },
         statsContainer: {
             display: "flex",
@@ -235,7 +236,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             marginRight: 4,
         },
         followingText: {
-            color: "white",
+            color: theme.textColor,
             fontSize: 14,
         },
     });
@@ -261,7 +262,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                         <Text style={styles.followingText}>{isFollowing ? "Following" : "Follow"}</Text>
                     </TouchableOpacity>
                     <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                        <Icon name="more-vert" size={20} />
+                        <Icon name="more-vert" size={20} color={theme.iconColor} />
                     </Pressable>
                 </View>
             </View>
@@ -270,7 +271,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} onPress={toggleLike} />
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} onPress={toggleLike} />
                     <Text style={styles.statsNumber}>{likes > 0 ? likes : 0}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>

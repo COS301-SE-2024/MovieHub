@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { colors } from "../styles/theme";
+import { useTheme } from "../styles/ThemeContext";
 import { updateUserPassword } from "../Services/AuthApiService";
 
 export default function ChangePassword({ route }) {
+    const { theme } = useTheme();
     const [currPassword, setCurrPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -60,6 +62,79 @@ export default function ChangePassword({ route }) {
             Alert.alert("Error", errorMessage);
         }
     };
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        scrollContainer: {
+            paddingTop: 10,
+        },
+        passwordRequirements: {
+            paddingHorizontal: 28,
+            color: theme.gray,
+        },
+        inputContainer: {
+            paddingLeft: 30,
+        },
+        label: {
+            fontWeight: "bold",
+            paddingBottom: 8,
+            paddingTop: 20,
+            color: theme.textColor,
+        },
+        inputText: {
+            height: 40,
+            width: 300,
+            borderColor: "#7b7b7b",
+            borderWidth: 1,
+            paddingHorizontal: 10,
+            fontSize: 16,
+            color: "#000",
+            backgroundColor: "#fff",
+            borderRadius: 10,
+        },
+        inputError: {
+            borderColor: theme.borderColor,
+        },
+        line: {
+            marginTop: 30,
+            height: 1,
+            backgroundColor: "#e0e0e0",
+            marginVertical: 5,
+            shadowColor: "#e0e0e0",
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 1,
+        },
+        saveButton: {
+            alignSelf: "center",
+            backgroundColor: theme.primaryColor,
+            padding: 12,
+            borderRadius: 10,
+            width: "100%",
+            marginTop: 25,
+            alignItems: "center",
+            opacity: 1,
+        },
+        saveButtonDisabled: {
+            opacity: 0.7,
+        },
+        saveButtonText: {
+            color: "#fff",
+            fontWeight: "bold",
+        },
+        forgotPassword: {
+            color: "#0f5bd1",
+            marginTop: 20,
+            marginLeft: 30,
+        },
+    });
 
     return (
         <KeyboardAvoidingView
@@ -122,74 +197,4 @@ export default function ChangePassword({ route }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-    },
-    scrollContainer: {
-        paddingTop: 10,
-    },
-    passwordRequirements: {
-        paddingHorizontal: 28,
-        color: "#7b7b7b",
-    },
-    inputContainer: {
-        paddingLeft: 30,
-    },
-    label: {
-        fontWeight: "bold",
-        paddingBottom: 8,
-        paddingTop: 20,
-    },
-    inputText: {
-        height: 40,
-        width: 300,
-        borderColor: "#7b7b7b",
-        borderWidth: 1,
-        paddingHorizontal: 10,
-        fontSize: 16,
-        color: "#000",
-        backgroundColor: "#fff",
-        borderRadius: 10,
-    },
-    inputError: {
-        borderColor: "#FF4C4C",
-    },
-    line: {
-        marginTop: 30,
-        height: 1,
-        backgroundColor: "#e0e0e0",
-        marginVertical: 5,
-        shadowColor: "#e0e0e0",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 1,
-    },
-    saveButton: {
-        alignSelf: "center",
-        backgroundColor: colors.primary,
-        padding: 12,
-        borderRadius: 10,
-        width: "100%",
-        marginTop: 25,
-        alignItems: "center",
-        opacity: 1,
-    },
-    saveButtonDisabled: {
-        opacity: 0.7,
-    },
-    saveButtonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-    forgotPassword: {
-        color: "#0f5bd1",
-        marginTop: 20,
-        marginLeft: 30,
-    },
-});
+
