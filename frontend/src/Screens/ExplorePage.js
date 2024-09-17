@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        marginRight: 30,
+        marginRight: 30, },
     divider: {
         height: 1,
         backgroundColor: "#ccc",
