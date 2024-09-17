@@ -89,16 +89,11 @@ const SignupPage = () => {
             setError("Username must be at least 3 characters long");
             return;
         }
-        console.log("This is the username ", username);
         try {
             //  await signUp(email, password, username);
             const data = await registerUser(email, password, username);
-            console.log("Email verification sent to " + email + ". Please verfiy your email to proceed");
-
-            console.log("User Registering???");
             await SecureStore.setItemAsync("userToken", data.data.token);
             setError("");
-            console.log("User signed up successfully");
             //navigate to the home page with the users info
             const userInfo = {
                 userId: data.data.uid,

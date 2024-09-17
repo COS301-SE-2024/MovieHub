@@ -41,7 +41,6 @@ const CreateWatchParty = ({ route }) => {
     const handleCreateParty = () => {
         // TODO: Handle create party logic here
         // Pick which page to navigate to based on the selected platform?
-        console.log("Let's get this party started!: ", partyTitle, selectedDate, selectedPlatform);
     };
 
     const toggleTooltip = () => {

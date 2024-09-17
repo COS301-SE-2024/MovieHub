@@ -112,7 +112,6 @@ const WatchParty = ({ route }) => {
 
     const sendMessage = async () => {
         if (message.trim() === "") return;
-        console.log("userInfo",userInfo);
         const newMessage = {
             id: Math.random().toString(),
             sender: userInfo.username,

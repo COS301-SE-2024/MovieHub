@@ -42,7 +42,6 @@ export default function ChangePassword({ route }) {
 
         try {
             const result = await updateUserPassword(currPassword, newPassword);
-            console.log("Result update password:", result);
             if (result.success) {
                 Alert.alert("Success", result.message);
                 setCurrPassword("");

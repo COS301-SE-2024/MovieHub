@@ -63,11 +63,8 @@ const ProfileSetupPage = ({ route }) => {
         }
 
         setError("");
-        console.log({ name, bio, pronouns, favouriteGenres, userInfo, avatar, });
         const updatedData = { avatar, name, bio, pronouns, favouriteGenres };
         const updatedUser = await updateUserProfile(userInfo.userId, updatedData);
-        console.log("Update went well", updatedUser);
-
         userInfo.updatedData = updatedData;
 
         navigation.navigate("Home", { userInfo });

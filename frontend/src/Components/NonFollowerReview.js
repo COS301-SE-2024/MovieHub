@@ -12,7 +12,6 @@ import { colors } from "../styles/theme";
 
 
 export default function NonFollowerReview({ uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete,Otheruid ,reviewId }) {
-    console.log("entered reviews", reviewId);
     const { theme } = useTheme();
     const [hasLiked, setHasLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(likes);
@@ -30,13 +29,10 @@ export default function NonFollowerReview({ uid, username, userHandle, userAvata
             await toggleLikeReview(body);
             setHasLiked(!hasLiked);
             setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
-            console.log("Toggle like successful");
         } catch (error) {
             console.error("Error toggling like:", error);
         }
     };
-
-    console.log("man [2] you better work", userInfo)
 
     useEffect(() => {
         const fetchLikeStatus = async () => {
@@ -75,7 +71,6 @@ export default function NonFollowerReview({ uid, username, userHandle, userAvata
 
     const navigation = useNavigation();
 
-    // console.log("yayy User Info:", otherUserInfo);
 
     const handlePress = () => {
         navigation.navigate("Profile", {
@@ -86,8 +81,6 @@ export default function NonFollowerReview({ uid, username, userHandle, userAvata
 
     const toggleFollow = async () => {
         try {
-            console.log("This is the current users info: ", userInfo);
-            console.log("This is the other users info: ", otherUserInfo);
             if (isFollowing) {
                 await unfollowUser(userInfo.userId, otherUserInfo.uid);
             } else {

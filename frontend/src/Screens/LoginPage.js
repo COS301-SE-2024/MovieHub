@@ -52,13 +52,10 @@ const LoginPage = () => {
             const userData = await getUserProfile(userInfo.userId);
 
             const verified = await isUserVerified();
-            // console.log("User Verified:", verified);
 
             if (!verified) {
-                console.log("User is not verified");
                 navigation.navigate("VerificationPage", { userInfo });
             } else if (!userData.name) {
-                console.log("User has no name");
                 navigation.navigate("ProfileSetup", { userInfo });
             } else {
                 // prevents the user from going back to the login page

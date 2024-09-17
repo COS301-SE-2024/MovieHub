@@ -20,7 +20,6 @@ export default function BottomHeader({ userInfo }) {
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
-            console.log("Response:", response);
             setAvatar(response.avatar)
 
         } catch (error) {
