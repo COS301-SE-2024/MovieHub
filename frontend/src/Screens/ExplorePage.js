@@ -199,14 +199,6 @@ export default function ExplorePage({ route }) {
                 <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
             </View>
             </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <CategoriesFilters categoryName="Top Reviews" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Latests Posts" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Action" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Comedy" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Drama" selectedCategory={selectedCategory} />
-                </ScrollView>
-
                 <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
                     <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }}  onPress={handleOpenHub} />
