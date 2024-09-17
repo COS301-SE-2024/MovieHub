@@ -31,7 +31,7 @@
     "base64-arraybuffer": "^1.0.2",
     "cors": "^2.8.5",
     "expo": "^51.0.27",
-    "expo-dev-client": "~4.0.22",
+    "expo-dev-client": "~4.0.26",
     "expo-file-system": "~17.0.1",
     "expo-image-picker": "^15.0.7",
     "expo-linear-gradient": "^13.0.2",
