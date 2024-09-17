@@ -8,38 +8,7 @@ import moment from "moment"; // Use moment.js for date formatting
 
 const Notifications = ({ route }) => {
     const { userInfo } = route.params;
-    const [notifications, setNotifications] = useState([
-        {
-            id: "1",
-            message: "You have a new message from John Doe",
-            read: false,
-            type: "messages",
-            notificationType: "message",
-        },
-        {
-            id: "2",
-            message: "You have been invited to a room",
-            read: false,
-            type: "room_invitations",
-            notificationType: "room_invite",
-            shortCode: "XYZ123",
-            roomId: "123",
-        },
-        {
-            id: "3",
-            message: "Your password was changed successfully",
-            read: true,
-            type: "system",
-            notificationType: "system",
-        },
-        {
-            id: "4",
-            message: "username started following you",
-            read: true,
-            type: "follow",
-            notificationType: "follow",
-        },
-    ]);
+    const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -313,11 +282,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 100,
     },
     noNotificationsText: {
         fontSize: 18,
         color: "#888",
+        paddingBottom: 50,
     },
     sectionHeader: {
         fontSize: 18,
