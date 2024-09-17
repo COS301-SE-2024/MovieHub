@@ -8,7 +8,8 @@ import moment from "moment"; // Use moment.js for date formatting
 
 const Notifications = ({ route }) => {
     const { userInfo } = route.params;
-    const [notifications, setNotifications] = useState();
+    const [notifications, setNotifications] = useState([]);
+    const [categorizedNotifications, setCategorizedNotifications] = useState({});
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -35,6 +36,9 @@ const Notifications = ({ route }) => {
                 }
                 flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
                 setNotifications(flattenedNotifications);
+                console.log("Notifications fetched:", notifications);
+                setCategorizedNotifications(categorizeNotifications(notifications));
+
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
             }
@@ -172,8 +176,6 @@ const Notifications = ({ route }) => {
         </View>
     );
 
-    const categorizedNotifications = categorizeNotifications(notifications);
-
     return (
         <View style={styles.container}>
             <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
@@ -192,9 +194,9 @@ const Notifications = ({ route }) => {
                                     </View>
                                 )
                         )}
-                        <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                        {notifications.length > 0 && <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
                             <Text style={styles.buttonText}>Clear All</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>}
                     </ScrollView>
                 )}
             </View>
@@ -289,7 +291,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     clearButton: {
-        backgroundColor: "#007bff",
+        backgroundColor: "#4a42c0",
         padding: 10,
         borderRadius: 5,
         alignItems: "center",
