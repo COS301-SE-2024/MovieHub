@@ -276,6 +276,8 @@ const Home = ({ route }) => {
                                         key={index}
                                         postId={content.post.postId}
                                         uid={content.friend.uid}
+                                        userInfo={userInfo}
+                                        otherUserInfo={content.friend}
                                         username={content.post.name}
                                         userAvatar={content.friend.avatar}
                                         userHandle={`@${content.post.username}`}
@@ -297,6 +299,8 @@ const Home = ({ route }) => {
                                         key={index}
                                         reviewId={content.review.reviewId}
                                         uid={userInfo.userId}
+                                        userInfo={userInfo}
+                                        otherUserInfo={content.friend}
                                         username={content.friend.username}
                                         userHandle={`${content.friend.username}`}
                                         userAvatar={content.friend.avatar}
