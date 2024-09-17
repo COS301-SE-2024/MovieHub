@@ -141,7 +141,6 @@ export const searchMovies = async (query) => {
                 return movie.vote_average >= 8.0 && movie.popularity >= 100;
             });
     
-            console.log('Classic Movies:', classicMovies);
         } catch (error) {
             console.error('Error fetching classic movies:', error);
         }

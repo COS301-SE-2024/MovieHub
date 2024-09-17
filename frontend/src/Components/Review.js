@@ -33,7 +33,6 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             await toggleLikeReview(body);
             setHasLiked(!hasLiked);
             setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
-            console.log('Toggle like successful');
         } catch (error) {
             console.error('Error toggling like:', error);
         }
