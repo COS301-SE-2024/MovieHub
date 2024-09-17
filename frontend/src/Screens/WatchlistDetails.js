@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet,useWindowDimensions, RefreshControl, ActivityIndicator } from 'react-native';
 import { getWatchlistDetails } from '../Services/ListApiService'; // Make sure to adjust the import path
+import { useTheme } from "../styles/ThemeContext";
+import { colors, themeStyles } from "../styles/theme";
 
 const WatchlistDetails = ({route }) => {
+    const { theme } = useTheme();
     const [iniWatchlist, setWatchlist] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,7 +33,13 @@ const WatchlistDetails = ({route }) => {
         fetchWatchlistDetails();
     }, [watchlist]);
 
-    if (loading) return <Text>Loading...</Text>;
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
     if (error) return <Text>Error: {error}</Text>;
 
     return (
@@ -101,6 +110,16 @@ const styles = StyleSheet.create({
     movieDuration: {
         fontSize: 14,
         color: '#888',
+    },
+    indicator: {
+        backgroundColor: colors.primary,
+        borderRadius: 50,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: '#fff',
     },
 });
 
