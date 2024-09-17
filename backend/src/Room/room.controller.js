@@ -273,3 +273,32 @@ exports.deleteRoom = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
+exports.getRoomAdmins = async (req, res) => {
+    const roomId = req.params.roomId;
+    try {
+        const result = await roomService.getRoomAdmins(roomId);
+        if (result.success) {
+            return res.status(200).json(result.admins);
+        } else {
+            return res.status(400).json({ message: result.message });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+exports.toggleAdmin = async (req, res) => {
+    const uid = req.body.uid;
+    const roomId = req.body.roomId;
+    try {
+        const admin = await likesService.toggleAdmin(uid, roomId);
+        const message = admin ? 'User made admin' : 'Admin privileges removed';
+        if (admin !== null)
+            responseHandler(res, 200, message);
+        else
+            res.status(400).json({ message: 'Error toggling admin' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};

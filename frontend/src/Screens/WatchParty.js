@@ -35,6 +35,7 @@ const WatchParty = ({ route }) => {
     const flatListRef = useRef(null);
     const bottomSheetRef = useRef(null);
     const [visibleTimestamp, setVisibleTimestamp] = useState(null);
+
     useEffect(() => {
         const fetchParticipantsAndMessages = async () => {
             try {
@@ -42,24 +43,21 @@ const WatchParty = ({ route }) => {
                 const { participants: fetchedParticipants, creator: fetchedCreator } = await getRoomParticipants(roomId);
                 setParticipants(fetchedParticipants);
                 setCreator(fetchedCreator);
-
                 // Fetch room details.
                 const roomDetails = await getRoomDetails(roomId);
                 setRoomName(roomDetails.room.roomName || "Unknown Room"); // Set room name
-
                 // Fetch messages
                 const fetchedMessages = await getMessagesFromRoom(roomId);
                 const formattedMessages = Object.entries(fetchedMessages).map(([key, value]) => {
-                    const senderInfo = fetchedParticipants.find(participant => participant.uid === value.userId) || fetchedCreator;
+                    const senderInfo = fetchedParticipants.find(participant => participant.uid === value.uid) || fetchedCreator;
                     return {
                         id: key,
-                        sender: value.userId === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
-                        avatar: value.userId === userInfo.userId ? null : senderInfo.avatar || "https://i.pravatar.cc/300", // Placeholder avatar for others
+                        sender: value.uid === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
+                        avatar: value.uid === userInfo.userId ? null : senderInfo.avatar || "https://i.pravatar.cc/300", // Placeholder avatar for others
                         text: value.message,
                         timestamp: moment(value.timestamp).format("YYYY-MM-DD HH:mm:ss"),
                     };
                 });
-
                 setMessages(formattedMessages);
             } catch (error) {
                 console.error("Failed to fetch participants or messages:", error);
@@ -114,7 +112,7 @@ const WatchParty = ({ route }) => {
 
     const sendMessage = async () => {
         if (message.trim() === "") return;
-
+        console.log("userInfo",userInfo);
         const newMessage = {
             id: Math.random().toString(),
             sender: userInfo.username,

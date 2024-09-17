@@ -158,7 +158,7 @@ const ViewRoom = ({ route }) => {
                         <TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
                             <Text style={styles.enterText}>Join Room</Text>
                         </TouchableOpacity>
-                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
+                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId, roomName})}>
                             <FAIcon name="users" size={16} />
                             <Text style={styles.participantsText}>{participantCount}</Text>
                         </Pressable>
