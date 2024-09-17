@@ -236,6 +236,12 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             color: "white",
             fontSize: 16,
         },
+        modalOverlay: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+        },
     });
 
     return (

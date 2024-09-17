@@ -57,7 +57,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,hand
                         return { ...post, commentsCount, likesCount, type: "post" };
                     })
                 );
-                console.log("Loook ", postsWithComments);
+                // console.log("Loook ", postsWithComments);
             }
 
             let reviewsWithComments = [];

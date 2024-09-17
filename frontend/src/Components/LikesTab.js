@@ -123,8 +123,8 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                                 userHandle={item.userHandle}
                                 userAvatar={item.properties.avatar}
                                 postTitle={item.properties.postTitle}
-                                likes={item.likesCount}
-                                comments={item.commentsCount}
+                                likes={item.likesCount ? item.likesCount : 0}
+                                comments={item.commentsCount ? item.commentsCount : 0}
                                 preview={item.properties.text}
                                 saves={getRandomNumber(0, 18)}
                                 image={item.properties.img || null}

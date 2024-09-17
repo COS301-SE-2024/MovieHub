@@ -1,28 +1,23 @@
 // backend/users/users.services.js
-import { updateUserContent } from '../Post/post.services';
-const { getDatabase, ref, get} = require('firebase/database');
+import { get, getDatabase, push, ref, set } from "firebase/database";
+import { updateUserContent } from "../Post/post.services";
 
-const neo4j = require('neo4j-driver');
-require('dotenv').config();
 
-const driver = neo4j.driver(
-    process.env.NEO4J_URI,
-    neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
-);
+const neo4j = require("neo4j-driver");
+require("dotenv").config();
+
+const driver = neo4j.driver(process.env.NEO4J_URI, neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD));
 
 exports.getUserProfile = async (userId) => {
     const session = driver.session();
-  
+
     try {
-        const result = await session.run(
-            'MATCH (u:User {uid: $userId}) RETURN u',
-            { userId }
-        );
+        const result = await session.run("MATCH (u:User {uid: $userId}) RETURN u", { userId });
         // console.log("Letssss see the result " , result);
         if (result.records.length === 0) {
             return null;
         }
-        return result.records[0].get('u').properties;
+        return result.records[0].get("u").properties;
     } finally {
         await session.close();
     }
@@ -41,7 +36,7 @@ exports.updateUserProfile = async (userId, updates) => {
             return null;
         }
         updateUserContent(userId);
-        return result.records[0].get('u').properties;
+        return result.records[0].get("u").properties;
     } catch (error) {
         throw error;
     } finally {
@@ -51,15 +46,11 @@ exports.updateUserProfile = async (userId, updates) => {
 
 exports.deleteUserProfile = async (userId) => {
     const session = driver.session();
-    console.log("Inside services")
+    console.log("Inside services");
     try {
-
-        const result = await session.run(
-            'MATCH (u:User {uid: $userId}) DETACH DELETE u RETURN count(u) as count',
-            { userId: userId }
-        );
+        const result = await session.run("MATCH (u:User {uid: $userId}) DETACH DELETE u RETURN count(u) as count", { userId: userId });
         // console.log(result);
-        const count = result.records[0].get('count');
+        const count = result.records[0].get("count");
         console.log(count);
         return { success: count > 0 };
     } finally {
@@ -79,19 +70,19 @@ exports.getUserWatchlists = async (userId) => {
         );
 
         // Log the query result
-        console.log('Query result:', result);
+        console.log("Query result:", result);
 
         if (result.records.length === 0) {
             console.warn(`No watchlists found for userId: ${userId}`);
             return [];
         }
 
-        const watchlists = result.records.map(record => {
-            console.log('Record:', record);
-            return record.get('w').properties;
+        const watchlists = result.records.map((record) => {
+            console.log("Record:", record);
+            return record.get("w").properties;
         });
 
-        console.log('Watchlists:', watchlists);
+        console.log("Watchlists:", watchlists);
         return watchlists;
     } finally {
         await session.close();
@@ -102,30 +93,23 @@ exports.createUserNode = async (uid, username) => {
     const session = driver.session();
     try {
         // Check if the username already exists
-        const checkUsernameResult = await session.run(
-            'MATCH (u:User {username: $username}) RETURN u',
-            { username }
-        );
+        const checkUsernameResult = await session.run("MATCH (u:User {username: $username}) RETURN u", { username });
 
         if (checkUsernameResult.records.length > 0) {
             // Username already exists
-            throw new Error('Username already exists');
+            throw new Error("Username already exists");
         }
 
         // Create the new user node
-        const createUserResult = await session.run(
-            'CREATE (u:User {uid: $uid, username: $username}) RETURN u',
-            { uid, username }
-        );
+        const createUserResult = await session.run("CREATE (u:User {uid: $uid, username: $username}) RETURN u", { uid, username });
 
-        return createUserResult.records[0].get('u');
+        return createUserResult.records[0].get("u");
     } catch (error) {
         throw error;
     } finally {
         await session.close();
     }
 };
-
 
 //Peer interactions
 // Follow a user
@@ -133,6 +117,7 @@ exports.followUser = async (followerId, followeeId) => {
     const session = driver.session();
 
     try {
+        // Create the follow relationship from follower to followee
         await session.run(
             `MERGE (follower:User {uid: $followerId})
              MERGE (followee:User {uid: $followeeId})
@@ -140,15 +125,61 @@ exports.followUser = async (followerId, followeeId) => {
             { followerId, followeeId }
         );
 
-        // Check if followee also follows the follower, and create a FRIENDS relationship if so
+        // Check if followee also follows the follower (to establish FRIENDS relationship)
         const result = await session.run(
-            `MATCH (follower:User {uid: $followerId})-[:FOLLOWS]->(followee:User {uid: $followeeId}),
-                   (followee)-[:FOLLOWS]->(follower)
-             MERGE (follower)-[:FRIENDS]-(followee)`,
+            `MATCH (follower:User {uid: $followerId})-[:FOLLOWS]->(followee:User {uid: $followeeId})
+             OPTIONAL MATCH (followee:User {uid: $followeeId})-[:FOLLOWS]->(follower)
+             RETURN count(followee) > 0 as isFollowing`,
             { followerId, followeeId }
         );
 
-        return { message: "Followed successfully" };
+        const isFolloweeFollowing = result.records[0].get("isFollowing");
+        console.log("User services: isFolloweeFollowing", isFolloweeFollowing);
+
+        // If followee follows follower, create FRIENDS relationship
+        if (isFolloweeFollowing) {
+            await session.run(
+                `MERGE (follower:User {uid: $followerId})-[:FRIENDS]-(followee:User {uid: $followeeId})`,
+                { followerId, followeeId }
+            );
+        }
+
+        // Fetch follower's name
+        const followerResult = await session.run(
+            `MATCH (follower:User {uid: $followerId})
+             RETURN follower.name AS followerName`,
+            { followerId }
+        );
+
+        console.log("User services: follower result", followerResult.records);
+
+        // Filter valid followerName records
+        const validFollowerRecord = followerResult.records.find(
+            record => record.get("followerName") !== null
+        );
+
+        if (!validFollowerRecord) {
+            throw new Error("Follower name is missing for user with ID: " + followerId);
+        }
+
+        const followerName = validFollowerRecord.get("followerName");
+        console.log("User services: follower name", followerName);
+
+        // Send notification to the followee
+        const db = getDatabase();
+        const notificationRef = ref(db, `notifications/${followeeId}/follows/${followerId}`);
+        const newNotificationRef = push(notificationRef);
+
+        await set(newNotificationRef, {
+            message: `${followerName} started following you`,  // Use follower's name in the notification
+            notificationType: "follow",
+            read: false,
+            followerId: followerId,
+            timestamp: new Date().toISOString(),
+            isFollowing: isFolloweeFollowing,
+        });
+
+        return { message: "Followed successfully", isFollowing: isFolloweeFollowing };
     } catch (error) {
         console.error("Error following user:", error);
         throw error;
@@ -156,6 +187,8 @@ exports.followUser = async (followerId, followeeId) => {
         await session.close();
     }
 };
+
+
 
 // Unfollow a user
 exports.unfollowUser = async (userId, targetUserId) => {
@@ -171,18 +204,17 @@ exports.unfollowUser = async (userId, targetUserId) => {
         );
 
         if (result.records.length === 0) {
-            throw new Error('Unfollow operation failed: relationship does not exist.');
+            throw new Error("Unfollow operation failed: relationship does not exist.");
         }
 
-        return { success: true, message: 'User unfollowed successfully' };
+        return { success: true, message: "User unfollowed successfully" };
     } catch (error) {
-        console.error('Error unfollowing user:', error);
+        console.error("Error unfollowing user:", error);
         throw error;
     } finally {
         await session.close();
     }
 };
-
 
 // Get friends of a user
 exports.getFriends = async (userId) => {
@@ -195,7 +227,7 @@ exports.getFriends = async (userId) => {
             { userId }
         );
 
-        const friends = result.records.map(record => record.get('friend').properties);
+        const friends = result.records.map((record) => record.get("friend").properties);
 
         return friends;
     } catch (error) {
@@ -217,7 +249,7 @@ exports.getFollowers = async (userId) => {
             { userId }
         );
 
-        const followers = result.records.map(record => record.get('follower').properties);
+        const followers = result.records.map((record) => record.get("follower").properties);
 
         return followers;
     } catch (error) {
@@ -239,7 +271,7 @@ exports.getFollowing = async (userId) => {
             { userId }
         );
 
-        const following = result.records.map(record => record.get('following').properties);
+        const following = result.records.map((record) => record.get("following").properties);
 
         return following;
     } catch (error) {
@@ -261,6 +293,7 @@ exports.getFollowerCount = async (userId) => {
         );
 
         console.log("Result:", result.records);
+        const followerCount = result.records[0].get("followerCount").toNumber();
 
         const followerCount = result.records[0].get('followerCount').toNumber();
         console.log("Follower count:", followerCount);
@@ -284,6 +317,7 @@ exports.getFollowingCount = async (userId) => {
         );
 
         const followingCount = result.records[0].get('followingCount').toNumber();
+
         return followingCount;
     } catch (error) {
         console.error("Error fetching following count:", error);
@@ -341,7 +375,38 @@ exports.getUserNotifications = async (userId) => {
     }
 };
 
+exports.getUnreadNotifications = async (userId) => {
+    const db = getDatabase();
+    const notificationsRef = ref(db, `notifications/${userId.id}`);
+
+    try {
+        const snapshot = await get(notificationsRef);
+        if (!snapshot.exists()) {
+            console.warn(`No notifications found for userId: ${userId}`);
+            return { unreadCount: 0 };
+        }
+
+        const notifications = snapshot.val();
+
+        if (!notifications) {
+            return 0; // No notifications found
+        }
+
+        let unreadCount = 0;
+        for (const key in notifications.comments) {
+            if (notifications.comments[key].read === false) {
+                unreadCount++;
+            }
+        }
+
+        return { unreadCount };
+    } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+        throw error;
+    }
+};
+
 // Close the driver when the application exits
-process.on('exit', async () => {
+process.on("exit", async () => {
     await driver.close();
 });

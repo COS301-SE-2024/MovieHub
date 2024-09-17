@@ -516,6 +516,7 @@ exports.leaveRoom = async (roomId, uid) => {
         );
 
         console.log(`User ${uid} left the room ${roomId}.`);
+        return { success: true, roomId: roomId };
     } catch (error) {
         console.error('Error leaving room:', error);
         throw error;

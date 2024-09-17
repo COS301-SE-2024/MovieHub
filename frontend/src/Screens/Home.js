@@ -17,6 +17,7 @@ import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
 import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
+import NonFollowerPost from "../Components/NonFollowerPost";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -144,7 +145,7 @@ const Home = ({ route }) => {
             );
 
             setSortedContent(enrichedContent);
-            console.log("Home: friends content fecthed");
+            console.log("Home: friends content fecthed", enrichedContent);
         } catch (error) {
             console.error("Failed to fetch friends content:", error);
         }
@@ -279,10 +280,10 @@ const Home = ({ route }) => {
                                     <Post
                                         key={index}
                                         postId={content.post.postId}
-                                        uid={userInfo.userId}
-                                        username={content.friend.username}
+                                        uid={content.friend.uid}
+                                        username={content.post.name}
                                         userAvatar={content.friend.avatar}
-                                        userHandle={`${content.friend.username}`}
+                                        userHandle={`@${content.post.username}`}
                                         likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
                                         comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
                                         postTitle={content.post.postTitle}
