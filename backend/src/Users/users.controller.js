@@ -189,6 +189,7 @@ exports.getUserNotifications = async (req, res) => {
         console.error('Error fetching notifications:', error);
         return res.status(500).json({ success: false, message: 'Failed to fetch notifications' });
     }
+
 };
 
 exports.getUnreadNotifications = async (req, res) => {

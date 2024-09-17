@@ -292,8 +292,11 @@ exports.getFollowerCount = async (userId) => {
             { userId }
         );
 
+        console.log("Result:", result.records);
         const followerCount = result.records[0].get("followerCount").toNumber();
 
+        const followerCount = result.records[0].get('followerCount').toNumber();
+        console.log("Follower count:", followerCount);
         return followerCount;
     } catch (error) {
         console.error("Error fetching follower count:", error);
@@ -313,7 +316,7 @@ exports.getFollowingCount = async (userId) => {
             { userId }
         );
 
-        const followingCount = result.records[0].get("followingCount").toNumber();
+        const followingCount = result.records[0].get('followingCount').toNumber();
 
         return followingCount;
     } catch (error) {

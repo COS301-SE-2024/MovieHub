@@ -100,9 +100,11 @@ const ProfileSetupPage = ({ route }) => {
             </View>
             <View>
                 <Text style={styles.label}>Pronouns</Text>
-                <TouchableOpacity onPress={() => setModalVisible({ ...modalVisible, pronouns: true })}>
-                    <Text style={styles.selectText}>{pronouns || "Select pronouns"}</Text>
-                </TouchableOpacity>
+                <View style={styles.inputText}>
+                    <TouchableOpacity onPress={() => setModalVisible({ ...modalVisible, pronouns: true })}>
+                        <Text style={styles.inputTextPlaceholder}>{pronouns || "Select pronouns"}</Text>
+                    </TouchableOpacity>
+                </View>
                 <Modal visible={modalVisible.pronouns} transparent={true} onRequestClose={() => setModalVisible({ ...modalVisible, pronouns: false })}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
@@ -123,10 +125,11 @@ const ProfileSetupPage = ({ route }) => {
             </View>
             <View>
                 <Text style={styles.label}>Favorite Genres</Text>
-                
-                    <TouchableOpacity onPress={() => setModalVisible({ ...modalVisible, favoriteGenres: true })}>
-                        <Text style={styles.selectText}>Select up to 3 genres</Text>
-                    </TouchableOpacity>
+                    <View style={styles.inputText}>
+                        <TouchableOpacity onPress={() => setModalVisible({ ...modalVisible, favoriteGenres: true })}>
+                            <Text style={styles.inputTextPlaceholder}>Select up to 3 genres</Text>
+                        </TouchableOpacity>
+                    </View>
                
                     <View horizontal={true} contentContainerStyle={{ flexDirection: "row" }}>
                         {favouriteGenres.map((option, index) => (
@@ -214,10 +217,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingHorizontal: 10,
         fontSize: 16,
-        color: "#000",
         backgroundColor: "#fff",
         borderRadius: 5,
         marginBottom: 5,
+        display: "flex",
+        justifyContent: "center",
+    },
+    inputTextPlaceholder:{
+        color:"#7b7b7b"
     },
     container: {
         flexGrow: 1,
@@ -231,6 +238,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         paddingBottom: 8,
         paddingTop: 20,
+        fontSize: 17,
+
     },
     btn: {
         width: 250,
@@ -252,7 +261,7 @@ const styles = StyleSheet.create({
         color: "#7b7b7b",
         backgroundColor: "#fff",
         borderRadius: 5,
-        textAlignVertical: "center",
+        // textAlignVertical: "center",
         marginBottom: 5,
     },
     chip: {
@@ -293,7 +302,7 @@ const styles = StyleSheet.create({
     option: {
         padding: 10,
         margin: 5,
-        borderRadius: 5,
+        borderRadius: 12,
         borderWidth: 1,
         borderColor: "#d9d9d9",
         color: "#007bff",

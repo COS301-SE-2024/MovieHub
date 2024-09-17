@@ -312,6 +312,7 @@ export const getFollowersCount = async (userId) => {
     });
 
     if (!response.ok) {
+        console.log("FOllowers count repsonse", response)
         throw new Error('Failed to get followers count');
     }
 

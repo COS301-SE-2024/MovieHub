@@ -1,6 +1,5 @@
 // backend/src/Watchlist/controller.js
 const WatchlistService = require('./list.services');
-import responseHandler from '../utils/responseHandler';
 
 exports.createWatchlist = async (req, res) => {
     const userId = req.params.userid;
@@ -9,14 +8,22 @@ exports.createWatchlist = async (req, res) => {
     try {
         console.log("Creating watchlist for user " + userId)
         const watchlist = await WatchlistService.createWatchlist(userId, watchlistData);
-        if (watchlist) {
-            responseHandler(res, 201, 'Watchlist created successfully', watchlist);
-        } else {
-            res.status(400).json({ message: 'Error creating watchlist' });
-        }
+        console.log(watchlist);
+        res.status(201).json(watchlist);
+        console.log("The response "+res);
     } catch (error) {
-        const statusCode = error.statusCode || 500;
-        res.status(statusCode).json({ message: error.message });
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.addMovieToWatchlist = async (req, res) => {
+    const { watchlistId, movieId } = req.body;
+
+    try {
+        const movie = await WatchlistService.addMovieToWatchlist(watchlistId, movieId);
+        res.status(201).json(movie);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -26,13 +33,9 @@ exports.modifyWatchlist = async (req, res) => {
 
     try {
         const watchlist = await WatchlistService.modifyWatchlist(watchlistId, updatedData);
-        if (watchlist) {
-            responseHandler(res, 200, 'Watchlist updated successfully', watchlist);
-        } else {
-            res.status(400).json({ message: 'Error updating watchlist' });
-        }
+        res.status(200).json(watchlist);
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -43,13 +46,9 @@ exports.getWatchlistDetails = async (req, res) => {
 
     try {
         const watchlistDetails = await WatchlistService.getWatchlistDetails(watchlistId);
-        if (watchlistDetails) {
-            responseHandler(res, 200, 'Watchlist details fetched successfully', watchlistDetails);
-        } else {
-            res.status(400).json({ message: 'Error fetching watchlist details' });
-        }
+        res.status(200).json(watchlistDetails);
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -68,13 +67,9 @@ exports.deleteWatchlist = async (req, res) => {
     const watchlistId = req.params.watchlistId;
 
     try {
-        const result = await WatchlistService.deleteWatchlist(watchlistId);
-        if (result) {
-            responseHandler(res, 200, 'Watchlist deleted successfully');
-        } else {
-            res.status(400).json({ message: 'Error deleting watchlist' });
-        }
+        await WatchlistService.deleteWatchlist(watchlistId);
+        res.status(204).send();
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };

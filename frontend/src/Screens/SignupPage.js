@@ -257,7 +257,7 @@ const SignupPage = () => {
     });
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+        <View behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.container}>
                     <View style={{ flexDirection: "row", alignItems: "center", }}>
@@ -321,7 +321,7 @@ const SignupPage = () => {
                     </View>
                 </View>
             </ScrollView>
-        </KeyboardAvoidingView>
+        </View>
     );
 };
 

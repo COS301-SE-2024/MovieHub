@@ -61,6 +61,7 @@ import Rooms from "./frontend/src/Screens/Rooms";
 import CreateWatchParty from "./frontend/src/Screens/CreateWatchParty";
 import VerificationPage from "./frontend/src/Screens/VerificationPage";
 import ForgotPasswordPage from "./frontend/src/Screens/ForgotPassword";
+import {UserProvider} from "./frontend/src/Services/UseridContext";
 
 const Nav = createStackNavigator();
 
@@ -69,7 +70,7 @@ export default function App() {
     const theme = useTheme();
 
     return (
-        // <WebSocketProvider>
+        <UserProvider>
         <GestureHandlerRootView>
             <ThemeProvider>
                 <NavigationContainer
@@ -432,5 +433,6 @@ export default function App() {
                 </NavigationContainer>
             </ThemeProvider>
         </GestureHandlerRootView>
+         </UserProvider>
     );
 }

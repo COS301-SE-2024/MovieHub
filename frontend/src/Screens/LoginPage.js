@@ -227,7 +227,7 @@ const LoginPage = () => {
     });
 
     return (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <View style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.container}>
@@ -291,7 +291,7 @@ const LoginPage = () => {
                     </View>
                 </ScrollView>
             </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+        </View>
     );
 };
 
