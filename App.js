@@ -288,10 +288,6 @@ export default function App() {
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
                                 headerTintColor: "black",
-                                headerTransparent: true,
-                                headerStyle: {
-                                    backgroundColor: "transparent",
-                                },
                             })}
                         />
                         <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
