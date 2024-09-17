@@ -96,8 +96,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             // shadowOpacity: 0.45,
             // shadowRadius: 3.84,
             // elevation: 5,
-            borderBottomWidth: 0.8,
-            borderTopWidth: 0.5,
+            borderBottomWidth: 0.3,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
@@ -121,11 +120,11 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             backgroundColor: colors.primary,
             padding: 8,
             borderRadius: 55,
-            marginTop: 10,
             width: 90,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            
         },
         reviewButtonText: {
             color: "white",
@@ -134,7 +133,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         },
         profileInfo: {
             alignItems: "center",
-            display: "flex",
+            justifyContent: "space-between",
             flexDirection: "row",
         },
         reviewImage: {
@@ -214,19 +213,20 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
+                <View style={{ flex:1 }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>
                         {userHandle} &bull; {dateReviewed}
                     </Text>
                 </View>
-                <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
+                <View style={styles.reviewButton}>
+                    <Text style={styles.reviewButtonText}>Review</Text>
+                </View>
+                <Pressable onPress={toggleModal} style={{ marginLeft: 10 }}>
                     <Icon name="more-vert" size={20} />
                 </Pressable>
             </View>
-            <View style={styles.reviewButton}>
-                <Text style={styles.reviewButtonText}>Review</Text>
-            </View>
+            
 
             {image ? <Image source={{ uri: image }} style={styles.reviewImage} /> : null}
 
@@ -288,9 +288,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
                     ) : (
                         <TouchableOpacity
                             style={styles.modalOption}
-                            onPress={() => {
-                                /* Report logic */
-                            }}>
+                            onPress={() => handleRemoveReview(uid, reviewId)}>
                             <Text style={styles.modalText}>Report</Text>
                         </TouchableOpacity>
                     )}
