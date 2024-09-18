@@ -98,6 +98,7 @@ export default function EditReview({ route }) {
 
         try {
             const review = await editReview(reviewData);
+            // console.log('Review edited successfully:', review);
             Alert.alert(
                 "Success",
                 "Review edited successfully",

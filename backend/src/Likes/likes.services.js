@@ -8,7 +8,7 @@ const driver = neo4j.driver(
 
 exports.getLikesOfUser = async (uid) => {
     const session = driver.session();
-    // console.log("getLikesOfUser", uid);
+    console.log("getLikesOfUser", uid);
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(p)
@@ -16,7 +16,7 @@ exports.getLikesOfUser = async (uid) => {
             RETURN p`,
             { uid }
         );
-        // console.log(result);
+        console.log(result);
         const  likedPosts = result.records.map(record => record.get('p'));
         return likedPosts;
     } finally {
@@ -26,7 +26,7 @@ exports.getLikesOfUser = async (uid) => {
 
 exports.getLikesOfReview = async (reviewId) => {
     const session = driver.session();
-    // console.log("getLikesOfReview", reviewId);
+    console.log("getLikesOfReview", reviewId);
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(r:Review)
@@ -35,7 +35,7 @@ exports.getLikesOfReview = async (reviewId) => {
             { reviewId }
         );
 
-        // console.log(result);
+        console.log(result);
         const likeCount = result.records[0].get('likeCount').toInt();
         return likeCount;
     } finally {
@@ -45,7 +45,7 @@ exports.getLikesOfReview = async (reviewId) => {
 
 exports.getLikesOfComment = async(commentId) => {
     const session = driver.session();
-    // console.log("getLikesOfComment", commentId);
+    console.log("getLikesOfComment", commentId);
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(c:Comment)
@@ -78,7 +78,7 @@ exports.getLikesOfMovie = async (movieId) => {
             { movieId }
         );
 
-        // console.log(result);
+        console.log(result);
         const likeCount = result.records[0].get('likeCount').toInt();
         return likeCount;
     } finally {
@@ -88,7 +88,7 @@ exports.getLikesOfMovie = async (movieId) => {
 
 exports.getLikesOfPost = async (postId) => {
     const session = driver.session();
-    // console.log("getLikesOfPost", postId);
+    console.log("getLikesOfPost", postId);
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(p:Post)
@@ -105,7 +105,7 @@ exports.getLikesOfPost = async (postId) => {
         }
 
         const likeCount = result.records[0].get('likeCount').toInt();
-        // console.log("Check the like count: ", likeCount);
+        console.log("Check the like count: ", likeCount);
         return likeCount;
     } catch (error) {
         console.error("Error getting likes of post:", error);

@@ -52,10 +52,13 @@ const LoginPage = () => {
             const userData = await getUserProfile(userInfo.userId);
 
             const verified = await isUserVerified();
+            // console.log("User Verified:", verified);
 
             if (!verified) {
+                console.log("User is not verified");
                 navigation.navigate("VerificationPage", { userInfo });
             } else if (!userData.name) {
+                console.log("User has no name");
                 navigation.navigate("ProfileSetup", { userInfo });
             } else {
                 // prevents the user from going back to the login page
@@ -224,7 +227,7 @@ const LoginPage = () => {
     });
 
     return (
-        <View style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.container}>
@@ -288,7 +291,7 @@ const LoginPage = () => {
                     </View>
                 </ScrollView>
             </TouchableWithoutFeedback>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 

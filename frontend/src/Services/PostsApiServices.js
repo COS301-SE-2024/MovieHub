@@ -45,13 +45,27 @@ export const addPost = async (bodyData) => {
     }else{
     bodyData.img = await uploadImage(bodyData.img, 'posts');
     }
+    // console.log('image:', bodyData.img);
+    
+    // const imgType = typeof bodyData.img;
+    // const isReviewType = typeof bodyData.isReview;
+    // const movieIdType = typeof bodyData.movieId;
+    // const postTitleType = typeof bodyData.postTitle;
+    // const ratingType = typeof bodyData.rating;
+    // const textType = typeof bodyData.text;
+    // const uidType = typeof bodyData.uid;
+    // console.log('types:', imgType, isReviewType, movieIdType, postTitleType, ratingType, textType, uidType);
+
     const stringed = JSON.stringify(bodyData);
+    // console.log('stringed:', stringed);
+
 
     try {
         const response = await fetchWithAuth(`${API_URL}add/post`, {
             method: 'POST',
             body: JSON.stringify(bodyData),
         });
+        // console.log('response', response);
         return response;
     } catch (error) {
         throw new Error('Failed to add post: ' + error.message);
@@ -60,7 +74,22 @@ export const addPost = async (bodyData) => {
     return data;
 };
 
+/* Body data
+{
+    "img": "https://smpxgyiogmxexcsfkkuz.supabase.co/storage/v1/object/public/images/images/posts/1723305876158_60fb546d-fea7-41d4-935e-9721a87c9068.jpeg", 
+    "isReview": false, 
+    "movieId": 843527, 
+    "postTitle": "Movie night with my dog", 
+    "rating": 0, 
+    "text": "Woof!", 
+    "uid": "uXv1j01ZbGPEXOUQljK70OoeeNn2"
+}
+
+*/
 export const addReview = async (bodyData) => {
+
+    // bodyData should contain: { uid, movieId, text, img, rating, reviewTitle, movieTitle }
+
     if(bodyData.img === null){
         bodyData.img = null;
     }else{

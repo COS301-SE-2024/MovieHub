@@ -223,13 +223,13 @@ exports.deleteWatchlist = async (watchlistId) => {
     const session = driver.session();
 
     try {
-        await session.run(
+        const result = await session.run(
             `MATCH (w:Watchlist {id: $watchlistId})
-             DETACH DELETE w`,
+             DETACH DELETE w
+             RETURN COUNT(l) AS removed`,
             { watchlistId }
         );
-
-        console.log('Watchlist deleted successfully');
+        return result.records[0].get('removed').low > 0;
     } finally {
         await session.close();
     }

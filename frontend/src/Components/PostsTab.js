@@ -52,6 +52,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         return { ...post, commentsCount, likesCount, type: "post" };
                     })
                 );
+                // console.log("Loook ", postsWithComments);
             }
 
             let reviewsWithComments = [];

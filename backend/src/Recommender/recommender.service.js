@@ -3,7 +3,7 @@ const { Client } = require('@elastic/elasticsearch');
 const { getMovieDetails } = require('../services/tmdb.service');
 const vectorizeMovies = require('../utils/vectorizeMovies');
 const cosineSimilarity = require('compute-cosine-similarity');
-const setupIndex = require('../scripts/setUpElastic');
+const setupIndex = require('../scripts/setupElastic');
 const indexMovies = require('../scripts/indexMovies');
 
 const client = new Client({ node: 'http://localhost:9200' });
