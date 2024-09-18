@@ -236,7 +236,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             marginRight: 4,
         },
         followingText: {
-            color: theme.textColor,
+            color: "white",
             fontSize: 14,
         },
     });
