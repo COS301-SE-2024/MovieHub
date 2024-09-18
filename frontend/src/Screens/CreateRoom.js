@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useTheme } from "../styles/ThemeContext";
 import { createRoom, fetchRandomImage } from "../Services/RoomApiService"; // Assuming you have service functions to create a room and fetch a random image
+import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import ModalSelector from "react-native-modal-selector";
 
 const CreateRoomScreen = ({ route }) => {
     const navigation = useNavigation();
+    const { theme } = useTheme();
     const { userInfo } = route.params;
     const [roomTitle, setRoomTitle] = useState("");
     const [accessLevel, setAccessLevel] = useState("Everyone");
@@ -77,7 +79,7 @@ const CreateRoomScreen = ({ route }) => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
-                    <MatIcon name="arrow-left" size={24} color="black" />
+                    <MatIcon name="arrow-left" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Create Room</Text>
             </View>

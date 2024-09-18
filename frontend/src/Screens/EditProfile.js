@@ -4,12 +4,14 @@ import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
 import { colors, themeStyles } from '../styles/theme';
+import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from '@react-navigation/native';
 import { uploadImage } from '../Services/imageUtils';
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
     const { userProfile } = route.params;
+    const { theme } = useTheme();
     const [avatar, setAvatar] = useState(userProfile.avatar);
     const [avatarChanged, setAvatarChanged] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -31,7 +33,7 @@ export default function EditProfile({ route }) {
         currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: defaultUserProfile.bio, tempValue: "" },
         pronouns: { isVisible: false, newValue: defaultUserProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
-        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
+        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favoriteGenres, tempValue: [], options: ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"] },
     });
 
     const applyChanges = async (field) => {
@@ -138,6 +140,7 @@ export default function EditProfile({ route }) {
     const handleOptionPress = (field, option) => {
         if (field === "pronouns") {
             setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: option, isVisible: false, newValue: option } });
+            // update field 
         } else if (field === "favouriteGenres") {
             const newOptions = [...modalContent[field].tempValue];
             if (newOptions.includes(option)) {
@@ -183,9 +186,123 @@ export default function EditProfile({ route }) {
         }
     }, [avatar, avatarChanged]);
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 30,
+        },
+        avatarContainer: {
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        avatar: {
+            width: 80,
+            height: 80,
+            borderRadius: 50,
+            marginBottom: 10,
+            borderColor: theme.primaryColor,
+            borderWidth: 1,
+        },
+        section: {
+            marginBottom: 20,
+        },
+        changePictureText: {
+            color: colors.primary, // Set the desired color here
+            fontSize: 16, 
+            fontWeight: 'bold', 
+        },
+        sectionTitle: {
+            fontSize: 18,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        sectionValue: {
+            fontSize: 16,
+            marginTop: 8,
+            color: theme.gray,
+        },
+        buttonContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingTop: 10,
+        },
+        buttonText: {
+            color: "#000",
+            textAlign: "center",
+            color: theme.textColor
+        },
+        entryButton: {
+            backgroundColor: theme.primaryColor,
+            padding: 16,
+            borderRadius: 4,
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        entryButtonText: {
+            color: theme.textColor,
+            fontSize: 16,
+            fontWeight: "medium",
+        },
+        line: {
+            height: 1,
+            backgroundColor: theme.borderColor,
+            width: "100%",
+            marginBottom: 20,
+        },
+        modalBackground: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+        },
+        modalContent: {
+            backgroundColor: theme.textColor,
+            padding: 20,
+            borderRadius: 10,
+            width: "80%",
+        },
+        modalTitle: {
+            fontSize: 18,
+            fontWeight: "bold",
+            marginBottom: 20,
+            color: theme.textColor
+        },
+        input: {
+            marginBottom: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.gray,
+            outlineStyle: "none",
+        },
+        buttonContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingTop: 10,
+        },
+        buttonText: {
+            color: "#0f5bd1",
+            textAlign: "center",
+        },
+        option: {
+            padding: 10,
+            margin: 5,
+            borderRadius: 5,
+            borderWidth: 1,
+            borderColor: theme.borderColor,
+            color: "#007bff",
+        },
+        chip: {
+            padding: 10,
+            margin: 6,
+            borderRadius: 10,
+            backgroundColor: theme.primaryColor,
+            color: theme.textColor,
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
-            <Text style={{ color: "#7b7b7b", marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
+            <Text style={{ color: theme.gray, marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
             <View style={styles.avatarContainer}>
                 <Image source={{ uri: avatar }} style={styles.avatar} />
                 <Text onPress={selectImage} style={styles.changePictureText}>
@@ -225,7 +342,7 @@ export default function EditProfile({ route }) {
                                     <ScrollView style={{ maxHeight: 200 }}>
                                         {modalContent[field].options.map((option, index) => (
                                             <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? theme.primaryColor : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
                                             </TouchableOpacity>
                                         ))}
                                     </ScrollView>
@@ -242,7 +359,7 @@ export default function EditProfile({ route }) {
                                 <ScrollView>
                                     {modalContent[field].options.map((option, index) => (
                                         <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                            <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                            <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? theme.primaryColor : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </ScrollView>
@@ -270,112 +387,4 @@ export default function EditProfile({ route }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        paddingHorizontal: 30,
-    },
-    avatarContainer: {
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 50,
-        marginBottom: 10,
-    },
-    section: {
-        marginBottom: 20,
-    },
-    changePictureText: {
-        color: colors.primary, // Set the desired color here
-        fontSize: 16, // Optional: adjust the font size if needed
-        fontWeight: 'bold', // Optional: make the text bold if needed
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-    },
-    sectionValue: {
-        fontSize: 16,
-        marginTop: 8,
-        color: "#7b7b7b",
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingTop: 10,
-    },
-    buttonText: {
-        color: "#000",
-        textAlign: "center",
-        // color: colors.primary
-    },
-    entryButton: {
-        backgroundColor: "#4A42C0",
-        padding: 16,
-        borderRadius: 4,
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    entryButtonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "medium",
-    },
-    line: {
-        height: 1,
-        backgroundColor: "lightgray",
-        width: "100%",
-        marginBottom: 20,
-    },
-    modalBackground: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    modalContent: {
-        backgroundColor: "white",
-        padding: 20,
-        borderRadius: 10,
-        width: "80%",
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 20,
-    },
-    input: {
-        marginBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: "#7b7b7b",
-        outlineStyle: "none",
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingTop: 10,
-    },
-    buttonText: {
-        color: "#0f5bd1",
-        textAlign: "center",
-    },
-    option: {
-        padding: 10,
-        margin: 5,
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: "#d9d9d9",
-        color: "#007bff",
-    },
-    chip: {
-        padding: 10,
-        margin: 6,
-        borderRadius: 10,
-        backgroundColor: "#7b7b7b",
-        color: "#fff",
-    },
-});
+

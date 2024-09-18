@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 import { followUser, getUserNotifications, unfollowUser } from "../Services/UsersApiService"; // Import from UsersApiService
 import { markNotificationAsRead, deleteNotification, clearNotifications } from "../Services/NotifyApiService"; // Import from NotifyApiService
 import { joinRoom, declineRoomInvite } from "../Services/RoomApiService"; // Import RoomApiService
@@ -176,6 +177,8 @@ const Notifications = ({ route }) => {
         </View>
     );
 
+    // const categorizedNotifications = categorizeNotifications(notifications);
+
     return (
         <View style={styles.container}>
             <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
@@ -194,9 +197,9 @@ const Notifications = ({ route }) => {
                                     </View>
                                 )
                         )}
-                        {notifications.length > 0 && <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                        <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
                             <Text style={styles.buttonText}>Clear All</Text>
-                        </TouchableOpacity>}
+                        </TouchableOpacity>
                     </ScrollView>
                 )}
             </View>
@@ -206,106 +209,138 @@ const Notifications = ({ route }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        paddingTop: 20,
-    },
-    listContainer: {
-        flexGrow: 1,
-        marginHorizontal: 5, // Optional: adjust as needed
-    },
-    avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        marginRight: 12, // Increase margin to separate from text
-    },
-    notificationItem: {
-        flexDirection: "row", // Ensure items are in a row
-        alignItems: "flex-start", // Align items at the start of the container
-        marginBottom: 16,
-        padding: 12,
-        paddingVertical: 20,
-        borderRadius: 8, // Added border radius for rounded corners
-        backgroundColor: "#f0f0f0", // Light gray background for all notifications
-    },
-    notificationContent: {
-        flex: 1, // Take up available space
-    },
-    notificationText: {
-        fontSize: 16,
-        color: "#333",
-        flexWrap: "wrap", // Wrap text if necessary
-    },
-    boldText: {
-        fontWeight: "bold",
-    },
-    readText: {
-        color: "#888",
-    },
-    unreadText: {
-        fontWeight: "bold",
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "flex-end",
-        marginTop: 8,
-    },
-    button: {
-        padding: 8,
-        borderRadius: 4,
-        marginLeft: 8,
-    },
-    followButton: {
-        backgroundColor: "#007bff",
-    },
-    acceptButton: {
-        backgroundColor: "#28a745",
-    },
-    declineButton: {
-        backgroundColor: "#dc3545",
-    },
-    deleteButton: {
-        backgroundColor: "#6c757d",
-    },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-    noNotificationsContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    noNotificationsText: {
-        fontSize: 18,
-        color: "#888",
-        paddingBottom: 50,
-    },
-    sectionHeader: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginVertical: 10,
-        marginLeft: 10,
-    },
-    clearButton: {
-        backgroundColor: "#4a42c0",
-        padding: 10,
-        borderRadius: 5,
-        alignItems: "center",
-        marginVertical: 20,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: "#ccc",
-        marginVertical: 8,
-    },
-    unreadBorder: {
-        borderLeftColor: "#4a42c0", // Purple color for unread notifications
-        borderLeftWidth: 5, // Adjust width as needed
-    },
-});
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+            paddingTop: 20,
+        },
+        listContainer: {
+            flexGrow: 1,
+            marginHorizontal: 5, // Optional: adjust as needed
+        },
+        avatar: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            marginRight: 12, // Increase margin to separate from text
+        },
+        notificationItem: {
+            flexDirection: "row", // Ensure items are in a row
+            alignItems: "flex-start", // Align items at the start of the container
+            marginBottom: 16,
+            padding: 12,
+            paddingVertical: 20,
+            borderRadius: 8, // Added border radius for rounded corners
+            backgroundColor: isDarkMode ? "#0f0f0f" : "#f0f0f0", // Light gray background for all notifications
+        },
+        notificationContent: {
+            flex: 1, // Take up available space
+        },
+        notificationText: {
+            fontSize: 16,
+            color: theme.gray,
+            flexWrap: "wrap", // Wrap text if necessary
+            color: theme.textColor,
+        },
+        boldText: {
+            fontWeight: "bold",
+        },
+        readText: {
+            color: theme.gray,
+        },
+        unreadText: {
+            fontWeight: "bold",
+        },
+        buttonContainer: {
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: 8,
+        },
+        button: {
+            padding: 8,
+            borderRadius: 4,
+            marginLeft: 8,
+        },
+        followButton: {
+            backgroundColor: "#007bff",
+        },
+        acceptButton: {
+            backgroundColor: "#28a745",
+        },
+        declineButton: {
+            backgroundColor: "#dc3545",
+        },
+        deleteButton: {
+            backgroundColor: "#6c757d",
+        },
+        buttonText: {
+            color: "#fff",
+            fontWeight: "bold",
+        },
+        noNotificationsContainer: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 100,
+        },
+        noNotificationsText: {
+            fontSize: 18,
+            color: theme.gray,
+        },
+        sectionHeader: {
+            fontSize: 18,
+            fontWeight: "bold",
+            marginVertical: 10,
+            marginLeft: 10,
+            color: theme.textColor,
+        },
+        clearButton: {
+            backgroundColor: "#007bff",
+            padding: 10,
+            borderRadius: 5,
+            alignItems: "center",
+            marginVertical: 20,
+        },
+        divider: {
+            height: 1,
+            backgroundColor: theme.borderColor,
+            marginVertical: 8,
+        },
+        unreadBorder: {
+            borderLeftColor: theme.primaryColor, // Purple color for unread notifications
+            borderLeftWidth: 5, // Adjust width as needed
+        },
+    });
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
+                {notifications.length === 0 ? (
+                    <View style={styles.noNotificationsContainer}>
+                        <Text style={styles.noNotificationsText}>You have no notifications at the moment</Text>
+                    </View>
+                ) : (
+                    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        {Object.keys(categorizedNotifications).map(
+                            (category) =>
+                                categorizedNotifications[category].length > 0 && (
+                                    <View key={category}>
+                                        <Text style={styles.sectionHeader}>{category === "today" ? "Today" : category === "yesterday" ? "Yesterday" : category === "lastWeek" ? "Last Week" : "Older Notifications"}</Text>
+                                        <FlatList data={categorizedNotifications[category]} renderItem={renderNotificationItem} keyExtractor={(item) => item.id.toString()} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} />
+                                    </View>
+                                )
+                        )}
+                        <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                            <Text style={styles.buttonText}>Clear All</Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+                )}
+            </View>
+
+            <BottomHeader userInfo={userInfo} />
+        </View>
+    );
+};
 
 export default Notifications;

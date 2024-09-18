@@ -11,13 +11,9 @@ import Review from "./Review";
 
 export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
-    const username = userProfile.name;
-    const userHandle = "@" + userInfo.username;
-    const avatar = userProfile.avatar;
     const navigation = useNavigation();
 
     const [posts, setPosts] = useState([]);
-    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;

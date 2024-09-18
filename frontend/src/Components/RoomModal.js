@@ -2,11 +2,13 @@ import React, { useCallback, useMemo, forwardRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Share, Alert } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { deleteRoom } from "../Services/RoomApiService"
 
 const RoomModal = forwardRef((props, ref) => {
+    const { theme } = useTheme();
     const navigation = useNavigation();
     const snapPoints = useMemo(() => ["42%", ], []);
     const isRoomCreator = props.isRoomCreator;
@@ -79,6 +81,34 @@ const RoomModal = forwardRef((props, ref) => {
             </View>
         </View>
     );
+    
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: "white",
+            padding: 16,
+            // height: "100%",
+            zIndex: 12,
+        },
+        title: {
+            fontSize: 18,
+            fontWeight: "bold",
+            marginBottom: 16,
+        },
+        iconsContainer: {
+            flexDirection: "column", // Corrected the flex direction
+            justifyContent: "space-around",
+            marginBottom: 16,
+        },
+        iconButton: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 10,
+            padding: 6,
+        },
+        icon: {
+            marginRight: 8,
+        },
+    });
 
     return (
         <BottomSheetModalProvider>
@@ -87,34 +117,6 @@ const RoomModal = forwardRef((props, ref) => {
             </BottomSheetModal>
         </BottomSheetModalProvider>
     );
-});
-
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "white",
-        padding: 16,
-        // height: "100%",
-        zIndex: 12,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 16,
-    },
-    iconsContainer: {
-        flexDirection: "column", // Corrected the flex direction
-        justifyContent: "space-around",
-        marginBottom: 16,
-    },
-    iconButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 10,
-        padding: 6,
-    },
-    icon: {
-        marginRight: 8,
-    },
 });
 
 export default RoomModal;

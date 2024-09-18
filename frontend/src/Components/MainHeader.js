@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { colors, themeStyles } from '../styles/theme';
+import { useTheme } from '../styles/ThemeContext';
 
 export default function MainHeader() {
     const navigation = useNavigation(); // Access the navigation prop using the hook

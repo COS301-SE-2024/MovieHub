@@ -22,7 +22,7 @@ export default function ProfilePage({ route }) {
     const [routes] = useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
-        { key: "watchlist", title: "Watchlist" },
+        { key: "watchlist", title: "Watchlists" },
     ]);
 
 
@@ -44,6 +44,7 @@ export default function ProfilePage({ route }) {
     const [followingCount, setFollowingCount] = useState(0);
 
     const fetchData = async () => {
+        // console.log("User Info:", userInfo);
         try {
             const userId = userInfo.userId;
             setUserInfo({  userId }); 
@@ -180,7 +181,7 @@ export default function ProfilePage({ route }) {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 1,
-            borderBottomColor: "#ddd",
+            borderBottomColor: theme.borderColor,
         },
         indicator: {
             backgroundColor: colors.primary,

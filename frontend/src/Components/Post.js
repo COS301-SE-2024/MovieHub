@@ -28,15 +28,15 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const toggleLike = async () => {
         const body = {
             postId: postId,
-            uid: uid
-        }
+            uid: uid,
+        };
 
         try {
             await toggleLikePost(body);
             setHasLiked(!hasLiked);
             setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
         } catch (error) {
-            console.error('Error toggling like:', error);
+            console.error("Error toggling like:", error);
         }
 
         setLiked(!liked);
@@ -45,8 +45,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const handleShare = async () => {
         try {
             const result = await Share.share({
-                url: '',
-                title: 'MovieHub',
+                url: "",
+                title: "MovieHub",
                 message: "Check this post out on MovieHub: " + postTitle,
             });
             if (result.action === Share.sharedAction) {
@@ -64,11 +64,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     };
 
     const toggleConfirmationModal = (postId) => {
-        setConfirmationModalVisible(!confirmationModalVisible);
-        
+        setConfirmationModalVisible(!confirmationModalVisible);        
     };
-
-
 
     useEffect(() => {
         const fetchLikeStatus = async () => {
@@ -87,13 +84,25 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         onDelete(postId);
         setConfirmationModalVisible(false);
         toggleModal();
-        Alert.alert('Success', 'Post deleted successfully!');
+        Alert.alert("Success", "Post deleted successfully!");
     };
 
     const handleEditPost = () => {
         toggleModal();
         navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
-    }
+    };
+
+    const handlePress = () => {
+        // if user owns post, return
+        if (isUserPost) {
+            return;
+        }
+        navigation.navigate("Profile", {
+            userInfo,
+            otherUserInfo,
+            isFollowing: true
+        });
+    };
 
     // TODO: Increment or decrement number of likes
 
@@ -155,6 +164,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         },
         icon: {
             marginRight: 5,
+            color: theme.textColor,
         },
         statsContainer: {
             display: "flex",
@@ -179,7 +189,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -197,7 +207,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         confirmationModal: {
@@ -216,9 +226,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         confirmationText: {
             fontSize: 16,
             marginBottom: 20,
-            fontWeight: 'bold',
-            textAlign: 'center',
-
+            fontWeight: "bold",
+            textAlign: "center",
         },
         confirmationButton: {
             marginTop: 10,
@@ -229,7 +238,6 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             alignItems: "center",
             width: "70%",
             marginBottom: 5,
-
         },
         confirmationButtonText: {
             color: "white",
@@ -237,22 +245,27 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         },
         modalOverlay: {
             flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
         },
     });
 
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
-                <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
-                    <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>{userHandle} &bull; {datePosted}</Text>
-                </View>
+                <Pressable style={{ display: "flex", flexDirection: "row", alignItems: "center" }} onPress={handlePress}>
+                    <Image source={{ uri: userAvatar }} style={styles.avatar} />
+                    {/* <Image source={{ uri: userAvatar }} style={styles.avatar} /> */}
+                    <View style={{ alignItems: "left" }}>
+                        <Text style={styles.username}>{username}</Text>
+                        <Text style={styles.userHandle}>
+                            {userHandle} &bull; {datePosted}
+                        </Text>
+                    </View>
+                </Pressable>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                    <Icon name="more-vert" size={20} />
+                    <Icon name="more-vert" size={20} color={theme.iconColor} />
                 </Pressable>
             </View>
             {image && <Image source={{ uri: image }} style={styles.postImage} resizeMode="cover" />}
@@ -269,7 +282,10 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
-                    <Pressable onPress={() => {handleCommentPress(postId, false)}}>
+                    <Pressable
+                        onPress={() => {
+                            handleCommentPress(postId, false);
+                        }}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
@@ -283,15 +299,14 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                 <View style={styles.modalContainer}>
                     {isUserPost ? ( // Check if the post belongs to the user
                         <>
-                            <TouchableOpacity
-                                style={styles.modalOption}
-                                onPress={handleEditPost}>
+                            <TouchableOpacity style={styles.modalOption} onPress={handleEditPost}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={styles.modalOption}
-                                onPress={() => {toggleConfirmationModal(postId);}}
-                            >
+                                onPress={() => {
+                                    toggleConfirmationModal(postId);
+                                }}>
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>
                         </>
@@ -306,21 +321,18 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                     )}
                 </View>
             )}
-            <Modal animationType="slide"
-                visible={confirmationModalVisible}
-                transparent={true}
-                onRequestClose={() => setConfirmationModalVisible(false)}>
+            <Modal animationType="slide" visible={confirmationModalVisible} transparent={true} onRequestClose={() => setConfirmationModalVisible(false)}>
                 <View style={styles.confirmationModal}>
                     <View style={styles.confirmationContainer}>
                         <Text style={styles.confirmationText}>Are you sure you want to delete this post?</Text>
                         <TouchableOpacity
                             style={styles.confirmationButton}
-                            onPress={() => {handleRemovePost(uid, postId);}}>
+                            onPress={() => {
+                                handleRemovePost(uid, postId);
+                            }}>
                             <Text style={styles.confirmationButtonText}>Delete</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.confirmationButton}
-                            onPress={() => setConfirmationModalVisible(false)}>
+                        <TouchableOpacity style={styles.confirmationButton} onPress={() => setConfirmationModalVisible(false)}>
                             <Text style={styles.confirmationButtonText}>Cancel</Text>
                         </TouchableOpacity>
                     </View>

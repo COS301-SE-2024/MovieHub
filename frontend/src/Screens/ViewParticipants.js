@@ -1,3 +1,7 @@
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { getRoomParticipants } from "../Services/RoomApiService";
+import { useTheme } from "../styles/ThemeContext";
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal } from "react-native";
 import { getRoomParticipants, kickUserFromRoom } from "../Services/RoomApiService";
@@ -17,6 +21,10 @@ const participantsData = [
 ];
 
 const ViewParticipants = ({ route }) => {
+    const { theme, isDarkMode } = useTheme();
+    console.log("Route",route);
+    console.log("RoomId", roomId);
+    console.log("Is room creator ", isRoomCreator);
     const navigation = useNavigation();
     const { roomId, isRoomCreator, roomName, admin } = route.params;
     const [participants, setParticipants] = useState(participantsData);

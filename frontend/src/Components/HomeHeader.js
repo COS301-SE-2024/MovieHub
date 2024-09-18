@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, Pressable, Dimensions, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { colors, themeStyles } from '../styles/theme';
+import { useTheme } from '../styles/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../styles/theme'; // Assuming you have a theme file
 
@@ -8,6 +11,8 @@ import { colors } from '../styles/theme'; // Assuming you have a theme file
 const { height, width } = Dimensions.get('window');
 
 export default function HomeHeader({ userInfo }) {
+    const { theme } = useTheme();
+    const navigation = useNavigation(); // Access the navigation prop using the hook
     const navigation = useNavigation();
 
     return (

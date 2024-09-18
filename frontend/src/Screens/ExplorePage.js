@@ -1,35 +1,35 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, FlatList,TextInput } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { StyleSheet, Text, View, ScrollView, FlatList, TextInput } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { Ionicons } from '@expo/vector-icons';
-import BottomHeader from '../Components/BottomHeader';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import NonFollowerPost from '../Components/NonFollowerPost';
-import CategoriesFilters from '../Components/CategoriesFilters';
-import ExploreHub from '../Components/ExploreHub';
-import { getFriendsOfFriendsContent, getRandomUsersContent } from '../Services/ExploreApiService';
-import { FacebookLoader, InstagramLoader } from 'react-native-easy-content-loader';
-import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; 
+import { useTheme } from "../styles/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
+import { getFriendsOfFriendsContent, getRandomUsersContent } from "../Services/ExploreApiService";
+import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
+import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
-import CommentsModal from '../Components/CommentsModal';
 import { getRecentRooms, getPublicRooms, getUserCreatedRooms, getUserParticipatedRooms, getRoomParticipantCount } from "../Services/RoomApiService";
-import UserRoomCard from '../Components/UserRoomCard';
+import BottomHeader from "../Components/BottomHeader";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import NonFollowerPost from "../Components/NonFollowerPost";
+import CategoriesFilters from "../Components/CategoriesFilters";
+import CommentsModal from "../Components/CommentsModal";
+import UserRoomCard from "../Components/UserRoomCard";
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
+    const { theme } = useTheme();
     const navigation = useNavigation();
+    const bottomSheetRef = useRef(null);
 
     const [friendsOfFriendsContent, setFriendsOfFriendsContent] = useState([]);
     const [randomUsersContent, setRandomUsersContent] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const bottomSheetRef = useRef(null);
+    const [selectedCategory, setSelectedCategory] = useState("");
     const [userProfile, setUserProfile] = useState(null);
     const [movies, setMovies] = useState([]);
     const [isPost, setIsPost] = useState(false);
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
-    const [selectedPostId, setSelectedPostId] = useState(null); 
+    const [selectedPostId, setSelectedPostId] = useState(null);
     const [recentRooms, setRecentRooms] = useState([]);
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
@@ -38,12 +38,13 @@ export default function ExplorePage({ route }) {
             try {
                 const friendsContent = await getFriendsOfFriendsContent(userInfo);
 
-
                 const enrichedFriendsContent = await Promise.all(
                     friendsContent.map(async (content) => {
                         if (content.post) {
                             const likes = await getLikesOfPost(content.post.postId);
                             const comments = await getCountCommentsOfPost(content.post.postId);
+                            // console.log("Post Likes:", likes.data);
+                            // console.log("Post Comments:", comments.data);
                             return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
                         }
                         if (content.review) {
@@ -54,12 +55,12 @@ export default function ExplorePage({ route }) {
                         return content;
                     })
                 );
-    
+
                 setFriendsOfFriendsContent(enrichedFriendsContent);
-    
+
                 const randomContent = await getRandomUsersContent(userInfo);
-    
-                const enrichedRandomContent = await Promise.all( 
+
+                const enrichedRandomContent = await Promise.all(
                     randomContent.map(async (content) => {
                         if (content.post) {
                             const likes = await getLikesOfPost(content.post.postId);
@@ -73,16 +74,15 @@ export default function ExplorePage({ route }) {
                         }
 
                         return content;
-
                     })
                 );
-    
+
                 setRandomUsersContent(enrichedRandomContent);
             } catch (error) {
-                console.error('Error fetching content:', error);
+                console.error("Error fetching content:", error);
             }
         };
-    
+
         fetchContent();
     }, [userInfo]);
 
@@ -95,6 +95,9 @@ export default function ExplorePage({ route }) {
     const handleOpenHub = () => {
         navigation.navigate("HubScreen", { userInfo });
     };
+
+    // console.log("friendsContent",friendsOfFriendsContent)
+    // console.log("randomContent",randomUsersContent)
 
     const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
@@ -161,53 +164,90 @@ export default function ExplorePage({ route }) {
             console.error("Failed to fetch recent rooms explore page:", error);
         }
     }, [userInfo.userId]);
-    
-    const renderRoomCard = ({ item }) => (
-        <UserRoomCard
-            roomName={item.roomName}
-            users={item.participantsCount}
-            live={item.roomType !== "Chat-only"}
-            keyword={getRandomKeyword()}
-            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId })}
-            coverImage={item.coverImage}
-        />
-    );
+
+    const renderRoomCard = ({ item }) => <UserRoomCard roomName={item.roomName} users={item.participantsCount} live={item.roomType !== "Chat-only"} keyword={getRandomKeyword()} handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId })} coverImage={item.coverImage} />;
 
     const getRandomKeyword = () => {
         return keywords[Math.floor(Math.random() * keywords.length)];
     };
-    
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            paddingVerical: 10,
+            backgroundColor: theme.backgroundColor,
+        },
+        searchBar: {
+            flexDirection: "row",
+            backgroundColor: theme.borderColor,
+            borderRadius: 50,
+            width: "95%",
+            padding: 10,
+            paddingHorizontal: 16,
+            marginTop: 15,
+            alignItems: "center",
+        },
+        searchBarSize: {
+            alignItems: "center",
+        },
+        heading: {
+            fontFamily: "Roboto",
+            color: theme.textColor,
+            fontSize: 23,
+            fontWeight: "bold",
+            paddingLeft: 10,
+            paddingTop: 1,
+        },
+        header: {
+            flexDirection: "row",
+            paddingTop: 15,
+            padding: 10,
+        },
+        postsContainer: {},
+        input: {
+            flex: 1,
+            marginRight: 30,
+            borderRadius: 10,
+        },
+        divider: {
+            height: 1,
+            backgroundColor: theme.borderColor,
+            marginVertical: 16,
+        },
+    });
+
     return (
         <View style={styles.container}>
             <ScrollView>
+                <View style={styles.searchBarSize}>
+                    <View style={styles.searchBar}>
+                        <Icon name="search" size={30} color={theme.iconColor} style={{ marginRight: 8 }} />
 
-            <View style={styles.searchBarSize}>
-            <View style={styles.searchBar}>
-                <Icon name="search" size={30} style={{ marginRight: 8 }} />
+                        <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={theme.gray} onChangeText={(text) => handleSearch(text)} />
+                    </View>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <CategoriesFilters categoryName="Top Reviews" selectedCategory={selectedCategory} />
+                    <CategoriesFilters categoryName="Latests Posts" selectedCategory={selectedCategory} />
+                    <CategoriesFilters categoryName="Action" selectedCategory={selectedCategory} />
+                    <CategoriesFilters categoryName="Comedy" selectedCategory={selectedCategory} />
+                    <CategoriesFilters categoryName="Drama" selectedCategory={selectedCategory} />
+                </ScrollView>
 
-                <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
-            </View>
-            </View>
                 <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
-                    <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }}  onPress={handleOpenHub} />
+                    <Ionicons name="chevron-forward" size={24} color={theme.iconColor} style={{ marginLeft: "auto" }} onPress={handleOpenHub} />
                 </View>
 
                 {recentRooms.length > 0 && (
                     <View>
-                        <FlatList
-                            data={recentRooms}
-                            renderItem={renderRoomCard}
-                            keyExtractor={(item) => item.roomId.toString()}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.roomList}
-                        />
+                        <FlatList data={recentRooms} renderItem={renderRoomCard} keyExtractor={(item) => item.roomId.toString()} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.roomList} />
                         <View style={styles.divider} />
                     </View>
                 )}
 
                 {/** POSTS */}
+
                 <InstagramLoader active loading={friendsOfFriendsContent.length === 0 && randomUsersContent.length === 0} />
                 <FacebookLoader active loading={friendsOfFriendsContent.length === 0 && randomUsersContent.length === 0} />
                 <FacebookLoader active loading={friendsOfFriendsContent.length === 0 && randomUsersContent.length === 0} />
@@ -227,12 +267,12 @@ export default function ExplorePage({ route }) {
                             comments={item.post.comments ? item.post.comments : 0}
                             saves={item.post ? item.post.saves : 0}
                             image={item.post ? item.post.img : null}
-                            postTitle={item.post ? item.post.postTitle : 'No Title'}
-                            preview={item.post ? item.post.text : 'No Preview'}
-                            datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
+                            postTitle={item.post ? item.post.postTitle : "No Title"}
+                            preview={item.post ? item.post.text : "No Preview"}
+                            datePosted={item.post ? item.post.createdAt : "Unknown Date"}
                             isUserPost={item.uid === userInfo.userId}
                             handleCommentPress={handleCommentPress}
-                        />
+                        />;
                     })}
                     {randomUsersContent.map((item, index) => (
                         <NonFollowerPost
@@ -247,9 +287,9 @@ export default function ExplorePage({ route }) {
                             comments={item.post.commentCount ?? 0}
                             saves={item.post ? item.post.saves : 0}
                             image={item.post ? item.post.img : null}
-                            postTitle={item.post ? item.post.postTitle : 'No Title'}
-                            preview={item.post ? item.post.text : 'No Preview'}
-                            datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
+                            postTitle={item.post ? item.post.postTitle : "No Title"}
+                            preview={item.post ? item.post.text : "No Preview"}
+                            datePosted={item.post ? item.post.createdAt : "Unknown Date"}
                             isUserPost={item.uid === userInfo.userId}
                             handleCommentPress={handleCommentPress}
                         />
@@ -257,64 +297,7 @@ export default function ExplorePage({ route }) {
                 </View>
             </ScrollView>
             <BottomHeader userInfo={userInfo} />
-            <CommentsModal    
-                ref={bottomSheetRef} 
-                isPost={isPost}
-                postId={selectedPostId} 
-                userId={userInfo.userId}
-                username={userInfo.username}
-                currentUserAvatar={userProfile ? userProfile.avatar : null}
-                comments={comments}
-                loadingComments={loadingComments}
-                onFetchComments={fetchComments}
-            />
+            <CommentsModal ref={bottomSheetRef} isPost={isPost} postId={selectedPostId} userId={userInfo.userId} username={userInfo.username} currentUserAvatar={userProfile ? userProfile.avatar : null} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
         </View>
-
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingVerical: 10,
-        backgroundColor: '#ffffff',
-        
-    },
-    searchBar: {
-        flexDirection: "row",
-        backgroundColor: "#e0e0e0",
-        borderRadius: 10,
-        width: '95%',
-        padding: 10,
-        marginTop: 15,
-        alignItems: "center",
-        
-    },
-    searchBarSize: {
-        alignItems: "center",   
-    },
-    heading: {
-        fontFamily: "Roboto",
-        color: "#000000",
-        fontSize: 23,
-        fontWeight: "bold",
-        paddingLeft: 10,
-        paddingTop: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        paddingTop: 15,
-        padding: 10,
-    },
-    postsContainer: {
-    },
-    input: {
-        flex: 1,
-        marginRight: 30,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: "#ccc",
-        marginVertical: 16,
-    },
-});
