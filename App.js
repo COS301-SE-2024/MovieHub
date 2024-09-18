@@ -164,9 +164,9 @@ export default function App() {
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
                                 headerRight: () => (
-                                    <View style={{ marginRight: 10 }}>
+                                    <View style={{ marginRight: 20 }}>
                                         <Text onPress={() => navigation.navigate("CustomDrawer")}>
-                                            <Icon name="menu" size={24} />
+                                            <Icon name="menu" size={30} />
                                         </Text>
                                     </View>
                                 ),
@@ -288,10 +288,6 @@ export default function App() {
                                 headerShadowVisible: false,
                                 headerBackTitleVisible: false,
                                 headerTintColor: "black",
-                                headerTransparent: true,
-                                headerStyle: {
-                                    backgroundColor: "transparent",
-                                },
                             })}
                         />
                         <Nav.Screen name="AccountSettings" component={AccountSettings} options={{ title: "Account Settings", headerShadowVisible: false, headerBackTitleVisible: false, headerTintColor: "black" }} />
@@ -345,15 +341,21 @@ export default function App() {
                             name="HubScreen"
                             component={HubScreen}
                             options={({ navigation }) => ({
-                                headerShown: false
-                            })} 
+                                title: "The Hub",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
+                            })}
                         />
 
                         <Nav.Screen 
                             name="CreateRoom"
                             component={CreateRoom}
                             options={({ navigation }) => ({
-                                headerShown: false
+                                title: "Create Room",
+                                headerShadowVisible: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: "black",
                             })}
                         />
 

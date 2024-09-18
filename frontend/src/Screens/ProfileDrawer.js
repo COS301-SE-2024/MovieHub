@@ -117,7 +117,7 @@ function CustomDrawer({ route }) {
 const styles = StyleSheet.create({
     drawer: {
         flex: 1,
-        paddingTop: 70,
+        paddingTop: 10,
         paddingBottom: 15,
     },
     label: {

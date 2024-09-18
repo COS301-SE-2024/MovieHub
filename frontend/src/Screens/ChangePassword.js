@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { colors } from "../styles/theme";
 import { updateUserPassword } from "../Services/AuthApiService";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ChangePassword({ route }) {
     const [currPassword, setCurrPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordMismatch, setPasswordMismatch] = useState(false);
-
+    const navigation = useNavigation();
     const allFieldsFilled = currPassword && newPassword && confirmPassword;
 
     const getErrorMessage = (error) => {
@@ -42,7 +43,6 @@ export default function ChangePassword({ route }) {
 
         try {
             const result = await updateUserPassword(currPassword, newPassword);
-            console.log("Result update password:", result);
             if (result.success) {
                 Alert.alert("Success", result.message);
                 setCurrPassword("");
@@ -83,8 +83,8 @@ export default function ChangePassword({ route }) {
                         secureTextEntry={true}
                     />
                 </View>
-
-                <View style={styles.line} />
+                
+                {/* <View style={styles.line} /> */}
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>New Password</Text>
@@ -106,7 +106,7 @@ export default function ChangePassword({ route }) {
                         secureTextEntry={true}
                     />
                 </View>
-                <Text style={styles.forgotPassword}>Forgot your password?</Text>
+                
                 <View style={{ flex: 0.8 }} />
                 <View style={{ paddingHorizontal: 16 }}>
                     <TouchableOpacity
@@ -117,6 +117,12 @@ export default function ChangePassword({ route }) {
                         <Text style={styles.saveButtonText}>Save</Text>
                     </TouchableOpacity>
                 </View>
+                <TouchableOpacity
+                    onPress={() => {
+                        navigation.navigate("ForgotPasswordPage");
+                    }}>
+                        <Text style={styles.forgotPassword}>Forgot your password?</Text>
+                </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -190,6 +196,8 @@ const styles = StyleSheet.create({
     forgotPassword: {
         color: "#0f5bd1",
         marginTop: 20,
-        marginLeft: 30,
+        // marginLeft: 30,
+        // alignContent: "center",
+        textAlign: 'center'
     },
 });

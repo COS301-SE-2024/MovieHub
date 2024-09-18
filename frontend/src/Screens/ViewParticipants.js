@@ -64,9 +64,7 @@ const ViewParticipants = ({ route }) => {
     useEffect(() => {
         const fetchRoomParticipants = async () => {
             try {
-                console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomParticipants(roomId);
-                console.log("Room participants: ", response);
                 const allParticipants = [response.creator, ...response.participants];
                 setParticipants(allParticipants);
             } catch (error) {

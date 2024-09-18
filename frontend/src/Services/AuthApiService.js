@@ -6,8 +6,6 @@ const localIP = getLocalIP();
 const API_URL = `http://${localIP}:3000/auth`;
 
 export const registerUser = async (email, password, username) => {
-    console.log("Inside AuthApi Service");
-
     const response = await fetch(`${API_URL}/register`, {
         method: "POST",
         headers: {
@@ -15,16 +13,10 @@ export const registerUser = async (email, password, username) => {
         },
         body: JSON.stringify({ email, password, username }),
     });
-    console.log("*********");
-    console.log(response);
     if (!response.ok) {
         throw new Error("This email is already being used");
     }
-
-    console.log("+++++++");
     const data = await response.json();
-    console.log("--------------");
-    console.log("Heres the data: " + JSON.stringify(data));
     if (!data.data || !data.data.token) {
         throw new Error("Token not found in response");
     }
@@ -42,13 +34,7 @@ export const loginUser = async (email, password) => {
         },
         body: JSON.stringify({ email, password }),
     });
-
-    console.log("AuthServices: Let's go in");
-    // console.log(response);
-    // console.log("Response status:", response.status);
-    // console.log("Response headers:", response.headers);
     const textData = await response.text();
-    console.log("Check the text dataaa\n", textData);
 
     if (!response.ok) {
         // console.error("Response not OK:", textData);
@@ -62,8 +48,6 @@ export const loginUser = async (email, password) => {
         // console.error("Error parsing JSON:", e);
         throw new Error(`Invalid JSON response: ${textData}`);
     }
-
-    console.log("Parsed data:", data);
 
     // Store the token securely using Expo SecureStore
     await SecureStore.setItemAsync("userToken", data.data.token);
@@ -132,7 +116,6 @@ export const sendPasswordResetEmail = async (email) => {
         });
 
         const responseText = await response.json();
-        console.log("Raw Response:", responseText);
 
         if (response.success === false) {
             return { success: false, error: responseText.message };
@@ -162,7 +145,6 @@ export const updateUserPassword = async (currPassword, newPassword) => {
         }
 
         const data = await response.json();
-        console.log("Password Update Service:", data);
         return { success: true, message: data.message };
     } catch (error) {
         console.error("Error updating password!!!", error);

@@ -35,7 +35,6 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             await toggleLikePost(body);
             setHasLiked(!hasLiked);
             setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
-            console.log('Toggle like successful');
         } catch (error) {
             console.error('Error toggling like:', error);
         }
@@ -111,7 +110,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             // shadowOpacity: 0.45,
             // shadowRadius: 3.84,
             // elevation: 5,
-            borderBottomWidth: 0.5,
+            borderBottomWidth: 0.3,
             borderBottomColor: theme.borderColor,
         },
         avatar: {

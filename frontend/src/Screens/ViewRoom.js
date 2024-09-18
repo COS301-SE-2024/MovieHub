@@ -61,12 +61,9 @@ const ViewRoom = ({ route }) => {
     useEffect(() => {
         const fetchRoomDetails = async () => {
             try {
-                console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
                 setIsRoomCreator(response.room.createdBy == userInfo.userId);
-                console.log("username: ", userInfo.username, isRoomCreator);
-                console.log("Room details fetched: ", response);
                 // Fetch participant count
                 const participantResponse = await getRoomParticipantCount(roomId);
                 if (participantResponse.success) {
