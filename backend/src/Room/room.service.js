@@ -287,7 +287,7 @@ exports.getRecentRooms = async (uid) => {
             const recentRooms = result.records.map(record => record.get('r').properties);
             return { success: true, recentRooms };
         } else if (result.records.length === 0) {
-            return { success: true, recentRooms: [] }; // Return an empty array when no rooms are found
+            return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
         } else {
             return { success: false, message: 'Unexpected result from the query' };
         }
@@ -651,71 +651,7 @@ exports.deleteRoom = async (roomId) => {
         );
         return result.records[0].get('removed').low > 0;
     } catch (error) {
-        console.error('Error deleting room:', error);
-        throw error;
-    } finally {
-        await session.close();
-    }
-};
-
-exports.getRoomAdmins = async (roomId) => {
-    const session = driver.session();
-    try {
-        const result = await session.run(
-            `MATCH (r:Room {roomId: $roomId})
-             OPTIONAL MATCH (a:User)-[:IS_ADMIN]->(r)
-             RETURN a`,
-            { roomId }
-        );
-
-        if (result.records.length > 0) {
-            const admins = result.records.map(record => record.get('a').properties);
-            return { success: true, admins };
-        } else if (result.records.length === 0) {
-            return { success: true, admins: [] }; // Return an empty array when no rooms are found
-        } else {
-            return { success: false, message: 'Unexpected result from the query' };
-        }
-    } catch (error) {
-        console.error('Error retrieving room admins:', error);
-        throw error;
-    } finally {
-        await session.close();
-    }
-};
-
-exports.toggleAdmin = async (uid, roomId) => {
-    const session = driver.session();
-    try {
-        //see if user is already an admin
-        const result = await session.run(
-            `MATCH (u:User), (r:Room)
-            WHERE u.uid = $uid AND r.roomId = $roomId
-            MATCH (u)-[a:IS_ADMIN]->(r)
-            RETURN a`,
-            { uid, roomId }
-        );
-        
-        if (result.records.length > 0) {
-            await session.run(
-                `MATCH (u:User), (r:Room)
-                WHERE u.uid = $uid AND r.roomId = $roomId
-                MATCH (u)-[a:IS_ADMIN]->(r)
-                DETACH DELETE a`,
-                { uid, roomId }
-            );
-            return false;
-        } else {
-            await session.run(
-                `MATCH (u:User), (r:Room)
-                WHERE u.uid = $uid AND p.roomId = $roomId
-                MERGE (u)-[:IS_ADMIN]->(r)`,
-                { uid, roomId }
-            );
-            return true;
-        }
-    } catch (error) {
-        console.error('Error toggling admin:', error);
+        console.error('Error retrieving room participant count:', error);
         throw error;
     } finally {
         await session.close();

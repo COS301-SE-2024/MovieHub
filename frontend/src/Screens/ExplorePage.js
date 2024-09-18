@@ -40,6 +40,7 @@ export default function ExplorePage({ route }) {
 
                 const enrichedFriendsContent = await Promise.all(
                     friendsContent.map(async (content) => {
+                        // console.log("friendscontnet:", content.post);
                         if (content.post) {
                             const likes = await getLikesOfPost(content.post.postId);
                             const comments = await getCountCommentsOfPost(content.post.postId);
@@ -105,6 +106,7 @@ export default function ExplorePage({ route }) {
             try {
                 const response = await getCommentsOfReview(postId);
                 setComments(response.data);
+                // console.log("Fetched comments of reviews:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of review:", error.message);
                 throw new Error("Failed to fetch comments of review");
@@ -115,6 +117,7 @@ export default function ExplorePage({ route }) {
             try {
                 const response = await getCommentsOfPost(postId);
                 setComments(response.data);
+                // console.log("Fetched comments:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of post:", error.message);
                 throw new Error("Failed to fetch comments of post");
@@ -128,13 +131,16 @@ export default function ExplorePage({ route }) {
         setSelectedPostId(postId);
         setIsPost(!isReview);
         const response = await fetchComments(postId, isReview);
+        // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
 
     const fetchRooms = useCallback(async () => {
         try {
             const recentRoomsData = await getRecentRooms(userInfo.userId);
+            console.log(recentRoomsData);
             if (recentRoomsData.length > 0) {
+                console.log("recentRoomsData length is not 0");
                 const recentRoomsWithCounts = await Promise.all(
                     recentRoomsData.map(async (room) => {
                         const countResponse = await getRoomParticipantCount(room.roomId);

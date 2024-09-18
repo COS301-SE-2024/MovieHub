@@ -108,7 +108,10 @@ const SearchPage = ({ route }) => {
                 };
             }
             setGenreData(genreDataTemp);
+
+            console.log('Genre Data in SearchPage:', genreData);
         } catch (error) {
+
             console.error('Error fetching movies:', error);
         }
     };
@@ -162,6 +165,8 @@ const SearchPage = ({ route }) => {
 
     const handleSearchByQuote = async (quote) => {
         const results = await getMovieByQuote(quote);
+
+        console.log(results);
     };
   
     const handleGenrePress = (genre) => {

@@ -134,22 +134,20 @@ export default function MovieDescriptionPage({ userInfo }) {
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
                             <Text style={styles.movietitle2}> | </Text>
-                            <Text style={styles.movietitle2}> {runtime ? 
-                            `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins` 
-                            : 'NoN'}</Text>
+                            <Text style={styles.movietitle2}>{runtime.hours > 0 ? `${runtime.hours} h ` : ''}{runtime.mins} mins</Text>
                         </View>
                         <View style={styles.icons}>
-                            
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.iconsContent}>
                                 <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
                                     <View style={styles.iconTextContainer}>
                                         <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
                                         <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
+                                <TouchableOpacity onPress={() => setIsWatched(!isWatched)} style={styles.block2}>
                                     <View style={styles.iconTextContainer}>
-                                        <Ionicons name="book-outline" size={24} color="white" style={styles.icon}/>
-                                        <Text style={styles.text}>Log Movie</Text>
+                                        <FontAwesome name="check-circle" size={24} color={isWatched ? 'green' : 'white'} style={styles.icon} />
+                                        <Text style={styles.text}>{isWatched ? 'Watched' : 'Watch'}</Text>
                                     </View>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
@@ -165,6 +163,14 @@ export default function MovieDescriptionPage({ userInfo }) {
                                         <Text style={styles.text}>Watch Party</Text>
                                     </View>
                                 </TouchableOpacity>
+
+                                <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
+                                    <View style={styles.iconTextContainer}>
+                                        <Ionicons name="book-outline" size={24} color="white" style={styles.icon}/>
+                                        <Text style={styles.text}>Log Movie</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </ScrollView>
                         </View>
                         
                         <View style={styles.moviebio}>
@@ -227,17 +233,13 @@ const styles = StyleSheet.create({
     iconTextContainer: {
         width: 79,
         alignItems: 'center',
-        // justifyContent: "space-evenly",
     },
     icons: {
         paddingTop: 30,
-        paddingLeft: 12,
+        paddingLeft: 8,
         paddingBottom: 10,
-        flexDirection: "row", // Align icons horizontally
-        justifyContent: "space-between", // Space icons evenly
-        alignItems: "center", // Align items vertically
-        width: '100%', // Ensure full width for proper spacing
-        paddingHorizontal: 20, // Add some padding on the sides
+        justifyContent: "space-evenly",
+        alignItems: "center",
     },
     iconsContent: {
         flexDirection: "row",
@@ -246,7 +248,7 @@ const styles = StyleSheet.create({
         paddingLeft: 0,
     },
     text: {
-        // paddingLeft: 0,
+        paddingLeft: 0,
         color: "white",
         fontWeight: "bold",
     },

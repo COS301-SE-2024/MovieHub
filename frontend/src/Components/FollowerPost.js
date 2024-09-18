@@ -18,6 +18,10 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
 
+    // console.log("user likes:",uid);
+    // console.log("user likes:",ogUserinfo);
+
+
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
@@ -32,6 +36,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
             await toggleLikePost(body);
             setLiked((prevLiked) => !prevLiked);
             setLikedCount((prevCount) => (liked ? prevCount - 1 : prevCount + 1));
+            console.log('Toggle like successful');
         } catch (error) {
             console.error('Error toggling like:', error);
         }

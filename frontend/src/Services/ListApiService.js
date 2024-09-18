@@ -60,6 +60,7 @@ export const getWatchlistDetails = async (watchlistId) => {
                 'Content-Type': 'application/json',
             },
         });
+        console.log('+++++++++');
         if (!response.ok) {
             throw new Error('Failed to fetch watchlist details.');
         }

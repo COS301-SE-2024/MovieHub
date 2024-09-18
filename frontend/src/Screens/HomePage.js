@@ -50,6 +50,8 @@ const HomePage = ({route}) => {
             console.error('Error fetching movies:', error);
           }
           finally {
+            // console.log("fetchmovies",thrillerMovies);
+            // console.log('item.poster_path',movies)
           }
         };
 
@@ -63,6 +65,27 @@ const HomePage = ({route}) => {
         useEffect(() => {
         fetchMovies();
         }, []);
+
+
+        // movies.forEach(movie => {
+
+        //     console.log("Title:", movie.title);
+        //     console.log("Overview:", movie.overview);
+        //     console.log("Poster URL:", `https://image.tmdb.org/t/p/w500${movie.poster_path}`);
+        //     console.log("Release Date:", movie.release_date);
+        //     console.log("Vote Average:", movie.vote_average);
+        //     console.log("---------------");
+        // });
+
+
+        // movies.forEach((movie) => {
+        //     setmovieTitle(movie.title);
+        //     setmoviePosterPath(movie.poster_path);
+          
+
+        //   });
+
+        // console.log('item.poster_path',movies.poster_path)
 
     return (
         <View style={{flex:1, backgroundColor: '#ffff'}}>

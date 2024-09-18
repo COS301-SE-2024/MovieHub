@@ -50,6 +50,7 @@ export default function AddMovies({ route, navigation }) {
         };
 
         try {
+            console.log("This is the user Info being passed in AddMovies.js: " + JSON.stringify(userInfo));
             const userId = userInfo.userId;
             await createWatchlist(userId, finalWatchlistData);
             Alert.alert("Success", "Watchlist created successfully!");
