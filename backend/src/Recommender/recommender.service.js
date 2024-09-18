@@ -80,11 +80,16 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
 
         // Sort the movies by similarity in descending order (most relevant first)
         cosineSimilarities.sort((a, b) => b.similarity - a.similarity);
-        console.log("Cosine similarities ", cosineSimilarities);
+     //  console.log("Cosine similarities ", cosineSimilarities);
 
         // Ensure at least 5 recommendations
-        const topRecommendations = cosineSimilarities.slice(0, Math.max(5, cosineSimilarities.length)).map(rec => rec.movie);
-
+        const topRecommendations = cosineSimilarities.slice(0, Math.max(5, cosineSimilarities.length)).map(rec => ({
+            title: rec.movie.title,
+            posterUrl:`https://image.tmdb.org/t/p/w500${rec.movie.poster_path}`,
+         // Assuming 'poster_path' contains the URL or path to the poster
+            similarity: (rec.similarity * 100).toFixed(2) // Round off similarity score to 2 decimal points
+        }));
+        console.log("Top recommendations ", topRecommendations);
         return topRecommendations;
     } catch (error) {
         throw new Error('Failed to recommend movies: ' + error.message);
