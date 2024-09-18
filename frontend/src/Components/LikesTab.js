@@ -49,7 +49,6 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                             commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data.postCommentCount;
                             likesCount = (await getLikesOfPost(item.properties.postId)).data;
                         } else if (item.labels[0] === "Review") {
-                            console.log("item",item);
                             commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data.reviewCommentCount;
                             likesCount = (await getLikesOfReview(item.properties.reviewId)).data;
                         }
@@ -61,7 +60,6 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
 
                 // Sort posts by createdAt in descending order (most recent first)
                 postsWithComments.sort((a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt));
-                // console.log("postWithComments", postsWithComments);
                 setLikedPosts(postsWithComments);
             }
         } catch (error) {
@@ -79,7 +77,6 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
     const handleDeletePost = async (postId) => {
         try {
             await removePost({ postId, uid: userInfo.userId });
-            console.log("Post deleted successfully");
             setLikedPosts(likedPosts.filter(post => post.postId !== postId));
         } catch (error) {
             console.error("Error deleting post:", error);

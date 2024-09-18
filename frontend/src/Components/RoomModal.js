@@ -15,7 +15,6 @@ const RoomModal = forwardRef((props, ref) => {
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
     const handleCopyLinkPress = () => {
-        console.log("Copy link");
     };
     const handleShare = async () => {
         try {
@@ -39,7 +38,6 @@ const RoomModal = forwardRef((props, ref) => {
     };
 
     const handleDeleteRoom = async () => {
-        console.log("Delete Room");
         // try {
         //     await deleteRoom(selectedRoom.id);
         //     setrooms(rooms.filter(w => w.id !== selectedRoom.id)); // Update state to remove deleted room
@@ -54,7 +52,6 @@ const RoomModal = forwardRef((props, ref) => {
 
     const handleStartWatchParty = () => {
         navigation.navigate("CreateWatchParty", { route: props.route, roomId: props.roomId });
-        console.log("Start Watch Party");
     };
 
     const renderContent = () => (

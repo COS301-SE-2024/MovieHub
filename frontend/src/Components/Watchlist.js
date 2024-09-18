@@ -16,16 +16,17 @@ const WatchlistTab = ({ userInfo }) => {
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
-                console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
-                const userId = userInfo.userId; // Replace with actual user ID fetching logic
-
-                const userWatchlists = await getUserWatchlists(userId);
-                const watchlistId = userWatchlists.id;
-                console.log(userWatchlists);
+                const userId = userInfo.userId;
+                let userWatchlists = await getUserWatchlists(userId);
+        
+                // Remove duplicates based on watchlist IDs
+                userWatchlists = userWatchlists.filter((watchlist, index, self) => 
+                    index === self.findIndex((w) => w.id === watchlist.id)
+                );
+        
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error('Error fetching user watchlists:', error);
-                // Handle error or fallback to empty array
                 setWatchlists([]);
             }
         };
@@ -44,7 +45,6 @@ const WatchlistTab = ({ userInfo }) => {
     };
 
     const goToWatchlistDetails = (watchlist) => {
-        console.log('About to navigate. \n Here is the watch list info: ', watchlist);
         navigation.navigate('WatchlistDetails', { watchlist });
     };
 

@@ -9,46 +9,13 @@ import moment from "moment"; // Use moment.js for date formatting
 
 const Notifications = ({ route }) => {
     const { userInfo } = route.params;
-    const { theme, isDarkMode } = useTheme();
-    const [notifications, setNotifications] = useState([
-        {
-            id: "1",
-            message: "You have a new message from John Doe",
-            read: false,
-            type: "messages",
-            notificationType: "message",
-        },
-        {
-            id: "2",
-            message: "You have been invited to a room",
-            read: false,
-            type: "room_invitations",
-            notificationType: "room_invite",
-            shortCode: "XYZ123",
-            roomId: "123",
-        },
-        {
-            id: "3",
-            message: "Your password was changed successfully",
-            read: true,
-            type: "system",
-            notificationType: "system",
-        },
-        {
-            id: "4",
-            message: "username started following you",
-            read: true,
-            type: "follow",
-            notificationType: "follow",
-        },
-    ]);
+    const [notifications, setNotifications] = useState([]);
+    const [categorizedNotifications, setCategorizedNotifications] = useState({});
 
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
                 const data = await getUserNotifications(userInfo.userId);
-                console.log("Fetched user notifications: ", data);
-
                 const flattenedNotifications = [];
                 if (data.success && data.notifications) {
                     for (const category in data.notifications) {
@@ -70,6 +37,9 @@ const Notifications = ({ route }) => {
                 }
                 flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
                 setNotifications(flattenedNotifications);
+                console.log("Notifications fetched:", notifications);
+                setCategorizedNotifications(categorizeNotifications(notifications));
+
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
             }
@@ -108,9 +78,7 @@ const Notifications = ({ route }) => {
     const handleAcceptInvite = async (shortCode, roomId) => {
         try {
             const response = await joinRoom(shortCode, userInfo.userId);
-            console.log("Notification.js Accept func response:", JSON.stringify(response));
             if (response.roomId) {
-                console.log("Joined room successfully:", response.roomId);
                 handleDeleteNotification(roomId, "room_invitations");
             } else {
                 console.error("Failed to join room:", response.message);
@@ -123,7 +91,6 @@ const Notifications = ({ route }) => {
     const handleDeclineInvite = async (roomId) => {
         try {
             await declineRoomInvite(userInfo.userId, roomId);
-            console.log(`Declined room invite with ID: ${roomId}`);
             handleDeleteNotification(roomId, "room_invitations");
         } catch (error) {
             console.error("Error declining room invite:", error);
@@ -141,7 +108,6 @@ const Notifications = ({ route }) => {
         } catch (error) {
             console.error("Error toggling follow state:", error);
         }
-        console.log(`Followed notification with ID: ${followerId}`);
     };
 
     // Function to categorize notifications by date
@@ -211,7 +177,37 @@ const Notifications = ({ route }) => {
         </View>
     );
 
-    const categorizedNotifications = categorizeNotifications(notifications);
+    // const categorizedNotifications = categorizeNotifications(notifications);
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
+                {notifications.length === 0 ? (
+                    <View style={styles.noNotificationsContainer}>
+                        <Text style={styles.noNotificationsText}>You have no notifications at the moment</Text>
+                    </View>
+                ) : (
+                    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        {Object.keys(categorizedNotifications).map(
+                            (category) =>
+                                categorizedNotifications[category].length > 0 && (
+                                    <View key={category}>
+                                        <Text style={styles.sectionHeader}>{category === "today" ? "Today" : category === "yesterday" ? "Yesterday" : category === "lastWeek" ? "Last Week" : "Older Notifications"}</Text>
+                                        <FlatList data={categorizedNotifications[category]} renderItem={renderNotificationItem} keyExtractor={(item) => item.id.toString()} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} />
+                                    </View>
+                                )
+                        )}
+                        <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                            <Text style={styles.buttonText}>Clear All</Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+                )}
+            </View>
+
+            <BottomHeader userInfo={userInfo} />
+        </View>
+    );
+};
 
     const styles = StyleSheet.create({
         container: {

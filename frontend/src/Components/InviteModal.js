@@ -41,7 +41,6 @@ const InviteModal = forwardRef((props, ref) => {
     }, [searchQuery, friends]);
 
     const handleCopyLinkPress = () => {
-        console.log("Copy link");
     };
 
     const handleShare = async () => {

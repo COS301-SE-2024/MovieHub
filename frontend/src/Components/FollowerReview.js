@@ -15,9 +15,6 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
 
-    // console.log("user likes:",uid);
-    // console.log("user likes:",ogUserinfo);
-
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
@@ -34,7 +31,6 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
                 setLikedCount((prevCount) => prevLiked ? prevCount - 1 : prevCount + 1);
                 return !prevLiked; // Toggle liked state
             });
-            console.log("Toggle like successful");
         } catch (error) {
             console.error("Error toggling like:", error);
         }

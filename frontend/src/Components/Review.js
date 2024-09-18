@@ -1,20 +1,23 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-
+import {useUser} from "../Services/UseridContext";
 import { removeReview } from "../Services/PostsApiServices";
-import { toggleLikeReview } from "../Services/LikesApiService";
+import { toggleLikeReview, checkUserLike } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
-export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete }) {
+export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete,Otheruid }) {
     const { theme } = useTheme();
+    const [hasLiked,setHasLiked] = useState(false);
     const [liked, setLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { userInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -28,13 +31,27 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
 
         try {
             await toggleLikeReview(body);
-            console.log("Toggle like successful");
+            setHasLiked(!hasLiked);
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
         } catch (error) {
-            console.error("Error toggling like:", error);
+            console.error('Error toggling like:', error);
         }
 
         setLiked(!liked);
     };
+
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const data = await checkUserLike(userInfo.userId, reviewId, 'Review');
+                setHasLiked(data.hasLiked); // Adjust based on your backend response
+            } catch (error) {
+                console.error('Error fetching like status:', error);
+            }
+        };
+
+        fetchLikeStatus();
+    }, [userInfo.userId, reviewId]);
 
     const handleShare = async () => {
         try {
@@ -102,11 +119,11 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             backgroundColor: colors.primary,
             padding: 8,
             borderRadius: 55,
-            marginTop: 10,
             width: 90,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            
         },
         reviewButtonText: {
             color: "white",
@@ -115,7 +132,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         },
         profileInfo: {
             alignItems: "center",
-            display: "flex",
+            justifyContent: "space-between",
             flexDirection: "row",
         },
         reviewImage: {
@@ -195,19 +212,20 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
+                <View style={{ flex:1 }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>
                         {userHandle} &bull; {dateReviewed}
                     </Text>
                 </View>
-                <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
+                <View style={styles.reviewButton}>
+                    <Text style={styles.reviewButtonText}>Review</Text>
+                </View>
+                <Pressable onPress={toggleModal} style={{ marginLeft: 10 }}>
                     <Icon name="more-vert" size={20} />
                 </Pressable>
             </View>
-            <View style={styles.reviewButton}>
-                <Text style={styles.reviewButtonText}>Review</Text>
-            </View>
+            
 
             {image ? <Image source={{ uri: image }} style={styles.reviewImage} /> : null}
 
@@ -224,9 +242,14 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             <Text style={styles.reviewTitle}>{reviewTitle}</Text>
             <Text style={styles.reviewPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
-                    <Text style={styles.statsNumber}>{likes}</Text>
+            <TouchableOpacity style={styles.stats} onPress={toggleLike}>
+                <Icon
+                    name={hasLiked ? 'favorite' : 'favorite-border'}
+                    size={20}
+                    color={hasLiked ? 'red' : 'black'}
+                    style={{ marginRight: 5 }}
+                />
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable
@@ -264,9 +287,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
                     ) : (
                         <TouchableOpacity
                             style={styles.modalOption}
-                            onPress={() => {
-                                /* Report logic */
-                            }}>
+                            onPress={() => handleRemoveReview(uid, reviewId)}>
                             <Text style={styles.modalText}>Report</Text>
                         </TouchableOpacity>
                     )}

@@ -99,7 +99,6 @@ export default function EditPost({route}) {
 
         try {
             const post = await editPost(postData);
-            // console.log('Post edited successfully:', post);
             Alert.alert(
                 "Success",
                 "Post edited successfully",

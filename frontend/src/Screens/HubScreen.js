@@ -176,10 +176,10 @@ const HubScreen = ({ route }) => {
                 <View style={styles.headerLeft}>
                     <MatIcon name="arrow-left" size={24} color={theme.iconColor} style={{ marginRight: 35 }} onPress={() => navigation.goBack()} />
                     <Text style={styles.headerTitle}>The Hub</Text>
-                </View>
+                </View> 
 
                 <TouchableOpacity onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
-                    <Text style={styles.createRoomText}>Create room</Text>
+                    <Text style={styles.createRoomText}>Create a Room</Text>
                 </TouchableOpacity>
             </View>
 

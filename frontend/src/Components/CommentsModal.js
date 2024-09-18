@@ -70,7 +70,6 @@ const CommentsModal = forwardRef((props, ref) => {
                 };
                 if (replyTo) {
                     const response = await addCommentToComment({ ...postBody, comOnId: replyTo.comId });
-                    // console.log("Response CommentsModal:", response);
                 } else {
                     const response = isPost ? await addCommentToPost(postBody) : await addCommentToReview({ ...postBody, reviewId: postId });
                 }
@@ -118,7 +117,6 @@ const CommentsModal = forwardRef((props, ref) => {
     };
 
     const fetchReplies = async (commentId) => {
-        // console.log("Fetching replies for comment:", commentId);
         try {
             const response = await getCommentsOfComment(commentId);
             setReplies((prevReplies) => ({
