@@ -211,7 +211,8 @@ const Notifications = ({ route }) => {
         </View>
     );
 
-    const categorizedNotifications = categorizeNotifications(notifications);
+    // const categorizedNotifications = categorizeNotifications(notifications);
+
 
     const styles = StyleSheet.create({
         container: {

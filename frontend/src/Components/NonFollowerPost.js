@@ -15,6 +15,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     const [saved, setSaved] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
+    const { oguserInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);

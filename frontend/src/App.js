@@ -10,6 +10,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { ThemeProvider, useTheme } from "./styles/ThemeContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { UserProvider } from "./Services/UseridContext";
 import ProfilePage from "./Screens/ProfilePage";
 import EditProfile from "./Screens/EditProfile";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -620,15 +621,17 @@ export default function App() {
 
     return (
         // <WebSocketProvider>
-        <GestureHandlerRootView>
-            <ThemeProvider>
-                <NavigationContainer
-                    ref={(nav) => {
-                        if (nav) setNavigationState(nav);
-                    }}>
-                    <ThemedStackNavigator />
-                </NavigationContainer>
-            </ThemeProvider>
-        </GestureHandlerRootView>
+        <UserProvider>
+            <GestureHandlerRootView>
+                <ThemeProvider>
+                    <NavigationContainer
+                        ref={(nav) => {
+                            if (nav) setNavigationState(nav);
+                        }}>
+                        <ThemedStackNavigator />
+                    </NavigationContainer>
+                </ThemeProvider>
+            </GestureHandlerRootView>
+        </UserProvider>
     );
 }

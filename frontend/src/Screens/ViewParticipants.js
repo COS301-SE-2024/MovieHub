@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { getRoomParticipants } from "../Services/RoomApiService";
 import { useTheme } from "../styles/ThemeContext";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal } from "react-native";
+import { getRoomParticipants, kickUserFromRoom } from "../Services/RoomApiService";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import RoomModal from "../Components/RoomModal";
+import { useNavigation } from "@react-navigation/native";
+// import BottomSheet from "@gorhom/bottom-sheet"; // Assuming you're using the Gorhom Bottom Sheet library
 
 const participantsData = [
     { id: "1", name: "Itumeleng", username: "@ElectricTance" },
