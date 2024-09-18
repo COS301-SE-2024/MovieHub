@@ -21,10 +21,12 @@ const indexMovies = async () => {
     const bulkOps = movies.flatMap(movie => [
         { index: { _index: 'movies', _id: movie.id } },
         {
+            id: movie.id,
             title: movie.title,
             overview: movie.overview,
             genres: movie.genre_ids.map(id => genresMap[id]).join(' '), // Convert genre IDs to names
             genre_ids: movie.genre_ids,
+            poster_path: movie.poster_path, // Ensure poster_path is included
         }
     ]);
 
