@@ -179,35 +179,6 @@ const Notifications = ({ route }) => {
 
     // const categorizedNotifications = categorizeNotifications(notifications);
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
-                {notifications.length === 0 ? (
-                    <View style={styles.noNotificationsContainer}>
-                        <Text style={styles.noNotificationsText}>You have no notifications at the moment</Text>
-                    </View>
-                ) : (
-                    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-                        {Object.keys(categorizedNotifications).map(
-                            (category) =>
-                                categorizedNotifications[category].length > 0 && (
-                                    <View key={category}>
-                                        <Text style={styles.sectionHeader}>{category === "today" ? "Today" : category === "yesterday" ? "Yesterday" : category === "lastWeek" ? "Last Week" : "Older Notifications"}</Text>
-                                        <FlatList data={categorizedNotifications[category]} renderItem={renderNotificationItem} keyExtractor={(item) => item.id.toString()} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} />
-                                    </View>
-                                )
-                        )}
-                        <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
-                            <Text style={styles.buttonText}>Clear All</Text>
-                        </TouchableOpacity>
-                    </ScrollView>
-                )}
-            </View>
-
-            <BottomHeader userInfo={userInfo} />
-        </View>
-    );
-};
 
     const styles = StyleSheet.create({
         container: {

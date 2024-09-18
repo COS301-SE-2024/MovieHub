@@ -69,43 +69,6 @@ const WatchlistDetails = ({ route }) => {
     }
     if (error) return <Text>Error: {error}</Text>;
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>{iniWatchlist.name}</Text>
-            <ScrollView>
-                {iniWatchlist.movieList && iniWatchlist.movieList.map((movie) => (
-                    <TouchableOpacity key={movie.id} onPress={() => handleMoviePress(movie)}>
-                        <View style={styles.movieItem}>
-                            <View style={styles.imagePlaceholder}>
-                                {movie.poster_path && (
-                                    <Image
-                                        source={{ uri: `https://image.tmdb.org/t/p/w500/${movie.poster_path}` }}
-                                        style={styles.movieImage}
-                                    />
-                                )}
-                            </View>
-                            <View style={styles.movieDetails}>
-                                <Text style={styles.movieTitle}>{movie.title}</Text>
-                                <Text style={styles.movieGenre}>
-                                    {Array.isArray(movie.genres) 
-                                        ? movie.genres.map(g => g.name).join(', ')
-                                        : movie.genre || 'Genre not available'}
-                                </Text>
-                                <Text style={styles.movieRating}>
-                                    Rating: {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
-                                </Text>
-                                <Text style={styles.movieDate}>
-                                    Released: {movie.release_date || 'Date not available'}
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-        </View>
-    );
-};
-
     const styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -159,22 +122,38 @@ const WatchlistDetails = ({ route }) => {
         <View style={styles.container}>
             <Text style={styles.title}>{iniWatchlist.name}</Text>
             <ScrollView>
-                {iniWatchlist.movieList &&
-                    iniWatchlist.movieList.map((movie) => (
-                        <View key={movie.id} style={styles.movieItem}>
+                {iniWatchlist.movieList && iniWatchlist.movieList.map((movie) => (
+                    <TouchableOpacity key={movie.id} onPress={() => handleMoviePress(movie)}>
+                        <View style={styles.movieItem}>
                             <View style={styles.imagePlaceholder}>
-                                <Image source={{ uri: `https://image.tmdb.org/t/p/w500/${movie.poster_path}` }} style={styles.movieImage} />
+                                {movie.poster_path && (
+                                    <Image
+                                        source={{ uri: `https://image.tmdb.org/t/p/w500/${movie.poster_path}` }}
+                                        style={styles.movieImage}
+                                    />
+                                )}
                             </View>
                             <View style={styles.movieDetails}>
                                 <Text style={styles.movieTitle}>{movie.title}</Text>
-                                <Text style={styles.movieGenre}>{movie.genre}</Text>
-                                <Text style={styles.movieDuration}>{movie.duration + " min"}</Text>
+                                <Text style={styles.movieGenre}>
+                                    {Array.isArray(movie.genres) 
+                                        ? movie.genres.map(g => g.name).join(', ')
+                                        : movie.genre || 'Genre not available'}
+                                </Text>
+                                <Text style={styles.movieRating}>
+                                    Rating: {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
+                                </Text>
+                                <Text style={styles.movieDate}>
+                                    Released: {movie.release_date || 'Date not available'}
+                                </Text>
                             </View>
                         </View>
-                    ))}
+                    </TouchableOpacity>
+                ))}
             </ScrollView>
         </View>
     );
 };
+
 
 export default WatchlistDetails;

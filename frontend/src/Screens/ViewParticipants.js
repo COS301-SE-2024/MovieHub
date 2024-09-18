@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { getRoomParticipants } from "../Services/RoomApiService";
 import { useTheme } from "../styles/ThemeContext";
-import React, { useState, useEffect, useRef } from "react";
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal } from "react-native";
 import { getRoomParticipants, kickUserFromRoom } from "../Services/RoomApiService";
 import Icon from "react-native-vector-icons/MaterialIcons";
