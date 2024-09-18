@@ -617,7 +617,6 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
 export default function App() {
     const [navigationState, setNavigationState] = useState(null);
     const theme = useTheme();
-    console.log("Current theme:", theme);
 
     return (
         // <WebSocketProvider>
