@@ -47,10 +47,12 @@ export default function AccountSettings({ route }) {
                 <Text style={styles.settingName}>Account Privacy</Text>
                 <Icon name="keyboard-arrow-right" size={24} color="black" />
             </TouchableOpacity>
-            <View style={{flex: 0.8}}></View>
-            <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
+            <TouchableOpacity style={styles.setting} onPress={confirmDeleteAccount}>
                 <Text style={styles.deleteButtonText}>Delete Account</Text>
             </TouchableOpacity>
+            {/* <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
+                <Text style={styles.deleteButtonText}>Delete Account</Text>
+            </TouchableOpacity> */}
 
             <Modal
                 animationType="slide"
@@ -111,7 +113,7 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         padding: 15,
-        marginBottom: 20,
+        marginTop: 20,
         borderRadius: 5,
         borderTopWidth: 1,
         borderBottomWidth: 1,
@@ -122,6 +124,13 @@ const styles = StyleSheet.create({
         color: "#ff0000",
         textAlign: "center",
         fontWeight: "bold",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        // padding: 16,
+        fontSize: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: "#e0e0e0",
     },
     modalOverlay: {
         flex: 1,

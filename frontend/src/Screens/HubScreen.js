@@ -95,13 +95,13 @@ const HubScreen = ({ route }) => {
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
-                <View style={styles.headerLeft}>
+                {/* <View style={styles.headerLeft}>
                     <MatIcon name="arrow-left" size={24} style={{ marginRight: 35 }} onPress={() => navigation.goBack()} />
                     <Text style={styles.headerTitle}>The Hub</Text>
-                </View>
+                </View> */}
 
                 <TouchableOpacity onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
-                    <Text style={styles.createRoomText}>Create room</Text>
+                    <Text style={styles.createRoomText}>Create a Room</Text>
                 </TouchableOpacity>
             </View>
 
@@ -162,6 +162,7 @@ const HubScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: "#fff",
         flex: 1,
         paddingVertical: 16,
     },
@@ -170,9 +171,9 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 20,
-        paddingRight: 16,
+        // paddingRight: 50 ,
         height: 50,
-        paddingLeft: 16,
+        paddingLeft: 20,
     },
     headerLeft: {
         flexDirection: "row",
@@ -185,6 +186,7 @@ const styles = StyleSheet.create({
     createRoomText: {
         fontSize: 16,
         color: "blue",
+        textAlign: 'center',
     },
     sectionTitle: {
         fontSize: 18,
