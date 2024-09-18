@@ -28,6 +28,5 @@ export function getImageUrl(filePath) {
     return null;
   }
 
-  console.log('Public URL:', data.publicUrl);
   return data.publicUrl;
 }

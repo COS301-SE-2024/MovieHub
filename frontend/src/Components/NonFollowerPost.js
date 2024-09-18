@@ -24,9 +24,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         setModalVisible(!modalVisible);
     };
 
-    console.log("man you better work", userInfo)
-    // console.log("helllloo", likes)
-
     const toggleLike = async () => {
         const body = {
             postId: postId,
@@ -37,7 +34,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             await toggleLikePost(body);
             setHasLiked(!hasLiked);
             setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
-            console.log('Toggle like successful');
         } catch (error) {
             console.error('Error toggling like:', error);
         }
@@ -81,8 +77,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
 
     const navigation = useNavigation();
 
-    console.log("yayy User Info:", otherUserInfo);
-
     const handlePress = () => {
         navigation.navigate("Profile", {
             userInfo,
@@ -92,8 +86,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
 
     const toggleFollow = async () => {
         try {
-            console.log("This is the current users info: ", userInfo);
-            console.log("This is the other users info: ", otherUserInfo);
             if (isFollowing) {
                 await unfollowUser(userInfo.userId, otherUserInfo.uid);
             } else {

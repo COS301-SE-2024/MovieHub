@@ -39,7 +39,7 @@ const Backdrop = ({ movies, scrollX }) => {
     return (
         <View style={{ height: BACKDROP_HEIGHT, width, position: "absolute" }}>
             <FlatList
-                data={movies.reverse()}
+                data={movies}
                 keyExtractor={(item) => item.key + "-backdrop"}
                 removeClippedSubviews={false}
                 contentContainerStyle={{ width, height: BACKDROP_HEIGHT }}
@@ -92,7 +92,6 @@ const formatDate = (date) => {
 const Home = ({ route }) => {
     const { userInfo } = route.params;
     const { avatar } = route.params;
-    console.log(avatar);
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
     const [userProfile, setUserProfile] = useState(null);
@@ -145,7 +144,6 @@ const Home = ({ route }) => {
             );
 
             setSortedContent(enrichedContent);
-            console.log("Home: friends content fecthed", enrichedContent);
         } catch (error) {
             console.error("Failed to fetch friends content:", error);
         }
@@ -169,7 +167,6 @@ const Home = ({ route }) => {
             try {
                 const response = await getCommentsOfReview(postId);
                 setComments(response.data);
-                // console.log("Fetched comments of reviews:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of review:", error.message);
                 throw new Error("Failed to fetch comments of review");
@@ -180,7 +177,6 @@ const Home = ({ route }) => {
             try {
                 const response = await getCommentsOfPost(postId);
                 setComments(response.data);
-                // console.log("Fetched comments:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of post:", error.message);
                 throw new Error("Failed to fetch comments of post");
@@ -194,7 +190,6 @@ const Home = ({ route }) => {
         setSelectedPostId(postId);
         setIsPost(!isReview);
         const response = await fetchComments(postId, isReview);
-        // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
 
@@ -281,6 +276,8 @@ const Home = ({ route }) => {
                                         key={index}
                                         postId={content.post.postId}
                                         uid={content.friend.uid}
+                                        userInfo={userInfo}
+                                        otherUserInfo={content.friend}
                                         username={content.post.name}
                                         userAvatar={content.friend.avatar}
                                         userHandle={`@${content.post.username}`}
@@ -302,6 +299,8 @@ const Home = ({ route }) => {
                                         key={index}
                                         reviewId={content.review.reviewId}
                                         uid={userInfo.userId}
+                                        userInfo={userInfo}
+                                        otherUserInfo={content.friend}
                                         username={content.friend.username}
                                         userHandle={`${content.friend.username}`}
                                         userAvatar={content.friend.avatar}

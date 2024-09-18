@@ -15,11 +15,10 @@ const WatchlistDetails = ({ route }) => {
 
     const { watchlist } = route.params;
     console.log('Here is the watchlist passed: ', JSON.stringify(watchlist));
-
+   
     useEffect(() => {
         const fetchWatchlistDetails = async () => {
             try {
-                console.log('===========');
                 const watchlistId = watchlist.id;
                 console.log(watchlistId);
                 let data = await getWatchlistDetails(watchlistId);
@@ -35,6 +34,7 @@ const WatchlistDetails = ({ route }) => {
 
                 data = { ...data, movieList: updatedMovieList };
                 console.log('Updated watchlist data:', JSON.stringify(data, null, 2));
+
                 setWatchlist(data);
             } catch (error) {
                 console.error('Error fetching watchlist details:', error);

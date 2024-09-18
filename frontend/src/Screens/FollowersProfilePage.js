@@ -16,7 +16,6 @@ import { getUserProfile, followUser, unfollowUser } from "../Services/UsersApiSe
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function FollowersProfilePage({ route }) {
-    console.log("FollowerPostTab - Other User Info:", otherUserInfo);
     const { theme } = useTheme();
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);
@@ -31,12 +30,7 @@ export default function FollowersProfilePage({ route }) {
     const bottomSheetRef = useRef(null);
 
     const { userInfo, otherUserInfo } = route.params;
-    // console.log("hai User Info:", otherUserInfo);
     const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
-
-    console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
-    console.log("FollowerPostTab() - Other User Info:", userInfo);
-
 
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
@@ -58,10 +52,8 @@ export default function FollowersProfilePage({ route }) {
     const fetchData = async () => {
         try {
             const userId = otherUserInfo.uid;
-            console.log("Other User Info:", userId);
             const response = await getUserProfile(userId);
             setUserProfile(response);
-            console.log("Response:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);
@@ -81,7 +73,6 @@ export default function FollowersProfilePage({ route }) {
         setLoadingComments(true);
         try {
             const response = await getCommentsOfPost(postId);
-            // console.log("Fetched comments:", response.data);
             setComments(response.data);
         } catch (error) {
             console.error("Error fetching comments of post:", error.message);
@@ -103,7 +94,6 @@ export default function FollowersProfilePage({ route }) {
     const handleCommentPress = async (postId) => {
         setSelectedPostId(postId);
         const response = await fetchComments(postId);
-        // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
 

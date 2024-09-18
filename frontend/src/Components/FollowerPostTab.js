@@ -38,12 +38,9 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,hand
         return `${years}y ago`;
     };
 
-    console.log("FollowerPostTab(1) -- Other User Info og:", otherinfo);
-
     const fetchPostsAndReviews = async () => {
         try {
             const userId = userInfo.uid;
-            console.log("FollowerPostTab(2) --- Other User Info:", userId);
             const [postsResponse, reviewsResponse] = await Promise.all([getPostsOfUser(userId), getReviewsOfUser(userId)]);
 
             let postsWithComments = [];
@@ -57,7 +54,6 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo,hand
                         return { ...post, commentsCount, likesCount, type: "post" };
                     })
                 );
-                // console.log("Loook ", postsWithComments);
             }
 
             let reviewsWithComments = [];

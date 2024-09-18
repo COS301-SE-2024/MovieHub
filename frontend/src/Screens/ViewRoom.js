@@ -61,12 +61,9 @@ const ViewRoom = ({ route }) => {
     useEffect(() => {
         const fetchRoomDetails = async () => {
             try {
-                console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
                 setIsRoomCreator(response.room.createdBy == userInfo.userId);
-                console.log("username: ", userInfo.username, isRoomCreator);
-                console.log("Room details fetched: ", response);
                 // Fetch participant count
                 const participantResponse = await getRoomParticipantCount(roomId);
                 if (participantResponse.success) {
@@ -158,7 +155,7 @@ const ViewRoom = ({ route }) => {
                         <TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
                             <Text style={styles.enterText}>Join Room</Text>
                         </TouchableOpacity>
-                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
+                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId, roomName})}>
                             <FAIcon name="users" size={16} />
                             <Text style={styles.participantsText}>{participantCount}</Text>
                         </Pressable>

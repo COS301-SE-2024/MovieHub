@@ -21,7 +21,7 @@ export default function Rating({ rating }) {
 const styles = StyleSheet.create({
     ratingNumber: { 
         marginRight: 4, 
-        fontFamily: "Menlo", 
+        fontFamily: "Roboto", 
         fontSize: 14 
     },
     rating: {

@@ -70,9 +70,7 @@ export default function EditProfile({ route }) {
                     break;
             }
             const userId = userInfo.userId;
-            console.log("UPDATED DATA", updatedData);
             const updatedUser = await updateUserProfile(userId, updatedData);
-            console.log("Update went well", updatedUser);
             
             setModalContent((prevState) => {
                 const newState = { ...prevState };
@@ -120,7 +118,6 @@ export default function EditProfile({ route }) {
             
             const userId = userInfo.userId;
             const updatedUser = await updateUserProfile(userId, updatedData);
-            console.log("Update went well", updatedUser);
             Alert.alert('Success', 'Profile updated successfully!');
     
             setModalContent((prevState) => {
@@ -161,7 +158,6 @@ export default function EditProfile({ route }) {
     };
 
     const selectImage = async () => {
-        // console.log('In Select Image');
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (permissionResult.granted === false) {
             alert("Permission to access camera roll is required!");
@@ -172,17 +168,11 @@ export default function EditProfile({ route }) {
         if (pickerResult.canceled === true) {
             return;
         }
-        // console.log('Picker: ', pickerResult);
         const { uri } = pickerResult.assets[0];
         const name = pickerResult.assets[0].fileName;
-        // console.log('Uploading image', uri, name);
         const avatarUrl = await uploadImage(uri, name, 'profile');
-        console.log('Uploaded', avatarUrl);
         setAvatar(uri);   
         setAvatarChanged(true);
-        console.log("AVATAR", avatar);                    
-        console.log("AVATAR URL", uri);                    
-        // await applyChanges('avatar');     //From here on I dont know what should be happening
     };
 
     useEffect(() => {

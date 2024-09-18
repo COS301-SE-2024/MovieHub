@@ -28,7 +28,6 @@ const ForgotPasswordPage = () => {
 
         try {
             const message = await sendPasswordResetEmail(email);
-            console.log("Password reset email sent:", message);
             setSuccessMessage(message.message || "A password reset email has been sent.");
         } catch (error) {
             setError("Failed to send password reset email. Please try again.");

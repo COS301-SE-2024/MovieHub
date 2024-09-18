@@ -41,12 +41,9 @@ export default function ExplorePage({ route }) {
 
                 const enrichedFriendsContent = await Promise.all(
                     friendsContent.map(async (content) => {
-                        // console.log("friendscontnet:", content.post);
                         if (content.post) {
                             const likes = await getLikesOfPost(content.post.postId);
                             const comments = await getCountCommentsOfPost(content.post.postId);
-                            // console.log("Post Likes:", likes.data); 
-                            // console.log("Post Comments:", comments.data); 
                             return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
                         }
                         if (content.review) {
@@ -99,16 +96,12 @@ export default function ExplorePage({ route }) {
         navigation.navigate("HubScreen", { userInfo });
     };
 
-        // console.log("friendsContent",friendsOfFriendsContent)
-        // console.log("randomContent",randomUsersContent)
-
     const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
         if (isReview) {
             try {
                 const response = await getCommentsOfReview(postId);
                 setComments(response.data);
-                // console.log("Fetched comments of reviews:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of review:", error.message);
                 throw new Error("Failed to fetch comments of review");
@@ -119,7 +112,6 @@ export default function ExplorePage({ route }) {
             try {
                 const response = await getCommentsOfPost(postId);
                 setComments(response.data);
-                // console.log("Fetched comments:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of post:", error.message);
                 throw new Error("Failed to fetch comments of post");
@@ -133,16 +125,13 @@ export default function ExplorePage({ route }) {
         setSelectedPostId(postId);
         setIsPost(!isReview);
         const response = await fetchComments(postId, isReview);
-        // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
 
     const fetchRooms = useCallback(async () => {
         try {
             const recentRoomsData = await getRecentRooms(userInfo.userId);
-            console.log(recentRoomsData);
             if (recentRoomsData.length > 0) {
-                console.log("recentRoomsData length is not 0");
                 const recentRoomsWithCounts = await Promise.all(
                     recentRoomsData.map(async (room) => {
                         const countResponse = await getRoomParticipantCount(room.roomId);
@@ -199,14 +188,6 @@ export default function ExplorePage({ route }) {
                 <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
             </View>
             </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <CategoriesFilters categoryName="Top Reviews" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Latests Posts" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Action" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Comedy" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Drama" selectedCategory={selectedCategory} />
-                </ScrollView>
-
                 <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
                     <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }}  onPress={handleOpenHub} />

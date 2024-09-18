@@ -11,9 +11,6 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
 
     const [loading, setLoading] = useState(false);
 
-    console.log("followers likes",userInfo);
-    console.log("followers profile",userProfile);
-
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     const formatTimeAgoFromDB = (dateString) => {
@@ -34,8 +31,6 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
         return `${years}y ago`;
     };
 
-    console.log("whats going on",orginalUserinfo);
-
     const fetchLikedPosts = async () => {
         try {
             setLoading(true); // Set loading to true before fetch starts
@@ -53,7 +48,6 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
                             commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data.postCommentCount;
                             likesCount = (await getLikesOfPost(item.properties.postId)).data;
                         } else if (item.labels[0] === "Review") {
-                            console.log("item",item);
                             commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data.reviewCommentCount;
                             likesCount = (await getLikesOfReview(item.properties.reviewId)).data;
                         }
@@ -65,7 +59,6 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
 
                 // Sort posts by createdAt in descending order (most recent first)
                 postsWithComments.sort((a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt));
-                // console.log("postWithComments", postsWithComments);
                 setLikedPosts(postsWithComments);
             }
         } catch (error) {
@@ -83,7 +76,6 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
     const handleDeletePost = async (postId) => {
         try {
             await removePost({ postId, uid: userInfo.userId });
-            console.log("Post deleted successfully");
             setLikedPosts(likedPosts.filter(post => post.postId !== postId));
         } catch (error) {
             console.error("Error deleting post:", error);
