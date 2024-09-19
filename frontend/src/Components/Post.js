@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Share, Alert, Modal } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -9,7 +9,7 @@ import {useUser} from "../Services/UseridContext";
 import { removePost } from "../Services/PostsApiServices";
 import { toggleLikePost, checkUserLike } from "../Services/LikesApiService";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, isUserPost, handleCommentPress, onDelete }) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete}) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [hasLiked,setHasLiked] = useState(false);
@@ -17,6 +17,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const [modalVisible, setModalVisible] = useState(false);
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { userInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -30,7 +31,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
 
         try {
             await toggleLikePost(body);
-            console.log("Toggle like successful");
+            setHasLiked(!hasLiked);
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
         } catch (error) {
             console.error("Error toggling like:", error);
         }
@@ -62,6 +64,19 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const toggleConfirmationModal = (postId) => {
         setConfirmationModalVisible(!confirmationModalVisible);
     };
+
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const data = await checkUserLike(userInfo.userId, postId, 'Post');
+                setHasLiked(data.hasLiked); // Adjust based on your backend response
+            } catch (error) {
+                console.error('Error fetching like status:', error);
+            }
+        };
+
+        fetchLikeStatus();
+    }, [userInfo.userId, postId]);
 
     // Function to remove posts
 
@@ -258,8 +273,13 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{likes}</Text>
+                <Icon
+                    name={hasLiked ? 'favorite' : 'favorite-border'}
+                    size={20}
+                    color={hasLiked ? 'red' : 'black'}
+                    style={{ marginRight: 5 }}
+                />
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable
