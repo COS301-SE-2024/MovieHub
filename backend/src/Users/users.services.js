@@ -346,7 +346,7 @@ exports.searchUser = async (searchName) => {
         }
 
         // Return all matched users
-        return searchUserResult.records.map(record => record.get('u'));
+        return searchUserResult.records.map(record => record.get('u').properties);
     } catch (error) {
         throw error;
     } finally {

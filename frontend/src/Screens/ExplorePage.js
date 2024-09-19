@@ -12,6 +12,7 @@ import { getFriendsOfFriendsContent, getRandomUsersContent } from '../Services/E
 import { FacebookLoader, InstagramLoader } from 'react-native-easy-content-loader';
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; 
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
+import {  searchUser  } from "../Services/UsersApiService";
 import CommentsModal from '../Components/CommentsModal';
 import { getRecentRooms, getPublicRooms, getUserCreatedRooms, getUserParticipatedRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from '../Components/UserRoomCard';
@@ -126,6 +127,12 @@ export default function ExplorePage({ route }) {
         setIsPost(!isReview);
         const response = await fetchComments(postId, isReview);
         bottomSheetRef.current?.present();
+    };
+
+    const handleSearch = async (name) => {
+        const response = await searchUser(name);
+        console.log(response);
+       
     };
 
     const fetchRooms = useCallback(async () => {
