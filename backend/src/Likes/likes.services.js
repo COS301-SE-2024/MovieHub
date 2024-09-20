@@ -105,7 +105,7 @@ exports.getLikesOfPost = async (postId) => {
         }
 
         const likeCount = result.records[0].get('likeCount').toInt();
-        console.log("Check the like count: ", likeCount);
+        // console.log("Check the like count: ", likeCount);
         return likeCount;
     } catch (error) {
         console.error("Error getting likes of post:", error);

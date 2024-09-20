@@ -10,7 +10,7 @@ const lightTheme = {
     iconColor: "#000",
     gray: "#7b7b7b",
     inputBackground: '#D9D9D9',
-    primaryColor: '#0f5bd1',
+    primaryColor: '#4A42C0',
     borderColor: '#cccccc',
     iconColor: '#000000',
 };

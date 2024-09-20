@@ -1,8 +1,13 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
+import { useNavigation } from "@react-navigation/native";
 
-const FollowList = ({ route, username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) => {
+import { removePost } from "../Services/PostsApiServices";
+import { toggleLikePost } from "../Services/LikesApiService";
+
+const FollowList = ({ route, username, userHandle, userAvatar, avatar, }) => {
+
     const { theme } = useTheme();
 
     const styles = StyleSheet.create({
@@ -15,9 +20,12 @@ const FollowList = ({ route, username, userHandle, userAvatar, likes, saves, ima
                 width: 0,
                 height: 2,
             },
-            borderColor: "#000000",
-            borderTopWidth: 0,
-            borderBottomWidth: 0.3,
+            // shadowOpacity: 0.17,
+            // shadowRadius: 3.84,
+            borderColor: '#000000',
+            // elevation: 5,
+            // borderTopWidth: 0, 
+            // borderBottomWidth: 0.3, 
         },
         avatar: {
             width: 50,
@@ -52,13 +60,16 @@ const FollowList = ({ route, username, userHandle, userAvatar, likes, saves, ima
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View style={{ alignItems: "left" }}>
-                    <Text style={styles.username}>Itumeleng</Text>
-                    <Text style={styles.userHandle}>@ElectricTance</Text>
+                    <Text style={styles.username}>{userHandle}</Text>
+                    <Text style={styles.userHandle}>{username}</Text>
                 </View>
             </View>
-            {image && <Image source={{ uri: image }} style={styles.postImage} />}
-            <View style={styles.statsContainer}></View>
-        </View>
+            {avatar && <Image source={{ uri: avatar }} style={styles.postImage} />}
+            <View style={styles.statsContainer}>
+    
+            </View>
+            
+                </View>
     );
 };
 

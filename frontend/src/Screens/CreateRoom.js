@@ -75,6 +75,106 @@ const CreateRoomScreen = ({ route }) => {
 
     const isButtonDisabled = roomTitle === "";
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 20,
+            backgroundColor: theme.backgroundColor,
+        },
+        header: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 20,
+            height: 40,
+            color: theme.textColor,
+        },
+        title: {
+            fontSize: 20,
+            color: theme.textColor,
+        },
+        label: {
+            fontSize: 14,
+            fontWeight: "bold",
+            marginBottom: 8,
+            marginTop: 20,
+            color: theme.textColor,
+        },
+        input: {
+            width: "100%",
+            padding: 10,
+            backgroundColor: theme.inputBackground,
+            borderRadius: 5,
+            marginBottom: 15,
+        },
+        pickerContainer: {
+            width: "100%",
+            borderRadius: 5,
+            overflow: "hidden",
+            backgroundColor: theme.inputBackground,
+            marginBottom: 15,
+        },
+        modalSelector: {
+            width: "100%",
+        },
+        initValueTextStyle: {
+            color: "#000",
+            fontSize: 14,
+        },
+        selectStyle: {
+            width: "100%",
+            height: 50,
+            justifyContent: "center",
+            borderRadius: 5,
+            borderWidth: 1,
+            borderColor: theme.borderColor,
+        },
+        selectText: {
+            color: "#fff",
+        },
+        optionText: {
+            fontSize: 16,
+            color: "#000",
+        },
+        optionStyle: {
+            backgroundColor: theme.inputBackground,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+        },
+        optionContainer: {
+            backgroundColor: theme.inputBackground,
+        },
+        cancelStyle: {
+            backgroundColor: theme.inputBackground,
+            borderTopWidth: 1,
+            borderTopColor: theme.borderColor,
+        },
+        cancelTextStyle: {
+            fontSize: 16,
+            color: "#000",
+            textTransform: "capitalize",
+        },
+        switchContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 20,
+        },
+        createButton: {
+            width: "100%",
+            padding: 15,
+            backgroundColor: theme.primaryColor,
+            borderRadius: 5,
+            alignItems: "center",
+        },
+        createButtonText: {
+            color: "white",
+            fontWeight: "bold",
+        },
+        disabledButton: {
+            opacity: 0.75,
+        },
+    });
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -115,100 +215,5 @@ const CreateRoomScreen = ({ route }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-    },
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 20,
-        height: 40,
-    },
-    title: {
-        fontSize: 20,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: "bold",
-        marginBottom: 8,
-        marginTop: 20,
-    },
-    input: {
-        width: "100%",
-        padding: 10,
-        backgroundColor: "#D9D9D9",
-        borderRadius: 5,
-        marginBottom: 15,
-    },
-    pickerContainer: {
-        width: "100%",
-        borderRadius: 5,
-        overflow: "hidden",
-        backgroundColor: "#D9D9D9",
-        marginBottom: 15,
-    },
-    modalSelector: {
-        width: "100%",
-    },
-    initValueTextStyle: {
-        color: "#000",
-        fontSize: 14,
-    },
-    selectStyle: {
-        width: "100%",
-        height: 50,
-        justifyContent: "center",
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: "#ccc",
-    },
-    selectText: {
-        color: "#fff",
-    },
-    optionText: {
-        fontSize: 16,
-        color: "#000",
-    },
-    optionStyle: {
-        backgroundColor: "#D9D9D9",
-        borderBottomWidth: 1,
-        borderBottomColor: "#ccc",
-    },
-    optionContainer: {
-        backgroundColor: "#D9D9D9",
-    },
-    cancelStyle: {
-        backgroundColor: "#D9D9D9",
-        borderTopWidth: 1,
-        borderTopColor: "#ccc",
-    },
-    cancelTextStyle: {
-        fontSize: 16,
-        color: "#000",
-        textTransform: "capitalize",
-    },
-    switchContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: 20,
-    },
-    createButton: {
-        width: "100%",
-        padding: 15,
-        backgroundColor: "#4a42c0",
-        borderRadius: 5,
-        alignItems: "center",
-    },
-    createButtonText: {
-        color: "white",
-        fontWeight: "bold",
-    },
-    disabledButton: {
-        opacity: 0.75,
-    },
-});
 
 export default CreateRoomScreen;

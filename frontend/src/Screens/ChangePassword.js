@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { colors } from "../styles/theme";
+import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import { updateUserPassword } from "../Services/AuthApiService";
 
 export default function ChangePassword({ route }) {
     const { theme } = useTheme();
+    const navigation = useNavigation();
     const [currPassword, setCurrPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -158,6 +159,9 @@ export default function ChangePassword({ route }) {
                         secureTextEntry={true}
                     />
                 </View>
+                <TouchableOpacity onPress={() => {navigation.navigate('ForgotPassword');}}>
+                    <Text style={styles.forgotPassword}>Forgot your password?</Text>
+                </TouchableOpacity>
 
                 <View style={styles.line} />
 
@@ -181,7 +185,7 @@ export default function ChangePassword({ route }) {
                         secureTextEntry={true}
                     />
                 </View>
-                <Text style={styles.forgotPassword}>Forgot your password?</Text>
+                
                 <View style={{ flex: 0.8 }} />
                 <View style={{ paddingHorizontal: 16 }}>
                     <TouchableOpacity

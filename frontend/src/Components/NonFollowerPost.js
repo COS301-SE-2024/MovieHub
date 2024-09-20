@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { followUser, unfollowUser } from "../Services/UsersApiService";
 import { toggleLikePost } from "../Services/LikesApiService";
+import { useUser } from "../Services/UseridContext";
 
 export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid, isUserPost, handleCommentPress, postId }) {
     const { theme } = useTheme();

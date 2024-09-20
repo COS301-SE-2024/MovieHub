@@ -148,7 +148,7 @@ const Home = ({ route }) => {
             );
 
             setSortedContent(enrichedContent);
-            console.log("Home: friends content fecthed", enrichedContent);
+            // console.log("Home: friends content fecthed", enrichedContent);
         } catch (error) {
             console.error("Failed to fetch friends content:", error);
         }

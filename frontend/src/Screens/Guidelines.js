@@ -29,6 +29,7 @@ const CommunityGuidelines = () => {
             fontWeight: "bold",
             marginTop: 16,
             marginBottom: 4,
+            color: theme.textColor
         },
         paragraph: {
             fontSize: 16,

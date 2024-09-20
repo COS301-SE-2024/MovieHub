@@ -24,7 +24,7 @@ export default function MovieDescriptionPage({ userInfo }) {
     const [loading, setLoading] = useState(true);
     const [isAddedToList, setIsAddedToList] = useState(false);
     const [isWatched, setIsWatched] = useState(false);
-    const [runtime, setRuntime] = useState(null);
+    const [runtime, setRuntime] = useState({ hours: 0, mins: 0 }); // fixed 'cannot read hours of null'
     const [isReviewed, setIsReviewed] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const navigation = useNavigation();
@@ -68,6 +68,7 @@ export default function MovieDescriptionPage({ userInfo }) {
                 const hours = Math.floor(minutes / 60);
                 const mins = minutes % 60;
                 setRuntime({ hours, mins });
+                console.log("Runtime in movie description: ", { hours, mins });
             } catch (error) {
                 console.error('Error fetching runtime:', error);
             }

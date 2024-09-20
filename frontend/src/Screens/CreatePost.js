@@ -217,7 +217,7 @@ export default function CreatePost({ route }) {
         input: {
             height: 45,
             borderRadius: 10,
-            backgroundColor: "#D9D9D9",
+            backgroundColor: theme.inputBackground,
             paddingHorizontal: 10,
             marginBottom: 20,
         },
@@ -230,7 +230,7 @@ export default function CreatePost({ route }) {
             padding: 10,
             backgroundColor: "#f0f0f0",
             borderBottomWidth: 1,
-            borderBottomColor: "#ccc",
+            borderBottomColor: theme.borderColor,
         },
         actionsContainer: {
             flexDirection: "row",
@@ -312,12 +312,12 @@ export default function CreatePost({ route }) {
         ratingOption: {
             padding: 8,
             borderWidth: 1,
-            borderColor: "#ccc",
+            borderColor: theme.borderColor,
             borderRadius: 5,
         },
         ratingOptionSelected: {
             backgroundColor: "#827DC3",
-            borderColor: "#4A42C0",
+            borderColor: theme.primaryColor,
         },
         ratingText: {
             fontSize: 16,
@@ -373,7 +373,7 @@ export default function CreatePost({ route }) {
             shadowOpacity: 0.25,
             shadowRadius: 4,
             elevation: 1,
-            borderColor: "#ddd",
+            borderColor: theme.borderColor,
             borderWidth: 0.4,
         },
         movieResult: {
@@ -413,12 +413,12 @@ export default function CreatePost({ route }) {
 
             <View style={{ position: "relative" }}>
                 <Text style={styles.label}>Title</Text>
-                <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
+                <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor={theme.textColor} color={theme.textColor} />
 
                 {isMovieReview && (
                     <View>
                         <Text style={styles.label}>Movie</Text>
-                        <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
+                        <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                         {movieResults.length > 0 && (
                             <ScrollView style={styles.movieResultsScrollView} contentContainerStyle={styles.movieResultsContainer}>
                                 {movieResults.map((movie) => (
@@ -438,7 +438,7 @@ export default function CreatePost({ route }) {
             </View>
 
             <Text style={styles.label}>Thoughts</Text>
-            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor="#000" />
+            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor={theme.textColor} color={theme.textColor} />
 
             <View style={styles.actionsContainer}>
                 <View style={styles.iconsContainer}>

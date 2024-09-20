@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { sendPasswordResetEmail } from "../Services/AuthApiService";
+import { useTheme } from "../styles/ThemeContext";
 import { colors } from "../styles/theme";
 
 const ForgotPasswordPage = () => {
+    const { theme } = useTheme();
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
@@ -41,7 +43,7 @@ const ForgotPasswordPage = () => {
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 50,
-            backgroundColor: "#ffffff",
+            backgroundColor: theme.backgroundColor,
         },
         container: {
             width: "85%",
@@ -60,7 +62,7 @@ const ForgotPasswordPage = () => {
         },
         title: {
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 24,
             marginBottom: 30,
         },
@@ -71,6 +73,7 @@ const ForgotPasswordPage = () => {
         label: {
             fontWeight: "bold",
             paddingBottom: 8,
+            color: theme.textColor,
         },
         inputText: {
             height: 40,
@@ -93,7 +96,7 @@ const ForgotPasswordPage = () => {
             textAlign: "center",
         },
         button: {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.primaryColor,
             padding: 10,
             borderRadius: 5,
             width: 245,
@@ -109,7 +112,7 @@ const ForgotPasswordPage = () => {
             marginTop: 20,
         },
         backToLoginText: {
-            color: colors.primary,
+            color: theme.primaryColor,
             textAlign: "center",
             textDecorationLine: "underline",
         },

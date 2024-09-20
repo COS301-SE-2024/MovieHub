@@ -7,7 +7,7 @@ import { addCommentToPost, addCommentToReview, removeComment, addCommentToCommen
 
 const CommentsModal = forwardRef((props, ref) => {
     const { isPost, postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
-    const { theme } = useTheme();
+    const { theme, isDarkMode } = useTheme();
     // console.log(isPost);
     const [message, setMessage] = useState("");
     const [replyTo, setReplyTo] = useState(null);
@@ -149,12 +149,13 @@ const CommentsModal = forwardRef((props, ref) => {
         bottomSheetContainer: {
             flex: 1,
             paddingBottom: 90,
-            
+            backgroundColor: theme.backgroundColor,
         },
         bottomSheetHeader: {
             fontSize: 20,
             fontWeight: "bold",
             padding: 16,
+            color: theme.textColor,
         },
         noCommentsContainer: {
             flex: 1,
@@ -204,7 +205,7 @@ const CommentsModal = forwardRef((props, ref) => {
             marginTop: 4,
         },
         replyText: {
-            color: "grey",
+            color: theme.gray,
             fontSize: 12,
             marginTop: 4,
         },
@@ -224,14 +225,15 @@ const CommentsModal = forwardRef((props, ref) => {
             alignItems: "center",
             padding: 16,
             borderTopWidth: 1,
-            borderTopColor: "#f1f1f1",
+            borderTopColor: isDarkMode? theme.borderColor : "#f1f1f1",
             alignSelf: "flex-end", // Align chat input to the bottom
+            backgroundColor: theme.backgroundColor,
         },
         inputContainer: {
             flexDirection: "row",
             alignItems: "center",
             flex: 1,
-            backgroundColor: "#f1f1f1",
+            backgroundColor: theme.inputBackground,
             borderRadius: 20,
             paddingHorizontal: 12,
         },
@@ -298,13 +300,13 @@ const CommentsModal = forwardRef((props, ref) => {
     return (
         <BottomSheetModalProvider>
             <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop} onChange={handleModalChange}>
-                <BottomSheetScrollView>
+                <BottomSheetScrollView style={{ backgroundColor: theme.backgroundColor }}>
                     <View style={styles.bottomSheetContainer}>
                         <Text style={styles.bottomSheetHeader}>Comments</Text>
                         {comments.length === 0 ? (
                             <View style={styles.noCommentsContainer}>
-                                <Text style={{ fontWeight: "bold", fontSize: 18 }}>No comments yet</Text>
-                                <Text style={{ color: "#7b7b7b", fontSize: 14, marginTop: 8 }}>Be the first to comment</Text>
+                                <Text style={{ fontWeight: "bold", fontSize: 18, color: theme.textColor }}>No comments yet</Text>
+                                <Text style={{ color: theme.gray, fontSize: 14, marginTop: 8 }}>Be the first to comment</Text>
                             </View>
                         ) : (
                             <View style={styles.commentsSection}>
@@ -393,10 +395,10 @@ const CommentsModal = forwardRef((props, ref) => {
                     )}
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                         <View style={styles.inputContainer}>
-                            <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
-                            <TouchableOpacity>
+                            <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} placeholderTextColor={theme.gray} color={theme.textColor} />
+                            {/* <TouchableOpacity>
                                 <Ionicons name="happy" size={24} color="black" />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
                         <TouchableOpacity style={styles.sendButton} onPress={handleSendComment}>
                             <Ionicons name="send" size={24} color="white" />

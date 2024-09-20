@@ -162,11 +162,12 @@ export default function EditPost({route}) {
             fontSize: 16,
             fontWeight: "600",
             paddingBottom: 10,
+            color: theme.textColor,
         },
         input: {
             height: 45,
             borderRadius: 10,
-            backgroundColor: "#D9D9D9",
+            backgroundColor: theme.inputBackground,
             paddingHorizontal: 10,
             marginBottom: 20,
         },
@@ -313,7 +314,7 @@ export default function EditPost({route}) {
             {isMovieReview && (
                 <View>
                     <Text style={styles.label}>Movie</Text>
-                    <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
+                    <TextInput style={styles.input} placeholder="Search for a movie" placeholderTextColor={theme.gray} value={movieSearch} onChangeText={setMovieSearch} selectionColor={theme.textColor} color={theme.textColor} />
                     {movieResults.length > 0 && <FlatList data={movieResults} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text style={styles.movieResult}>{item.title}</Text>} />}
                     <Text style={styles.label}>Rating</Text>
                     <View style={styles.ratingContainer}>{renderRatingOptions()}</View>
@@ -321,7 +322,7 @@ export default function EditPost({route}) {
             )}
 
             <Text style={styles.label}>Thoughts</Text>
-            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor="#000" />
+            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor={theme.textColor} color={theme.textColor} />
 
             <View style={styles.actionsContainer}>
                 <View style={styles.iconsContainer}>
@@ -339,13 +340,6 @@ export default function EditPost({route}) {
                     <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
                     <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
                 </View>
-            </View>
-
-            <View style={styles.footer}>
-                <Text style={styles.saveDrafts}>Save to drafts</Text>
-                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleEditPost}>
-                    <Text style={styles.postButtonText}>Save</Text>
-                </TouchableOpacity>
             </View>
 
             {feedbackVisible && (

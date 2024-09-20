@@ -78,7 +78,7 @@ export default function AddMovies({ route, navigation }) {
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: "#fff",
+            backgroundColor: theme.backgroundColor,
         },
         header: {
             flexDirection: "row",
@@ -89,9 +89,10 @@ export default function AddMovies({ route, navigation }) {
         headerTitle: {
             fontSize: 18,
             fontWeight: "bold",
+            color: theme.textColor,
         },
         nextButton: {
-            backgroundColor: "black",
+            backgroundColor: theme.primaryColor,
             padding: 10,
             borderRadius: 5,
         },
@@ -106,7 +107,7 @@ export default function AddMovies({ route, navigation }) {
         },
         searchInput: {
             flex: 1,
-            borderColor: "#ccc",
+            borderColor: theme.borderColor,
             borderWidth: 1,
             padding: 8,
             borderRadius: 5,
@@ -133,6 +134,7 @@ export default function AddMovies({ route, navigation }) {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 16,
+            color: theme.textColor
         },
         selectedMoviesGrid: {
             flexGrow: 1,
@@ -187,7 +189,7 @@ export default function AddMovies({ route, navigation }) {
                 </TouchableOpacity>
             </View>
             <View style={styles.searchContainer}>
-                <TextInput style={styles.searchInput} placeholder="Search for movies..." value={query} onChangeText={handleSearch} />
+                <TextInput style={styles.searchInput} placeholder="Search for movies..." value={query} onChangeText={handleSearch} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                 <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(query)} disabled={searching}>
                     <Text style={styles.searchButtonText}>{"Search"}</Text>
                 </TouchableOpacity>

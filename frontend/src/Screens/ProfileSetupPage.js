@@ -168,7 +168,7 @@ const ProfileSetupPage = ({ route }) => {
             margin: 4,
             borderRadius: 10,
             backgroundColor: theme.primaryColor,
-            color: th,
+            color: "white",
         },
         modalBackground: {
             flex: 1,

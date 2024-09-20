@@ -8,47 +8,15 @@ import BottomHeader from "../Components/BottomHeader";
 import moment from "moment"; // Use moment.js for date formatting
 
 const Notifications = ({ route }) => {
+    const { theme } = useTheme();
     const { userInfo } = route.params;
-    const { theme, isDarkMode } = useTheme();
-    const [notifications, setNotifications] = useState([
-        {
-            id: "1",
-            message: "You have a new message from John Doe",
-            read: false,
-            type: "messages",
-            notificationType: "message",
-        },
-        {
-            id: "2",
-            message: "You have been invited to a room",
-            read: false,
-            type: "room_invitations",
-            notificationType: "room_invite",
-            shortCode: "XYZ123",
-            roomId: "123",
-        },
-        {
-            id: "3",
-            message: "Your password was changed successfully",
-            read: true,
-            type: "system",
-            notificationType: "system",
-        },
-        {
-            id: "4",
-            message: "username started following you",
-            read: true,
-            type: "follow",
-            notificationType: "follow",
-        },
-    ]);
+    const [notifications, setNotifications] = useState([]);
+    const [categorizedNotifications, setCategorizedNotifications] = useState({});
 
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
                 const data = await getUserNotifications(userInfo.userId);
-                console.log("Fetched user notifications: ", data);
-
                 const flattenedNotifications = [];
                 if (data.success && data.notifications) {
                     for (const category in data.notifications) {
@@ -70,6 +38,8 @@ const Notifications = ({ route }) => {
                 }
                 flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
                 setNotifications(flattenedNotifications);
+                console.log("Notifications fetched:", notifications);
+                setCategorizedNotifications(categorizeNotifications(notifications));
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
             }
@@ -108,9 +78,7 @@ const Notifications = ({ route }) => {
     const handleAcceptInvite = async (shortCode, roomId) => {
         try {
             const response = await joinRoom(shortCode, userInfo.userId);
-            console.log("Notification.js Accept func response:", JSON.stringify(response));
             if (response.roomId) {
-                console.log("Joined room successfully:", response.roomId);
                 handleDeleteNotification(roomId, "room_invitations");
             } else {
                 console.error("Failed to join room:", response.message);
@@ -123,7 +91,6 @@ const Notifications = ({ route }) => {
     const handleDeclineInvite = async (roomId) => {
         try {
             await declineRoomInvite(userInfo.userId, roomId);
-            console.log(`Declined room invite with ID: ${roomId}`);
             handleDeleteNotification(roomId, "room_invitations");
         } catch (error) {
             console.error("Error declining room invite:", error);
@@ -141,7 +108,6 @@ const Notifications = ({ route }) => {
         } catch (error) {
             console.error("Error toggling follow state:", error);
         }
-        console.log(`Followed notification with ID: ${followerId}`);
     };
 
     // Function to categorize notifications by date
@@ -211,9 +177,6 @@ const Notifications = ({ route }) => {
         </View>
     );
 
-    // const categorizedNotifications = categorizeNotifications(notifications);
-
-
     const styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -237,22 +200,22 @@ const Notifications = ({ route }) => {
             padding: 12,
             paddingVertical: 20,
             borderRadius: 8, // Added border radius for rounded corners
-            backgroundColor: isDarkMode ? "#0f0f0f" : "#f0f0f0", // Light gray background for all notifications
+            backgroundColor: "#f0f0f0", // Light gray background for all notifications
         },
         notificationContent: {
             flex: 1, // Take up available space
         },
         notificationText: {
             fontSize: 16,
-            color: theme.gray,
+            color: "#333",
             flexWrap: "wrap", // Wrap text if necessary
-            color: theme.textColor,
         },
         boldText: {
             fontWeight: "bold",
+            
         },
         readText: {
-            color: theme.gray,
+            color: "#888",
         },
         unreadText: {
             fontWeight: "bold",
@@ -287,21 +250,20 @@ const Notifications = ({ route }) => {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            marginTop: 100,
         },
         noNotificationsText: {
             fontSize: 18,
-            color: theme.gray,
+            color: "#888",
+            paddingBottom: 50,
         },
         sectionHeader: {
             fontSize: 18,
             fontWeight: "bold",
             marginVertical: 10,
             marginLeft: 10,
-            color: theme.textColor,
         },
         clearButton: {
-            backgroundColor: "#007bff",
+            backgroundColor: "#4a42c0",
             padding: 10,
             borderRadius: 5,
             alignItems: "center",
@@ -309,11 +271,11 @@ const Notifications = ({ route }) => {
         },
         divider: {
             height: 1,
-            backgroundColor: theme.borderColor,
+            backgroundColor: "#ccc",
             marginVertical: 8,
         },
         unreadBorder: {
-            borderLeftColor: theme.primaryColor, // Purple color for unread notifications
+            borderLeftColor: "#4a42c0", // Purple color for unread notifications
             borderLeftWidth: 5, // Adjust width as needed
         },
     });
@@ -336,9 +298,11 @@ const Notifications = ({ route }) => {
                                     </View>
                                 )
                         )}
-                        <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
-                            <Text style={styles.buttonText}>Clear All</Text>
-                        </TouchableOpacity>
+                        {notifications.length > 0 && (
+                            <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                                <Text style={styles.buttonText}>Clear All</Text>
+                            </TouchableOpacity>
+                        )}
                     </ScrollView>
                 )}
             </View>

@@ -106,7 +106,7 @@ const PrivacyPolicy = () => {
                 <Text style={styles.paragraph}>If you have any questions about this Privacy Policy, please contact us:</Text>
                 <Text style={styles.paragraph}>Email: girlsgonecode.capstone@gmail.com</Text>
                 <Text style={styles.paragraph}>Last Updated: June 3, 2024</Text>
-                <Text style={{ marginBottom: 40, fontSize: 16 }}>Thank you for using MovieHub! We value your privacy and are committed to protecting your personal information.</Text>
+                <Text style={{ marginBottom: 40, fontSize: 16, color: theme.textColor }}>Thank you for using MovieHub! We value your privacy and are committed to protecting your personal information.</Text>
             </View>
         </ScrollView>
     );

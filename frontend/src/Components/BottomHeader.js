@@ -5,19 +5,39 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import { colors } from "../styles/theme";
 import { getUnreadNotifications } from "../Services/UsersApiService";
+import { getUserProfile } from "../Services/UsersApiService";
 
 export default function BottomHeader({ userInfo }) {
     const { theme } = useTheme();
-    const [unreadNotifications, setUnreadNotifications] = useState(0);
     const navigation = useNavigation();
     const route = useRoute();
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
+    const [loading, setLoading] = useState(true); // Add this line
+    const [avatar, setAvatar] = useState(null)
     const isActive = (screen) => route.name === screen;
+    const fetchData = async () => {
+        try {
+            const userId = userInfo.userId;
+            const response = await getUserProfile(userId);
+            setAvatar(response.avatar)
+
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        } finally {
+            setLoading(false); // Set loading to false after data is fetched
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
     useEffect(() => {
         // Fetch unread notifications count when the component mounts
         const fetchUnreadNotifications = async () => {
             try {
                 const data = await getUnreadNotifications(userInfo.userId);
-                
+    
                 setUnreadNotifications(data.unreadCount.unreadCount); // Adjust according to your API response
             } catch (error) {
                 console.error("Failed to fetch unread notifications", error);
@@ -26,6 +46,8 @@ export default function BottomHeader({ userInfo }) {
 
         fetchUnreadNotifications();
     }, [userInfo.userId]);
+
+    console.log("Bottom header User info", userInfo);
 
     const styles = StyleSheet.create({
         header: {
@@ -49,12 +71,14 @@ export default function BottomHeader({ userInfo }) {
             color: theme.iconColor,
         },
         activeIcon: {
-            color: colors.primary,
+            color: theme.primaryColor,
         },
         image: {
             height: 40,
             width: 40,
             borderRadius: 20,
+            borderColor: theme.iconColor,
+            borderWidth: 2
         },
         activeImage: {
             borderColor: colors.primary,
@@ -112,7 +136,7 @@ export default function BottomHeader({ userInfo }) {
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("ProfilePage", { userInfo })} style={styles.iconContainer}>
                     <Image 
-                        source={{ uri: "https://i.pinimg.com/originals/30/98/74/309874f1a8efd14d0500baf381502b1b.jpg" }} 
+                        source={{ uri: avatar }} 
                         style={[styles.image, isActive("ProfilePage") && styles.activeImage]} 
                     />
                     {isActive("ProfilePage") && <View style={styles.activeIndicator} />}

@@ -199,7 +199,7 @@ export default function FollowersProfilePage({ route }) {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 1,
-            borderBottomColor: "#ddd",
+            borderBottomColor: theme.borderColor,
         },
         indicator: {
             backgroundColor: colors.primary,
