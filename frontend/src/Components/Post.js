@@ -5,11 +5,9 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-import {useUser} from "../Services/UseridContext";
-import { removePost } from "../Services/PostsApiServices";
-import { toggleLikePost, checkUserLike } from "../Services/LikesApiService";
+import { toggleLikePost } from "../Services/LikesApiService";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete}) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, isUserPost, handleCommentPress, onDelete }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [hasLiked,setHasLiked] = useState(false);
@@ -69,23 +67,10 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     };
 
     const toggleConfirmationModal = (postId) => {
-
         setConfirmationModalVisible(!confirmationModalVisible);
-
     };
 
-    useEffect(() => {
-        const fetchLikeStatus = async () => {
-            try {
-                const data = await checkUserLike(userInfo.userId, postId, 'Post');
-                setHasLiked(data.hasLiked); // Adjust based on your backend response
-            } catch (error) {
-                console.error('Error fetching like status:', error);
-            }
-        };
-
-        fetchLikeStatus();
-    }, [userInfo.userId, postId]);
+    // Function to remove posts
 
     // Function to remove posts
 
@@ -138,7 +123,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             // shadowOpacity: 0.45,
             // shadowRadius: 3.84,
             // elevation: 5,
-            borderBottomWidth: 0.3,
+            borderBottomWidth: 0.8,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
@@ -292,13 +277,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                <Icon
-                    name={hasLiked ? 'favorite' : 'favorite-border'}
-                    size={20}
-                    color={hasLiked ? 'red' : 'black'}
-                    style={{ marginRight: 5 }}
-                />
-                    <Text style={styles.statsNumber}>{likeCount}</Text>
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
+                    <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable

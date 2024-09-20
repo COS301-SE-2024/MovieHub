@@ -173,7 +173,6 @@ const HubScreen = ({ route }) => {
     });
 
     return (
-
         <View style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
                 <View style={styles.header}>

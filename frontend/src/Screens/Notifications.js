@@ -8,6 +8,7 @@ import BottomHeader from "../Components/BottomHeader";
 import moment from "moment"; // Use moment.js for date formatting
 
 const Notifications = ({ route }) => {
+    const { theme } = useTheme();
     const { userInfo } = route.params;
     const [notifications, setNotifications] = useState([]);
     const [categorizedNotifications, setCategorizedNotifications] = useState({});
@@ -39,7 +40,6 @@ const Notifications = ({ route }) => {
                 setNotifications(flattenedNotifications);
                 console.log("Notifications fetched:", notifications);
                 setCategorizedNotifications(categorizeNotifications(notifications));
-
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
             }
@@ -177,9 +177,6 @@ const Notifications = ({ route }) => {
         </View>
     );
 
-    // const categorizedNotifications = categorizeNotifications(notifications);
-
-
     const styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -203,22 +200,22 @@ const Notifications = ({ route }) => {
             padding: 12,
             paddingVertical: 20,
             borderRadius: 8, // Added border radius for rounded corners
-            backgroundColor: isDarkMode ? "#0f0f0f" : "#f0f0f0", // Light gray background for all notifications
+            backgroundColor: "#f0f0f0", // Light gray background for all notifications
         },
         notificationContent: {
             flex: 1, // Take up available space
         },
         notificationText: {
             fontSize: 16,
-            color: theme.gray,
+            color: "#333",
             flexWrap: "wrap", // Wrap text if necessary
-            color: theme.textColor,
         },
         boldText: {
             fontWeight: "bold",
+            
         },
         readText: {
-            color: theme.gray,
+            color: "#888",
         },
         unreadText: {
             fontWeight: "bold",
@@ -253,21 +250,20 @@ const Notifications = ({ route }) => {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            marginTop: 100,
         },
         noNotificationsText: {
             fontSize: 18,
-            color: theme.gray,
+            color: "#888",
+            paddingBottom: 50,
         },
         sectionHeader: {
             fontSize: 18,
             fontWeight: "bold",
             marginVertical: 10,
             marginLeft: 10,
-            color: theme.textColor,
         },
         clearButton: {
-            backgroundColor: "#007bff",
+            backgroundColor: "#4a42c0",
             padding: 10,
             borderRadius: 5,
             alignItems: "center",
@@ -275,11 +271,11 @@ const Notifications = ({ route }) => {
         },
         divider: {
             height: 1,
-            backgroundColor: theme.borderColor,
+            backgroundColor: "#ccc",
             marginVertical: 8,
         },
         unreadBorder: {
-            borderLeftColor: theme.primaryColor, // Purple color for unread notifications
+            borderLeftColor: "#4a42c0", // Purple color for unread notifications
             borderLeftWidth: 5, // Adjust width as needed
         },
     });
@@ -302,9 +298,11 @@ const Notifications = ({ route }) => {
                                     </View>
                                 )
                         )}
-                        <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
-                            <Text style={styles.buttonText}>Clear All</Text>
-                        </TouchableOpacity>
+                        {notifications.length > 0 && (
+                            <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                                <Text style={styles.buttonText}>Clear All</Text>
+                            </TouchableOpacity>
+                        )}
                     </ScrollView>
                 )}
             </View>

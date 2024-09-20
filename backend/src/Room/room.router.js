@@ -10,7 +10,7 @@ router.post('/create/:uid', roomController.createRoom);/////////////////////////
 router.post('/join', roomController.joinRoom); ////////////////////////////////
 
 // Route to get participants of a room
-router.get('/:roomId/participants', roomController.getRoomParticipants); ////////////////////////////////
+router.get('/:roomId/participants', roomController.getRoomParticipants);
 
 // Route to get all rooms a user has created
 router.get('/created/:uid', roomController.getUserCreatedRooms); ////////////////////////////////
@@ -23,9 +23,6 @@ router.get('/:roomId/participant-count', roomController.getRoomParticipantCount)
 
 router.get('/public-rooms', roomController.getPublicRooms); ////////////////////////////////
 router.get('/recent-rooms/:uid', roomController.getRecentRooms); ////////////////////////////////
-router.get('/:roomId/admins', roomController.getRoomAdmins);
-
-router.post('/toggleAdmin', roomController.toggleAdmin);
 
 // Route to invite a user to a room
 router.post('/invite', roomController.inviteUserToRoom);

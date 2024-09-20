@@ -47,6 +47,7 @@ export default function ExplorePage({ route }) {
 
                 const enrichedFriendsContent = await Promise.all(
                     friendsContent.map(async (content) => {
+                        // console.log("friendscontnet:", content.post);
                         if (content.post) {
                             const likes = await getLikesOfPost(content.post.postId);
                             const comments = await getCountCommentsOfPost(content.post.postId);
@@ -167,14 +168,18 @@ export default function ExplorePage({ route }) {
     const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
         setIsPost(!isReview);
-        await fetchComments(postId, isReview);
+
+        const response = await fetchComments(postId, isReview);
+        // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
 
     const fetchRooms = useCallback(async () => {
         try {
             const recentRoomsData = await getRecentRooms(userInfo.userId);
+            console.log(recentRoomsData);
             if (recentRoomsData.length > 0) {
+                console.log("recentRoomsData length is not 0");
                 const recentRoomsWithCounts = await Promise.all(
                     recentRoomsData.map(async (room) => {
                         const countResponse = await getRoomParticipantCount(room.roomId);
@@ -233,14 +238,6 @@ export default function ExplorePage({ route }) {
                         <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={theme.gray} onChangeText={(text) => handleSearch(text)} />
                     </View>
                 </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <CategoriesFilters categoryName="Top Reviews" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Latests Posts" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Action" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Comedy" selectedCategory={selectedCategory} />
-                    <CategoriesFilters categoryName="Drama" selectedCategory={selectedCategory} />
-                </ScrollView>
-
                 <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
                     <Ionicons name="chevron-forward" size={24} color={theme.iconColor} style={{ marginLeft: "auto" }} onPress={handleOpenHub} />

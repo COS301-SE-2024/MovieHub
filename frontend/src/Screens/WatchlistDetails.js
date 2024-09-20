@@ -1,43 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { getWatchlistDetails } from '../Services/ListApiService';
-import { getMovieDetails } from '../Services/TMDBApiService'; // Assume this function exists
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator } from "react-native";
+import { getWatchlistDetails } from "../Services/ListApiService"; // Make sure to adjust the import path
 import { useTheme } from "../styles/ThemeContext";
-import { colors, themeStyles } from "../styles/theme";
-import { useNavigation } from '@react-navigation/native';
 
 const WatchlistDetails = ({ route }) => {
-    const { theme } = useTheme();
     const [iniWatchlist, setWatchlist] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigation = useNavigation();
-
+    const { theme } = useTheme();
     const { watchlist } = route.params;
-    console.log('Here is the watchlist passed: ', JSON.stringify(watchlist));
-   
+    console.log("Here is the watchlist passed: ", JSON.stringify(watchlist));
+
     useEffect(() => {
         const fetchWatchlistDetails = async () => {
             try {
+                console.log("===========");
                 const watchlistId = watchlist.id;
                 console.log(watchlistId);
-                let data = await getWatchlistDetails(watchlistId);
-                console.log('Watchlist Id in WatchListDetails', JSON.stringify(watchlistId));
-                // Fetch additional details for each movie
-                const updatedMovieList = await Promise.all(data.movieList.map(async (movie) => {
-                    if (!movie.vote_average || !movie.overview || !movie.release_date || !movie.genre) {
-                        const additionalDetails = await getMovieDetails(movie.id);
-                        return { ...movie, ...additionalDetails };
-                    }
-                    return movie;
-                }));
-
-                data = { ...data, movieList: updatedMovieList };
-                console.log('Updated watchlist data:', JSON.stringify(data, null, 2));
+                const data = await getWatchlistDetails(watchlistId);
+                console.log("Watchlist Id in WatchListDetails", JSON.stringify(watchlistId));
 
                 setWatchlist(data);
             } catch (error) {
-                console.error('Error fetching watchlist details:', error);
                 setError(error.message);
             } finally {
                 setLoading(false);
@@ -47,26 +31,14 @@ const WatchlistDetails = ({ route }) => {
         fetchWatchlistDetails();
     }, [watchlist]);
 
-    const handleMoviePress = (movie) => {
-        console.log('Movie pressed:', JSON.stringify(movie, null, 2));
-        navigation.navigate('MovieDescriptionPage', {
-            movieId: movie.id,
-            imageUrl: movie.poster_path ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : null,
-            title: movie.title,
-            rating: movie.vote_average,
-            overview: movie.overview,
-            date: new Date(movie.release_date).getFullYear(),
-            genre: Array.isArray(movie.genres) ? movie.genres.map(g => g.name).join(', ') : movie.genre
-        });
-    };
-
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={colors.primary} />
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <ActivityIndicator size="large" color={theme.primaryColor} />
             </View>
         );
     }
+
     if (error) return <Text>Error: {error}</Text>;
 
     const styles = StyleSheet.create({

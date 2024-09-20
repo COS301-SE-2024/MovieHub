@@ -23,7 +23,7 @@ function CustomDrawer({ route }) {
             </TouchableOpacity>
             <View style={styles.line} />
 
-            <Text style={[styles.label, { color: theme.gray }]}>Activity</Text>
+            {/* <Text style={[styles.label, { color: theme.gray }]}>Activity</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <IonIcon name="stats-chart-sharp" style={[styles.icon, { color: theme.iconColor }]} size={24} />
@@ -35,7 +35,7 @@ function CustomDrawer({ route }) {
                     <Icon name="settings" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Content Preferences</Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <View style={styles.line} />
 
@@ -111,7 +111,7 @@ function CustomDrawer({ route }) {
 const styles = StyleSheet.create({
     drawer: {
         flex: 1,
-        paddingTop: 10,
+        paddingTop: 70,
         paddingBottom: 15,
     },
     label: {

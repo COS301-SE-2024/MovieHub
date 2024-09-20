@@ -3,7 +3,7 @@ import axios from 'axios';
 import {REACT_APP_TMDB_API_KEY} from '@env';
 
 //const API_KEY = process.env.TMDB_API_KEY; //Enter key from .env
-const API_KEY = "280e411d2e778fce1a8e91265c5b6e15";
+const API_KEY = '280e411d2e778fce1a8e91265c5b6e15';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -141,6 +141,7 @@ export const searchMovies = async (query) => {
                 return movie.vote_average >= 8.0 && movie.popularity >= 100;
             });
     
+            console.log('Classic Movies:', classicMovies);
         } catch (error) {
             console.error('Error fetching classic movies:', error);
         }

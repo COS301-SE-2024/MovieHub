@@ -108,7 +108,7 @@ const TermsOfUse = () => {
                 </Text>
                 <Text style={styles.paragraph}>Email: support@moviehub.com</Text>
                 <Text style={styles.paragraph}>Last Updated: June 3, 2024</Text>
-                <Text style={{ marginBottom: 40, fontSize: 16 }}>Thank you for using MovieHub! We hope you enjoy our platform.</Text>
+                <Text style={{ marginBottom: 40, fontSize: 16, color: theme.textColor }}>Thank you for using MovieHub! We hope you enjoy our platform.</Text>
             </View>
         </ScrollView>
     );

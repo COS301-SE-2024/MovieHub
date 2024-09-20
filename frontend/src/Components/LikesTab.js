@@ -93,6 +93,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
     const handleDeletePost = async (postId) => {
         try {
             await removePost({ postId, uid: userInfo.userId });
+            console.log("Post deleted successfully");
             setLikedPosts(likedPosts.filter(post => post.postId !== postId));
         } catch (error) {
             console.error("Error deleting post:", error);

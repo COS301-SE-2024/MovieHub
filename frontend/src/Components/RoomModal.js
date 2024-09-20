@@ -15,6 +15,7 @@ const RoomModal = forwardRef((props, ref) => {
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
     const handleCopyLinkPress = () => {
+        console.log("Copy link");
     };
     const handleShare = async () => {
         try {
@@ -38,6 +39,7 @@ const RoomModal = forwardRef((props, ref) => {
     };
 
     const handleDeleteRoom = async () => {
+        console.log("Delete Room");
         // try {
         //     await deleteRoom(selectedRoom.id);
         //     setrooms(rooms.filter(w => w.id !== selectedRoom.id)); // Update state to remove deleted room
@@ -52,6 +54,7 @@ const RoomModal = forwardRef((props, ref) => {
 
     const handleStartWatchParty = () => {
         navigation.navigate("CreateWatchParty", { route: props.route, roomId: props.roomId });
+        console.log("Start Watch Party");
     };
 
     const renderContent = () => (
@@ -59,18 +62,18 @@ const RoomModal = forwardRef((props, ref) => {
             <Text style={styles.title}>{props.title}</Text>
             <View style={styles.iconsContainer}>
                 <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
-                    <Ionicons name="share-social" size={22} color="black" style={styles.icon} />
-                    <Text>Share</Text>
+                    <Ionicons name="share-social" size={22} color={theme.iconColor} style={styles.icon} />
+                    <Text style={{ color: theme.textColor }}>Share</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.iconButton} onPress={handleCopyLinkPress}>
-                    <Ionicons name="link" size={22} color="black" style={styles.icon} />
-                    <Text>Copy link</Text>
+                    <Ionicons name="link" size={22} color={theme.iconColor} style={styles.icon} />
+                    <Text style={{ color: theme.textColor }}>Copy link</Text>
                 </TouchableOpacity>
                 {isRoomCreator && (
                     <>
                         <TouchableOpacity style={styles.iconButton} onPress={handleStartWatchParty}>
-                            <Icon name="movie" size={22} color="black" style={styles.icon} />
-                            <Text>Start Watch Party</Text>
+                            <Icon name="movie" size={22} color={theme.iconColor} style={styles.icon} />
+                            <Text style={{ color: theme.textColor }}>Start Watch Party</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconButton} onPress={handleDeleteRoom}>
                             <Ionicons name="trash" size={22} color="red" style={styles.icon} />
@@ -84,7 +87,7 @@ const RoomModal = forwardRef((props, ref) => {
     
     const styles = StyleSheet.create({
         container: {
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             padding: 16,
             // height: "100%",
             zIndex: 12,
@@ -93,6 +96,7 @@ const RoomModal = forwardRef((props, ref) => {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 16,
+            color: theme.textColor,
         },
         iconsContainer: {
             flexDirection: "column", // Corrected the flex direction
@@ -111,9 +115,9 @@ const RoomModal = forwardRef((props, ref) => {
     });
 
     return (
-        <BottomSheetModalProvider>
+        <BottomSheetModalProvider >
             <BottomSheetModal ref={ref} index={0} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
-                <BottomSheetView>{renderContent()}</BottomSheetView>
+                <BottomSheetView style={{ backgroundColor: theme.backgroundColor }}>{renderContent()}</BottomSheetView>
             </BottomSheetModal>
         </BottomSheetModalProvider>
     );

@@ -39,12 +39,17 @@ export const getUserProfile = async (userId) => {
         headers,
     });
 
+    // console.log("Here is the API res  ",response);
     if (!response.ok) {
         throw new Error('Failed to fetch user profile');
     }
 
     const textData = await response.text();
+        // console.log('Response text:', textData);
         const data = JSON.parse(textData);
+        // console.log('Parsed data:', data);
+
+
     return data;
 };
 
@@ -148,12 +153,27 @@ export const getUserPosts = async (userId) => {
         }
     });
     if (!response.ok) {
+        console.log(response)
         throw new Error("Failed to fetch user posts");
     } 
     
     const data = await response.json();
+    // console.log("data", data);
     return data;
 };
+
+// funtion get get user's liked posts
+// export const getUserLikedPosts = async (userId) => {
+//     const response = await fetch(`http://localhost:3000/like/${userId}/likes`);
+//     if (!response.ok) {
+//         console.log(response)
+//         throw new Error("Failed to fetch user posts");
+//     } 
+    
+//     const data = await response.json();
+//     console.log("data", data);
+//     return data;
+// };
 
 export const getCommentsOfUser = async (userId) => {
     const response = await fetch(`http://localhost:3000/post/user/${userId}/comments`);
@@ -162,7 +182,9 @@ export const getCommentsOfUser = async (userId) => {
     }
 
     const textData = await response.text();
+        console.log('Response text:', textData);
         const data = JSON.parse(textData);
+        console.log('Parsed data:', data);
     return data;
 };
 
@@ -173,7 +195,9 @@ export const getReviewsOfUser = async (userId) => {
     }
 
     const textData = await response.text();
+        console.log('Response text:', textData);
         const data = JSON.parse(textData);
+        console.log('Parsed data:', data);
     return data;
 };
 
@@ -224,13 +248,14 @@ export const unfollowUser = async (userId, targetUserId) => {
 // Function to get friends
 export const getFriends = async (userId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/friends/${userId}`, {
+    const response = await fetch(`${API_URL}/${userId}/friends`, {
         headers,
     });
+
     if (!response.ok) {
         throw new Error('Failed to get friends');
     }
-    
+
     const data = await response.json();
     return data;
 };

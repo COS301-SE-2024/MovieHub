@@ -165,13 +165,13 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="ProfilePage"
             component={ProfilePage}
-            options={({ navigation }) => ({
+            options={({ navigation, route }) => ({
                 title: "",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerRight: () => (
                     <View style={{ marginRight: 10 }}>
-                        <Text onPress={() => navigation.navigate("CustomDrawer")}>
+                        <Text onPress={() => navigation.navigate("CustomDrawer", route)}>
                             <Icon name="menu" size={24} color={theme.textColor} />
                         </Text>
                     </View>
@@ -186,7 +186,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="EditProfile"
             component={EditProfile}
-            options={({ navigation }) => ({
+            options={({ navigation, route }) => ({
                 title: "Edit Profile",
                 headerStyle: {
                     backgroundColor: theme.backgroundColor,
@@ -197,7 +197,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 },
                 headerRight: () => (
                     <View style={{ marginRight: 10 }}>
-                        <Text onPress={() => navigation.navigate("CustomDrawer")}>
+                        <Text onPress={() => navigation.navigate("CustomDrawer", route)}>
                             <Icon name="menu" size={24} color={theme.textColor} />
                         </Text>
                     </View>
@@ -449,7 +449,19 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 },
             }}
         />
-        <Nav.Screen name="FAQs" component={FAQs} />
+        <Nav.Screen 
+            name="FAQs" 
+            component={FAQs}
+            options={{
+                title: "FAQs",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+            }}
+        />
         <Nav.Screen
             name="ViewRoom"
             component={ViewRoom}
@@ -617,7 +629,6 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
 export default function App() {
     const [navigationState, setNavigationState] = useState(null);
     const theme = useTheme();
-    console.log("Current theme:", theme);
 
     return (
         // <WebSocketProvider>

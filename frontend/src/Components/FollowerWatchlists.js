@@ -13,13 +13,17 @@ const WatchlistTab = ({ userInfo }) => {
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
 
+    console.log("followers watchlist",userInfo);
         // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
+                console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
                 const userId = userInfo.uid; // Replace with actual user ID fetching logic
+
                 const userWatchlists = await getUserWatchlists(userId);
                 const watchlistId = userWatchlists.id;
+                console.log(userWatchlists);
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error('Error fetching user watchlists:', error);
@@ -42,6 +46,7 @@ const WatchlistTab = ({ userInfo }) => {
     };
 
     const goToWatchlistDetails = (watchlist) => {
+        console.log('About to navigate. \n Here is the watch list info: ', watchlist);
         navigation.navigate('WatchlistDetails', { watchlist });
     };
 
@@ -172,6 +177,7 @@ const WatchlistTab = ({ userInfo }) => {
                             onPress={() => {
                                 navigation.navigate('EditWatchlist', {userInfo});
                                 closeModal();
+                                console.log(`Edit ${selectedWatchlist.name}`);
                             }}>
                             <MaterialIcons name="edit" size={24} color={theme.iconCOlor} />
                             <Text style={styles.modalOptionText}>Edit</Text>
