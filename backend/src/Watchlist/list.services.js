@@ -13,7 +13,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
     console.log("In list.services");
 
     // Ensure all required parameters are present
-    const requiredParams = ['name', 'tags', 'visibility', 'ranked', 'description', 'collaborative', 'movies', 'collabUserIds'];
+    const requiredParams = ['name', 'tags', 'visibility', 'ranked', 'description', 'collaborative', 'movies'];
     for (const param of requiredParams) {
         if (!(param in watchlistData)) {
             console.error(`Missing required parameter: ${param}`);
@@ -23,7 +23,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
 
     const session = driver.session();
     const watchlistId = uuidv4();
-    const { name, tags, visibility, ranked, description, collaborative, movies, collabUserIds } = watchlistData;
+    const { name, tags, visibility, ranked, description, collaborative, movies } = watchlistData;
 
     try {
         console.log("All parameters are present. Proceeding with database query.");
@@ -62,7 +62,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
             { watchlistId, name, tags, visibility, ranked, description, collaborative, userId }
         );
 
-        console.log("Watchlist created and associated with the user.");
+        console.log("Database query executed.");
         if (result.records.length === 0) {
             throw new Error("Failed to create watchlist.");
         }
@@ -76,19 +76,10 @@ exports.createWatchlist = async (userId, watchlistData) => {
             );
         }
 
-        // Associate collaborator users with the watchlist
-        for (const colabUserId of collabUserIds) {
-            await tx.run(
-                `MERGE (u:User {uid: $colabUserId})
-                 CREATE (u)-[:HAS_WATCHLIST]->(w)`,
-                { watchlistId, colabUserId }
-            );
-        }
-
         // Commit the transaction
         await tx.commit();
 
-        console.log("Movies and collaborators associated with the watchlist.");
+        console.log("Movies associated with the watchlist.");
 
         return { id: watchlistId, ...watchlistData };
     } catch (error) {
@@ -99,7 +90,6 @@ exports.createWatchlist = async (userId, watchlistData) => {
         await session.close();
     }
 };
-
 
 exports.modifyWatchlist = async (watchlistId, updatedData) => {
     const session = driver.session();
@@ -181,44 +171,6 @@ exports.getWatchlistDetails = async (watchlistId) => {
     }
 };
 
-exports.getCollaborators = async (watchlistId) => {
-    const session = driver.session();
-
-    try {
-        console.log("Fetching collaborators for watchlist:", watchlistId);
-
-        // Run a query to find all users with a HAS_WATCHLIST relationship to the watchlist
-        const result = await session.run(
-            `MATCH (w:Watchlist {id: $watchlistId})<-[:HAS_WATCHLIST]-(u:User)
-             RETURN u.uid AS userId, u.name AS name, u.username AS username, u.avatar AS avatar`,
-            { watchlistId }
-        );
-
-        if (result.records.length === 0) {
-            console.log("No collaborators found for this watchlist.");
-            return [];
-        }
-
-        // Process the result to return an array of collaborators
-        const collaborators = result.records.map(record => ({
-            userId: record.get('userId'),
-            name: record.get('name'),
-            username: record.get('username'),
-            avatar: record.get('avatar')
-        }));
-
-        console.log("Collaborators fetched successfully.");
-
-        return collaborators;
-    } catch (error) {
-        console.error("Error fetching collaborators:", error);
-        throw error;
-    } finally {
-        await session.close();
-    }
-};
-
-
 exports.deleteWatchlist = async (watchlistId) => {
     const session = driver.session();
 
@@ -232,5 +184,5 @@ exports.deleteWatchlist = async (watchlistId) => {
         console.log('Watchlist deleted successfully');
     } finally {
         await session.close();
-    }
+    } 
 };
