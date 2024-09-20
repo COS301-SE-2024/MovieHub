@@ -16,6 +16,7 @@ import {  searchUser  } from "../Services/UsersApiService";
 import CommentsModal from '../Components/CommentsModal';
 import { getRecentRooms, getPublicRooms, getUserCreatedRooms, getUserParticipatedRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from '../Components/UserRoomCard';
+import FollowList from '../Components/FollowList';
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
@@ -32,6 +33,7 @@ export default function ExplorePage({ route }) {
     const [loadingComments, setLoadingComments] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null); 
     const [recentRooms, setRecentRooms] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
     useEffect(() => {
@@ -130,10 +132,34 @@ export default function ExplorePage({ route }) {
     };
 
     const handleSearch = async (name) => {
+
+        if (name.trim() === "") {
+            setSearchResults([]); // Clear results if input is empty
+            return;
+        }
+        
         const response = await searchUser(name);
+        
         console.log(response);
+
+        setSearchResults(response.users || []);
        
     };
+
+    const renderUser = ({ item }) => (
+        <View style={styles.container}>
+            <View style={styles.profileInfo}>
+                <Image source={{ uri: item.avatar }} style={styles.avatar} />
+                <View style={{ alignItems: "left" }}>
+                    <Text style={styles.username}>{item.name}</Text>
+                    <Text style={styles.userHandle}>{item.username}</Text>
+                </View>
+            </View>
+            {item.avatar && <Image source={{ uri: item.avatar }} style={styles.postImage} />}
+            <View style={styles.statsContainer}>
+            </View>
+        </View>
+    );
 
     const fetchRooms = useCallback(async () => {
         try {
@@ -183,6 +209,14 @@ export default function ExplorePage({ route }) {
     const getRandomKeyword = () => {
         return keywords[Math.floor(Math.random() * keywords.length)];
     };
+
+    const renderFollower = ({ item }) => (
+        <FollowList 
+            username={item.username}
+            userHandle={item.name}
+            userAvatar={item.avatar}
+        />
+    );
     
     return (
         <View style={styles.container}>
@@ -193,8 +227,18 @@ export default function ExplorePage({ route }) {
                 <Icon name="search" size={30} style={{ marginRight: 8 }} />
 
                 <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} />
+                    
             </View>
+
             </View>
+            {searchResults.length > 0 && (
+                <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item.uid}
+                    renderItem={renderFollower}
+                    showsVerticalScrollIndicator={false}
+                />
+            )}
                 <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
                     <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }}  onPress={handleOpenHub} />
