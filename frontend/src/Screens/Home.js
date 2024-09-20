@@ -117,7 +117,7 @@ const formatDate = (date) => {
 
 const Home = ({ route }) => {
 
-    const flatlistRef = useRef();
+    const flatlistRef = useRef(null);
     const screenWidth = Dimensions.get("window").width;
     const [activeIndex, setActiveIndex] = useState(0);
     const { userInfo } = route.params;
@@ -212,16 +212,17 @@ const Home = ({ route }) => {
         if (isAutoScrolling) {
             interval = setInterval(() => {
                 if (activeIndex === 9) {
-                    flatlistRef.current.scrollToIndex({
+                    flatlistRef.current?.scrollToIndex({
                         index: 0,
                         animated: true,
                     });
                     setActiveIndex(0);
                 } else {
-                    flatlistRef.current.scrollToIndex({
+                    flatlistRef.current?.scrollToIndex({
                         index: activeIndex + 1,
                         animated: true,
                     });
+                    setActiveIndex(activeIndex + 1);
                 }
             }, 2000); // Adjust the interval as needed
         }
@@ -242,7 +243,7 @@ const Home = ({ route }) => {
         setTimeout(() => {
             setIsAutoScrolling(true);
             setActiveIndex(0); // Reset the active index to 0
-            flatlistRef.current.scrollToIndex({
+            flatlistRef.current?.scrollToIndex({
             index: 0,
             animated: true,
         });
