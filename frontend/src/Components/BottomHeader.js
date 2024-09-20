@@ -55,7 +55,11 @@ export default function BottomHeader({ userInfo }) {
                     <Icon name="home" size={30} style={[styles.icon, isActive("Home") && styles.activeIcon]} />
                     {isActive("Home") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("Notifications", { userInfo })} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("ExplorePage", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="group" size={32} style={[styles.icon, isActive("ExplorePage") && styles.activeIcon]} />
+                    {isActive("ExplorePage") && <View style={styles.activeIndicator} />}
+                </TouchableOpacity>
+                {/* <TouchableOpacity onPress={() => navigation.navigate("Notifications", { userInfo })} style={styles.iconContainer}>
                     <View style={styles.notificationIconContainer}>
                         <Icon name="notifications" size={30} style={[styles.icon, isActive("Notifications") && styles.activeIcon]} />
                         {unreadNotifications > 0 && (
@@ -63,14 +67,14 @@ export default function BottomHeader({ userInfo }) {
                         )}
                     </View>
                     {isActive("Notifications") && <View style={styles.activeIndicator} />}
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <TouchableOpacity onPress={() => navigation.navigate("CreatePost", { userInfo })} style={styles.iconContainer}>
                     <Icon name="add-circle-outline" size={30} style={[styles.icon, isActive("CreatePost") && styles.activeIcon]} />
                     {isActive("CreatePost") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("ExplorePage", { userInfo })} style={styles.iconContainer}>
-                    <Icon name="people" size={32} style={[styles.icon, isActive("ExplorePage") && styles.activeIcon]} />
-                    {isActive("ExplorePage") && <View style={styles.activeIndicator} />}
+                <TouchableOpacity onPress={() => navigation.navigate("HubScreen", { userInfo })} style={styles.iconContainer}>
+                    <Icon name="personal-video" size={32} style={[styles.icon, isActive("HubScreen") && styles.activeIcon]} />
+                    {isActive("HubScreen") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("ProfilePage", { userInfo })} style={styles.iconContainer}>
                     <Image 

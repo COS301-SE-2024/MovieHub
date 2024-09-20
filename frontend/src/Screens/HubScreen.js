@@ -4,6 +4,8 @@ import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBa
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from "../Components/UserRoomCard";
+import BottomHeader from "../Components/BottomHeader";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const HubScreen = ({ route }) => {
     const { userInfo } = route.params;
@@ -93,70 +95,75 @@ const HubScreen = ({ route }) => {
     );
 
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.header}>
-                {/* <View style={styles.headerLeft}>
-                    <MatIcon name="arrow-left" size={24} style={{ marginRight: 35 }} onPress={() => navigation.goBack()} />
-                    <Text style={styles.headerTitle}>The Hub</Text>
-                </View> */}
+        <View style={{ flex: 1 }}>
+            <ScrollView style={styles.container}>
+                <View style={styles.header}>
+                    {/* <View style={styles.headerLeft}>
+                        <MatIcon name="arrow-left" size={24} style={{ marginRight: 35 }} onPress={() => navigation.goBack()} />
+                        <Text style={styles.headerTitle}>The Hub</Text>
+                    </View> */}
 
-                <TouchableOpacity onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
-                    <Text style={styles.createRoomText}>Create a Room</Text>
-                </TouchableOpacity>
-            </View>
-
-            {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
-                <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
-                    <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                    <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
+                        <Text style={styles.createButtonText}>Create new watchlist</Text>
+                        <View style={{ flex: 1 }} />
+                        <MaterialIcons name="add" size={24} color="black" />
+                    </TouchableOpacity>
                 </View>
-            )}
 
-            {createdRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Rooms You Created</Text>
-                    <FlatList
-                        data={createdRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
+                {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
+                        <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                    </View>
+                )}
 
-            {participatingRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
-                    <FlatList
-                        data={participatingRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
+                {createdRooms.length > 0 && (
+                    <View>
+                        <Text style={styles.sectionTitle}>Rooms You Created</Text>
+                        <FlatList
+                            data={createdRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
+                        <View style={styles.divider} />
+                    </View>
+                )}
 
-            {publicRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Public Rooms Available</Text>
-                    <FlatList
-                        data={publicRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
-        </ScrollView>
+                {participatingRooms.length > 0 && (
+                    <View>
+                        <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
+                        <FlatList
+                            data={participatingRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
+                        <View style={styles.divider} />
+                    </View>
+                )}
+
+                {publicRooms.length > 0 && (
+                    <View>
+                        <Text style={styles.sectionTitle}>Public Rooms Available</Text>
+                        <FlatList
+                            data={publicRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
+                        <View style={styles.divider} />
+                    </View>
+                )}
+            </ScrollView>
+            <BottomHeader userInfo={userInfo} />
+        </View>
     );
 };
 
@@ -217,6 +224,17 @@ const styles = StyleSheet.create({
         color: "red",
         marginBottom: 6,
         
+    },
+    createButton: {
+        flexDirection: "row",
+        marginBottom: 10,
+        paddingHorizontal: 10,
+        alignItems: "center",
+    },
+    createButtonText: {
+        fontSize: 14,
+        color: "#666",
+        fontWeight: "bold",
     },
     cardBody: {
         display: "flex",
