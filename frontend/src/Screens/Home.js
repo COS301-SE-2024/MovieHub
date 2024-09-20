@@ -143,52 +143,55 @@ const Home = ({ route }) => {
     const [isAutoScrolling, setIsAutoScrolling] = useState(true);
 
 
-    const fetchMoviesByGenres = async () => {
-    try {
-      const genreMoviesPromises = Object.entries(genres).map(async ([genreName, genreId]) => {
-        const movies = await getNewMovies(genreId); // Using the imported function here
-        return { genre: genreName, movies };
-      });
+    useEffect(() => {
+        const fetchMoviesByGenres = async () => {
+          try {
+            const genreMoviesPromises = Object.entries(genres).map(async ([genreName, genreId]) => {
+              const movies = await getNewMovies(genreId); // Using the imported function here
+              return { genre: genreName, movies };
+            });
+    
+            const fetchedMovies = await Promise.all(genreMoviesPromises);
+    
+            const moviesByGenreData = fetchedMovies.reduce((acc, curr) => {
+              acc[curr.genre] = curr.movies;
+              return acc;
+            }, {});
+    
+            setMoviesByGenre(moviesByGenreData);
+          } catch (error) {
+            console.error('Error fetching movies by genres:', error);
+          }
+        };
+    
+        fetchMoviesByGenres(); 
+      }, []);
 
-      const fetchedMovies = await Promise.all(genreMoviesPromises);
+      useEffect(() => {
+        const fetchOTHERMovies = async () => {
+          try {
+            const fetchedMovies = await getPopularMovies();
+            setMovies1(fetchedMovies);
+    
+            const fetchedThrillerMovies = await getMoviesByGenre(53);
+            setThrillerMovies(fetchedThrillerMovies);
+    
+            const fetchedComedyMovies = await getMoviesByGenre(35); 
+            setComedyMovies(fetchedComedyMovies);
+    
+            const fetchedRomanceMovies = await getMoviesByGenre(28); 
+            setRomanceMovies(fetchedRomanceMovies);
+    
+          } catch (error) {
+            console.error('Error fetching movies:', error);
+          } finally {
+            
+          }
+        };
+    
+        fetchOTHERMovies(); 
+      }, []);
 
-      const moviesByGenreData = fetchedMovies.reduce((acc, curr) => {
-        acc[curr.genre] = curr.movies;
-        return acc;
-      }, {});
-
-      setMoviesByGenre(moviesByGenreData);
-    } catch (error) {
-      console.error('Error fetching movies by genres:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchMoviesByGenres();
-  }, []);
-
-    const fetchOTHERMovies = async () => {
-        try {
-          const fetchedMovies = await getPopularMovies();
-          setMovies1(fetchedMovies);
-
-          const fetchedThrillerMovies = await getMoviesByGenre(53);
-          setThrillerMovies(fetchedThrillerMovies);
-
-          const fetchedComedyMovies = await getMoviesByGenre(35);
-          setComedyMovies(fetchedComedyMovies);
-
-          const fetchedRomanceMovies = await getMoviesByGenre(10749);
-          setRomanceMovies(fetchedRomanceMovies);
-
-        } catch (error) {
-          console.error('Error fetching movies:', error);
-        }
-        finally {
-          // console.log("fetchmovies",thrillerMovies);
-          // console.log('item.poster_path',movies)
-        }
-      };
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -199,12 +202,10 @@ const Home = ({ route }) => {
                 console.error("Failed to fetch movies:", error);
             }
         };
-        fetchOTHERMovies();
+        
         fetchMovies();
     }, []);
 
-
-   
 
     useEffect(() => {
         let interval;
@@ -212,16 +213,20 @@ const Home = ({ route }) => {
         if (isAutoScrolling) {
             interval = setInterval(() => {
                 if (activeIndex === 9) {
+                    if (movies1.length > 0) {
                     flatlistRef.current?.scrollToIndex({
                         index: 0,
                         animated: true,
                     });
+                }
                     setActiveIndex(0);
                 } else {
+                    if (movies1.length > 0) {
                     flatlistRef.current?.scrollToIndex({
                         index: activeIndex + 1,
                         animated: true,
                     });
+                }
                     setActiveIndex(activeIndex + 1);
                 }
             }, 2000); // Adjust the interval as needed
@@ -312,7 +317,7 @@ const Home = ({ route }) => {
         }, [userInfo, fetchFriendsContent])
     );
 
-    if (movies.length === 0) {
+    if (movies.length === 0 ) {
         return <Loading />;
     }
 
