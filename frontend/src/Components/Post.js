@@ -18,26 +18,31 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
     const { userInfo, setUserInfo } = useUser();
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
 
     const toggleLike = async () => {
+        if (liked) return;  // Prevent multiple actions
+    
+        setLiked(true);  // Immediately set liked to true to prevent double-clicking
+    
         const body = {
             postId: postId,
             uid: uid,
         };
-
+    
         try {
-            await toggleLikePost(body);
-            setHasLiked(!hasLiked);
-            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
+            await toggleLikePost(body);  // Await the backend like/unlike call
+            setHasLiked(!hasLiked);  // Optimistically toggle like state
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);  // Update like count
         } catch (error) {
             console.error("Error toggling like:", error);
+        } finally {
+            setLiked(false);  // Reset liked state after backend call completes
         }
-
-        setLiked(!liked);
     };
 
     const handleShare = async () => {
@@ -81,12 +86,20 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     // Function to remove posts
 
     const handleRemovePost = async (uid, postId) => {
+        if (isDeleting) return; // Prevent multiple deletes
+
+    setIsDeleting(true); // Prevent further actions
+    try {
         onDelete(postId);
         setConfirmationModalVisible(false);
         toggleModal();
         Alert.alert("Success", "Post deleted successfully!");
-    };
-
+    } catch (error) {
+        console.error("Error deleting post:", error);
+    } finally {
+        setIsDeleting(false); // Reset flag after completion
+    }
+};
     const handleEditPost = () => {
         toggleModal();
         navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });

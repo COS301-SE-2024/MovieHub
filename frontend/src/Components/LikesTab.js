@@ -59,9 +59,24 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                     })
                 );
 
+
+                const uniquePostsWithComments = postsWithComments.filter(
+                    (item, index, self) =>
+                        index ===
+                        self.findIndex((i) => {
+                            // If it's a post, compare postId; if it's a review, compare reviewId
+                            return item.labels[0] === "Post"
+                                ? i.properties.postId === item.properties.postId
+                                : i.properties.reviewId === item.properties.reviewId;
+                        })
+                );
+
                 // Sort posts by createdAt in descending order (most recent first)
-                postsWithComments.sort((a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt));
-                setLikedPosts(postsWithComments);
+                uniquePostsWithComments.sort(
+                    (a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt)
+                );
+    
+                setLikedPosts(uniquePostsWithComments);
             }
         } catch (error) {
             console.log("Error fetching liked posts:", error);
