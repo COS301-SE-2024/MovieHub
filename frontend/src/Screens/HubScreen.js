@@ -1,26 +1,24 @@
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import React, { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
-import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
-import { useTheme } from "../styles/ThemeContext";
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBackground } from "react-native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from "../Components/UserRoomCard";
 import BottomHeader from "../Components/BottomHeader";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const HubScreen = ({ route }) => {
     const { userInfo } = route.params;
-    const { theme } = useTheme();
     const navigation = useNavigation();
     const [createdRooms, setCreatedRooms] = useState([]);
     const [participatingRooms, setParticipatingRooms] = useState([]);
     const [publicRooms, setPublicRooms] = useState([]);
-    const [loading, setLoading] = useState(true); // State to manage loading status
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
     const fetchRooms = useCallback(async () => {
         try {
             const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
+
             const createdRoomsWithCounts = await Promise.all(
                 createdRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -31,8 +29,13 @@ const HubScreen = ({ route }) => {
                 })
             );
             setCreatedRooms(createdRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch created rooms:", error);
+        }
 
+        try {
             const participatingRoomsData = await getUserParticipatedRooms(userInfo.userId);
+
             const participatingRoomsWithCounts = await Promise.all(
                 participatingRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -43,8 +46,13 @@ const HubScreen = ({ route }) => {
                 })
             );
             setParticipatingRooms(participatingRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch participated rooms:", error);
+        }
 
+        try {
             const publicRoomsData = await getPublicRooms();
+
             const publicRoomsWithCounts = await Promise.all(
                 publicRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -56,9 +64,7 @@ const HubScreen = ({ route }) => {
             );
             setPublicRooms(publicRoomsWithCounts);
         } catch (error) {
-            console.error("Failed to fetch rooms:", error);
-        } finally {
-            setLoading(false); // Set loading to false when data fetching is complete
+            console.error("Failed to fetch public rooms:", error);
         }
     }, [userInfo.userId]);
 
@@ -87,90 +93,6 @@ const HubScreen = ({ route }) => {
             coverImage={item.coverImage}
         />
     );
-
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            paddingVertical: 16,
-            backgroundColor: theme.backgroundColor,
-        },
-        header: {
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 20,
-            paddingRight: 16,
-            height: 50,
-            paddingLeft: 16,
-            backgroundColor: theme.backgroundColor,
-        },
-        headerLeft: {
-            flexDirection: "row",
-            alignItems: "center",
-        },
-        headerTitle: {
-            fontSize: 20,
-            fontWeight: "bold",
-            color: theme.textColor,
-        },
-        createRoomText: {
-            fontSize: 16,
-            color: "blue",
-        },
-        sectionTitle: {
-            fontSize: 18,
-            fontWeight: "bold",
-            marginBottom: 15,
-            paddingLeft: 20,
-            color: theme.textColor,
-        },
-        userRoomCard: {
-            width: 310,
-            height: 210,
-            borderRadius: 8,
-            marginHorizontal: 12,
-            overflow: "hidden",
-        },
-        imageBackground: {
-            flex: 1,
-            justifyContent: "flex-end",
-            borderRadius: 8,
-        },
-        cardBody: {
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "absolute",
-            bottom: 12,
-            left: 16,
-            right: 16,
-        },
-        cardTitle: {
-            fontSize: 18,
-            fontWeight: "bold",
-            color: theme.textColor,
-        },
-        roomList: {
-            paddingHorizontal: 16,
-        },
-        divider: {
-            height: 1,
-            backgroundColor: theme.borderColor,
-            marginVertical: 16,
-        },
-        emptyContainer: {
-            alignItems: "center",
-            marginVertical: 20,
-        },
-        emptyText: {
-            fontSize: 16,
-            color: theme.gray,
-        },
-        loadingIndicator: {
-            marginTop: 30,
-        },
-    });
 
     return (
         <View style={{ flex: 1 }}>
@@ -356,6 +278,5 @@ const styles = StyleSheet.create({
         color: "gray",
     },
 });
-
 
 export default HubScreen;
