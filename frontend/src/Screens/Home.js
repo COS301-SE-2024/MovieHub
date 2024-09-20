@@ -63,7 +63,7 @@ const Backdrop = ({ movies, scrollX }) => {
     return (
         <View style={{ height: BACKDROP_HEIGHT, width, position: "absolute" }}>
             <FlatList
-                data={movies.reverse()}
+                data={movies}
                 keyExtractor={(item) => item.key + "-backdrop"}
                 removeClippedSubviews={false}
                 contentContainerStyle={{ width, height: BACKDROP_HEIGHT }}
@@ -122,6 +122,7 @@ const Home = ({ route }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const { userInfo } = route.params;
     const { theme } = useTheme();
+    const { avatar } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
     const [userProfile, setUserProfile] = useState(null);
@@ -303,7 +304,6 @@ const Home = ({ route }) => {
             );
 
             setSortedContent(enrichedContent);
-            // console.log("Home: friends content fecthed", enrichedContent);
         } catch (error) {
             console.error("Failed to fetch friends content:", error);
         }
@@ -327,7 +327,6 @@ const Home = ({ route }) => {
             try {
                 const response = await getCommentsOfReview(postId);
                 setComments(response.data);
-                // console.log("Fetched comments of reviews:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of review:", error.message);
                 throw new Error("Failed to fetch comments of review");
@@ -338,7 +337,6 @@ const Home = ({ route }) => {
             try {
                 const response = await getCommentsOfPost(postId);
                 setComments(response.data);
-                // console.log("Fetched comments:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of post:", error.message);
                 throw new Error("Failed to fetch comments of post");
@@ -352,7 +350,6 @@ const Home = ({ route }) => {
         setSelectedPostId(postId);
         setIsPost(!isReview);
         const response = await fetchComments(postId, isReview);
-        // console.log("Comments:", response);
         bottomSheetRef.current?.present();
     };
 
@@ -608,52 +605,54 @@ const Home = ({ route }) => {
 
                     {/* {sortedContent.length > 0 && (
                         <View style={styles.friendsContent}>
-                            <Text style={homeStyles.sectionTitle}>Feed</Text>
-                            {sortedContent.map(
-                                (content, index) =>
-                                    content.post ? ( // Check if post property exists
-                                        <Post
-                                            key={index}
-                                            postId={content.post.postId}
-                                            uid={content.friend.uid}
-                                            userInfo={userInfo}
-                                            otherUserInfo={content.friend}
-                                            username={content.post.name}
-                                            userAvatar={content.friend.avatar}
-                                            userHandle={`${content.post.username}`}
-                                            likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
-                                            comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
-                                            postTitle={content.post.postTitle}
-                                            image={content.post.img}
-                                            datePosted={formatDate(content.post.createdAt)} // Format the date
-                                            preview={content.post.text}
-                                            isUserPost={userInfo.userId == content.post.uid}
-                                            handleCommentPress={handleCommentPress}
-                                        />
-                                    ) : null // Render nothing if post property does not exist
+                            <Text style={styles.sectionTitle}>Feed</Text>
+                            {sortedContent.map((content, index) =>
+                                content.post ? ( // Check if post property exists
+                                    <Post
+                                        key={index}
+                                        postId={content.post.postId}
+                                        uid={content.friend.uid}
+                                        userInfo={userInfo}
+                                        otherUserInfo={content.friend}
+                                        username={content.post.name}
+                                        userAvatar={content.friend.avatar}
+                                        userHandle={`@${content.post.username}`}
+                                        likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
+                                        comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
+                                        postTitle={content.post.postTitle}
+                                        image={content.post.img}
+                                        datePosted={formatDate(content.post.createdAt)} // Format the date
+                                        preview={content.post.text}
+                                        isUserPost={userInfo.userId == content.post.uid}
+                                        handleCommentPress={handleCommentPress}
+                                        Otheruid={content.friend.uid}
+                                    />
+                                ) : null // Render nothing if post property does not exist
                             )}
-                            {sortedContent.map(
-                                (content, index) =>
-                                    content.review ? ( // Check if review property exists
-                                        <Review
-                                            key={index}
-                                            reviewId={content.review.reviewId}
-                                            uid={content.friend.uid}
-                                            username={content.friend.username}
-                                            userHandle={`${content.friend.username}`}
-                                            userAvatar={content.friend.avatar}
-                                            likes={content.review.likeCount ?? 0} // Update with actual likes data if available
-                                            comments={content.review.commentCount ?? 0} // Update with actual comments data if available
-                                            reviewTitle={content.review.reviewTitle}
-                                            preview={content.review.text}
-                                            dateReviewed={formatDate(content.review.createdAt)}
-                                            movieName={content.review.movieTitle}
-                                            image={content.review.img}
-                                            rating={content.review.rating}
-                                            isUserReview={userInfo.userId == content.review.uid}
-                                            handleCommentPress={handleCommentPress}
-                                        />
-                                    ) : null // Render nothing if review property does not exist
+                            {sortedContent.map((content, index) =>
+                                content.review ? ( // Check if review property exists
+                                    <Review
+                                        key={index}
+                                        reviewId={content.review.reviewId}
+                                        uid={userInfo.userId}
+                                        userInfo={userInfo}
+                                        otherUserInfo={content.friend}
+                                        username={content.friend.username}
+                                        userHandle={`${content.friend.username}`}
+                                        userAvatar={content.friend.avatar}
+                                        likes={content.review.likeCount ?? 0} // Update with actual likes data if available
+                                        comments={content.review.commentCount ?? 0} // Update with actual comments data if available
+                                        reviewTitle={content.review.reviewTitle}
+                                        preview={content.review.text}
+                                        dateReviewed={formatDate(content.review.createdAt)}
+                                        movieName={content.review.movieTitle}
+                                        image={content.review.img}
+                                        rating={content.review.rating}
+                                        isUserReview={userInfo.userId == content.review.uid}
+                                        handleCommentPress={handleCommentPress}
+                                        Otheruid={content.friend.uid}
+                                    />
+                                ) : null // Render nothing if review property does not exist
                             )}
                         </View>
                     )} */}
