@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TabView, TabBar } from "react-native-tab-view";
@@ -103,6 +103,20 @@ export default function ProfilePage({ route }) {
     useEffect(() => {
         fetchData();
     }, []);
+
+    // useLayoutEffect(() => {
+    //     if (userProfile.username) {
+    //       navigation.setOptions({
+    //         title: `@${userProfile.username}`,
+    //         headerTitleAlign: 'left',
+    //         headerTitleStyle: {
+    //           fontSize: 20,
+    //           fontWeight: '500',
+    //           color: theme.textColor,
+    //         },
+    //       });
+    //     }
+    //   }, [navigation, userProfile, theme.textColor]);
 
     const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
