@@ -18,7 +18,7 @@ import { getFriendsContent } from "../Services/ExploreApiService"; // Add this i
 import Post from "../Components/Post";  // To render posts
 import Review from "../Components/Review";  // To render reviews
 import moment from "moment";
-
+import { useTheme } from '../styles/ThemeContext';
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
@@ -28,8 +28,6 @@ export default function ExplorePage({ route }) {
 
     const [friendsOfFriendsContent, setFriendsOfFriendsContent] = useState([]);
     const [randomUsersContent, setRandomUsersContent] = useState([]);
-
-    const bottomSheetRef = useRef(null);
 
     const [userProfile, setUserProfile] = useState(null);
     const [isPost, setIsPost] = useState(false);
