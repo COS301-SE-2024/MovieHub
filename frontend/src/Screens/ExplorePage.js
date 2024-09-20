@@ -29,8 +29,6 @@ export default function ExplorePage({ route }) {
     const [friendsOfFriendsContent, setFriendsOfFriendsContent] = useState([]);
     const [randomUsersContent, setRandomUsersContent] = useState([]);
 
-    const bottomSheetRef = useRef(null);
-
     const [userProfile, setUserProfile] = useState(null);
     const [isPost, setIsPost] = useState(false);
     const [comments, setComments] = useState([]);

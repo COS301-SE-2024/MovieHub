@@ -6,8 +6,9 @@ import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { toggleLikePost } from "../Services/LikesApiService";
+import { useUser } from "../Services/UseridContext";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, isUserPost, handleCommentPress, onDelete }) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, otherUserInfo, isUserPost, handleCommentPress, onDelete }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [hasLiked,setHasLiked] = useState(false);
