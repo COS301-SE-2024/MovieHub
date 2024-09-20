@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Alert,ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import { createRoom, fetchRandomImage } from "../Services/RoomApiService"; // Assuming you have service functions to create a room and fetch a random image
@@ -177,12 +177,14 @@ const CreateRoomScreen = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
+
+            <ScrollView>
+            {/* <View style={styles.header}>
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
                     <MatIcon name="arrow-left" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Create Room</Text>
-            </View>
+            </View> */}
 
             <Text style={styles.label}>Room Name</Text>
             <TextInput style={styles.input} placeholder="Title" value={roomTitle} onChangeText={setRoomTitle} />
@@ -211,9 +213,9 @@ const CreateRoomScreen = ({ route }) => {
             <TouchableOpacity style={[styles.createButton, isButtonDisabled ? styles.disabledButton : null]} onPress={handleCreateRoom} disabled={isButtonDisabled}>
                 <Text style={styles.createButtonText}>Create</Text>
             </TouchableOpacity>
+            </ScrollView>
         </View>
     );
 };
-
 
 export default CreateRoomScreen;

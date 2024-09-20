@@ -24,7 +24,7 @@ export default function CreatePost({ route }) {
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [feedbackSuccess, setFeedbackSuccess] = useState(false);
-
+    const [linkUrl, setLinkUrl] = useState('');
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
     const navigation = useNavigation();
 
@@ -88,8 +88,38 @@ export default function CreatePost({ route }) {
     };
 
     const handleAddLink = () => {
-        Alert.alert("Add Link", "This functionality is not implemented yet.");
-    };
+        Alert.prompt(
+          "Add Link",
+          "Please enter a URL:",
+          [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel"
+            },
+            {
+              text: "OK",
+              onPress: (url) => {
+                if (url && isValidUrl(url)) {
+                  setLinkUrl(url);
+                } else {
+                  Alert.alert("Invalid URL", "Please enter a valid URL");
+                }
+              }
+            }
+          ],
+          "plain-text"
+        );
+      };
+      
+      const isValidUrl = (string) => {
+        try {
+          new URL(string);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      };
 
     const handleAddEmoji = () => {
         Alert.alert("Add Emoji", "This functionality is not implemented yet.");
@@ -101,6 +131,7 @@ export default function CreatePost({ route }) {
             text: thoughts,
             uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
             img: imageUri,
+            link: linkUrl,
             isReview: isMovieReview,
             rating: isMovieReview ? rating : 0,
         };
@@ -405,18 +436,15 @@ export default function CreatePost({ route }) {
                     <TouchableOpacity style={styles.removeImageButton} onPress={handleRemoveImage}>
                         <Icon name="close-circle" size={24} color="#fff" />
                     </TouchableOpacity>
-                    {/* <TouchableOpacity style={styles.replaceImageButton} onPress={handleReplaceImage}>
-                        <CommIcon name="image-edit" size={24} color="#fff" />
-                    </TouchableOpacity> */}
                 </View>
             )}
 
-            <View style={{ position: "relative" }}>
+            <View style={styles.inputContainer}>
                 <Text style={styles.label}>Title</Text>
                 <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor={theme.textColor} color={theme.textColor} />
 
                 {isMovieReview && (
-                    <View>
+                    <View style={styles.movieSearchContainer}>
                         <Text style={styles.label}>Movie</Text>
                         <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                         {movieResults.length > 0 && (
@@ -440,21 +468,22 @@ export default function CreatePost({ route }) {
             <Text style={styles.label}>Thoughts</Text>
             <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor={theme.textColor} color={theme.textColor} />
 
-            <View style={styles.actionsContainer}>
-                <View style={styles.iconsContainer}>
-                    <TouchableOpacity onPress={handleAddLink}>
-                        <CommIcon style={styles.icon} name="link-variant" size={23} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleAddImage}>
-                        <CommIcon style={styles.icon} name="image-size-select-actual" size={23} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleAddEmoji}>
-                        <CommIcon style={styles.icon} name="emoticon-happy-outline" size={23} />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.allowCommentsContainer}>
-                    <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
-                    <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
+                <View style={styles.actionsContainer}>
+                    <View style={styles.iconsContainer}>
+                        <TouchableOpacity onPress={handleAddLink}>
+                            <CommIcon style={styles.icon} name="link-variant" size={23} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleAddImage}>
+                            <CommIcon style={styles.icon} name="image-size-select-actual" size={23} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleAddEmoji}>
+                            <CommIcon style={styles.icon} name="emoticon-happy-outline" size={23} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.allowCommentsContainer}>
+                        <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
+                        <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
+                    </View>
                 </View>
             </View>
 
@@ -462,7 +491,7 @@ export default function CreatePost({ route }) {
                 <TouchableOpacity
                     style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
                     disabled={isPostButtonDisabled}
-                    onPress={isMovieReview ? handleAddReview : handleAddPost} // add review or post
+                    onPress={isMovieReview ? handleAddReview : handleAddPost}
                 >
                     <Text style={styles.postButtonText}>{isMovieReview ? "Review" : "Post"}</Text>
                 </TouchableOpacity>
@@ -479,4 +508,226 @@ export default function CreatePost({ route }) {
     );
 }
 
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 10,
+        backgroundColor: "#fff",
+        paddingHorizontal: 25,
+    },
+    toggleContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: "800",
+        paddingBottom: 10,
+    },
+    input: {
+        height: 45,
+        borderRadius: 10,
+        backgroundColor: "#D9D9D9",
+        paddingHorizontal: 10,
+        marginBottom: 20,
+    },
+    textArea: {
+        height: 100,
+        textAlignVertical: "top",
+        paddingTop: 8,
+    },
+    movieResult: {
+        padding: 10,
+        backgroundColor: "#f0f0f0",
+        borderBottomWidth: 1,
+        borderBottomColor: "#ccc",
+    },
+    actionsContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    iconsContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "30%",
+    },
+    allowCommentsContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    allowComments: {
+        marginTop: 4,
+    },
+    footer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingBottom: 45,
+    },
+    saveDrafts: {
+        color: "#0f5bd1",
+        fontWeight: "600",
+    },
+    postButton: {
+        backgroundColor: colors.primary,
+        borderRadius: 10,
+        opacity: 1,
+        width: "100%",
+        padding: 15,
+        borderRadius: 5,
+        alignItems: "center",
+    },
+    postButtonDisabled: {
+        opacity: 0.7,
+    },
+    postButtonText: {
+        color: "#fff",
+        fontWeight: "bold",
+    },
+    imagePreviewContainer: {
+        position: "relative",
+        marginBottom: 20,
+    },
+    imagePreview: {
+        width: "100%",
+        height: 400,
+        borderRadius: 10,
+        marginBottom: 10,
+        objectFit: "contain",
+    },
+    removeImageButton: {
+        position: "absolute",
+        top: 10,
+        right: 25,
+        backgroundColor: colors.primary,
+
+        borderRadius: 50,
+    },
+    replaceImageButton: {
+        position: "absolute",
+        top: 10,
+        right: 60,
+        backgroundColor: colors.primary,
+        borderRadius: 50,
+    },
+    ratingContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 20,
+    },
+    ratingOption: {
+        padding: 8,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 5,
+    },
+    ratingOptionSelected: {
+        backgroundColor: "#827DC3",
+        borderColor: "#4A42C0",
+    },
+    ratingText: {
+        fontSize: 16,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        // backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+        width: 300,
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+    },
+    modalSuccess: {
+        backgroundColor: "rgb(72, 209, 204)",
+    },
+    modalError: {
+        backgroundColor: "green",
+    },
+    modalText: {
+        color: "#fff",
+        fontSize: 16,
+        textAlign: "center",
+    },
+    modalButton: {
+        backgroundColor: "#4A42C0",
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 4,
+    },
+    modalButtonText: {
+        color: "#fff",
+        fontWeight: "bold",
+    },
+    movieResultsScrollView: {
+        position: "absolute",
+        maxHeight: 240,
+        marginBottom: 16,
+        backgroundColor: "#fff",
+        width: "100%",
+        zIndex: 1,
+        top: 90,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 10,
+            height: 0,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 1,
+        borderColor: "#ddd",
+        borderWidth: 0.4,
+    },
+    movieResult: {
+        padding: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ddd",
+    },
+    movieResultText: {
+        fontSize: 16,
+    },
+    movieResultImage: {
+        width: 50,
+        height: 75,
+        marginRight: 8,
+    },
+    inputContainer: {
+        position: 'relative',
+        zIndex: 1,
+    },
+    movieSearchContainer: {
+        position: 'relative',
+        zIndex: 2,
+    },
+    movieResultsScrollView: {
+        position: "absolute",
+        top: '100%',
+        left: 0,
+        right: 0,
+        maxHeight: 240,
+        backgroundColor: "#fff",
+        zIndex: 3,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        borderColor: "#ddd",
+        borderWidth: 0.4,
+    },
+});
 

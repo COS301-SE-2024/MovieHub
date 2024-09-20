@@ -9,6 +9,7 @@ import FAIcon from "@expo/vector-icons/FontAwesome5";
 import * as SecureStore from "expo-secure-store";
 import { registerUser } from "../Services/AuthApiService";
 import { colors } from "../styles/theme";
+import logo from "../../../assets/logo.png";
 
 const SignupPage = () => {
     const [username, setUsername] = useState("");
@@ -152,6 +153,12 @@ const SignupPage = () => {
         newUsernameButton: {
             marginLeft: 8,
         },
+        logoImage: {
+            width: 200,
+            height: 100,
+            alignSelf: 'center',
+            resizeMode: 'contain',
+        },
         inputText: {
             height: 40,
             width: 250,
@@ -260,11 +267,7 @@ const SignupPage = () => {
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.container}>
-                    <View style={{ flexDirection: "row", alignItems: "center", }}>
-                        <Text style={styles.logo}>MovieHub.</Text>
-                    </View>
-
-                    <Text style={styles.tagline}>Engage. Share. Discover.</Text>
+                <Image source={logo} style={styles.logoImage} />
                     {/* <Text style={styles.title}>Create Account</Text> */}
                     <View style={{ paddingLeft: 27 }}>
                         <Text style={styles.label}>Username</Text>

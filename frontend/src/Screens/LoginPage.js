@@ -10,6 +10,7 @@ import { isUserVerified, loginUser } from "../Services/AuthApiService";
 import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
 import { getUserProfile } from "../Services/UsersApiService";
+import logo2 from "../../../assets/logo.png";
 
 const LoginPage = () => {
     const { theme } = useTheme();
@@ -203,6 +204,12 @@ const LoginPage = () => {
             fontSize: 15,
             color: theme.gray,
         },
+        logoImage: {
+            width: 200,
+            height: 100,
+            alignSelf: 'center',
+            resizeMode: 'contain',
+        },
         socialContainer: {
             flexDirection: "row",
             justifyContent: "space-between",
@@ -234,9 +241,10 @@ const LoginPage = () => {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.container}>
-                        <Text style={styles.logo}>MovieHub.</Text>
-                        {/* <Text style={styles.title}>Welcome Back!</Text> */}
-                        <Text style={styles.tagline}>Engage. Share. Discover.</Text>
+                    <Image source={logo2} style={styles.logoImage} />
+                    {/* <Text style={styles.logo}>MovieHub.</Text> */}
+                        {/* <Text style={styles.tagline}>Engage. Share. Discover.</Text> */}
+                        <Text style={styles.title}>Welcome Back!</Text>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Email</Text>

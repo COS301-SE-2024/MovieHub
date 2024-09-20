@@ -102,7 +102,7 @@ exports.addCommentToPost = async (uid, postId, text) => {
             commentId: comId,
             commentedBy: uid,
             avatar: comment.avatar,
-            user: commentusername,
+            user: comment.username,
             commenterName: comment.username,
             notificationType: 'post_comment',
             timestamp: new Date().toISOString(),
