@@ -2,7 +2,7 @@ import "regenerator-runtime/runtime";
 import "react-native-gesture-handler";
 import { enableScreens } from "react-native-screens";
 enableScreens();
-
+import { TouchableOpacity } from "react-native";
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useState } from "react";
@@ -180,6 +180,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 headerStyle: {
                     backgroundColor: theme.backgroundColor,
                 },
+                headerLeft: () => null,
             })}
         />
 
@@ -465,9 +466,26 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="ViewRoom"
             component={ViewRoom}
-            options={{
-                headerShown: false,
-            }}
+            options={({ navigation }) => ({
+                title: "Room",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+                headerRight: () => (
+                    <View style={{ flexDirection: 'row', marginRight: 10 }}>
+                        <TouchableOpacity 
+                            onPress={() => navigation.setParams({ openBottomSheet: true })}
+                            style={{ marginRight: 15 }}
+                            >
+                            <Icon name="more-horiz" size={24} color={theme.textColor} />
+                        </TouchableOpacity>
+                    </View>
+                  ),
+        
+            })}
         />
         <Nav.Screen
             name="ViewParticipants"
@@ -522,7 +540,14 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="HubScreen"
             component={HubScreen}
             options={({ navigation }) => ({
-                headerShown: false,
+                title: "The Hub",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+                headerLeft: () => null,
             })}
         />
 
@@ -530,7 +555,13 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="CreateRoom"
             component={CreateRoom}
             options={({ navigation }) => ({
-                headerShown: false,
+                title: "Create a Room",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
             })}
         />
 
