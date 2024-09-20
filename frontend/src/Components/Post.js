@@ -288,7 +288,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                         }}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
-                    <Text style={styles.statsNumber}>{comments}</Text>
+                    <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
