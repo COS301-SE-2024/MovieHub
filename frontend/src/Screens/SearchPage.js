@@ -39,6 +39,7 @@ const SearchPage = ({ route }) => {
     let [genreData, setGenreData] = useState({});
     const [genrePosters, setGenrePosters] = useState({});
     const [searchResults, setSearchResults] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const genres = {
         Action: 28,
@@ -262,9 +263,9 @@ const SearchPage = ({ route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.searchBar}>
-                <TextInput style={styles.input} placeholder="Search movies, actors, or movie lines" placeholderTextColor={"gray"} onChangeText={(text) => handleSearch(text)} selectionColor={theme.textColor} color={theme.textColor} />
+                <TextInput style={styles.input} placeholder="Search movies, actors, or movie lines" placeholderTextColor={"gray"} onChangeText={setSearchQuery} selectionColor={theme.textColor} color={theme.textColor} />
                 {/* <Icon name="mic" size={30} color={"gray"} style={{ marginLeft: 8 }} /> */}
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => handleSearch(searchQuery)}>
                     <Icon name="search" size={30} style={{ marginRight: 8 }} color={theme.iconColor} />
                 </TouchableOpacity>
                 <IonIcon
