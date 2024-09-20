@@ -5,10 +5,13 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { addPost, addReview } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
+import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { searchMovies } from "../Services/TMDBApiService";
 
 export default function CreatePost({ route }) {
+    const { theme } = useTheme();
+    const { userInfo } = route.params;
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [movieId, setMovieId] = useState("");
@@ -24,7 +27,6 @@ export default function CreatePost({ route }) {
     const [linkUrl, setLinkUrl] = useState('');
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
     const navigation = useNavigation();
-    const { userInfo } = route.params;
 
     useEffect(() => {
         if (movieSearch.length > 1) {
@@ -224,6 +226,203 @@ export default function CreatePost({ route }) {
         setMovieId(movie.id);
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 10,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 25,
+        },
+        toggleContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        label: {
+            fontSize: 14,
+            fontWeight: "800",
+            paddingBottom: 10,
+            color: theme.textColor,
+        },
+        input: {
+            height: 45,
+            borderRadius: 10,
+            backgroundColor: "#D9D9D9",
+            paddingHorizontal: 10,
+            marginBottom: 20,
+        },
+        textArea: {
+            height: 100,
+            textAlignVertical: "top",
+            paddingTop: 8,
+        },
+        movieResult: {
+            padding: 10,
+            backgroundColor: "#f0f0f0",
+            borderBottomWidth: 1,
+            borderBottomColor: "#ccc",
+        },
+        actionsContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        iconsContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "30%",
+        },
+        allowCommentsContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+        },
+        allowComments: {
+            marginTop: 4,
+        },
+        footer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingBottom: 45,
+        },
+        saveDrafts: {
+            color: "#0f5bd1",
+            fontWeight: "600",
+        },
+        postButton: {
+            backgroundColor: theme.primaryColor,
+            borderRadius: 10,
+            opacity: 1,
+            width: "100%",
+            padding: 15,
+            borderRadius: 5,
+            alignItems: "center",
+        },
+        postButtonDisabled: {
+            opacity: 0.7,
+        },
+        postButtonText: {
+            color: theme.textColor,
+            fontWeight: "bold",
+        },
+        imagePreviewContainer: {
+            position: "relative",
+            marginBottom: 20,
+        },
+        imagePreview: {
+            width: "100%",
+            height: 400,
+            borderRadius: 10,
+            marginBottom: 10,
+            objectFit: "contain",
+        },
+        removeImageButton: {
+            position: "absolute",
+            top: 10,
+            right: 25,
+            backgroundColor: colors.primary,
+
+            borderRadius: 50,
+        },
+        replaceImageButton: {
+            position: "absolute",
+            top: 10,
+            right: 60,
+            backgroundColor: colors.primary,
+            borderRadius: 50,
+        },
+        ratingContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 20,
+        },
+        ratingOption: {
+            padding: 8,
+            borderWidth: 1,
+            borderColor: "#ccc",
+            borderRadius: 5,
+        },
+        ratingOptionSelected: {
+            backgroundColor: "#827DC3",
+            borderColor: "#4A42C0",
+        },
+        ratingText: {
+            fontSize: 16,
+            color: theme.textColor
+        },
+        modalContainer: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            // backgroundColor: "rgba(0, 0, 0, 0.5)",
+        },
+        modalContent: {
+            width: 300,
+            padding: 20,
+            borderRadius: 10,
+            alignItems: "center",
+        },
+        modalSuccess: {
+            backgroundColor: "rgb(72, 209, 204)",
+        },
+        modalError: {
+            backgroundColor: "green",
+        },
+        modalText: {
+            color: theme.textColor,
+            fontSize: 16,
+            textAlign: "center",
+        },
+        modalButton: {
+            backgroundColor: theme.primaryColor,
+            paddingVertical: 8,
+            paddingHorizontal: 16,
+            borderRadius: 4,
+        },
+        modalButtonText: {
+            color: theme.textColor,
+            fontWeight: "bold",
+        },
+        movieResultsScrollView: {
+            position: "absolute",
+            maxHeight: 240,
+            marginBottom: 16,
+            backgroundColor: theme.backgroundColor,
+            width: "100%",
+            zIndex: 1,
+            top: 90,
+            borderRadius: 10,
+            shadowColor: "#000",
+            shadowOffset: {
+                width: 10,
+                height: 0,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 1,
+            borderColor: "#ddd",
+            borderWidth: 0.4,
+        },
+        movieResult: {
+            padding: 8,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+        },
+        movieResultText: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        movieResultImage: {
+            width: 50,
+            height: 75,
+            marginRight: 8,
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.toggleContainer}>
@@ -307,6 +506,7 @@ export default function CreatePost({ route }) {
         </ScrollView>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
@@ -529,3 +729,4 @@ const styles = StyleSheet.create({
         borderWidth: 0.4,
     },
 });
+

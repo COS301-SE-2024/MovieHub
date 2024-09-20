@@ -81,6 +81,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         navigation.navigate("Profile", {
             userInfo,
             otherUserInfo,
+            isFollowing: false
         });
     };
 
@@ -128,10 +129,8 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             //     width: 0,
             //     height: 2,
             // },
-            borderColor: "#000000",
-            borderTopWidth: 0,
-            borderBottomWidth: 0.3,
-            // borderTopWidth: 0.3,
+            borderBottomWidth: 0.8,
+            borderBottomColor: theme.borderColor,
         },
         avatar: {
             width: 50,
@@ -187,6 +186,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         },
         icon: {
             marginRight: 5,
+            color: theme.iconColor,
         },
         statsContainer: {
             display: "flex",
@@ -273,7 +273,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                         <Text style={styles.followingText}>{isFollowing ? "Following" : "Follow"}</Text>
                     </TouchableOpacity>
                     <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                        <Icon name="more-vert" size={20} />
+                        <Icon name="more-vert" size={20} color={theme.iconColor} />
                     </Pressable>
                 </View>
             </View>

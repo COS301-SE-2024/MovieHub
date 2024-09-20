@@ -33,15 +33,17 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             postId: postId,
             uid: uid,
         };
-    
+
         try {
             await toggleLikePost(body);  // Await the backend like/unlike call
             setHasLiked(!hasLiked);  // Optimistically toggle like state
             setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);  // Update like count
         } catch (error) {
             console.error("Error toggling like:", error);
+
         } finally {
             setLiked(false);  // Reset liked state after backend call completes
+
         }
     };
 
@@ -67,7 +69,9 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     };
 
     const toggleConfirmationModal = (postId) => {
+
         setConfirmationModalVisible(!confirmationModalVisible);
+
     };
 
     useEffect(() => {
@@ -94,12 +98,14 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         setConfirmationModalVisible(false);
         toggleModal();
         Alert.alert("Success", "Post deleted successfully!");
+
     } catch (error) {
         console.error("Error deleting post:", error);
     } finally {
         setIsDeleting(false); // Reset flag after completion
     }
 };
+
     const handleEditPost = () => {
         toggleModal();
         navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });

@@ -119,6 +119,27 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
         );
     }
 
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 35,
+            paddingTop: 55,
+            textAlign: "center",
+        },
+        title: {
+            fontSize: 18,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 6,
+            color: theme.textColor,
+        },
+        subtitle: {
+            fontSize: 14,
+            textAlign: "center",
+            color: theme.gray,
+        },
+    });
+
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
@@ -177,22 +198,4 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-        paddingHorizontal: 35,
-        paddingTop: 55,
-        textAlign: "center",
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: 6,
-    },
-    subtitle: {
-        fontSize: 14,
-        textAlign: "center",
-        color: "#7b7b7b",
-    },
-});
+

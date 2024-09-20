@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "../styles/theme";
+import { useTheme } from "../styles/ThemeContext";
 
 export default function CreateWatchlist({ route, navigation }) {
     //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
+    const { theme } = useTheme();
 
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
@@ -76,7 +78,7 @@ export default function CreateWatchlist({ route, navigation }) {
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: "#fff",
+            backgroundColor: theme.backgroundColor,
             paddingHorizontal: 30,
         },
         coverContainer: {
@@ -120,7 +122,7 @@ export default function CreateWatchlist({ route, navigation }) {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
         },
         modalContent: {
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             padding: 20,
             borderRadius: 10,
             width: "80%",
@@ -129,6 +131,7 @@ export default function CreateWatchlist({ route, navigation }) {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 20,
+            color: theme.textColor,
         },
         input: {
             marginBottom: 20,
@@ -151,7 +154,7 @@ export default function CreateWatchlist({ route, navigation }) {
             alignItems: "center",
         },
         nextButton: {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.primaryColor,
             padding: 16,
             borderRadius: 4,
             alignItems: "center",
@@ -162,7 +165,6 @@ export default function CreateWatchlist({ route, navigation }) {
             fontWeight: "bold",
         },
     });
-    
 
     return (
         <ScrollView style={styles.container}>
@@ -246,4 +248,3 @@ export default function CreateWatchlist({ route, navigation }) {
         </ScrollView>
     );
 }
-

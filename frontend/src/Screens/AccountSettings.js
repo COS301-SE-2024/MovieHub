@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import { deleteUserProfile } from "../Services/UsersApiService";
 import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function AccountSettings({ route }) {
+    const { theme } = useTheme();
     const [modalVisible, setModalVisible] = useState(false);
     const [deletedModalVisible, setDeletedModalVisible] = useState(false);
     const navigation = useNavigation();
@@ -33,6 +35,84 @@ export default function AccountSettings({ route }) {
         }
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        setting: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e0e0e0",
+        },
+        settingName: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        deleteButton: {
+            padding: 15,
+            marginBottom: 20,
+            borderRadius: 5,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: theme.borderColor,
+            backgroundColor: theme.backgroundColor,
+        },
+        deleteButtonText: {
+            color: "#dc3545",
+            textAlign: "center",
+            fontWeight: "bold",
+        },
+        modalOverlay: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            height: "100%",
+        },
+        modalContainer: {
+            width: "80%",
+            backgroundColor: "#fff",
+            padding: 20,
+            borderRadius: 10,
+            alignItems: "center",
+        },
+        modalTitle: {
+            fontSize: 18,
+            fontWeight: "bold",
+            marginBottom: 10,
+            color:  theme.textColor
+        },
+        modalMessage: {
+            fontSize: 16,
+            textAlign: "center",
+            marginBottom: 20,
+        },
+        modalActions: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: "100%",
+        },
+        modalButton: {
+            padding: 10,
+            borderRadius: 5,
+            flex: 1,
+            alignItems: "center",
+            marginHorizontal: 5,
+        },
+        modalButtonText: {
+            fontSize: 16,
+            color: theme.textColor
+        },
+        modalButtonDelete: {},
+        modalButtonDeleteText: {
+            color: "#dc3545",
+        },
+    });
+
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("ChangePassword")}>
@@ -47,12 +127,10 @@ export default function AccountSettings({ route }) {
                 <Text style={styles.settingName}>Account Privacy</Text>
                 <Icon name="keyboard-arrow-right" size={24} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.setting} onPress={confirmDeleteAccount}>
+            <View style={{ flex: 0.8 }}></View>
+            <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
                 <Text style={styles.deleteButtonText}>Delete Account</Text>
             </TouchableOpacity>
-            {/* <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
-                <Text style={styles.deleteButtonText}>Delete Account</Text>
-            </TouchableOpacity> */}
 
             <Modal
                 animationType="slide"
@@ -60,8 +138,7 @@ export default function AccountSettings({ route }) {
                 visible={deletedModalVisible}
                 onRequestClose={() => {
                     setDeletedModalVisible(!deletedModalVisible);
-                }}
-            >
+                }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Account Deleted</Text>
@@ -70,12 +147,7 @@ export default function AccountSettings({ route }) {
                 </View>
             </Modal>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
+            <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Are you sure?</Text>
@@ -94,86 +166,3 @@ export default function AccountSettings({ route }) {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-    },
-    setting: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0",
-    },
-    settingName: {
-        fontSize: 16,
-    },
-    deleteButton: {
-        padding: 15,
-        marginTop: 20,
-        borderRadius: 5,
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
-        borderColor: "#ccc",
-        backgroundColor: "#fff",
-    },
-    deleteButtonText: {
-        color: "#ff0000",
-        textAlign: "center",
-        fontWeight: "bold",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        // padding: 16,
-        fontSize: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0",
-    },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        height: "100%",
-    },
-    modalContainer: {
-        width: "80%",
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
-    modalMessage: {
-        fontSize: 16,
-        textAlign: "center",
-        marginBottom: 20,
-    },
-    modalActions: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-    },
-    modalButton: {
-        padding: 10,
-        borderRadius: 5,
-        flex: 1,
-        alignItems: "center",
-        marginHorizontal: 5,
-    },
-    modalButtonText: {
-        fontSize: 16,
-    },
-    modalButtonDelete: {
-    },
-    modalButtonDeleteText: {
-        color: "red",
-    },
-});

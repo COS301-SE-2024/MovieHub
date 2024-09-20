@@ -5,10 +5,12 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { getUserProfile } from "../Services/UsersApiService";
 
+import { useTheme } from "../styles/ThemeContext";
 import { colors } from "../styles/theme";
 import { getUnreadNotifications } from "../Services/UsersApiService";
 
 export default function BottomHeader({ userInfo }) {
+    const { theme } = useTheme();
     const [unreadNotifications, setUnreadNotifications] = useState(0);
     const navigation = useNavigation();
     const route = useRoute();

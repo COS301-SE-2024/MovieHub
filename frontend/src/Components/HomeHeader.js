@@ -7,9 +7,11 @@ import logo2 from "../../../assets/logo2.png";
 import { getUnreadNotifications } from "../Services/UsersApiService";
 import { getUserProfile } from "../Services/UsersApiService";
 
+
 const { height, width } = Dimensions.get('window');
 
 export default function HomeHeader({ userInfo }) {
+
     const [unreadNotifications, setUnreadNotifications] = useState(0);
     const navigation = useNavigation();
     const isActive = (screen) => route.name === screen;
@@ -19,6 +21,7 @@ export default function HomeHeader({ userInfo }) {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
             setAvatar(response.avatar)
+
 
         } catch (error) {
             console.error("Error fetching user data:", error);
