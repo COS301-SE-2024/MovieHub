@@ -17,6 +17,7 @@ import { getFriendsContent } from "../Services/ExploreApiService"; // Add this i
 import Post from "../Components/Post";  // To render posts
 import Review from "../Components/Review";  // To render reviews
 import moment from "moment";
+import { useTheme } from '../styles/ThemeContext';
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
@@ -201,8 +202,40 @@ export default function ExplorePage({ route }) {
         />
     );
     
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            paddingVertical: 10,
+            backgroundColor: '#ffffff',
+        },
+        header: {
+            flexDirection: 'row',
+            paddingTop: 15,
+            padding: 10,
+        },
+        heading: {
+            fontFamily: "Roboto",
+            color: "#000000",
+            fontSize: 23,
+            fontWeight: "bold",
+            paddingLeft: 10,
+            paddingTop: 1,
+            alignContent:'center'
+        },
+        postsContainer: {
+            flex: 1,
+        },
+        roomList: {
+            paddingHorizontal: 10,
+        },
+        divider: {
+            height: 1,
+            backgroundColor: "#ccc",
+            marginVertical: 16,
+        },
+    });    
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
             <ScrollView>
                 {/* <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
@@ -284,6 +317,7 @@ export default function ExplorePage({ route }) {
                         <View>
                             {/* Discover Tab Content */}
                             <InstagramLoader active loading={randomUsersContent.length === 0} />
+                            <InstagramLoader active loading={randomUsersContent.length === 0} />
                             {randomUsersContent.map((item, index) => (
                                 <NonFollowerPost
                                     key={`random-${index}`}
@@ -306,7 +340,7 @@ export default function ExplorePage({ route }) {
                             ))}
 
                             {/* For You Tab Content */}
-                            <InstagramLoader active loading={friendsOfFriendsContent.length === 0} />
+                            {/* <InstagramLoader active loading={friendsOfFriendsContent.length === 0} /> */}
                             {friendsOfFriendsContent.map((item, index) => {
                                 if (!item.fof.postId) return null;
                                 return (
@@ -351,35 +385,3 @@ export default function ExplorePage({ route }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingVertical: 10,
-        backgroundColor: '#ffffff',
-    },
-    header: {
-        flexDirection: 'row',
-        paddingTop: 15,
-        padding: 10,
-    },
-    heading: {
-        fontFamily: "Roboto",
-        color: "#000000",
-        fontSize: 23,
-        fontWeight: "bold",
-        paddingLeft: 10,
-        paddingTop: 1,
-        alignContent:'center'
-    },
-    postsContainer: {
-        flex: 1,
-    },
-    roomList: {
-        paddingHorizontal: 10,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: "#ccc",
-        marginVertical: 16,
-    },
-});
