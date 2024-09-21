@@ -1,15 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors, themeStyles } from "../styles/theme";
+import { useTheme } from "../styles/ThemeContext";
 
 const HubTabView = ({ children, initialTab = 'discover' }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
-
+  const { theme } = useTheme();
   // Effect to set the initial tab based on the prop
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
-
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.backgroundColor,
+    },
+    tabContainer: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderBottomColor: 'transparent',
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: 16,
+      alignItems: 'center',
+    },
+    activeTab: {
+      borderBottomWidth: 2,
+      borderBottomColor: colors.primary,
+    },
+    tabText: {
+      fontSize: 16,
+      color: colors.primary,
+    },
+    activeTabText: {
+      color: colors.primary,
+      fontWeight: 'bold',
+    },
+    contentContainer: {
+      flex: 1,
+    },
+    tabContent: {
+      flex: 1,
+    },
+    hidden: {
+      display: 'none',
+    },
+  });
   return (
     <View style={styles.container}>
       <View style={styles.tabContainer}>
@@ -37,42 +74,6 @@ const HubTabView = ({ children, initialTab = 'discover' }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e1e8ed',
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: 16,
-    color: colors.primary,
-  },
-  activeTabText: {
-    color: colors.primary,
-    fontWeight: 'bold',
-  },
-  contentContainer: {
-    flex: 1,
-  },
-  tabContent: {
-    flex: 1,
-  },
-  hidden: {
-    display: 'none',
-  },
-});
+
 
 export default HubTabView;
