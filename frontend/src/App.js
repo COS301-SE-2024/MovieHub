@@ -112,6 +112,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 headerStyle: {
                     backgroundColor: theme.backgroundColor,
                 },
+                headerLeft: () => null,
             })}
         />
         <Nav.Screen
