@@ -47,7 +47,7 @@ function CustomDrawer({ route }) {
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Enable Dark Mode</Text>
                     <Switch
                         style={{ marginLeft: "auto", marginRight: 10 }}
-                        trackColor={{ false: "#ccc", true: "#808080" }}
+                        trackColor={theme.textColor }
                         thumbColor={isDarkMode ? "#fff" : "#fff"}
                         ios_backgroundColor="#3e3e3e"
                         onValueChange={handleToggleSwitch}
