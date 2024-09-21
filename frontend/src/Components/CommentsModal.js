@@ -82,6 +82,10 @@ const CommentsModal = forwardRef((props, ref) => {
     };
 
     const toggleDeleteModal = (index) => {
+        // check if it's my own comment
+        if (comments[index].username !== username) {
+            return;
+        }
         setDeleteModalState((prev) => {
             const newState = [...prev];
             newState[index] = !newState[index]; // Toggle delete modal state for the comment at index

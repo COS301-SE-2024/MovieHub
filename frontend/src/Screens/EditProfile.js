@@ -4,18 +4,17 @@ import * as ImagePicker from "expo-image-picker";
 import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
 import { colors, themeStyles } from '../styles/theme';
-import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from '@react-navigation/native';
 import { uploadImage } from '../Services/imageUtils';
+import { useTheme } from "../styles/ThemeContext";
 
 export default function EditProfile({ route }) {
     const { userInfo } = route.params;
     const { userProfile } = route.params;
-    const { theme } = useTheme();
     const [avatar, setAvatar] = useState(userProfile.avatar);
     const [avatarChanged, setAvatarChanged] = useState(false);
     const [uploading, setUploading] = useState(false);
-
+    const {theme} = useTheme();
     const navigation = useNavigation();
 
     const defaultUserProfile = {
@@ -72,9 +71,7 @@ export default function EditProfile({ route }) {
                     break;
             }
             const userId = userInfo.userId;
-            console.log("UPDATED DATA", updatedData);
             const updatedUser = await updateUserProfile(userId, updatedData);
-            console.log("Update went well", updatedUser);
             
             setModalContent((prevState) => {
                 const newState = { ...prevState };
@@ -122,7 +119,6 @@ export default function EditProfile({ route }) {
             
             const userId = userInfo.userId;
             const updatedUser = await updateUserProfile(userId, updatedData);
-            console.log("Update went well", updatedUser);
             Alert.alert('Success', 'Profile updated successfully!');
     
             setModalContent((prevState) => {
@@ -143,7 +139,6 @@ export default function EditProfile({ route }) {
     const handleOptionPress = (field, option) => {
         if (field === "pronouns") {
             setModalContent({ ...modalContent, [field]: { ...modalContent[field], tempValue: option, isVisible: false, newValue: option } });
-            // update field 
         } else if (field === "favouriteGenres") {
             const newOptions = [...modalContent[field].tempValue];
             if (newOptions.includes(option)) {
@@ -164,7 +159,6 @@ export default function EditProfile({ route }) {
     };
 
     const selectImage = async () => {
-        // console.log('In Select Image');
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (permissionResult.granted === false) {
             alert("Permission to access camera roll is required!");
@@ -175,16 +169,11 @@ export default function EditProfile({ route }) {
         if (pickerResult.canceled === true) {
             return;
         }
-        // console.log('Picker: ', pickerResult);
         const { uri } = pickerResult.assets[0];
         const name = pickerResult.assets[0].fileName;
-        // console.log('Uploading image', uri, name);
         const avatarUrl = await uploadImage(uri, name, 'profile');
-        console.log('Uploaded', avatarUrl);
         setAvatar(uri);   
         setAvatarChanged(true);
-        // console.log("AVATAR", avatar);                    
-        // console.log("AVATAR URL", uri);                    
     };
 
     useEffect(() => {
@@ -218,8 +207,8 @@ export default function EditProfile({ route }) {
         },
         changePictureText: {
             color: colors.primary, // Set the desired color here
-            fontSize: 16, 
-            fontWeight: 'bold', 
+            fontSize: 16, // Optional: adjust the font size if needed
+            fontWeight: 'bold', // Optional: make the text bold if needed
         },
         sectionTitle: {
             fontSize: 18,
@@ -229,7 +218,7 @@ export default function EditProfile({ route }) {
         sectionValue: {
             fontSize: 16,
             marginTop: 8,
-            color: theme.gray,
+            color: theme.textColor,
         },
         buttonContainer: {
             flexDirection: "row",
@@ -239,7 +228,7 @@ export default function EditProfile({ route }) {
         buttonText: {
             color: "#000",
             textAlign: "center",
-            color: theme.textColor
+            // color: colors.primary
         },
         entryButton: {
             backgroundColor: theme.primaryColor,
@@ -249,13 +238,13 @@ export default function EditProfile({ route }) {
             marginBottom: 20,
         },
         entryButtonText: {
-            color: "white",
+            color: "#fff",
             fontSize: 16,
             fontWeight: "medium",
         },
         line: {
             height: 1,
-            backgroundColor: theme.borderColor,
+            backgroundColor: "lightgray",
             width: "100%",
             marginBottom: 20,
         },
@@ -263,7 +252,7 @@ export default function EditProfile({ route }) {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: theme.backgroundColor,
         },
         modalContent: {
             backgroundColor: theme.backgroundColor,
@@ -275,12 +264,11 @@ export default function EditProfile({ route }) {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 20,
-            color: theme.textColor
         },
         input: {
             marginBottom: 20,
             borderBottomWidth: 1,
-            borderBottomColor: theme.gray,
+            borderBottomColor: "#7b7b7b",
             outlineStyle: "none",
         },
         buttonContainer: {
@@ -297,8 +285,8 @@ export default function EditProfile({ route }) {
             margin: 5,
             borderRadius: 5,
             borderWidth: 1,
-            borderColor: theme.borderColor,
-            color: "#007bff",
+            borderColor: "#d9d9d9",
+            color: theme.textColor,
         },
         chip: {
             padding: 10,
@@ -311,7 +299,7 @@ export default function EditProfile({ route }) {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={{ color: theme.gray, marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
+            <Text style={{ color: "#7b7b7b", marginBottom: 20, marginTop: 20 }}>The information you enter here will be visible to other users.</Text>
             <View style={styles.avatarContainer}>
                 <Image source={{ uri: avatar }} style={styles.avatar} />
                 <Text onPress={selectImage} style={styles.changePictureText}>
@@ -351,7 +339,7 @@ export default function EditProfile({ route }) {
                                     <ScrollView style={{ maxHeight: 200, backgroundColor: theme.backgroundColor }}>
                                         {modalContent[field].options.map((option, index) => (
                                             <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? theme.primaryColor : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                                <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
                                             </TouchableOpacity>
                                         ))}
                                     </ScrollView>
@@ -368,7 +356,7 @@ export default function EditProfile({ route }) {
                                 <ScrollView>
                                     {modalContent[field].options.map((option, index) => (
                                         <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
-                                            <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? theme.primaryColor : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                            <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue === option ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue === option ? "#ffffff" : "#000000" }]}>{option}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </ScrollView>
@@ -395,5 +383,4 @@ export default function EditProfile({ route }) {
         </ScrollView>
     );
 }
-
 

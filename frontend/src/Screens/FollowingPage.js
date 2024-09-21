@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const FollowingPage = ({ route }) => {
     const { userInfo } = route.params;
+    console.log(userInfo);
     const [followers, setFollowing] = useState([]);
     const [loading, setLoading] = useState(true); 
     const navigation = useNavigation();
@@ -49,7 +50,7 @@ const FollowingPage = ({ route }) => {
             ) : (
                 <View >
                     <Text style={styles.noFollowersText}>You are not following anyone</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('ExplorePage', route)}>
+                    <TouchableOpacity onPress={() => navigation.navigate('ExplorePage', {userInfo})}>
                         <Text style={styles.followSomeone}>Find someone to follow</Text>
                     </TouchableOpacity>
                 </View>

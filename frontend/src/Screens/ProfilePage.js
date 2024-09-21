@@ -12,6 +12,7 @@ import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
 import { getCommentsOfPost, getCommentsOfReview } from "../Services/PostsApiServices";
+import {useUser} from "../Services/UseridContext";
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 
 export default function ProfilePage({ route }) {
@@ -21,13 +22,15 @@ export default function ProfilePage({ route }) {
     const [routes] = useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
-        { key: "watchlist", title: "Watchlists" },
+        { key: "watchlist", title: "Watchlist" },
     ]);
+
+
 
     const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
-
+    const { setUserInfo } = useUser();
     const [userProfile, setUserProfile] = useState({});
     const [followers, setFollowers] = useState(0);
     const [following, setFollowing] = useState(0);
@@ -41,12 +44,11 @@ export default function ProfilePage({ route }) {
     const [followingCount, setFollowingCount] = useState(0);
 
     const fetchData = async () => {
-        // console.log("User Info:", userInfo);
         try {
             const userId = userInfo.userId;
+            setUserInfo({  userId }); 
             const response = await getUserProfile(userId);
             setUserProfile(response);
-            console.log("Response user profile:", response);
 
             if (response.followers && response.followers.low !== undefined) {
                 setFollowers(response.followers.low);
@@ -55,7 +57,7 @@ export default function ProfilePage({ route }) {
             if (response.following && response.following.low !== undefined) {
                 setFollowing(response.following.low);
             }
-
+            
             const followersCount = await getFollowersCount(userId);
             const followingCount = await getFollowingCount(userId);
             setFollowerCount(followersCount.followerCount);
@@ -74,7 +76,6 @@ export default function ProfilePage({ route }) {
             try {
                 const response = await getCommentsOfReview(postId);
                 setComments(response.data);
-                // console.log("Fetched comments of reviews:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of review:", error.message);
                 throw new Error("Failed to fetch comments of review");
@@ -85,7 +86,6 @@ export default function ProfilePage({ route }) {
             try {
                 const response = await getCommentsOfPost(postId);
                 setComments(response.data);
-                // console.log("Fetched comments:", response.data);
             } catch (error) {
                 console.error("Error fetching comments of post:", error.message);
                 throw new Error("Failed to fetch comments of post");
@@ -180,7 +180,7 @@ export default function ProfilePage({ route }) {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 1,
-            borderBottomColor: theme.borderColor,
+            borderBottomColor: "#ddd",
         },
         indicator: {
             backgroundColor: colors.primary,
@@ -230,11 +230,11 @@ export default function ProfilePage({ route }) {
                     <Text style={styles.userHandle}>@{userProfile.username || "Joyce"}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, userProfile })}>
+                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, userProfile, followerCount })}>
                         <Text style={styles.number}>{followerCount} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
-                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, userProfile })}>
+                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, userProfile, followingCount })}>
                         <Text style={styles.number}>{followingCount} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>

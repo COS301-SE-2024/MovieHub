@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert } from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { deleteUserProfile } from "../Services/UsersApiService";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function AccountSettings({ route }) {
-    const { theme } = useTheme();
     const [modalVisible, setModalVisible] = useState(false);
     const [deletedModalVisible, setDeletedModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { theme } = useTheme();
     const confirmDeleteAccount = () => {
         setModalVisible(true);
     };
@@ -19,7 +19,6 @@ export default function AccountSettings({ route }) {
             // Call the deleteUserAccount function from UsersApiService
             const userId = "tempUserAgain";
             const response = await deleteUserProfile(userId);
-            console.log(response);
             if (response.success) {
                 // If the account deletion was successful, navigate the user to the login screen or any other appropriate screen
                 setDeletedModalVisible(true);
@@ -47,7 +46,7 @@ export default function AccountSettings({ route }) {
             alignItems: "center",
             padding: 16,
             borderBottomWidth: 1,
-            borderBottomColor: "#e0e0e0",
+            borderBottomColor: "transparent",
         },
         settingName: {
             fontSize: 16,
@@ -55,17 +54,24 @@ export default function AccountSettings({ route }) {
         },
         deleteButton: {
             padding: 15,
-            marginBottom: 20,
+            marginTop: 20,
             borderRadius: 5,
             borderTopWidth: 1,
             borderBottomWidth: 1,
-            borderColor: theme.borderColor,
+            borderColor: "#ccc",
             backgroundColor: theme.backgroundColor,
         },
         deleteButtonText: {
-            color: "#dc3545",
+            color: "#ff0000",
             textAlign: "center",
             fontWeight: "bold",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            // padding: 16,
+            fontSize: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e0e0e0",
         },
         modalOverlay: {
             flex: 1,
@@ -85,7 +91,7 @@ export default function AccountSettings({ route }) {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 10,
-            color:  theme.textColor
+            color: theme.textColor,
         },
         modalMessage: {
             fontSize: 16,
@@ -103,14 +109,16 @@ export default function AccountSettings({ route }) {
             flex: 1,
             alignItems: "center",
             marginHorizontal: 5,
+            
         },
         modalButtonText: {
             fontSize: 16,
-            color: theme.textColor
+            color: theme.textColor,
         },
-        modalButtonDelete: {},
+        modalButtonDelete: {
+        },
         modalButtonDeleteText: {
-            color: "#dc3545",
+            color: "red",
         },
     });
 
@@ -118,20 +126,22 @@ export default function AccountSettings({ route }) {
         <View style={styles.container}>
             <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("ChangePassword")}>
                 <Text style={styles.settingName}>Change password</Text>
-                <Icon name="keyboard-arrow-right" size={24} color="black" />
+                <Icon name="keyboard-arrow-right" size={24} color={theme.textColor} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("UpdateEmail")}>
                 <Text style={styles.settingName}>Update email address</Text>
-                <Icon name="keyboard-arrow-right" size={24} color="black" />
+                <Icon name="keyboard-arrow-right" size={24} color={theme.textColor}  />
             </TouchableOpacity>
             <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("AccountPrivacy")}>
                 <Text style={styles.settingName}>Account Privacy</Text>
-                <Icon name="keyboard-arrow-right" size={24} color="black" />
+                <Icon name="keyboard-arrow-right" size={24} color={theme.textColor}  />
             </TouchableOpacity>
-            <View style={{ flex: 0.8 }}></View>
-            <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
+            <TouchableOpacity style={styles.setting} onPress={confirmDeleteAccount}>
                 <Text style={styles.deleteButtonText}>Delete Account</Text>
             </TouchableOpacity>
+            {/* <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteButton}>
+                <Text style={styles.deleteButtonText}>Delete Account</Text>
+            </TouchableOpacity> */}
 
             <Modal
                 animationType="slide"
@@ -139,7 +149,8 @@ export default function AccountSettings({ route }) {
                 visible={deletedModalVisible}
                 onRequestClose={() => {
                     setDeletedModalVisible(!deletedModalVisible);
-                }}>
+                }}
+            >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Account Deleted</Text>
@@ -148,7 +159,12 @@ export default function AccountSettings({ route }) {
                 </View>
             </Modal>
 
-            <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Are you sure?</Text>
@@ -167,3 +183,4 @@ export default function AccountSettings({ route }) {
         </View>
     );
 }
+

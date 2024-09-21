@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, FlatList, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -22,18 +21,17 @@ import { useTheme } from '../styles/ThemeContext';
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
-    const { theme } = useTheme();
+    console.log(userInfo);
     const navigation = useNavigation();
-    const bottomSheetRef = useRef(null);
 
     const [friendsOfFriendsContent, setFriendsOfFriendsContent] = useState([]);
     const [randomUsersContent, setRandomUsersContent] = useState([]);
-
+    const bottomSheetRef = useRef(null);
     const [userProfile, setUserProfile] = useState(null);
     const [isPost, setIsPost] = useState(false);
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
-    const [selectedPostId, setSelectedPostId] = useState(null);
+    const [selectedPostId, setSelectedPostId] = useState(null); 
     const [recentRooms, setRecentRooms] = useState([]);
     const [sortedContent, setSortedContent] = useState([]);
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
@@ -42,15 +40,11 @@ export default function ExplorePage({ route }) {
         const fetchContent = async () => {
             try {
                 const friendsContent = await getFriendsOfFriendsContent(userInfo);
-
                 const enrichedFriendsContent = await Promise.all(
                     friendsContent.map(async (content) => {
-                        // console.log("friendscontnet:", content.post);
                         if (content.post) {
                             const likes = await getLikesOfPost(content.post.postId);
                             const comments = await getCountCommentsOfPost(content.post.postId);
-                            // console.log("Post Likes:", likes.data);
-                            // console.log("Post Comments:", comments.data);
                             return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
                         }
                         if (content.review) {
@@ -61,13 +55,10 @@ export default function ExplorePage({ route }) {
                         return content;
                     })
                 );
-
                 setFriendsOfFriendsContent(enrichedFriendsContent);
-
+    
                 const randomContent = await getRandomUsersContent(userInfo);
-
                 const enrichedRandomContent = await Promise.all( 
-
                     randomContent.map(async (content) => {
                         if (content.post) {
                             const likes = await getLikesOfPost(content.post.postId);
@@ -82,13 +73,12 @@ export default function ExplorePage({ route }) {
                         return content;
                     })
                 );
-
                 setRandomUsersContent(enrichedRandomContent);
             } catch (error) {
-                console.error("Error fetching content:", error);
+                console.error('Error fetching content:', error);
             }
         };
-
+    
         fetchContent();
     }, [userInfo]);
 
@@ -147,9 +137,6 @@ export default function ExplorePage({ route }) {
         navigation.navigate("HubScreen", { userInfo });
     };
 
-    // console.log("friendsContent",friendsOfFriendsContent)
-    // console.log("randomContent",randomUsersContent)
-
     const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
         try {
@@ -166,18 +153,14 @@ export default function ExplorePage({ route }) {
     const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
         setIsPost(!isReview);
-
-        const response = await fetchComments(postId, isReview);
-        // console.log("Comments:", response);
+        await fetchComments(postId, isReview);
         bottomSheetRef.current?.present();
     };
 
     const fetchRooms = useCallback(async () => {
         try {
             const recentRoomsData = await getRecentRooms(userInfo.userId);
-            console.log(recentRoomsData);
             if (recentRoomsData.length > 0) {
-                console.log("recentRoomsData length is not 0");
                 const recentRoomsWithCounts = await Promise.all(
                     recentRoomsData.map(async (room) => {
                         const countResponse = await getRoomParticipantCount(room.roomId);
@@ -207,7 +190,6 @@ export default function ExplorePage({ route }) {
             console.error("Failed to fetch recent rooms explore page:", error);
         }
     }, [userInfo.userId]);
-
     
     const renderRoomCard = ({ item }) => (
         <UserRoomCard
@@ -252,35 +234,27 @@ export default function ExplorePage({ route }) {
             marginVertical: 16,
         },
     });    
-
     return (
         <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
             <ScrollView>
-
                 {/* <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>
                     <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }} onPress={handleOpenHub} />
-
-                <View style={styles.searchBarSize}>
-                    <View style={styles.searchBar}>
-                        <Icon name="search" size={30} color={theme.iconColor} style={{ marginRight: 8 }} />
-
-                        <TextInput style={styles.input} placeholder="Search by username or name" placeholderTextColor={theme.gray} onChangeText={(text) => handleSearch(text)} />
-                    </View>
-                </View>
-                <View style={styles.header}>
-                    <Text style={styles.heading}>The Hub</Text>
-                    <Ionicons name="chevron-forward" size={24} color={theme.iconColor} style={{ marginLeft: "auto" }} onPress={handleOpenHub} />
-
                 </View>
 
                 {recentRooms.length > 0 && (
                     <View>
-                        <FlatList data={recentRooms} renderItem={renderRoomCard} keyExtractor={(item) => item.roomId.toString()} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.roomList} />
+                        <FlatList
+                            data={recentRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
                         <View style={styles.divider} />
                     </View>
                 )} */}
-
 
                 <View style={styles.postsContainer}>
                     <HubTabView>
@@ -393,15 +367,21 @@ export default function ExplorePage({ route }) {
                             })}
                         </View>
                     </HubTabView>
-
-              
                 </View>
             </ScrollView>
             <BottomHeader userInfo={userInfo} />
-            <CommentsModal ref={bottomSheetRef} isPost={isPost} postId={selectedPostId} userId={userInfo.userId} username={userInfo.username} currentUserAvatar={userProfile ? userProfile.avatar : null} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
+            <CommentsModal    
+                ref={bottomSheetRef} 
+                isPost={isPost}
+                postId={selectedPostId} 
+                userId={userInfo.userId}
+                username={userInfo.username}
+                currentUserAvatar={userProfile ? userProfile.avatar : null}
+                comments={comments}
+                loadingComments={loadingComments}
+                onFetchComments={fetchComments}
+            />
         </View>
     );
-
 }
-
 

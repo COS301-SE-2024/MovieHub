@@ -5,40 +5,48 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-
+import {useUser} from "../Services/UseridContext";
 import { removePost } from "../Services/PostsApiServices";
-import { toggleLikePost } from "../Services/LikesApiService";
+import { toggleLikePost , checkUserLike} from "../Services/LikesApiService";
 
 export default function FollowerPost({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete, ogUserinfo }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
-    const [likedCount, setLikedCount] = useState(likes);
-    const [saved, setSaved] = useState(false);
+    const [hasLiked,setHasLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
-
-    // console.log("user likes:",uid);
-    // console.log("user likes:",ogUserinfo);
+    const { userInfo, setUserInfo } = useUser();
+    const [isDeleting, setIsDeleting] = useState(false);
 
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
 
+    //ogUserinfo.userId
+
     const toggleLike = async () => {
+        if (liked) return;  
+    
+        setLiked(true);  
+    
         const body = {
             postId: postId,
-            userId: ogUserinfo.userId
-        }
+            uid: uid.userId,
+        };
 
+        console.log("why toggle post not working man", body);
+    
         try {
-            await toggleLikePost(body);
-            setLiked((prevLiked) => !prevLiked);
-            setLikedCount((prevCount) => (liked ? prevCount - 1 : prevCount + 1));
-            console.log('Toggle like successful');
+            await toggleLikePost(body);  
+            setHasLiked(!hasLiked);  
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);  
         } catch (error) {
-            console.error('Error toggling like:', error);
+            console.error("Error toggling like:", error);
+        } finally {
+            setLiked(false);  
         }
     };
 
@@ -68,6 +76,21 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
         
     };
 
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const data = await checkUserLike(userInfo.userId, postId, 'Post');
+                setHasLiked(data.hasLiked); 
+            } catch (error) {
+                console.error('Error fetching like status:', error);
+            }
+        };
+        
+
+        fetchLikeStatus();
+    }, [userInfo.userId, postId]);
+
+
     // Function to remove posts
 
     const handleRemovePost = async (uid, postId) => {
@@ -77,12 +100,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
         Alert.alert('Success', 'Post deleted successfully!');
     };
 
-    const handleEditPost = () => {
-        toggleModal();
-        navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
-    }
-
-    // TODO: Increment or decrement number of likes
+  
 
     const styles = StyleSheet.create({
         container: {
@@ -242,14 +260,19 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
             <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
-                <Text style={styles.statsNumber}>{liked ? likes + 1 : likes}</Text>
-            </TouchableOpacity>
+                <Icon
+                    name={hasLiked ? 'favorite' : 'favorite-border'}
+                    size={20}
+                    color={hasLiked ? 'red' : 'black'}
+                    style={{ marginRight: 5 }}
+                />
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
+                </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable onPress={() => {handleCommentPress(postId, false)}}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
-                    <Text style={styles.statsNumber}>{comments}</Text>
+                    <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>

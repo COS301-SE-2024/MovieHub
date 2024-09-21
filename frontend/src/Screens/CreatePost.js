@@ -485,7 +485,7 @@ export default function CreatePost({ route }) {
                         <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
                     </View>
                 </View>
-            {/* </View> */}
+            {/* </View>s */}
 
             <View style={styles.footer}>
                 <TouchableOpacity

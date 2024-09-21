@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert } from "react-native";
-import { useTheme } from "../styles/ThemeContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
+import { useTheme } from "../styles/ThemeContext";
 
 const WatchlistTab = ({ userInfo }) => {
-    const { theme } = useTheme();
+
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
+    const {theme} = useTheme();
         // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
-                console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
-                const userId = userInfo.userId; // Replace with actual user ID fetching logic
-
-                const userWatchlists = await getUserWatchlists(userId);
-                const watchlistId = userWatchlists.id;
-                console.log(userWatchlists);
+                const userId = userInfo.userId;
+                let userWatchlists = await getUserWatchlists(userId);
+        
+                // Remove duplicates based on watchlist IDs
+                userWatchlists = userWatchlists.filter((watchlist, index, self) => 
+                    index === self.findIndex((w) => w.id === watchlist.id)
+                );
+        
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error('Error fetching user watchlists:', error);
-                // Handle error or fallback to empty array
                 setWatchlists([]);
             }
         };
@@ -44,7 +46,6 @@ const WatchlistTab = ({ userInfo }) => {
     };
 
     const goToWatchlistDetails = (watchlist) => {
-        console.log('About to navigate. \n Here is the watch list info: ', watchlist);
         navigation.navigate('WatchlistDetails', { watchlist });
     };
 
@@ -64,6 +65,7 @@ const WatchlistTab = ({ userInfo }) => {
         container: {
             flex: 1,
             padding: 12,
+            backgroundColor: theme.useBackgroundColor,
         },
         createButton: {
             flexDirection: "row",
@@ -73,7 +75,7 @@ const WatchlistTab = ({ userInfo }) => {
         },
         createButtonText: {
             fontSize: 14,
-            color: theme.gray,
+            color: theme.textColor,
             fontWeight: "bold",
         },
         watchlistItem: {
@@ -81,7 +83,7 @@ const WatchlistTab = ({ userInfo }) => {
             justifyContent: "space-between",
             padding: 16,
             borderBottomWidth: 1,
-            borderBottomColor: "#ccc",
+            borderBottomColor: "transparent",
         },
         watchlistImage: {
             width: 182,
@@ -98,16 +100,15 @@ const WatchlistTab = ({ userInfo }) => {
         watchlistName: {
             fontSize: 18,
             fontWeight: "bold",
-            color: theme.textColor
         },
         watchlistPrivacy: {
             fontSize: 14,
-            color: theme.gray,
+            color: theme.textColor,
             fontWeight: "bold",
         },
         watchlistMovies: {
             fontSize: 14,
-            color: theme.gray,
+            color: theme.textColor,
         },
         moreButton: {
             margin: 5,
@@ -120,17 +121,17 @@ const WatchlistTab = ({ userInfo }) => {
         },
         emptyText: {
             fontSize: 16,
-            color: theme.gray,
+            color: theme.textColor,
             textAlign: "center",
         },
         modalOverlay: {
             flex: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: theme.backgroundColor,
             justifyContent: "center",
             alignItems: "center",
         },
         modalContainer: {
-            backgroundColor: theme.textColor,
+            backgroundColor: theme.backgroundColor,
             borderRadius: 8,
             padding: 16,
             width: 200,
@@ -143,9 +144,9 @@ const WatchlistTab = ({ userInfo }) => {
         modalOptionText: {
             fontSize: 18,
             marginLeft: 8,
-            color: theme.textColor,
+            color: theme.backgroundColor
         },
-    });    
+    });
 
     return (
         <View style={styles.container}>
@@ -157,7 +158,7 @@ const WatchlistTab = ({ userInfo }) => {
             >
                 <Text style={styles.createButtonText}>Create new watchlist</Text>
                 <View style={{ flex: 1 }} />
-                <MaterialIcons name="add" size={24} color={theme.iconColor} />
+                <MaterialIcons name="add" size={24} color={theme.textColor} />
             </TouchableOpacity>
             <ScrollView>
                 {watchlists.map((watchlist) => (
@@ -171,7 +172,7 @@ const WatchlistTab = ({ userInfo }) => {
                             <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>
                         <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
-                            <MaterialIcons name="more-vert" size={24} color={theme.iconColor} />
+                            <MaterialIcons name="more-vert" size={24} color="black" />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 ))}
@@ -191,7 +192,7 @@ const WatchlistTab = ({ userInfo }) => {
                                 closeModal();
                                 console.log(`Edit ${selectedWatchlist.name}`);
                             }}>
-                            <MaterialIcons name="edit" size={24} color={theme.iconColor} />
+                            <MaterialIcons name="edit" size={24} color="black" />
                             <Text style={styles.modalOptionText}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -199,7 +200,7 @@ const WatchlistTab = ({ userInfo }) => {
                             onPress={() => {
                                 handleDeleteWatchlist();
                             }}>
-                            <MaterialIcons name="delete" size={24} color={theme.iconColor} />
+                            <MaterialIcons name="delete" size={24} color="black" />
                             <Text style={styles.modalOptionText}>Delete</Text>
                         </TouchableOpacity>
                     </View>
@@ -208,6 +209,7 @@ const WatchlistTab = ({ userInfo }) => {
         </View>
     );
 };
+
 
 
 export default WatchlistTab;

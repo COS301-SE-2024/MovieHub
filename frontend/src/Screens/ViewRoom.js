@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef , useLayoutEffect} from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getRoomDetails, getRoomParticipantCount, joinRoom, leaveRoom } from "../Services/RoomApiService";
@@ -192,6 +192,26 @@ const ViewRoom = ({ route }) => {
         fetchRoomDetails();
     }, [route.params.roomId]);
 
+    useEffect(() => {
+        if (route.params?.openBottomSheet) {
+          handleOpenBottomSheet();
+          // Reset the param after opening the bottom sheet
+          navigation.setParams({ openBottomSheet: false });
+        }
+      }, [route.params?.openBottomSheet]);
+
+      useLayoutEffect(() => {
+        if (loading) {
+          navigation.setOptions({
+            title: "Loading..."
+          });
+        } else if (roomDetails) {
+          navigation.setOptions({
+            title: roomDetails.roomName
+          });
+        }
+      }, [navigation, loading, roomDetails]);
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -231,16 +251,6 @@ const ViewRoom = ({ route }) => {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <View style={styles.header}>
-                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <Icon name="arrow-back" size={24} color={theme.iconColor} onPress={() => navigation.goBack()} />
-                        <Text style={styles.roomName}>{roomName}</Text>
-                    </View>
-                    <Pressable onPress={handleOpenBottomSheet}>
-                        <Icon name="more-horiz" size={24} color={theme.iconColor} style={{ marginRight: 10 }} />
-                    </Pressable>
-                </View>
-
                 <View style={styles.videoContainer}>
                     {watchPartyStarted ? (
                         <View>

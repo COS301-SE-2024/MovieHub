@@ -1,26 +1,25 @@
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import React, { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
-import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
-import { useTheme } from "../styles/ThemeContext";
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBackground } from "react-native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from "../Components/UserRoomCard";
 import BottomHeader from "../Components/BottomHeader";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTheme } from "../styles/ThemeContext";
 
 const HubScreen = ({ route }) => {
     const { userInfo } = route.params;
-    const { theme } = useTheme();
     const navigation = useNavigation();
     const [createdRooms, setCreatedRooms] = useState([]);
     const [participatingRooms, setParticipatingRooms] = useState([]);
     const [publicRooms, setPublicRooms] = useState([]);
-    const [loading, setLoading] = useState(true); // State to manage loading status
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
-
+    const { theme } = useTheme();
     const fetchRooms = useCallback(async () => {
         try {
             const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
+
             const createdRoomsWithCounts = await Promise.all(
                 createdRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -31,8 +30,13 @@ const HubScreen = ({ route }) => {
                 })
             );
             setCreatedRooms(createdRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch created rooms:", error);
+        }
 
+        try {
             const participatingRoomsData = await getUserParticipatedRooms(userInfo.userId);
+
             const participatingRoomsWithCounts = await Promise.all(
                 participatingRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -43,8 +47,13 @@ const HubScreen = ({ route }) => {
                 })
             );
             setParticipatingRooms(participatingRoomsWithCounts);
+        } catch (error) {
+            console.error("Failed to fetch participated rooms:", error);
+        }
 
+        try {
             const publicRoomsData = await getPublicRooms();
+
             const publicRoomsWithCounts = await Promise.all(
                 publicRoomsData.map(async (room) => {
                     const countResponse = await getRoomParticipantCount(room.roomId);
@@ -56,9 +65,7 @@ const HubScreen = ({ route }) => {
             );
             setPublicRooms(publicRoomsWithCounts);
         } catch (error) {
-            console.error("Failed to fetch rooms:", error);
-        } finally {
-            setLoading(false); // Set loading to false when data fetching is complete
+            console.error("Failed to fetch public rooms:", error);
         }
     }, [userInfo.userId]);
 
@@ -90,19 +97,18 @@ const HubScreen = ({ route }) => {
 
     const styles = StyleSheet.create({
         container: {
+            backgroundColor: theme.backgroundColor,
             flex: 1,
             paddingVertical: 16,
-            backgroundColor: theme.backgroundColor,
         },
         header: {
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 20,
-            paddingRight: 16,
+            // paddingRight: 50 ,
             height: 50,
-            paddingLeft: 16,
-            backgroundColor: theme.backgroundColor,
+            paddingLeft: 20,
         },
         headerLeft: {
             flexDirection: "row",
@@ -116,6 +122,8 @@ const HubScreen = ({ route }) => {
         createRoomText: {
             fontSize: 16,
             color: "blue",
+            textAlign: 'center',
+            color: theme.textColor,
         },
         sectionTitle: {
             fontSize: 18,
@@ -125,16 +133,40 @@ const HubScreen = ({ route }) => {
             color: theme.textColor,
         },
         userRoomCard: {
-            width: 310,
-            height: 210,
+            width: 310, // Increase the width of the room card
+            height: 210, // Increase the height of the room card
             borderRadius: 8,
-            marginHorizontal: 12,
+            marginHorizontal: 12, // Add some margin to avoid cramped appearance
             overflow: "hidden",
         },
         imageBackground: {
             flex: 1,
             justifyContent: "flex-end",
             borderRadius: 8,
+        },
+        overlay: {
+            flex: 1,
+    
+            justifyContent: "space-between",
+            padding: 12,
+        },
+        liveText: {
+            fontSize: 14, // Increase font size for better visibility
+            color: "red",
+            marginBottom: 6,
+            
+        },
+        createButton: {
+            flexDirection: "row",
+            marginBottom: 10,
+            paddingHorizontal: 10,
+            alignItems: "center",
+            color: theme.textColor,
+        },
+        createButtonText: {
+            fontSize: 14,
+            color: theme.textColor,
+            fontWeight: "bold",
         },
         cardBody: {
             display: "flex",
@@ -147,16 +179,26 @@ const HubScreen = ({ route }) => {
             right: 16,
         },
         cardTitle: {
-            fontSize: 18,
+            fontSize: 18, // Increase font size for better visibility
             fontWeight: "bold",
             color: theme.textColor,
+        },
+        cardFooter: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: 6,
+        },
+        userCount: {
+            fontSize: 16, // Increase font size for better visibility
+            color: theme.textColor,
+            marginLeft: 4,
         },
         roomList: {
             paddingHorizontal: 16,
         },
         divider: {
             height: 1,
-            backgroundColor: theme.borderColor,
+            backgroundColor: "transparent",
             marginVertical: 16,
         },
         emptyContainer: {
@@ -165,10 +207,7 @@ const HubScreen = ({ route }) => {
         },
         emptyText: {
             fontSize: 16,
-            color: theme.gray,
-        },
-        loadingIndicator: {
-            marginTop: 30,
+            color: theme.textColor,
         },
     });
 
@@ -182,9 +221,9 @@ const HubScreen = ({ route }) => {
                     </View> */}
 
                     <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
-                        <Text style={styles.createButtonText}>Create new watchlist</Text>
+                        <Text style={styles.createButtonText}>Create new room</Text>
                         <View style={{ flex: 1 }} />
-                        <MaterialIcons name="add" size={24} color="black" />
+                        <MaterialIcons name="add" size={24} />
                     </TouchableOpacity>
                 </View>
 
@@ -245,117 +284,9 @@ const HubScreen = ({ route }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-        flex: 1,
-        paddingVertical: 16,
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20,
-        // paddingRight: 50 ,
-        height: 50,
-        paddingLeft: 20,
-    },
-    headerLeft: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-    createRoomText: {
-        fontSize: 16,
-        color: "blue",
-        textAlign: 'center',
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 15,
-        paddingLeft: 20,
-    },
-    userRoomCard: {
-        width: 310, // Increase the width of the room card
-        height: 210, // Increase the height of the room card
-        borderRadius: 8,
-        marginHorizontal: 12, // Add some margin to avoid cramped appearance
-        overflow: "hidden",
-    },
-    imageBackground: {
-        flex: 1,
-        justifyContent: "flex-end",
-        borderRadius: 8,
-    },
-    overlay: {
-        flex: 1,
-
-        justifyContent: "space-between",
-        padding: 12,
-    },
-    liveText: {
-        fontSize: 14, // Increase font size for better visibility
-        color: "red",
-        marginBottom: 6,
-        
-    },
-    createButton: {
-        flexDirection: "row",
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        alignItems: "center",
-    },
-    createButtonText: {
-        fontSize: 14,
-        color: "#666",
-        fontWeight: "bold",
-    },
-    cardBody: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "absolute",
-        bottom: 12,
-        left: 16,
-        right: 16,
-    },
-    cardTitle: {
-        fontSize: 18, // Increase font size for better visibility
-        fontWeight: "bold",
-        color: "white",
-    },
-    cardFooter: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 6,
-    },
-    userCount: {
-        fontSize: 16, // Increase font size for better visibility
-        color: "white",
-        marginLeft: 4,
-    },
-    roomList: {
-        paddingHorizontal: 16,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: "#ccc",
-        marginVertical: 16,
-    },
-    emptyContainer: {
-        alignItems: "center",
-        marginVertical: 20,
-    },
-    emptyText: {
-        fontSize: 16,
-        color: "gray",
-    },
-});
 
 
 export default HubScreen;
+
+
+

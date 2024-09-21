@@ -12,7 +12,7 @@ const driver = neo4j.driver(
 exports.createWatchlist = async (userId, watchlistData) => {
     console.log("In list.services");
 
-    // Ensure all required parameters are present
+    // Ensure all required parameters except collabUserIds (conditionally) are present
     const requiredParams = ['name', 'tags', 'visibility', 'ranked', 'description', 'collaborative', 'movies'];
     for (const param of requiredParams) {
         if (!(param in watchlistData)) {
@@ -21,12 +21,20 @@ exports.createWatchlist = async (userId, watchlistData) => {
         }
     }
 
+    const { collaborative, collabUserIds } = watchlistData;
+
+    // If the watchlist is collaborative, ensure collabUserIds is provided
+    if (collaborative && (!collabUserIds || collabUserIds.length === 0)) {
+        console.error('Missing required parameter: collabUserIds for collaborative watchlist');
+        throw new Error('collabUserIds are required for a collaborative watchlist');
+    }
+
     const session = driver.session();
     const watchlistId = uuidv4();
-    const { name, tags, visibility, ranked, description, collaborative, movies } = watchlistData;
+    const { name, tags, visibility, ranked, description, movies } = watchlistData;
 
     try {
-        console.log("All parameters are present. Proceeding with database query.");
+        console.log("All required parameters are present. Proceeding with database query.");
 
         // Start a transaction
         const tx = session.beginTransaction();
@@ -62,7 +70,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
             { watchlistId, name, tags, visibility, ranked, description, collaborative, userId }
         );
 
-        console.log("Database query executed.");
+        console.log("Watchlist created and associated with the user.");
         if (result.records.length === 0) {
             throw new Error("Failed to create watchlist.");
         }
@@ -76,10 +84,21 @@ exports.createWatchlist = async (userId, watchlistData) => {
             );
         }
 
+        // If collaborative, associate collaborator users with the watchlist
+        if (collaborative) {
+            for (const colabUserId of collabUserIds) {
+                await tx.run(
+                    `MERGE (u:User {uid: $colabUserId})
+                     CREATE (u)-[:HAS_WATCHLIST]->(w)`,
+                    { watchlistId, colabUserId }
+                );
+            }
+        }
+
         // Commit the transaction
         await tx.commit();
 
-        console.log("Movies associated with the watchlist.");
+        console.log("Movies and collaborators associated with the watchlist.");
 
         return { id: watchlistId, ...watchlistData };
     } catch (error) {
@@ -90,6 +109,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
         await session.close();
     }
 };
+
 
 exports.modifyWatchlist = async (watchlistId, updatedData) => {
     const session = driver.session();
@@ -171,19 +191,91 @@ exports.getWatchlistDetails = async (watchlistId) => {
     }
 };
 
-exports.deleteWatchlist = async (watchlistId) => {
+exports.getCollaborators = async (watchlistId) => {
+    const session = driver.session();
+
+    try {
+        console.log("Fetching collaborators for watchlist:", watchlistId);
+
+        // Run a query to find all users with a HAS_WATCHLIST relationship to the watchlist
+        const result = await session.run(
+            `MATCH (w:Watchlist {id: $watchlistId})<-[:HAS_WATCHLIST]-(u:User)
+             RETURN u.uid AS userId, u.name AS name, u.username AS username, u.avatar AS avatar`,
+            { watchlistId }
+        );
+
+        if (result.records.length === 0) {
+            console.log("No collaborators found for this watchlist.");
+            return [];
+        }
+
+        // Process the result to return an array of collaborators
+        const collaborators = result.records.map(record => ({
+            userId: record.get('userId'),
+            name: record.get('name'),
+            username: record.get('username'),
+            avatar: record.get('avatar')
+        }));
+
+        console.log("Collaborators fetched successfully.");
+
+        return collaborators;
+    } catch (error) {
+        console.error("Error fetching collaborators:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getFollowedUsersWatchlists = async (userId) => {
     const session = driver.session();
 
     try {
         const result = await session.run(
-            `MATCH (w:Watchlist {id: $watchlistId})
-             DETACH DELETE w
-             RETURN COUNT(l) AS removed`,
-            { watchlistId }
+            `MATCH (u:User {uid: $userId})-[:FOLLOWS]->(followee:User)-[:HAS_WATCHLIST]->(w:Watchlist)
+             RETURN w.id AS watchlistId, w.name AS name, w.description AS description, w.ranked AS ranked, w.collaborative AS collaborative, w.tags AS tags`,
+            { userId }
         );
-        return result.records[0].get('removed').low > 0;
+
+        if (result.records.length === 0) {
+            return [];
+        }
+
+        const watchlists = result.records.map(record => ({
+            watchlistId: record.get('watchlistId'),
+            name: record.get('name'),
+            description: record.get('description'),
+            ranked: record.get('ranked'),
+            collaborative: record.get('collaborative'),
+            tags: record.get('tags'),
+        }));
+
+        console.log("Watchlists fetched successfully for followed users.");
+        return watchlists;
+    } catch (error) {
+        console.error("Error fetching watchlists of followed users:", error);
+        throw error;
     } finally {
         await session.close();
-    } 
+    }
+};
+
+
+
+exports.deleteWatchlist = async (watchlistId) => {
+    const session = driver.session();
+
+    try {
+        await session.run(
+            `MATCH (w:Watchlist {id: $watchlistId})
+             DETACH DELETE w`,
+            { watchlistId }
+        );
+
+        console.log('Watchlist deleted successfully');
+    } finally {
+        await session.close();
+    }
 };
 
