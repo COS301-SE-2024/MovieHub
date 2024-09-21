@@ -112,6 +112,27 @@ exports.createUserNode = async (uid, username) => {
 };
 
 //Peer interactions
+// Helper function to check for duplicate relationships and delete nodes without username
+async function cleanUpDuplicateFollowRelationships(session, followerId, followeeId) {
+    // const duplicateCheckQuery = `
+    //     MATCH (follower:User {uid: $followerId})-[r:FOLLOWS]->(followee:User {uid: $followeeId})
+    //     WITH r, count(r) AS relCount
+    //     WHERE relCount > 1
+    //     DELETE r
+    // `;
+
+    // await session.run(duplicateCheckQuery, { followerId, followeeId });
+
+    // Delete user nodes without the username property
+    const deleteQuery = `
+      MATCH (u:User)
+WHERE u.username IS NULL
+DETACH DELETE u
+    `;
+
+    await session.run(deleteQuery);
+}
+
 // Follow a user
 exports.followUser = async (followerId, followeeId) => {
     const session = driver.session();
@@ -140,19 +161,20 @@ exports.followUser = async (followerId, followeeId) => {
             { followerId, followeeId }
         );
 
-        // Check if followee also follows the follower (to establish FRIENDS relationship)
+       
+        // Check if followee also follows the follower
         const result = await session.run(
             `MATCH (follower:User {uid: $followerId})-[:FOLLOWS]->(followee:User {uid: $followeeId})
-             OPTIONAL MATCH (followee:User {uid: $followeeId})-[:FOLLOWS]->(follower)
-             RETURN count(followee) > 0 as isFollowing`,
+             MATCH (followee)-[:FOLLOWS]->(follower)
+             RETURN count(followee) > 0 as isMutualFollowing`,
             { followerId, followeeId }
         );
 
-        const isFolloweeFollowing = result.records[0].get("isFollowing");
-        console.log("User services: isFolloweeFollowing", isFolloweeFollowing);
+        const isMutualFollowing = result.records[0].get("isMutualFollowing");
+        console.log("User services: isMutualFollowing", isMutualFollowing);
 
-        // If followee follows follower, create FRIENDS relationship
-        if (isFolloweeFollowing) {
+        // If both users are following each other, create FRIENDS relationship
+        if (isMutualFollowing) {
             await session.run(
                 `MERGE (follower:User {uid: $followerId})-[:FRIENDS]-(followee:User {uid: $followeeId})`,
                 { followerId, followeeId }
@@ -166,7 +188,6 @@ exports.followUser = async (followerId, followeeId) => {
             { followerId }
         );
 
-        // Filter valid followerName records
         const validFollowerRecord = followerResult.records.find(
             record => record.get("followerName") !== null
         );
@@ -189,10 +210,13 @@ exports.followUser = async (followerId, followeeId) => {
             read: false,
             followerId: followerId,
             timestamp: new Date().toISOString(),
-            isFollowing: isFolloweeFollowing,
+            isFollowing: isMutualFollowing,
         });
 
-        return { message: "Followed successfully", isFollowing: isFolloweeFollowing };
+        // Clean up any duplicate follow relationships
+        await cleanUpDuplicateFollowRelationships(session, followerId, followeeId);
+
+        return { message: "Followed successfully", isFollowing: isMutualFollowing };
     } catch (error) {
         console.error("Error following user:", error);
         throw error;
@@ -200,6 +224,7 @@ exports.followUser = async (followerId, followeeId) => {
         await session.close();
     }
 };
+
 
 
 // Unfollow a user
