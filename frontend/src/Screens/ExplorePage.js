@@ -20,6 +20,7 @@ import moment from "moment";
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
+    console.log(userInfo);
     const navigation = useNavigation();
 
     const [friendsOfFriendsContent, setFriendsOfFriendsContent] = useState([]);
