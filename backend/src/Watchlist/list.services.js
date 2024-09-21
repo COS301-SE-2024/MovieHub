@@ -228,14 +228,12 @@ exports.getCollaborators = async (watchlistId) => {
     }
 };
 
-// Get a user's public watchlists
-exports.getPublicWatchlists = async (userId) => {
+exports.getFollowedUsersWatchlists = async (userId) => {
     const session = driver.session();
 
     try {
         const result = await session.run(
-            `MATCH (u:User {uid: $userId})-[:HAS_WATCHLIST]->(w:Watchlist)
-             WHERE w.visibility = 'public'
+            `MATCH (u:User {uid: $userId})-[:FOLLOWS]->(followee:User)-[:HAS_WATCHLIST]->(w:Watchlist)
              RETURN w.id AS watchlistId, w.name AS name, w.description AS description, w.ranked AS ranked, w.collaborative AS collaborative, w.tags AS tags`,
             { userId }
         );
@@ -253,15 +251,16 @@ exports.getPublicWatchlists = async (userId) => {
             tags: record.get('tags'),
         }));
 
-        console.log("Public watchlists fetched successfully for user:", userId);
+        console.log("Watchlists fetched successfully for followed users.");
         return watchlists;
     } catch (error) {
-        console.error("Error fetching public watchlists:", error);
+        console.error("Error fetching watchlists of followed users:", error);
         throw error;
     } finally {
         await session.close();
     }
 };
+
 
 
 exports.deleteWatchlist = async (watchlistId) => {
