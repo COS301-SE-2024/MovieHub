@@ -118,6 +118,20 @@ exports.followUser = async (followerId, followeeId) => {
 
     console.log("inside followUser services", followerId, followeeId);
     try {
+        // Check if the follower already follows the followee
+        const existingFollowResult = await session.run(
+            `MATCH (follower:User {uid: $followerId})-[:FOLLOWS]->(followee:User {uid: $followeeId})
+             RETURN count(followee) > 0 as alreadyFollowing`,
+            { followerId, followeeId }
+        );
+
+        const alreadyFollowing = existingFollowResult.records[0].get("alreadyFollowing");
+
+        if (alreadyFollowing) {
+            // If already following, return a message
+            return { message: "User is already following the followee", isFollowing: true };
+        }
+
         // Create the follow relationship from follower to followee
         await session.run(
             `MERGE (follower:User {uid: $followerId})
@@ -151,8 +165,6 @@ exports.followUser = async (followerId, followeeId) => {
              RETURN follower.name AS followerName`,
             { followerId }
         );
-
-        // console.log("User services: follower result", followerResult.records);
 
         // Filter valid followerName records
         const validFollowerRecord = followerResult.records.find(
@@ -188,7 +200,6 @@ exports.followUser = async (followerId, followeeId) => {
         await session.close();
     }
 };
-
 
 
 // Unfollow a user
