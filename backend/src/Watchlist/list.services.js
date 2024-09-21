@@ -218,6 +218,41 @@ exports.getCollaborators = async (watchlistId) => {
     }
 };
 
+// Get a user's public watchlists
+exports.getPublicWatchlists = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:HAS_WATCHLIST]->(w:Watchlist)
+             WHERE w.visibility = 'public'
+             RETURN w.id AS watchlistId, w.name AS name, w.description AS description, w.ranked AS ranked, w.collaborative AS collaborative, w.tags AS tags`,
+            { userId }
+        );
+
+        if (result.records.length === 0) {
+            return [];
+        }
+
+        const watchlists = result.records.map(record => ({
+            watchlistId: record.get('watchlistId'),
+            name: record.get('name'),
+            description: record.get('description'),
+            ranked: record.get('ranked'),
+            collaborative: record.get('collaborative'),
+            tags: record.get('tags'),
+        }));
+
+        console.log("Public watchlists fetched successfully for user:", userId);
+        return watchlists;
+    } catch (error) {
+        console.error("Error fetching public watchlists:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 exports.deleteWatchlist = async (watchlistId) => {
     const session = driver.session();
@@ -234,3 +269,4 @@ exports.deleteWatchlist = async (watchlistId) => {
         await session.close();
     }
 };
+

@@ -63,6 +63,27 @@ exports.getCollaborators = async (req, res) => {
     }
 };
 
+// Controller function to fetch public watchlists of a user
+exports.getUserPublicWatchlists = async (req, res) => {
+    const { userId } = req.params;  // Extract userId from URL parameters
+
+    try {
+        // Call the service to get public watchlists for the specified user
+        const publicWatchlists = await WatchlistService.getPublicWatchlists(userId);
+
+        // If no watchlists are found, send an empty array
+        if (publicWatchlists.length === 0) {
+            return res.status(200).json({ message: "No public watchlists found", watchlists: [] });
+        }
+
+        // Return the list of public watchlists
+        return res.status(200).json({ watchlists: publicWatchlists });
+    } catch (error) {
+        console.error("Error fetching public watchlists:", error);
+        return res.status(500).json({ error: "Failed to fetch public watchlists" });
+    }
+};
+
 exports.deleteWatchlist = async (req, res) => {
     const watchlistId = req.params.watchlistId;
 
