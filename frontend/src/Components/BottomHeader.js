@@ -47,7 +47,6 @@ export default function BottomHeader({ userInfo }) {
         fetchUnreadNotifications();
     }, [userInfo.userId]);
 
-    console.log("Bottom header User info", userInfo);
 
     const styles = StyleSheet.create({
         header: {
