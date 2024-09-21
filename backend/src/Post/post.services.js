@@ -102,7 +102,7 @@ exports.addCommentToPost = async (uid, postId, text) => {
             commentId: comId,
             commentedBy: uid,
             avatar: comment.avatar,
-            user: commentusername,
+            user: comment.username,
             commenterName: comment.username,
             notificationType: 'post_comment',
             timestamp: new Date().toISOString(),
@@ -527,7 +527,7 @@ exports.getCommentsOfComment = async (commentId) => {
 };
 
 exports.getPostsOfUser = async (uid) => {
-    console.log("In Services: getPostsOfUser");
+    // console.log("In Services: getPostsOfUser");
     const session = driver.session();
     try {
         const result = await session.run(
@@ -569,7 +569,7 @@ exports.getReviewsOfUser = async (uid) => {
 };
 
 exports.getCommentsOfUser = async (uid) => {
-    console.log("In Services: getCommentsOfUser");
+    // console.log("In Services: getCommentsOfUser");
     const session = driver.session();
     try {
         const result = await session.run(
@@ -616,7 +616,7 @@ exports.getAverageRating = async (movieId) => {
 };
 
 exports.getCountCommentsOfPost = async (postId) => {
-    console.log("In Services: getTotalCommentsOfPost");
+    // console.log("In Services: getTotalCommentsOfPost");
     const session = driver.session();
     try {
         const result = await session.run(
@@ -640,7 +640,7 @@ exports.getCountCommentsOfPost = async (postId) => {
 };
 
 exports.getCountCommentsOfReview = async (reviewId) => {
-    console.log("In Services: getTotalCommentsOfReview");
+    // console.log("In Services: getTotalCommentsOfReview");
     const session = driver.session();
     try {
         const result = await session.run(

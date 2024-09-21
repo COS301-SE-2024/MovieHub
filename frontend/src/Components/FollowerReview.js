@@ -5,8 +5,6 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-
-import { removeReview } from "../Services/PostsApiServices";
 import { toggleLikeReview } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
@@ -16,6 +14,9 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
     const [likedCount, setLikedCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
+
+    // console.log("user likes:",uid);
+    // console.log("user likes:",ogUserinfo);
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -33,6 +34,7 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
                 setLikedCount((prevCount) => prevLiked ? prevCount - 1 : prevCount + 1);
                 return !prevLiked; // Toggle liked state
             });
+            console.log("Toggle like successful");
         } catch (error) {
             console.error("Error toggling like:", error);
         }
@@ -58,14 +60,11 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
             Alert.alert(error.message);
         }
     };
-    // Function to remove reviews
 
     const handleRemoveReview = async (uid, reviewId) => {
         onDelete(reviewId);
         toggleModal();
     };
-
-    // TODO: Increment or decrement number of likes
 
     const styles = StyleSheet.create({
         container: {

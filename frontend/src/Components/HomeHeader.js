@@ -10,6 +10,7 @@ import { getUserProfile } from "../Services/UsersApiService";
 const { height, width } = Dimensions.get('window');
 
 export default function HomeHeader({ userInfo }) {
+
     const [unreadNotifications, setUnreadNotifications] = useState(0);
     const navigation = useNavigation();
     const isActive = (screen) => route.name === screen;
@@ -19,6 +20,7 @@ export default function HomeHeader({ userInfo }) {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
             setAvatar(response.avatar)
+
 
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -70,30 +72,23 @@ export default function HomeHeader({ userInfo }) {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        height: height * 0.12,      // Set header height as 12% of the screen height
-        paddingTop: Platform.OS === 'ios' ? height * 0.04 : height * 0.03, // Adjust padding for status bar on iOS
-        paddingHorizontal: width * 0.05, // 5% of screen width for left/right padding
-        flexDirection: 'row',      // Horizontal alignment
-        justifyContent: 'space-between', // Evenly space logo and icon
+    header: { 
+        height: 90,
+        paddingTop: 28,
+        paddingVertical: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         zIndex: 1,
-        alignItems: 'center',      // Vertical centering
-        // backgroundColor: colors.primary, // Header background color
-        elevation: 4,              // Shadow on Android
-        shadowColor: '#000',       // Shadow on iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        position: 'relative',
     },
     logo: {
-        color: colors.primary,            // White logo text
-        fontSize: width * 0.06,    // Set font size relative to screen width (6% of width)
-        fontWeight: 'bold',        // Bold logo
-        fontFamily: 'Roboto',      // Custom font
-        textShadowColor: 'rgba(0, 0, 0, 0.75)', // Text shadow for the logo
-        textShadowOffset: { width: -1, height: 0.4 },
-        textShadowRadius: 12,
+        paddingLeft: 20,
+        fontFamily: 'Roboto',
+        color: colors.primary,
+        fontSize: 20,
+        fontWeight: 'bold',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: {width: -1, height: 0.4},
+        textShadowRadius: 12
     },
     iconContainer: {
         flexDirection: 'row',
@@ -101,9 +96,10 @@ const styles = StyleSheet.create({
     },
     icon: {
         marginLeft: width * 0.03,  // Add space between icons
+        paddingRight: 15,
     },
     iconShadow: {
-        textShadowColor: 'rgba(0, 0, 0, 0.75)', // Shadow for the search icon
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
         textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 3,
     },

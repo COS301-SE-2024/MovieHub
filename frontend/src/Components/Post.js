@@ -1,38 +1,48 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Share, Alert, Modal } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-import { toggleLikePost } from "../Services/LikesApiService";
+import {useUser} from "../Services/UseridContext";
+import { removePost } from "../Services/PostsApiServices";
+import { toggleLikePost, checkUserLike } from "../Services/LikesApiService";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, isUserPost, handleCommentPress, onDelete }) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete}) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
-    const [saved, setSaved] = useState(false);
+    const [hasLiked,setHasLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { userInfo, setUserInfo } = useUser();
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
 
     const toggleLike = async () => {
+        if (liked) return;  // Prevent multiple actions
+    
+        setLiked(true);  // Immediately set liked to true to prevent double-clicking
+    
         const body = {
             postId: postId,
             uid: uid,
         };
-
+    
         try {
-            await toggleLikePost(body);
-            console.log("Toggle like successful");
+            await toggleLikePost(body);  // Await the backend like/unlike call
+            setHasLiked(!hasLiked);  // Optimistically toggle like state
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);  // Update like count
         } catch (error) {
             console.error("Error toggling like:", error);
+        } finally {
+            setLiked(false);  // Reset liked state after backend call completes
         }
-
-        setLiked(!liked);
     };
 
     const handleShare = async () => {
@@ -60,15 +70,36 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         setConfirmationModalVisible(!confirmationModalVisible);
     };
 
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const data = await checkUserLike(userInfo.userId, postId, 'Post');
+                setHasLiked(data.hasLiked); // Adjust based on your backend response
+            } catch (error) {
+                console.error('Error fetching like status:', error);
+            }
+        };
+
+        fetchLikeStatus();
+    }, [userInfo.userId, postId]);
+
     // Function to remove posts
 
     const handleRemovePost = async (uid, postId) => {
+        if (isDeleting) return; // Prevent multiple deletes
+
+    setIsDeleting(true); // Prevent further actions
+    try {
         onDelete(postId);
         setConfirmationModalVisible(false);
         toggleModal();
         Alert.alert("Success", "Post deleted successfully!");
-    };
-
+    } catch (error) {
+        console.error("Error deleting post:", error);
+    } finally {
+        setIsDeleting(false); // Reset flag after completion
+    }
+};
     const handleEditPost = () => {
         toggleModal();
         navigation.navigate("EditPost", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
@@ -255,8 +286,13 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{likes}</Text>
+                <Icon
+                    name={hasLiked ? 'favorite' : 'favorite-border'}
+                    size={20}
+                    color={hasLiked ? 'red' : 'black'}
+                    style={{ marginRight: 5 }}
+                />
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable
@@ -265,7 +301,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                         }}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
-                    <Text style={styles.statsNumber}>{comments}</Text>
+                    <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>

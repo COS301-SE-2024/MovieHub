@@ -1,7 +1,50 @@
 import React from "react";
 import { ScrollView, Text, View, StyleSheet } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 
 const GettingStarted = () => {
+    const { theme } = useTheme();
+
+    const styles = StyleSheet.create({
+        container: {
+            padding: 16,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 20,
+        },
+        heading: {
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 16,
+            color: theme.textColor
+        },
+        subheading: {
+            fontSize: 20,
+            fontWeight: "bold",
+            marginTop: 24,
+            marginBottom: 8,
+            color: "#F50057"
+        },
+        listItem: {
+            fontSize: 16,
+            marginTop: 8,
+            color: theme.textColor
+        },
+        paragraph: {
+            fontSize: 16,
+            marginBottom: 8,
+            color: theme.textColor
+        },
+        underline: {
+            fontWeight: "bold",
+        },
+        conclusion: {
+            fontSize: 16,
+            marginTop: 24,
+            marginBottom: 40,
+            color: theme.textColor
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             {/* <Text style={styles.heading}>Getting Started</Text> */}
@@ -74,40 +117,6 @@ const GettingStarted = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        padding: 16,
-        backgroundColor: "#fff",
-        paddingHorizontal: 20,
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 16,
-    },
-    subheading: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginTop: 24,
-        marginBottom: 8,
-        color: "#F50057"
-    },
-    listItem: {
-        fontSize: 16,
-        marginTop: 8,
-    },
-    paragraph: {
-        fontSize: 16,
-        marginBottom: 8,
-    },
-    underline: {
-        fontWeight: "bold",
-    },
-    conclusion: {
-        fontSize: 16,
-        marginTop: 24,
-        marginBottom: 40,
-    },
-});
+
 
 export default GettingStarted;

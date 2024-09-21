@@ -10,4 +10,3 @@ router.delete('/:watchlistId', WatchlistController.deleteWatchlist);
 router.get('/:watchlistId', WatchlistController.getWatchlistDetails)
 
 module.exports = router;
-

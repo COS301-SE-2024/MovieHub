@@ -1,8 +1,5 @@
-import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TouchableOpacity } from "react-native";
+import React from "react";
+import { View, Text, Image, StyleSheet, } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 
@@ -15,7 +12,7 @@ const FollowList = ({ route, username, userHandle, userAvatar, avatar, }) => {
 
     const styles = StyleSheet.create({
         container: {
-            backgroundColor: '#ffffff',
+            backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
             shadowColor: "#000",
@@ -38,7 +35,7 @@ const FollowList = ({ route, username, userHandle, userAvatar, avatar, }) => {
             alignItems: "center",
             justifyContent: "center",
             marginRight: 10,
-            backgroundColor: 'black',
+            backgroundColor: "black",
             paddingLeft: 10,
         },
         username: {
@@ -75,7 +72,5 @@ const FollowList = ({ route, username, userHandle, userAvatar, avatar, }) => {
                 </View>
     );
 };
-
-
 
 export default FollowList;

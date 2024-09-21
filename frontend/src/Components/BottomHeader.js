@@ -1,21 +1,20 @@
-
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Image, TouchableOpacity, Text } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { getUserProfile } from "../Services/UsersApiService";
-
+import { useTheme } from "../styles/ThemeContext";
 import { colors } from "../styles/theme";
 import { getUnreadNotifications } from "../Services/UsersApiService";
+import { getUserProfile } from "../Services/UsersApiService";
 
 export default function BottomHeader({ userInfo }) {
-    const [unreadNotifications, setUnreadNotifications] = useState(0);
+    const { theme } = useTheme();
     const navigation = useNavigation();
     const route = useRoute();
-    const isActive = (screen) => route.name === screen;
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
     const [loading, setLoading] = useState(true); // Add this line
     const [avatar, setAvatar] = useState(null)
-
+    const isActive = (screen) => route.name === screen;
     const fetchData = async () => {
         try {
             const userId = userInfo.userId;
@@ -38,7 +37,7 @@ export default function BottomHeader({ userInfo }) {
         const fetchUnreadNotifications = async () => {
             try {
                 const data = await getUnreadNotifications(userInfo.userId);
-                
+    
                 setUnreadNotifications(data.unreadCount.unreadCount); // Adjust according to your API response
             } catch (error) {
                 console.error("Failed to fetch unread notifications", error);
@@ -47,6 +46,68 @@ export default function BottomHeader({ userInfo }) {
 
         fetchUnreadNotifications();
     }, [userInfo.userId]);
+
+
+    const styles = StyleSheet.create({
+        header: {
+            height: 65,
+            backgroundColor: theme.backgroundColor,
+            justifyContent: "center",
+            alignItems: "center",
+            borderTopWidth: 1,
+            borderTopColor: theme.borderColor,
+        },
+        iconRow: {
+            flexDirection: "row",
+            justifyContent: "space-around",
+            width: "100%",
+        },
+        iconContainer: {
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        icon: {
+            color: theme.iconColor,
+        },
+        activeIcon: {
+            color: theme.primaryColor,
+        },
+        image: {
+            height: 40,
+            width: 40,
+            borderRadius: 20,
+            borderColor: theme.iconColor,
+            borderWidth: 2
+        },
+        activeImage: {
+            borderColor: colors.primary,
+            borderWidth: 2,
+        },
+        activeIndicator: {
+            width: 5,
+            height: 5,
+            backgroundColor: colors.primary,
+            borderRadius: 2.5,
+            marginTop: 4,
+        },
+        notificationIconContainer: {
+            position: 'relative',
+        },
+        notificationBadge: {
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            backgroundColor: "#ff0000", // Red color
+            borderRadius: 5, // Circular dot
+            width: 8, // Size of the dot
+            height: 8,
+        },
+        notificationBadgeText: {
+            color: colors.white,
+            fontSize: 12,
+            fontWeight: 'bold',
+        },
+    });
 
     return (
         <View style={styles.header}>
@@ -88,63 +149,4 @@ export default function BottomHeader({ userInfo }) {
     );
 }
 
-const styles = StyleSheet.create({
-    header: {
-        height: 65,
-        backgroundColor: colors.white,
-        justifyContent: "center",
-        alignItems: "center",
-        borderTopWidth: 1,
-        borderTopColor: "#e0e0e0",
-    },
-    iconRow: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        width: "100%",
-    },
-    iconContainer: {
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    icon: {
-        color: colors.black,
-    },
-    activeIcon: {
-        color: colors.primary,
-    },
-    image: {
-        height: 40,
-        width: 40,
-        borderRadius: 20,
-        borderColor: "black",
-        borderWidth: 2
-    },
-    activeImage: {
-        borderColor: colors.primary,
-        borderWidth: 2,
-    },
-    activeIndicator: {
-        width: 5,
-        height: 5,
-        backgroundColor: colors.primary,
-        borderRadius: 2.5,
-        marginTop: 4,
-    },
-    notificationIconContainer: {
-        position: 'relative',
-    },
-    notificationBadge: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        backgroundColor: "#ff0000", // Red color
-        borderRadius: 5, // Circular dot
-        width: 8, // Size of the dot
-        height: 8,
-    },
-    notificationBadgeText: {
-        color: colors.white,
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-});
+

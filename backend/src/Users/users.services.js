@@ -116,6 +116,7 @@ exports.createUserNode = async (uid, username) => {
 exports.followUser = async (followerId, followeeId) => {
     const session = driver.session();
 
+    console.log("inside followUser services", followerId, followeeId);
     try {
         // Create the follow relationship from follower to followee
         await session.run(
@@ -151,7 +152,7 @@ exports.followUser = async (followerId, followeeId) => {
             { followerId }
         );
 
-        console.log("User services: follower result", followerResult.records);
+        // console.log("User services: follower result", followerResult.records);
 
         // Filter valid followerName records
         const validFollowerRecord = followerResult.records.find(
@@ -292,10 +293,8 @@ exports.getFollowerCount = async (userId) => {
             { userId }
         );
 
-        console.log("Result:", result.records);
         const followerCount = result.records[0].get("followerCount").toNumber();
 
-        console.log("Follower count:", followerCount);
         return followerCount;
     } catch (error) {
         console.error("Error fetching follower count:", error);
@@ -315,7 +314,7 @@ exports.getFollowingCount = async (userId) => {
             { userId }
         );
 
-        const followingCount = result.records[0].get('followingCount').toNumber();
+        const followingCount = result.records[0].get("followingCount").toNumber();
 
         return followingCount;
     } catch (error) {

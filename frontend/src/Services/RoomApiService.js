@@ -31,6 +31,7 @@ const verifyToken = async () => {
 
 // Create a new room
 export const createRoom = async (uid, roomData) => {
+    // console.log("Check the body: ", roomData);
     const headers = await verifyToken();
     // Add Content-Type header to ensure the body is treated as JSON
     headers['Content-Type'] = 'application/json';
@@ -39,6 +40,7 @@ export const createRoom = async (uid, roomData) => {
         headers,
         body: JSON.stringify(roomData),
     });
+    // console.log("Check the body after res: ", roomData);
     if (!response.ok) {
         throw new Error('Failed to create room');
     }
@@ -93,6 +95,7 @@ export const getRoomParticipants = async (roomId) => {
     }
 
     const data = await response.json();
+    // console.log("Here we go agaaaaaaaaaain", data);
     return data; // Return the entire data object, including participants and creator
 };
 
@@ -120,6 +123,7 @@ export const getRecentRooms = async (uid) => {
         headers,
     });
     if (!response.ok) {
+        console.log(response.ok);
         throw new Error('Failed to fetch recent rooms');
     }
     let data = [];

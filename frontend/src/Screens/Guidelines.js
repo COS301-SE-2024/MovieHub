@@ -1,7 +1,49 @@
 import React from "react";
 import { ScrollView, Text, StyleSheet } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 
 const CommunityGuidelines = () => {
+    const { theme } = useTheme();
+
+    const styles = StyleSheet.create({
+        container: {
+            padding: 16,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 20,
+        },
+        heading: {
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 16,
+            color: theme.textColor
+        },
+        subheading: {
+            fontSize: 20,
+            fontWeight: "bold",
+            marginTop: 24,
+            marginBottom: 8,
+            color: "#7B73EC"
+        },
+        bold: {
+            fontSize: 16,
+            fontWeight: "bold",
+            marginTop: 16,
+            marginBottom: 4,
+            color: theme.textColor
+        },
+        paragraph: {
+            fontSize: 16,
+            marginBottom: 8,
+            color: theme.textColor
+        },
+        conclusion: {
+            fontSize: 16,
+            marginTop: 24,
+            marginBottom: 40,
+            color: theme.textColor
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             {/* <Text style={styles.heading}>Community Guidelines</Text> */}
@@ -63,39 +105,6 @@ const CommunityGuidelines = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        padding: 16,
-        backgroundColor: "#fff",
-        paddingHorizontal: 20,
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 16,
-    },
-    subheading: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginTop: 24,
-        marginBottom: 8,
-        color: "#7B73EC"
-    },
-    bold: {
-        fontSize: 16,
-        fontWeight: "bold",
-        marginTop: 16,
-        marginBottom: 4,
-    },
-    paragraph: {
-        fontSize: 16,
-        marginBottom: 8,
-    },
-    conclusion: {
-        fontSize: 16,
-        marginTop: 24,
-        marginBottom: 40,
-    },
-});
+
 
 export default CommunityGuidelines;

@@ -25,6 +25,10 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     };
 
     const toggleLike = async () => {
+        if (liked) return; 
+    
+        setLiked(true);
+
         const body = {
             postId: postId,
             uid: userInfo.userId
@@ -45,7 +49,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         const fetchLikeStatus = async () => {
             try {
                 const data = await checkUserLike(userInfo.userId, postId, 'Post');
-                setHasLiked(data.hasLiked); // Adjust based on your backend response
+                setHasLiked(data.hasLiked); 
             } catch (error) {
                 console.error('Error fetching like status:', error);
             }
@@ -63,12 +67,12 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             });
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {
-                    // shared with activity type of result.activityType
+                    
                 } else {
-                    // shared
+                    
                 }
             } else if (result.action === Share.dismissedAction) {
-                // dismissed
+                
             }
         } catch (error) {
             Alert.alert(error.message);
