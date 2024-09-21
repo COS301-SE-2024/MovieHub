@@ -13,6 +13,7 @@ function CustomDrawer({ route }) {
     };
 
     return (
+        <View style={{flex: 1}}>
         <ScrollView style={[styles.drawer, { backgroundColor: theme.backgroundColor }]}>
             <Text style={[styles.label, { color: theme.gray }]}>Your Account</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("AccountSettings")}>
@@ -103,16 +104,17 @@ function CustomDrawer({ route }) {
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Log Out</Text>
                 </View>
             </TouchableOpacity>
-
         </ScrollView>
+            </View>
     );
 }
 
 const styles = StyleSheet.create({
     drawer: {
         flex: 1,
-        paddingTop: 70,
-        paddingBottom: 15,
+        paddingTop: 100,
+        // paddingBottom: 15,
+        position: 'relative'
     },
     label: {
         fontSize: 14,
