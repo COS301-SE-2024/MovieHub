@@ -97,16 +97,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="MovieDescriptionPage"
             component={MovieDescriptionPage}
-            options={({ navigation }) => ({
-                title: "movieHub.",
-                headerShadowVisible: false,
-                headerBackTitleVisible: false,
-                headerTintColor: "white",
-                headerTintColor: theme.textColor,
-                headerStyle: {
-                    backgroundColor: theme.backgroundColor,
-                },
-            })}
+            options={{ headerShown: false }}
         />
 
         <Nav.Screen
