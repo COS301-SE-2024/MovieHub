@@ -9,11 +9,13 @@ import { getLocalIP } from '../Services/getLocalIP';
 import Cast from "../Components/Cast";
 import axios from "axios";
 
-export default function MovieDescriptionPage({ userInfo }) { 
+export default function MovieDescriptionPage({route}) { 
     const localIP = getLocalIP();
-    const route = useRoute();
-    const { movieId, imageUrl, title, rating, overview, date } = route.params;
-
+   // const route = useRoute();
+  // console.log("MovieDes route ", route.params.userInfo)
+    const { userInfo } = route.params;
+    const {movieId, imageUrl, title, rating, overview, date } = route.params;
+   // console.log("Look ", userInfo)
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",
@@ -43,6 +45,7 @@ export default function MovieDescriptionPage({ userInfo }) {
     };
 
     const handleCreateNewWatchlist = () => {
+     //   console.log("Look ", userInfo)
         navigation.navigate('CreateWatchlist', { userInfo });
         setIsModalVisible(false);
     };

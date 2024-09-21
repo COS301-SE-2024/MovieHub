@@ -121,6 +121,7 @@ const Home = ({ route }) => {
     const screenWidth = Dimensions.get("window").width;
     const [activeIndex, setActiveIndex] = useState(0);
     const { userInfo } = route.params;
+
     const { theme } = useTheme();
     const { avatar } = route.params;
     const navigation = useNavigation();
@@ -425,7 +426,7 @@ const Home = ({ route }) => {
 
                             return (
                                 <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
-                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo : userInfo,  ...movieDetails })}>
                                         <Animated.View
                                             style={{
                                                 marginHorizontal: SPACING,
@@ -444,7 +445,7 @@ const Home = ({ route }) => {
                                             <Text style={{ fontSize: 12, color: theme.textColor }} numberOfLines={3}>
                                                 {item.description}
                                             </Text>
-                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
                                                 <Text style={{ fontSize: 12, fontWeight: "500", color: theme.primaryColor, marginTop: 10 }}>Read more</Text>
                                             </Pressable>
                                         </Animated.View>
