@@ -180,20 +180,12 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             component={EditProfile}
             options={({ navigation, route }) => ({
                 title: "Edit Profile",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
                 headerStyle: {
                     backgroundColor: theme.backgroundColor,
                 },
-                headerTintColor: theme.textColor,
-                headerTitleStyle: {
-                    fontWeight: "bold",
-                },
-                headerRight: () => (
-                    <View style={{ marginRight: 10 }}>
-                        <Text onPress={() => navigation.navigate("CustomDrawer", route)}>
-                            <Icon name="menu" size={24} color={theme.textColor} />
-                        </Text>
-                    </View>
-                ),
             })}
         />
 
