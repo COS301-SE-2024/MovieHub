@@ -33,7 +33,7 @@ export default function EditProfile({ route }) {
         currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: defaultUserProfile.bio, tempValue: "" },
         pronouns: { isVisible: false, newValue: defaultUserProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
-        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favoriteGenres, tempValue: [], options: ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"] },
+        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"] },
     });
 
     const applyChanges = async (field) => {
@@ -211,7 +211,7 @@ export default function EditProfile({ route }) {
             borderRadius: 50,
             marginBottom: 10,
             borderColor: theme.primaryColor,
-            borderWidth: 1,
+            borderWidth: 1.5,
         },
         section: {
             marginBottom: 20,
@@ -243,13 +243,13 @@ export default function EditProfile({ route }) {
         },
         entryButton: {
             backgroundColor: theme.primaryColor,
-            padding: 16,
+            padding: 14,
             borderRadius: 4,
             alignItems: "center",
             marginBottom: 20,
         },
         entryButtonText: {
-            color: theme.textColor,
+            color: "white",
             fontSize: 16,
             fontWeight: "medium",
         },
@@ -266,7 +266,7 @@ export default function EditProfile({ route }) {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
         },
         modalContent: {
-            backgroundColor: theme.textColor,
+            backgroundColor: theme.backgroundColor,
             padding: 20,
             borderRadius: 10,
             width: "80%",
@@ -305,7 +305,7 @@ export default function EditProfile({ route }) {
             margin: 6,
             borderRadius: 10,
             backgroundColor: theme.primaryColor,
-            color: theme.textColor,
+            color: "white",
         },
     });
 
@@ -347,8 +347,8 @@ export default function EditProfile({ route }) {
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Change {field === "favouriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
                             {field === "favouriteGenres" ? (
-                                <View>
-                                    <ScrollView style={{ maxHeight: 200 }}>
+                                <View style={{ backgroundColor: theme.backgroundColor }}>
+                                    <ScrollView style={{ maxHeight: 200, backgroundColor: theme.backgroundColor }}>
                                         {modalContent[field].options.map((option, index) => (
                                             <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
                                                 <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? theme.primaryColor : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
