@@ -235,7 +235,7 @@ export default function ExplorePage({ route }) {
         },
     });    
     return (
-        <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
+        <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
             <ScrollView>
                 {/* <View style={styles.header}>
                     <Text style={styles.heading}>The Hub</Text>

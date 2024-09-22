@@ -651,7 +651,71 @@ exports.deleteRoom = async (roomId) => {
         );
         return result.records[0].get('removed').low > 0;
     } catch (error) {
-        console.error('Error retrieving room participant count:', error);
+        console.error('Error deleting room:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getRoomAdmins = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (a:User)-[:IS_ADMIN]->(r)
+             OPTIONAL MATCH (c:User)-[:CREATED]->(r)
+             RETURN collect(a) AS admins, collect(c) AS creator`,
+            { roomId }
+        );
+
+        const admins = result.records[0].get('admins').map(user => user.properties);
+        const creator = result.records[0].get('creator')[0]?.properties;
+
+        return {
+            success: true,
+            admins,
+            creator
+        };
+    } catch (error) {
+        console.error('Error retrieving room admins:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.toggleAdmin = async (uid, roomId) => {
+    const session = driver.session();
+    try {
+        //see if user is already an admin
+        const result = await session.run(
+            `MATCH (u:User), (r:Room)
+            WHERE u.uid = $uid AND r.roomId = $roomId
+            MATCH (u)-[a:IS_ADMIN]->(r)
+            RETURN a`,
+            { uid, roomId }
+        );
+        if (result.records.length > 0) {
+            await session.run(
+                `MATCH (u:User), (r:Room)
+                WHERE u.uid = $uid AND r.roomId = $roomId
+                MATCH (u)-[a:IS_ADMIN]->(r)
+                DETACH DELETE a`,
+                { uid, roomId }
+            );
+            return false;
+        } else {
+            await session.run(
+                `MATCH (u:User), (r:Room)
+                WHERE u.uid = $uid AND r.roomId = $roomId
+                MERGE (u)-[:IS_ADMIN]->(r)`,
+                { uid, roomId }
+            );
+            return true;
+        }
+    } catch (error) {
+        console.error('Error toggling admin:', error);
         throw error;
     } finally {
         await session.close();

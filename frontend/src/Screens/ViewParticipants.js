@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../styles/ThemeContext";
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal } from "react-native";
-import { getRoomParticipants, kickUserFromRoom } from "../Services/RoomApiService";
+import { getRoomParticipants, kickUserFromRoom, toggleAdmin } from "../Services/RoomApiService";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import RoomModal from "../Components/RoomModal";
 import { useNavigation } from "@react-navigation/native";
@@ -19,14 +19,45 @@ const participantsData = [
 
 const ViewParticipants = ({ route }) => {
     const { theme, isDarkMode } = useTheme();
-    const { roomId, isRoomCreator } = route.params;
+    const { roomId, isRoomCreator, roomName, admin, userInfo } = route.params;
     console.log("Route",route);
     console.log("RoomId", roomId);
     console.log("Is room creator ", isRoomCreator);
+    const navigation = useNavigation();
     const [participants, setParticipants] = useState(participantsData);
 
     const handleFollowPress = (id) => {
-        setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.id === id ? { ...participant, followed: !participant.followed } : participant)));
+        setParticipants((prevParticipants) =>
+            prevParticipants.map((participant) =>
+                participant.id === id ? { ...participant, followed: !participant.followed } : participant
+            )
+        );
+    };
+
+    const handleOpenKickModal = (participant) => {
+        setSelectedParticipant(participant);
+        setIsKickModalVisible(true);
+    };
+
+    const handleKick = async () => {
+        const response = await kickUserFromRoom(roomId, userInfo.userId, selectedParticipant.uid);
+        console.log(response);
+        setIsKickModalVisible(false);
+    };
+
+    const handleOpenAdminModal = (participant) => {
+        setSelectedParticipant(participant);
+        setIsAdminModalVisible(true);
+    };
+
+    const handleMakeAdmin = async () => {
+        const response = await toggleAdmin(roomId, selectedParticipant.uid);
+        console.log(response);
+        setIsAdminModalVisible(false);
+    };
+
+    const handleProfilePress = (participant) => {
+        // navigation.navigate("FollowersProfilePage", { participant });
     };
 
     useEffect(() => {

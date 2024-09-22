@@ -265,10 +265,46 @@ exports.deleteRoom = async (req, res) => {
     try {
         const result = await roomService.deleteRoom(roomId);
         if (result) {
-            responseHandler(res, 200, 'Room deleted successfully');
+            res.status(200).json({ message: 'Room deleted successfully' });
         } else {
             res.status(400).json({ message: 'Error deleting room' });
         }
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+exports.getRoomAdmins = async (req, res) => {
+    const roomId = req.params.roomId;
+    try {
+        const result = await roomService.getRoomAdmins(roomId);
+        if (result.success) {
+            return res.status(200).json({
+                success: true,
+                admin: result.admins,
+                creator: result.creator
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: result.message,
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+exports.toggleAdmin = async (req, res) => {
+    const uid = req.body.uid;
+    const roomId = req.body.roomId;
+    try {
+        const admin = await roomService.toggleAdmin(uid, roomId);
+        const message = admin ? 'User made admin' : 'Admin privileges removed';
+        if (admin !== null)
+            res.status(200).json({ message: message });
+        else
+            res.status(400).json({ message: 'Error toggling admin' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }

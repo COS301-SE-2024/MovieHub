@@ -248,7 +248,7 @@ export const unfollowUser = async (userId, targetUserId) => {
 // Function to get friends
 export const getFriends = async (userId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${userId}/friends`, {
+    const response = await fetch(`${API_URL}/friends/${userId}`, {
         headers,
     });
 
