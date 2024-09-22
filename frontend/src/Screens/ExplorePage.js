@@ -23,7 +23,7 @@ export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
     console.log(userInfo);
     const navigation = useNavigation();
-
+    const {theme } = useTheme();
     const [friendsOfFriendsContent, setFriendsOfFriendsContent] = useState([]);
     const [randomUsersContent, setRandomUsersContent] = useState([]);
     const bottomSheetRef = useRef(null);
