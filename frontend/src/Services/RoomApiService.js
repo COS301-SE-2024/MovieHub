@@ -134,6 +134,20 @@ export const getRecentRooms = async (uid) => {
     return data;
 };
 
+export const getIsParticipant = async (uid, roomId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/is-participant/${uid}/${roomId}`, {
+        method: 'GET',
+        headers,
+    });
+    if (!response.ok) {
+        console.log(response.ok);
+        throw new Error('Failed to fetch isParticipant');
+    }
+    const data = await response.json();
+    return data;
+};
+
 // Get the participant count of a room
 export const getRoomParticipantCount = async (roomId) => {
     const headers = await verifyToken();

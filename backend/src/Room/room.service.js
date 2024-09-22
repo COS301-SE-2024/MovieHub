@@ -311,6 +311,31 @@ exports.getRecentRooms = async (uid) => {
     }
 };
 
+exports.getIsParticipant = async (uid, roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid}), (r:Room {roomId: $roomId})
+            RETURN EXISTS((u)-[:PARTICIPATES_IN|:CREATED]->(r)) AS p`,
+            { uid, roomId }
+        );
+        console.log("Service", result);
+        if (result.records.length > 0) {
+            const isParticipant = result.records[0].get('p');
+            return { success: true, isParticipant};
+        } else if (result.records.length === 0) {
+            return { success: true, isParticipant: false };
+        }else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving whether user is a participant:', error);
+        return { success: false, message: 'An error occurred while retrieving is participant' };
+    } finally {
+        await session.close();
+    }
+};
+
 exports.joinRoom = async (code, uid) => {
     const session = driver.session();
 
@@ -521,13 +546,11 @@ exports.leaveRoom = async (roomId, uid) => {
         }
 
         // Remove the user from the room
-        await session.run(
+        const result = await session.run(
             `MATCH (u:User {uid: $uid})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
              DELETE p`,
             { roomId, uid }
         );
-
-        console.log(`User ${uid} left the room ${roomId}.`);
         return { success: true, roomId: roomId };
     } catch (error) {
         console.error('Error leaving room:', error);

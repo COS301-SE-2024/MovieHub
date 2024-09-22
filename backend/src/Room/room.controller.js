@@ -141,6 +141,22 @@ exports.getRecentRooms = async (req, res) => {
     }
 };
 
+exports.getIsParticipant = async (req, res) => {
+    const { uid, roomId } = req.params;
+    try {
+        const result = await roomService.getIsParticipant(uid, roomId);
+        console.log(result);
+        if (result.success) {
+            return res.status(200).json(result.isParticipant);
+        } else {
+            return res.status(404).json({ message: result.message });
+        }
+    } catch (error) {
+        console.error('Error in getIsParticipant controller:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.joinRoom = async (req, res) => {
     try {
         const { code, uid } = req.body;
@@ -183,7 +199,7 @@ exports.leaveRoom = async (req, res) => {
     const { roomId, uid } = req.body;
     try {
         const result = await roomService.leaveRoom(roomId, uid);
-        if (result.status === 'success') {
+        if (result.success) {
             res.status(200).json({ message: `User ${uid} left the room ${roomId}.` });
         }
     } catch (error) {

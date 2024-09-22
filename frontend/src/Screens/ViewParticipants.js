@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../styles/ThemeContext";
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal } from "react-native";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal, Alert } from "react-native";
 import { getRoomParticipants, kickUserFromRoom, toggleAdmin } from "../Services/RoomApiService";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import RoomModal from "../Components/RoomModal";
@@ -41,8 +41,7 @@ const ViewParticipants = ({ route }) => {
 
     const handleKick = async (selectedParticipant) => {
         const response = await kickUserFromRoom(roomId, userInfo.userId, selectedParticipant.uid);
-        // console.log(response);
-        // setIsKickModalVisible(false);
+        // setIsKickModalVisible(false);  TODO: add a confirmation before kick?
         Alert.alert('Success', 'User successfully kicked from room!');
     };
 
