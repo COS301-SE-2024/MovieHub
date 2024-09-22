@@ -144,7 +144,7 @@ const LoginPage = () => {
             paddingHorizontal: 10,
             fontSize: 16,
             color: "#000",
-            backgroundColor: "#fff",
+            backgroundColor: "transparent",
             borderRadius: 5,
         },
         passwordInputContainer: {
@@ -184,7 +184,7 @@ const LoginPage = () => {
             marginTop: 10,
         },
         forgotText: {
-            color: "black",
+            color: theme.textColor,
             textAlign: "center",
             textDecorationLine: "underline",
         },
@@ -248,15 +248,15 @@ const LoginPage = () => {
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Email</Text>
-                            <TextInput style={styles.inputText} onChangeText={setEmail} value={email} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+                            <TextInput style={styles.inputText} onChangeText={setEmail} value={email} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                         </View>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Password</Text>
                             <View style={styles.passwordInputContainer}>
-                                <TextInput style={styles.passwordInput} onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} autoCapitalize="none" autoCorrect={false} />
+                                <TextInput style={styles.passwordInput} onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} autoCapitalize="none" autoCorrect={false} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                                 <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
-                                    <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                                    <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color={theme.textColor} />
                                 </TouchableOpacity>
                             </View>
                         </View>

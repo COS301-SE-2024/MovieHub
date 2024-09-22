@@ -132,9 +132,9 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             //     width: 0,
             //     height: 2,
             // },
-            borderColor: "#000000",
+            borderColor: theme.borderColor,
             borderTopWidth: 0,
-            borderBottomWidth: 0.3,
+            borderBottomWidth: 0.8,
             // borderTopWidth: 0.3,
         },
         avatar: {
@@ -191,6 +191,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         },
         icon: {
             marginRight: 5,
+            color: theme.iconColor
         },
         statsContainer: {
             display: "flex",
@@ -215,7 +216,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             position: "absolute",
             top: 30,
             right: 10,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -233,11 +234,12 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         moreIcon: {
             paddingLeft: 10,
+            color: theme.iconColor,
         },
         followingButton: {
             backgroundColor: isFollowing ? "grey" : "#4a42c0", // Dynamic background color
@@ -277,7 +279,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                         <Text style={styles.followingText}>{isFollowing ? "Following" : "Follow"}</Text>
                     </TouchableOpacity>
                     <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                        <Icon name="more-vert" size={20} />
+                        <Icon name="more-vert" size={20} style={styles.moreIcon} />
                     </Pressable>
                 </View>
             </View>
@@ -289,7 +291,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                 <Icon
                     name={hasLiked ? 'favorite' : 'favorite-border'}
                     size={20}
-                    color={hasLiked ? 'red' : 'black'}
+                    color={hasLiked ? 'red' : theme.iconColor}
                     style={{ marginRight: 5 }}
                 />
                     <Text style={styles.statsNumber}>{likeCount}</Text>

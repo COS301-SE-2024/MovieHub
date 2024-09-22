@@ -25,8 +25,6 @@ export default function ProfilePage({ route }) {
         { key: "watchlist", title: "Watchlist" },
     ]);
 
-
-
     const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);

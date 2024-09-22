@@ -197,16 +197,18 @@ const CommentsModal = forwardRef((props, ref) => {
         username: {
             fontWeight: "bold",
             fontSize: 16,
+            color: theme.textColor
         },
         date: {
             fontSize: 12,
             paddingLeft: 8,
-            color: "gray",
+            color: theme.gray,
             textAlignVertical: "center",
         },
         commentText: {
             fontSize: 16,
             marginTop: 4,
+            color: theme.textColor
         },
         replyText: {
             color: theme.gray,
@@ -255,7 +257,7 @@ const CommentsModal = forwardRef((props, ref) => {
             position: "absolute",
             left: 30, // Adjust this as per your design
             top: 90, // Adjust this as per your design
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             padding: 10,
             shadowColor: "#000",
             shadowOffset: {
@@ -285,7 +287,7 @@ const CommentsModal = forwardRef((props, ref) => {
             alignItems: "center",
             paddingHorizontal: 16,
             paddingVertical: 8,
-            backgroundColor: "#f1f1f1",
+            backgroundColor: isDarkMode ? theme.borderColor : "#f1f1f1",
             borderRadius: 20,
             marginBottom: 12,
             alignSelf: "flex-start",
@@ -293,6 +295,7 @@ const CommentsModal = forwardRef((props, ref) => {
         replyToText: {
             fontWeight: "bold",
             marginRight: 8,
+            color: theme.textColor,
         },
         replyContainer: {
             flexDirection: "row",
@@ -303,7 +306,7 @@ const CommentsModal = forwardRef((props, ref) => {
 
     return (
         <BottomSheetModalProvider>
-            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop} onChange={handleModalChange}>
+            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} backgroundStyle={{ backgroundColor: theme.backgroundColor }} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop} onChange={handleModalChange}>
                 <BottomSheetScrollView style={{ backgroundColor: theme.backgroundColor }}>
                     <View style={styles.bottomSheetContainer}>
                         <Text style={styles.bottomSheetHeader}>Comments</Text>
@@ -325,7 +328,7 @@ const CommentsModal = forwardRef((props, ref) => {
                                                             <Text style={styles.username}>{comment.username}</Text>
                                                             <Text style={styles.date}>{formatTimeAgoFromDB(comment.createdAt)}</Text>
                                                         </View>
-                                                        <Ionicons name="heart-outline" size={18} color="black" />
+                                                        <Ionicons name="heart-outline" size={18} color={theme.iconColor} />
                                                     </View>
                                                     <Text style={styles.commentText}>{comment.text}</Text>
                                                     <Text style={styles.replyText} onPress={() => setReplyTo(comment)}>
@@ -358,7 +361,7 @@ const CommentsModal = forwardRef((props, ref) => {
                                                                         <Text style={styles.username}>{reply.username}</Text>
                                                                         <Text style={styles.date}>{formatTimeAgoFromDB(reply.createdAt)}</Text>
                                                                     </View>
-                                                                    <Ionicons name="heart-outline" size={18} color="black" />
+                                                                    <Ionicons name="heart-outline" size={18} color={theme.iconColor} />
                                                                 </View>
                                                                 <Text style={styles.commentText}>{reply.text}</Text>
                                                                 <Text style={styles.replyText} onPress={() => setReplyTo(reply)}>
@@ -377,7 +380,7 @@ const CommentsModal = forwardRef((props, ref) => {
                                                     <Text style={{ color: "red" }}>Delete</Text>
                                                 </TouchableOpacity>
                                                 <TouchableOpacity style={styles.cancelButton} onPress={() => toggleDeleteModal(index)}>
-                                                    <Text>Cancel</Text>
+                                                    <Text style={{ color: theme.textColor }}>Cancel</Text>
                                                 </TouchableOpacity>
                                             </View>
                                         )}
@@ -393,7 +396,7 @@ const CommentsModal = forwardRef((props, ref) => {
                         <View style={styles.replyToContainer}>
                             <Text style={styles.replyToText}>Replying to {replyTo.username}</Text>
                             <TouchableOpacity onPress={() => setReplyTo(null)}>
-                                <Ionicons name="close-circle" size={20} color="gray" />
+                                <Ionicons name="close-circle" size={20} color={theme.gray} />
                             </TouchableOpacity>
                         </View>
                     )}

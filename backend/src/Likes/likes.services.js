@@ -163,7 +163,7 @@ exports.toggleLikeReview = async (uid, reviewId) => {
             await set(newNotificationRef, {
                 message: `${ownerUsername} liked your review.`,
                 reviewId: reviewId,
-                reviewer: ownerUid,
+                poster: ownerResult.records[0],
                 likedBy: uid,
                 avatar: ownerAvatar,
                 reviewTitle: reviewTitle,

@@ -132,7 +132,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             // shadowOpacity: 0.45,
             // shadowRadius: 3.84,
             // elevation: 5,
-            borderBottomWidth: 0.3,
+            borderBottomWidth: 0.8,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
@@ -277,7 +277,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                         </Text>
                     </View>
                 </Pressable>
-                <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
+                <Pressable onPress={toggleModal} style={{ marginLeft: "auto", color: theme.iconColor }}>
                     <Icon name="more-vert" size={20} color={theme.iconColor} />
                 </Pressable>
             </View>
@@ -286,7 +286,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={hasLiked ? "favorite" : "favorite-border"} size={20} color={hasLiked ? "red" : "black"} style={{ marginRight: 5 }} />
+                    <Icon name={hasLiked ? "favorite" : "favorite-border"} size={20} color={hasLiked ? "red" : theme.iconColor} style={{ marginRight: 5 }} />
                     <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>

@@ -9,12 +9,14 @@ import { useNavigation } from "@react-navigation/native";
 import { removeReview } from "../Services/PostsApiServices";
 import { toggleLikeReview } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
+import { useUser } from "../Services/UseridContext";
 
-export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete }) {
+export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete, otherUserInfo }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { userInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -63,6 +65,23 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         toggleModal();
     };
 
+    const handleEditReview = () => {
+        toggleModal();
+        navigation.navigate("EditReview", { username, uid, titleParam: postTitle, thoughtsParam: preview, imageUriParam: image, postId });
+    };
+
+    const handlePress = () => {
+        // if user owns review, return
+        if (isUserReview) {
+            return;
+        }
+        navigation.navigate("Profile", {
+            userInfo,
+            otherUserInfo,
+            isFollowing: true,
+        });
+    };
+
     // TODO: Increment or decrement number of likes
 
     const styles = StyleSheet.create({
@@ -78,7 +97,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             // shadowOpacity: 0.45,
             // shadowRadius: 3.84,
             // elevation: 5,
-            borderBottomWidth: 0.5,
+            borderBottomWidth: 0.8,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
@@ -138,6 +157,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         },
         icon: {
             marginRight: 5,
+            color: theme.iconColor
         },
         statsContainer: {
             display: "flex",
@@ -194,15 +214,17 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
     return (
         <View style={styles.container}>
             <View style={styles.profileInfo}>
-                <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
-                    <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>
-                        {userHandle} &bull; {dateReviewed}
-                    </Text>
-                </View>
+                <Pressable style={{ display: "flex", flexDirection: "row", alignItems: "center" }} onPress={handlePress}>
+                    <Image source={{ uri: userAvatar }} style={styles.avatar} />
+                    <View style={{ alignItems: "left" }}>
+                        <Text style={styles.username}>{username}</Text>
+                        <Text style={styles.userHandle}>
+                            {userHandle} &bull; {dateReviewed}
+                        </Text>
+                    </View>
+                </Pressable>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                    <Icon name="more-vert" size={20} />
+                    <Icon name="more-vert" size={20} color={theme.iconColor} />
                 </Pressable>
             </View>
             <View style={styles.reviewButton}>
@@ -217,7 +239,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
                     <Text style={styles.star}>
                         <Icon name="star" size={22} color={"gold"} />
                     </Text>
-                    <Text>{rating}</Text>
+                    <Text style={{color: theme.textColor}}>{rating}</Text>
                 </View>
             </View>
 
@@ -225,7 +247,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             <Text style={styles.reviewPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : theme.iconColor} style={{ marginRight: 5 }} />
                     <Text style={styles.statsNumber}>{likes}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>

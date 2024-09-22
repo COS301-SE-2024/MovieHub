@@ -117,8 +117,6 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
         }
     };
 
-    
-
     const handleDeleteReview = async (reviewId) => {
         try {
             await removeReview({ reviewId: reviewId, uid: userInfo.userId });
@@ -175,7 +173,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                 <View style={styles.container}>
                     <Text style={styles.title}>Share your thoughts!</Text>
                     <Pressable onPress={() => navigation.navigate("CreatePost", { userInfo })}>
-                        <Text style={styles.subtitle}>Create your first post</Text>
+                        <Text style={styles.subtitle}>Create your first post or review</Text>
                     </Pressable>
                 </View>
             ) : (

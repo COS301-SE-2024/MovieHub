@@ -51,13 +51,13 @@ const ForgotPasswordPage = () => {
         },
         logo: {
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 30,
             fontWeight: "bold",
             marginBottom: 10,
         },
         tagline: {
-            color: "#7b7b7b",
+            color: theme.gray,
             paddingBottom: 20,
         },
         title: {
@@ -77,12 +77,12 @@ const ForgotPasswordPage = () => {
         },
         inputText: {
             height: 40,
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             paddingHorizontal: 10,
             fontSize: 16,
             color: "#000",
-            backgroundColor: "#fff",
+            backgroundColor: "transparent",
             borderRadius: 5,
         },
         errorText: {
@@ -112,7 +112,7 @@ const ForgotPasswordPage = () => {
             marginTop: 20,
         },
         backToLoginText: {
-            color: theme.primaryColor,
+            color: theme.textColor,
             textAlign: "center",
             textDecorationLine: "underline",
         },
@@ -135,6 +135,8 @@ const ForgotPasswordPage = () => {
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 autoCorrect={false}
+                                placeholderTextColor={theme.gray} 
+                                selectionColor={theme.textColor} color={theme.textColor}
                             />
                         </View>
 

@@ -31,6 +31,9 @@ export default function FollowersProfilePage({ route }) {
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [isPost, setIsPost] = useState(false);
+    const [followerCount, setFollowerCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
     const [routes] = useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
@@ -99,8 +102,9 @@ export default function FollowersProfilePage({ route }) {
         fetchData();
     }, []);
 
-    const handleCommentPress = async (postId) => {
+    const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
+        setIsPost(!isReview);
         const response = await fetchComments(postId);
         // console.log("Comments:", response);
         bottomSheetRef.current?.present();
@@ -216,7 +220,7 @@ export default function FollowersProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-                return <PostsTab userInfo={otherUserInfo} otherinfo={userInfo} userProfile={userProfile} />;
+                return <PostsTab userInfo={otherUserInfo} otherinfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
             case "likes":
                 return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} orginalUserinfo={userInfo} />;
             case "watchlist":

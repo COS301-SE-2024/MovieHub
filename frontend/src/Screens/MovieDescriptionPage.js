@@ -56,6 +56,10 @@ export default function MovieDescriptionPage({route}) {
         setIsModalVisible(false);
     };
 
+    const handleWatchPartyPress = () => {
+        navigation.navigate('WatchParty', { userInfo });
+    }
+
     useEffect(() => {
         const fetchCredits = async () => {
             const data = await getMovieCredits(movieId);
@@ -133,11 +137,11 @@ export default function MovieDescriptionPage({route}) {
                     <View style={styles.moviedes}>
                         <View style={styles.movieinfo}>
                             <Text style={styles.movietitle}>{title}</Text>
-                            <Text style={styles.movieRating}>{roundedRating}/10</Text>
+                            <Text style={styles.movieRating}>{roundedRating}/<Text style={{fontSize: 18}}>10</Text></Text>
                         </View>
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
-                            <Text style={styles.movietitle2}> | </Text>
+                            <Text style={styles.movietitle2}> &bull; </Text>
                             <Text style={styles.movietitle2}> {runtime ? 
                             `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins` 
                             : 'NoN'}</Text>
@@ -163,7 +167,7 @@ export default function MovieDescriptionPage({route}) {
                                     </View>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.block4}>
+                                <TouchableOpacity style={styles.block4} onPress={handleWatchPartyPress}>
                                     <View style={styles.iconTextContainer}>
                                         <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
                                         <Text style={styles.text}>Watch Party</Text>
@@ -281,7 +285,7 @@ const styles = StyleSheet.create({
     movieinfo2: {
         flex: 1,
         flexDirection: "row",
-        paddingLeft: 10,
+        paddingLeft: 12,
     },
     movietitle: {
         fontSize: 30,
