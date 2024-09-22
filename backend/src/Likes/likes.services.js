@@ -105,7 +105,7 @@ exports.getLikesOfPost = async (postId) => {
         }
 
         const likeCount = result.records[0].get('likeCount').toInt();
-        console.log("Check the like count: ", likeCount);
+        // console.log("Check the like count: ", likeCount);
         return likeCount;
     } catch (error) {
         console.error("Error getting likes of post:", error);
@@ -267,8 +267,8 @@ const processGets= async(datas) =>{
     console.log('Enter processGets with ',datas);
   return datas.map(data => {
     // Access the ID
-    console.log(data);
-    console.log(data.id);
+    // console.log(data);
+    // console.log(data.id);
     const id = data.id.toNumber(); // Convert neo4j.Integer to JavaScript number
     console.log(id);
     // Access the node properties

@@ -158,7 +158,7 @@ export const getUserPosts = async (userId) => {
     } 
     
     const data = await response.json();
-    console.log("data", data);
+    // console.log("data", data);
     return data;
 };
 
@@ -248,13 +248,14 @@ export const unfollowUser = async (userId, targetUserId) => {
 // Function to get friends
 export const getFriends = async (userId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/friends/${userId}`, {
+    const response = await fetch(`${API_URL}/${userId}/friends`, {
         headers,
     });
+
     if (!response.ok) {
         throw new Error('Failed to get friends');
     }
-    
+
     const data = await response.json();
     return data;
 };
@@ -344,6 +345,24 @@ export const getUserNotifications = async (userId) => {
     }
 
     const data = await response.json();
-    console.log("Inside UsersApiService, check data: " + JSON.stringify(data));
     return data;
+};
+
+export const getUnreadNotifications = async (userId) => {
+    try {
+        const headers = await verifyToken();
+        const response = await fetch(`${API_URL}/${userId}/notifications/unread`, {
+            headers,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch unread notifications');
+        }
+
+        const data = await response.json();
+        return data; // Assumes response has a property 'unreadCount'
+    } catch (error) {
+        console.error("Failed to fetch unread notifications:", error);
+        throw error; // Ensure errors are handled by the calling code
+    }
 };

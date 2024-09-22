@@ -24,5 +24,5 @@ router.get('/:id/following/count', userController.fetchFollowingCount );
 
 // Route to get user notifications
 router.get('/:id/notifications', userController.getUserNotifications);
-
+router.get('/:id/notifications/unread', userController.getUnreadNotifications);
 module.exports = router;

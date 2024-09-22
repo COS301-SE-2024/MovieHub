@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
 import Post from "./Post";
 import Review from "./Review";
 
+
 export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
     const [likedPosts, setLikedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { theme } = useTheme();
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -44,11 +47,10 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                         let commentsCount;
                         let likesCount;
                         if (item.labels[0] === "Post") {
-                            commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data.postCommentCount;
+                            commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data;
                             likesCount = (await getLikesOfPost(item.properties.postId)).data;
                         } else if (item.labels[0] === "Review") {
-                            console.log("item",item);
-                            commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data.reviewCommentCount;
+                            commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data;
                             likesCount = (await getLikesOfReview(item.properties.reviewId)).data;
                         }
 
@@ -57,10 +59,24 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                     })
                 );
 
+
+                const uniquePostsWithComments = postsWithComments.filter(
+                    (item, index, self) =>
+                        index ===
+                        self.findIndex((i) => {
+                            // If it's a post, compare postId; if it's a review, compare reviewId
+                            return item.labels[0] === "Post"
+                                ? i.properties.postId === item.properties.postId
+                                : i.properties.reviewId === item.properties.reviewId;
+                        })
+                );
+
                 // Sort posts by createdAt in descending order (most recent first)
-                postsWithComments.sort((a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt));
-                // console.log("postWithComments", postsWithComments);
-                setLikedPosts(postsWithComments);
+                uniquePostsWithComments.sort(
+                    (a, b) => new Date(b.properties.createdAt) - new Date(a.properties.createdAt)
+                );
+    
+                setLikedPosts(uniquePostsWithComments);
             }
         } catch (error) {
             console.log("Error fetching liked posts:", error);
@@ -104,6 +120,27 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
         );
     }
 
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 35,
+            paddingTop: 55,
+            textAlign: "center",
+        },
+        title: {
+            fontSize: 18,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 6,
+            color: theme.textColor,
+        },
+        subtitle: {
+            fontSize: 14,
+            textAlign: "center",
+            color: theme.gray,
+        },
+    });
+
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
@@ -123,7 +160,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                                 userHandle={item.userHandle}
                                 userAvatar={item.properties.avatar}
                                 postTitle={item.properties.postTitle}
-                                likes={item.likesCount}
+                                likes={item.likesCount ? item.likesCount : 0}
                                 comments={item.commentsCount}
                                 preview={item.properties.text}
                                 saves={getRandomNumber(0, 18)}
@@ -162,22 +199,4 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#fff",
-        paddingHorizontal: 35,
-        paddingTop: 55,
-        textAlign: "center",
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: 6,
-    },
-    subtitle: {
-        fontSize: 14,
-        textAlign: "center",
-        color: "#7b7b7b",
-    },
-});
+

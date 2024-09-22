@@ -30,6 +30,17 @@
         "projectId": "6ef1762e-e060-4f5f-98dc-2073a1f4dd47"
       }
     },
-    "owner": "girlsgonecode"
+    "owner": "girlsgonecode",
+    "plugins": [
+      "@react-native-firebase/app",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
+    ]
   }
 }

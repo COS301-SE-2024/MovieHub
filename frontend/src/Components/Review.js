@@ -78,8 +78,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             // shadowOpacity: 0.45,
             // shadowRadius: 3.84,
             // elevation: 5,
-            borderBottomWidth: 0.8,
-            borderTopWidth: 0.5,
+            borderBottomWidth: 0.5,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
@@ -236,7 +235,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
                         }}>
                         <CommIcon name="comment-outline" size={20} style={styles.icon} />
                     </Pressable>
-                    <Text style={styles.statsNumber}>{comments}</Text>
+                    <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>

@@ -4,6 +4,9 @@ import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBa
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from "../Components/UserRoomCard";
+import BottomHeader from "../Components/BottomHeader";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useTheme } from "../styles/ThemeContext";
 
 const HubScreen = ({ route }) => {
     const { userInfo } = route.params;
@@ -12,7 +15,7 @@ const HubScreen = ({ route }) => {
     const [participatingRooms, setParticipatingRooms] = useState([]);
     const [publicRooms, setPublicRooms] = useState([]);
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
-
+    const { theme } = useTheme();
     const fetchRooms = useCallback(async () => {
         try {
             const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
@@ -92,171 +95,198 @@ const HubScreen = ({ route }) => {
         />
     );
 
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: theme.backgroundColor,
+            flex: 1,
+            paddingVertical: 16,
+        },
+        header: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+            // paddingRight: 50 ,
+            height: 50,
+            paddingLeft: 20,
+        },
+        headerLeft: {
+            flexDirection: "row",
+            alignItems: "center",
+        },
+        headerTitle: {
+            fontSize: 20,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        createRoomText: {
+            fontSize: 16,
+            color: "blue",
+            textAlign: 'center',
+            color: theme.textColor,
+        },
+        sectionTitle: {
+            fontSize: 18,
+            fontWeight: "bold",
+            marginBottom: 15,
+            paddingLeft: 20,
+            color: theme.textColor,
+        },
+        userRoomCard: {
+            width: 310, // Increase the width of the room card
+            height: 210, // Increase the height of the room card
+            borderRadius: 8,
+            marginHorizontal: 12, // Add some margin to avoid cramped appearance
+            overflow: "hidden",
+        },
+        imageBackground: {
+            flex: 1,
+            justifyContent: "flex-end",
+            borderRadius: 8,
+        },
+        overlay: {
+            flex: 1,
+    
+            justifyContent: "space-between",
+            padding: 12,
+        },
+        liveText: {
+            fontSize: 14, // Increase font size for better visibility
+            color: "red",
+            marginBottom: 6,
+            
+        },
+        createButton: {
+            flexDirection: "row",
+            marginBottom: 10,
+            paddingHorizontal: 10,
+            alignItems: "center",
+            color: theme.textColor,
+        },
+        createButtonText: {
+            fontSize: 14,
+            color: theme.textColor,
+            fontWeight: "bold",
+        },
+        cardBody: {
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            position: "absolute",
+            bottom: 12,
+            left: 16,
+            right: 16,
+        },
+        cardTitle: {
+            fontSize: 18, // Increase font size for better visibility
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        cardFooter: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: 6,
+        },
+        userCount: {
+            fontSize: 16, // Increase font size for better visibility
+            color: theme.textColor,
+            marginLeft: 4,
+        },
+        roomList: {
+            paddingHorizontal: 16,
+        },
+        divider: {
+            height: 1,
+            backgroundColor: "transparent",
+            marginVertical: 16,
+        },
+        emptyContainer: {
+            alignItems: "center",
+            marginVertical: 20,
+        },
+        emptyText: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+    });
+
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                    <MatIcon name="arrow-left" size={24} style={{ marginRight: 35 }} onPress={() => navigation.goBack()} />
-                    <Text style={styles.headerTitle}>The Hub</Text>
+        <View style={{ flex: 1 }}>
+            <ScrollView style={styles.container}>
+                <View style={styles.header}>
+                    {/* <View style={styles.headerLeft}>
+                        <MatIcon name="arrow-left" size={24} style={{ marginRight: 35 }} onPress={() => navigation.goBack()} />
+                        <Text style={styles.headerTitle}>The Hub</Text>
+                    </View> */}
+
+                    <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
+                        <Text style={styles.createButtonText}>Create new room</Text>
+                        <View style={{ flex: 1 }} />
+                        <MaterialIcons name="add" size={24} />
+                    </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
-                    <Text style={styles.createRoomText}>Create room</Text>
-                </TouchableOpacity>
-            </View>
+                {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
+                        <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                    </View>
+                )}
 
-            {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
-                <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
-                    <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
-                </View>
-            )}
+                {createdRooms.length > 0 && (
+                    <View>
+                        <Text style={styles.sectionTitle}>Rooms You Created</Text>
+                        <FlatList
+                            data={createdRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
+                        <View style={styles.divider} />
+                    </View>
+                )}
 
-            {createdRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Rooms You Created</Text>
-                    <FlatList
-                        data={createdRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
+                {participatingRooms.length > 0 && (
+                    <View>
+                        <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
+                        <FlatList
+                            data={participatingRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
+                        <View style={styles.divider} />
+                    </View>
+                )}
 
-            {participatingRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
-                    <FlatList
-                        data={participatingRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
-
-            {publicRooms.length > 0 && (
-                <View>
-                    <Text style={styles.sectionTitle}>Public Rooms Available</Text>
-                    <FlatList
-                        data={publicRooms}
-                        renderItem={renderRoomCard}
-                        keyExtractor={(item) => item.roomId.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.roomList}
-                    />
-                    <View style={styles.divider} />
-                </View>
-            )}
-        </ScrollView>
+                {publicRooms.length > 0 && (
+                    <View>
+                        <Text style={styles.sectionTitle}>Public Rooms Available</Text>
+                        <FlatList
+                            data={publicRooms}
+                            renderItem={renderRoomCard}
+                            keyExtractor={(item) => item.roomId.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.roomList}
+                        />
+                        <View style={styles.divider} />
+                    </View>
+                )}
+            </ScrollView>
+            <BottomHeader userInfo={userInfo} />
+        </View>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingVertical: 16,
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20,
-        paddingRight: 16,
-        height: 50,
-        paddingLeft: 16,
-    },
-    headerLeft: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-    createRoomText: {
-        fontSize: 16,
-        color: "blue",
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 15,
-        paddingLeft: 20,
-    },
-    userRoomCard: {
-        width: 310, // Increase the width of the room card
-        height: 210, // Increase the height of the room card
-        borderRadius: 8,
-        marginHorizontal: 12, // Add some margin to avoid cramped appearance
-        overflow: "hidden",
-    },
-    imageBackground: {
-        flex: 1,
-        justifyContent: "flex-end",
-        borderRadius: 8,
-    },
-    overlay: {
-        flex: 1,
 
-        justifyContent: "space-between",
-        padding: 12,
-    },
-    liveText: {
-        fontSize: 14, // Increase font size for better visibility
-        color: "red",
-        marginBottom: 6,
-        
-    },
-    cardBody: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "absolute",
-        bottom: 12,
-        left: 16,
-        right: 16,
-    },
-    cardTitle: {
-        fontSize: 18, // Increase font size for better visibility
-        fontWeight: "bold",
-        color: "white",
-    },
-    cardFooter: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 6,
-    },
-    userCount: {
-        fontSize: 16, // Increase font size for better visibility
-        color: "white",
-        marginLeft: 4,
-    },
-    roomList: {
-        paddingHorizontal: 16,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: "#ccc",
-        marginVertical: 16,
-    },
-    emptyContainer: {
-        alignItems: "center",
-        marginVertical: 20,
-    },
-    emptyText: {
-        fontSize: 16,
-        color: "gray",
-    },
-});
 
 export default HubScreen;
+
+
+

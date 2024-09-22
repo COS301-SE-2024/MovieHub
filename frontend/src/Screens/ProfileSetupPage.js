@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable, ScrollV
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
+import { useTheme } from "../styles/ThemeContext";
 import { updateUserProfile } from "../Services/UsersApiService";
 
 const pronounsOptions = ["He/Him", "She/Her", "They/Them", "Prefer not to say"];
@@ -11,7 +11,8 @@ const genreOptions = ["Action", "Adventure", "Animation", "Comedy", "Drama", "Do
 const defaultAvatar = "https://via.placeholder.com/150"; // Placeholder image URL
 
 const ProfileSetupPage = ({ route }) => {
-    const { userInfo } = route.params || '';
+    const { userInfo } = route.params || "";
+    const { theme } = useTheme();
     const [avatar, setAvatar] = useState(defaultAvatar);
     const [name, setName] = useState("");
     const [bio, setBio] = useState("");
@@ -63,7 +64,7 @@ const ProfileSetupPage = ({ route }) => {
         }
 
         setError("");
-        console.log({ name, bio, pronouns, favouriteGenres, userInfo, avatar, });
+        console.log({ name, bio, pronouns, favouriteGenres, userInfo, avatar });
         const updatedData = { avatar, name, bio, pronouns, favouriteGenres };
         const updatedUser = await updateUserProfile(userInfo.userId, updatedData);
         console.log("Update went well", updatedUser);
@@ -72,6 +73,145 @@ const ProfileSetupPage = ({ route }) => {
 
         navigation.navigate("Home", { userInfo });
     };
+
+    const styles = StyleSheet.create({
+        title: {
+            textAlign: "center",
+            fontFamily: "Roboto",
+            color: "#000000",
+            fontSize: 25,
+            fontWeight: "bold",
+            paddingBottom: 15,
+        },
+        avatarContainer: {
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        avatar: {
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            backgroundColor: "#e0e0e0", // placeholder background color
+        },
+        removeButton: {
+            position: "absolute",
+            top: 0,
+            right: 0,
+            backgroundColor: "black",
+            borderRadius: 15,
+            width: 25,
+            height: 25,
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        removeButtonText: {
+            color: "#fff",
+            fontWeight: "bold",
+        },
+        logo: {
+            textAlign: "center",
+            fontFamily: "Roboto",
+            color: "#000000",
+            fontSize: 20,
+            fontWeight: "bold",
+        },
+        inputText: {
+            height: 40,
+            width: 250,
+            borderColor: theme.borderColor,
+            borderWidth: 1,
+            paddingHorizontal: 10,
+            fontSize: 16,
+            color: "#000",
+            backgroundColor: "#fff",
+            borderRadius: 5,
+            marginBottom: 5,
+        },
+        container: {
+            flexGrow: 1,
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+            backgroundColor: theme.backgroundColor,
+            paddingVertical: 50,
+        },
+        label: {
+            fontWeight: "bold",
+            paddingBottom: 8,
+            paddingTop: 20,
+        },
+        btn: {
+            width: 250,
+        },
+        button: {
+            backgroundColor: theme.primaryColor,
+            padding: 10,
+            borderRadius: 5,
+            width: 250,
+            marginTop: 25,
+        },
+        selectText: {
+            height: 40,
+            width: 250,
+            borderColor: theme.gray,
+            borderWidth: 1,
+            paddingHorizontal: 10,
+            fontSize: 16,
+            color: theme.gray,
+            backgroundColor: "#fff",
+            borderRadius: 5,
+            textAlignVertical: "center",
+            marginBottom: 5,
+        },
+        chip: {
+            padding: 10,
+            margin: 4,
+            borderRadius: 10,
+            backgroundColor: theme.primaryColor,
+            color: "white",
+        },
+        modalBackground: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+        },
+        modalContent: {
+            backgroundColor: theme.backgroundColor,
+            padding: 20,
+            borderRadius: 10,
+            width: "80%",
+        },
+        modalTitle: {
+            fontSize: 18,
+            fontWeight: "semibold",
+            marginBottom: 20,
+            color: theme.primaryColor,
+            textAlign: "left",
+        },
+        buttonContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingTop: 10,
+        },
+        buttonText: {
+            color: "#0f5bd1",
+            textAlign: "center",
+        },
+        option: {
+            padding: 10,
+            margin: 5,
+            borderRadius: 5,
+            borderWidth: 1,
+            borderColor: "#d9d9d9",
+            color: "#007bff",
+        },
+        textArea: {
+            height: 100,
+            textAlignVertical: "top",
+            paddingTop: 8,
+        },
+    });
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -109,7 +249,7 @@ const ProfileSetupPage = ({ route }) => {
                             <Text style={styles.modalTitle}>Select Pronouns</Text>
                             {pronounsOptions.map((option) => (
                                 <TouchableOpacity key={option} onPress={() => handlePronounsSelect(option)}>
-                                    <Text style={[styles.option, { backgroundColor: pronouns === option ? "#4A42C0" : "#ffffff", color: pronouns === option ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                    <Text style={[styles.option, { backgroundColor: pronouns === option ? theme.primaryColor : "#ffffff", color: pronouns === option ? "#ffffff" : "#000000" }]}>{option}</Text>
                                 </TouchableOpacity>
                             ))}
                             <View style={styles.buttonContainer}>
@@ -123,19 +263,19 @@ const ProfileSetupPage = ({ route }) => {
             </View>
             <View>
                 <Text style={styles.label}>Favorite Genres</Text>
-                
-                    <TouchableOpacity onPress={() => setModalVisible({ ...modalVisible, favoriteGenres: true })}>
-                        <Text style={styles.selectText}>Select up to 3 genres</Text>
-                    </TouchableOpacity>
-               
-                    <View horizontal={true} contentContainerStyle={{ flexDirection: "row" }}>
-                        {favouriteGenres.map((option, index) => (
-                            <Text key={index} style={styles.chip}>
-                                {option}
-                            </Text>
-                        ))}
-                    </View>
-                
+
+                <TouchableOpacity onPress={() => setModalVisible({ ...modalVisible, favoriteGenres: true })}>
+                    <Text style={styles.selectText}>Select up to 3 genres</Text>
+                </TouchableOpacity>
+
+                <View horizontal={true} contentContainerStyle={{ flexDirection: "row" }}>
+                    {favouriteGenres.map((option, index) => (
+                        <Text key={index} style={styles.chip}>
+                            {option}
+                        </Text>
+                    ))}
+                </View>
+
                 <Modal visible={modalVisible.favoriteGenres} transparent={true} onRequestClose={() => setModalVisible({ ...modalVisible, favoriteGenres: false })}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
@@ -143,7 +283,7 @@ const ProfileSetupPage = ({ route }) => {
                             <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
                                 {genreOptions.map((option) => (
                                     <TouchableOpacity key={option} onPress={() => handleGenreSelect(option)}>
-                                        <Text style={[styles.option, { backgroundColor: favouriteGenres.includes(option) ? "#4A42C0" : "#ffffff", color: favouriteGenres.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
+                                        <Text style={[styles.option, { backgroundColor: favouriteGenres.includes(option) ? theme.primaryColor : "#ffffff", color: favouriteGenres.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </ScrollView>
@@ -165,144 +305,5 @@ const ProfileSetupPage = ({ route }) => {
         </ScrollView>
     );
 };
-
-const styles = StyleSheet.create({
-    title: {
-        textAlign: "center",
-        fontFamily: "Roboto",
-        color: "#000000",
-        fontSize: 25,
-        fontWeight: "bold",
-        paddingBottom: 15,
-    },
-    avatarContainer: {
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: "#e0e0e0", // placeholder background color
-    },
-    removeButton: {
-        position: "absolute",
-        top: 0,
-        right: 0,
-        backgroundColor: "black",
-        borderRadius: 15,
-        width: 25,
-        height: 25,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    removeButtonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-    logo: {
-        textAlign: "center",
-        fontFamily: "Roboto",
-        color: "#000000",
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-    inputText: {
-        height: 40,
-        width: 250,
-        borderColor: "#7b7b7b",
-        borderWidth: 1,
-        paddingHorizontal: 10,
-        fontSize: 16,
-        color: "#000",
-        backgroundColor: "#fff",
-        borderRadius: 5,
-        marginBottom: 5,
-    },
-    container: {
-        flexGrow: 1,
-        justifyContent: "space-between",
-        alignItems: "center",
-        width: "100%",
-        backgroundColor: "#ffffff",
-        paddingVertical: 50,
-    },
-    label: {
-        fontWeight: "bold",
-        paddingBottom: 8,
-        paddingTop: 20,
-    },
-    btn: {
-        width: 250,
-    },
-    button: {
-        backgroundColor: "#4a42c0",
-        padding: 10,
-        borderRadius: 5,
-        width: 250,
-        marginTop: 25,
-    },
-    selectText: {
-        height: 40,
-        width: 250,
-        borderColor: "#7b7b7b",
-        borderWidth: 1,
-        paddingHorizontal: 10,
-        fontSize: 16,
-        color: "#7b7b7b",
-        backgroundColor: "#fff",
-        borderRadius: 5,
-        textAlignVertical: "center",
-        marginBottom: 5,
-    },
-    chip: {
-        padding: 10,
-        margin: 4,
-        borderRadius: 10,
-        backgroundColor: "#4a42c0",
-        color: "#fff",
-    },
-    modalBackground: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    modalContent: {
-        backgroundColor: "white",
-        padding: 20,
-        borderRadius: 10,
-        width: "80%",
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "semibold",
-        marginBottom: 20,
-        color: "#4a42c0",
-        textAlign: "left",
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingTop: 10,
-    },
-    buttonText: {
-        color: "#0f5bd1",
-        textAlign: "center",
-    },
-    option: {
-        padding: 10,
-        margin: 5,
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: "#d9d9d9",
-        color: "#007bff",
-    },
-    textArea: {
-        height: 100,
-        textAlignVertical: "top",
-        paddingTop: 8,
-    },
-});
 
 export default ProfileSetupPage;
