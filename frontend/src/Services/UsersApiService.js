@@ -288,6 +288,22 @@ export const getFollowing = async (userId) => {
     return data;
 };
 
+// return whether user is followed by targetUserId
+export const isFollowed = async (userId, targetUserId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/follows/${targetUserId}`, {
+        headers,
+        method: 'GET',
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to check if user is followed');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
 export const searchUser = async (searchName) => {
     const token = await getToken();
     const response = await fetch(`${API_URL}/search/${encodeURIComponent(searchName)}`, {

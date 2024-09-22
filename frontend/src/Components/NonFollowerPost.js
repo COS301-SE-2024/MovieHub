@@ -262,7 +262,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                 <TouchableOpacity onPress={handlePress}>
                     <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 </TouchableOpacity>
-                <View style={styles.nameAndHandleContainer}>
+                <TouchableOpacity onPress={handlePress} style={styles.nameAndHandleContainer}>
                     <View style={{ flex: 1 }}>
                         <Text style={styles.username} numberOfLines={1} ellipsizeMode="tail">
                             {userHandle}
@@ -271,7 +271,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                             {username} &bull; {timeDifference()}
                         </Text>
                     </View>
-                </View>
+                </TouchableOpacity>
                 <View style={{ flexDirection: "row", alignItems: "center", paddingBottom: 18 }}>
                     <TouchableOpacity style={styles.followingButton} onPress={toggleFollow}>
                         <Text style={styles.followingText}>{isFollowing ? "Following" : "Follow"}</Text>

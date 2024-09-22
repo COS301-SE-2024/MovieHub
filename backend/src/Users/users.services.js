@@ -319,6 +319,26 @@ exports.getFollowing = async (userId) => {
     }
 };
 
+// return whther a user is following another user
+exports.isFollowing = async (userId, targetUserId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (user:User {uid: $userId})-[:FOLLOWS]->(following:User {uid: $targetUserId})
+             RETURN following`,
+            { userId, targetUserId }
+        );
+
+        return result.records.length > 0;
+    } catch (error) {
+        console.error("Error checking if user is following:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 exports.getFollowerCount = async (userId) => {
     const session = driver.session();
 

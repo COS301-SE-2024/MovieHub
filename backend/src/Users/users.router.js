@@ -19,6 +19,7 @@ router.get('/search/:searchName', userController.searchUser);
 
 router.get('/:id/followers', userController.getFollowers);
 router.get('/:id/following', userController.getFollowing);
+router.get('/:id/follows/:uid', userController.isFollowing);
 router.get('/:id/followers/count', userController.fetchFollowerCount  );
 router.get('/:id/following/count', userController.fetchFollowingCount );
 

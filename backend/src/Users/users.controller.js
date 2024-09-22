@@ -79,13 +79,11 @@ exports.getUserWatchlists = async (req, res) => {
 // Follow a user
 exports.followUser = async (req, res) => {
     const { followerId, followeeId } = req.body;
-    console.log('followUser called in user.controller', followerId, followeeId);
     if (!followerId || !followeeId) {
         console.error('Follower ID and Followee ID are required');
         return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
     }
     try {
-        console.log(`Follower ID: ${followerId}, Followee ID: ${followeeId}`);
         const response = await userService.followUser(followerId, followeeId);
         res.status(200).json(response);
     } catch (error) {
@@ -96,6 +94,7 @@ exports.followUser = async (req, res) => {
 
 // Unfollow a user
 exports.unfollowUser = async (req, res) => {
+    console.log('unfollowUser called in user.controller');
     const { followerId, followeeId } = req.body;
     if (!followerId || !followeeId) {
         return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
@@ -146,6 +145,22 @@ exports.getFollowing = async (req, res) => {
     } catch (error) {
         console.error('Error fetching following users:', error);
         res.status(500).json({ message: 'Error fetching following users', error: error.message });
+    }
+};
+
+// return whther a user is following another user
+exports.isFollowing = async (req, res) => {
+    const { id, uid } = req.params;
+
+    if (!id || !uid) {
+        return res.status(400).json({ message: 'User ID and Target User ID are required' });
+    }
+    try {
+        const response = await userService.isFollowing(id, uid);
+        res.status(200).json(response);
+    } catch (error) {
+        console.error('Error checking if user is following:', error);
+        res.status(500).json({ message: 'Error checking if user is following', error: error.message });
     }
 };
 

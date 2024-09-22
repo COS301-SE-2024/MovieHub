@@ -26,7 +26,7 @@ export default function MovieDescriptionPage({route}) {
     const [loading, setLoading] = useState(true);
     const [isAddedToList, setIsAddedToList] = useState(false);
     const [isWatched, setIsWatched] = useState(false);
-    const [runtime, setRuntime] = useState(null);
+    const [runtime, setRuntime] = useState({ hours: 0, mins: 0 });
     const [isReviewed, setIsReviewed] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const navigation = useNavigation();
@@ -37,7 +37,8 @@ export default function MovieDescriptionPage({route}) {
     };
 
     const handleAddPress = () => {
-        setIsModalVisible(true);
+        // setIsModalVisible(true);
+        // alert with three options
     };
 
     const handleLogBookPress = () => {
