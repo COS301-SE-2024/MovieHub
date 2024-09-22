@@ -107,8 +107,8 @@ const HubScreen = ({ route }) => {
             alignItems: "center",
             marginBottom: 20,
             // paddingRight: 50 ,
-            height: 50,
-            paddingLeft: 20,
+            height: 30,
+            paddingLeft: 10,
         },
         headerLeft: {
             flexDirection: "row",
@@ -195,6 +195,7 @@ const HubScreen = ({ route }) => {
         },
         roomList: {
             paddingHorizontal: 16,
+            paddingLeft: 8
         },
         divider: {
             height: 1,
@@ -223,7 +224,7 @@ const HubScreen = ({ route }) => {
                     <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
                         <Text style={styles.createButtonText}>Create new room</Text>
                         <View style={{ flex: 1 }} />
-                        <MaterialIcons name="add" size={24} />
+                        <MaterialIcons name="add" size={24} color={theme.iconColor} />
                     </TouchableOpacity>
                 </View>
 

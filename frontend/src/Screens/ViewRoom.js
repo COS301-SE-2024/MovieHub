@@ -215,7 +215,7 @@ const ViewRoom = ({ route }) => {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <Text>Loading...</Text>
+                <Text style={{color: theme.textColor}}>Loading...</Text>
             </View>
         );
     }

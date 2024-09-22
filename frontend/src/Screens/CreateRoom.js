@@ -117,7 +117,7 @@ const CreateRoomScreen = ({ route }) => {
             width: "100%",
         },
         initValueTextStyle: {
-            color: "#000",
+            color: theme.textColor,
             fontSize: 14,
         },
         selectStyle: {
@@ -129,11 +129,11 @@ const CreateRoomScreen = ({ route }) => {
             borderColor: theme.borderColor,
         },
         selectText: {
-            color: "#fff",
+            color: theme.textColor,
         },
         optionText: {
             fontSize: 16,
-            color: "#000",
+            color: theme.textColor,
         },
         optionStyle: {
             backgroundColor: theme.inputBackground,
@@ -150,7 +150,7 @@ const CreateRoomScreen = ({ route }) => {
         },
         cancelTextStyle: {
             fontSize: 16,
-            color: "#000",
+            color: theme.textColor,
             textTransform: "capitalize",
         },
         switchContainer: {
@@ -187,22 +187,72 @@ const CreateRoomScreen = ({ route }) => {
             </View> */}
 
             <Text style={styles.label}>Room Name</Text>
-            <TextInput style={styles.input} placeholder="Title" value={roomTitle} onChangeText={setRoomTitle} />
+            <TextInput 
+                style={styles.input} 
+                placeholder="Title" 
+                value={roomTitle} 
+                onChangeText={setRoomTitle} 
+                placeholderTextColor={theme.gray} 
+                selectionColor={theme.textColor} 
+                color={theme.textColor}
+            />
 
             <Text style={styles.label}>Room Description</Text>
-            <TextInput style={styles.input} placeholder="Description" value={roomDescription} onChangeText={setRoomDescription} />
+            <TextInput 
+                style={styles.input} 
+                placeholder="Description" 
+                value={roomDescription} 
+                onChangeText={setRoomDescription} 
+                placeholderTextColor={theme.gray} 
+                selectionColor={theme.textColor} 
+                color={theme.textColor}
+            />
 
             <Text style={styles.label}>Max Participants</Text>
-            <TextInput style={styles.input} placeholder="" value={maxParticipants} onChangeText={setMaxParticipants} />
+            <TextInput 
+                style={styles.input} 
+                placeholder="" 
+                value={maxParticipants} 
+                onChangeText={setMaxParticipants} 
+                placeholderTextColor={theme.gray} 
+                selectionColor={theme.textColor} 
+                color={theme.textColor}
+            />
 
             <Text style={styles.label}>Access Level</Text>
             <View style={styles.pickerContainer}>
-                <ModalSelector data={accessLevelOptions} initValue={accessLevel} onChange={(option) => setAccessLevel(option.label)} style={styles.modalSelector} selectStyle={styles.selectStyle} selectTextStyle={styles.selectText} optionTextStyle={styles.optionText} optionStyle={styles.optionStyle} optionContainerStyle={styles.optionContainer} cancelStyle={styles.cancelStyle} cancelTextStyle={styles.cancelTextStyle} initValueTextStyle={styles.initValueTextStyle} />
+                <ModalSelector 
+                    data={accessLevelOptions} 
+                    initValue={accessLevel} 
+                    onChange={(option) => setAccessLevel(option.label)} 
+                    style={styles.modalSelector} 
+                    selectStyle={styles.selectStyle} 
+                    selectTextStyle={styles.selectText} 
+                    optionTextStyle={styles.optionText} 
+                    optionStyle={styles.optionStyle} 
+                    optionContainerStyle={styles.optionContainer} 
+                    cancelStyle={styles.cancelStyle} 
+                    cancelTextStyle={styles.cancelTextStyle} 
+                    initValueTextStyle={styles.initValueTextStyle} 
+                />
             </View>
 
             <Text style={styles.label}>Room Type</Text>
             <View style={styles.pickerContainer}>
-                <ModalSelector data={roomTypeOptions} initValue={roomType} onChange={(option) => setRoomType(option.label)} style={styles.modalSelector} selectStyle={styles.selectStyle} selectTextStyle={styles.selectText} optionTextStyle={styles.optionText} optionStyle={styles.optionStyle} optionContainerStyle={styles.optionContainer} cancelStyle={styles.cancelStyle} cancelTextStyle={styles.cancelTextStyle} initValueTextStyle={styles.initValueTextStyle} />
+                <ModalSelector 
+                    data={roomTypeOptions} 
+                    initValue={roomType} 
+                    onChange={(option) => setRoomType(option.label)} 
+                    style={styles.modalSelector} 
+                    selectStyle={styles.selectStyle} 
+                    selectTextStyle={styles.selectText} 
+                    optionTextStyle={styles.optionText} 
+                    optionStyle={styles.optionStyle} 
+                    optionContainerStyle={styles.optionContainer} 
+                    cancelStyle={styles.cancelStyle} 
+                    cancelTextStyle={styles.cancelTextStyle} 
+                    initValueTextStyle={styles.initValueTextStyle} 
+                />
             </View>
 
             <View style={styles.switchContainer}>
