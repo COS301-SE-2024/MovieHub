@@ -1,32 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../styles/ThemeContext";
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal } from "react-native";
-import { getRoomParticipants, kickUserFromRoom } from "../Services/RoomApiService";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal, Alert } from "react-native";
+import { getRoomParticipants, kickUserFromRoom, toggleAdmin } from "../Services/RoomApiService";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import RoomModal from "../Components/RoomModal";
 import { useNavigation } from "@react-navigation/native";
 // import BottomSheet from "@gorhom/bottom-sheet"; // Assuming you're using the Gorhom Bottom Sheet library
 
 const participantsData = [
-    { id: "1", name: "Itumeleng", username: "@ElectricTance" },
-    { id: "2", name: "Nicki Minaj", username: "@nickiminaj" },
-    { id: "3", name: "Ariana Grande", username: "@ariana_grande" },
-    { id: "4", name: "Taylor Swift", username: "@taylorswift13" },
-    { id: "5", name: "Billie Eilish", username: "@billieeilish" },
-    { id: "6", name: "Khalid", username: "@khalidofficial" },
-    { id: "7", name: "Drake", username: "@bbldrizzy" },
+    // { id: "1", name: "Itumeleng", username: "@ElectricTance" },
+    // { id: "2", name: "Nicki Minaj", username: "@nickiminaj" },
+    // { id: "3", name: "Ariana Grande", username: "@ariana_grande" },
+    // { id: "4", name: "Taylor Swift", username: "@taylorswift13" },
+    // { id: "5", name: "Billie Eilish", username: "@billieeilish" },
+    // { id: "6", name: "Khalid", username: "@khalidofficial" },
+    // { id: "7", name: "Drake", username: "@bbldrizzy" },
 ];
 
 const ViewParticipants = ({ route }) => {
     const { theme, isDarkMode } = useTheme();
-    const { roomId, isRoomCreator } = route.params;
+    const { roomId, isRoomCreator, roomName, admin, userInfo } = route.params;
     console.log("Route",route);
     console.log("RoomId", roomId);
     console.log("Is room creator ", isRoomCreator);
+    const navigation = useNavigation();
     const [participants, setParticipants] = useState(participantsData);
 
     const handleFollowPress = (id) => {
-        setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.id === id ? { ...participant, followed: !participant.followed } : participant)));
+        setParticipants((prevParticipants) =>
+            prevParticipants.map((participant) =>
+                participant.id === id ? { ...participant, followed: !participant.followed } : participant
+            )
+        );
+    };
+
+    const handleOpenKickModal = (participant) => {
+        setSelectedParticipant(participant);
+        setIsKickModalVisible(true);
+    };
+
+    const handleKick = async (selectedParticipant) => {
+        const response = await kickUserFromRoom(roomId, userInfo.userId, selectedParticipant.uid);
+        // setIsKickModalVisible(false);  TODO: add a confirmation before kick?
+        Alert.alert('Success', 'User successfully kicked from room!');
+    };
+
+    const handleOpenAdminModal = (participant) => {
+        setSelectedParticipant(participant);
+        setIsAdminModalVisible(true);
+    };
+
+    const handleMakeAdmin = async () => {
+        const response = await toggleAdmin(roomId, selectedParticipant.uid);
+        console.log(response);
+        setIsAdminModalVisible(false);
+    };
+
+    const handleProfilePress = (participant) => {
+        // navigation.navigate("FollowersProfilePage", { participant });
     };
 
     useEffect(() => {
@@ -35,7 +66,7 @@ const ViewParticipants = ({ route }) => {
                 console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomParticipants(roomId);
                 console.log("Room participants: ", response);
-                const allParticipants = [response.creator, ...response.participants];
+                const allParticipants = [{...response.creator, id: "creator"}, ...response.participants];
                 setParticipants(allParticipants);
             } catch (error) {
                 console.error("Failed to fetch room participants:", error);
@@ -60,8 +91,8 @@ const ViewParticipants = ({ route }) => {
                 <TouchableOpacity style={[styles.followButton, item.followed && styles.followingButton]} onPress={() => handleFollowPress(item.id)}>
                     <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{item.followed ? "Following" : "Follow"}</Text>
                 </TouchableOpacity>
-                {isRoomCreator &&
-                    <TouchableOpacity style={[styles.removeButton]} onPress={() => handleFollowPress(item.id)}>
+                {isRoomCreator && item.id != "creator" &&
+                    <TouchableOpacity style={[styles.removeButton]} onPress={() => handleKick(item)}>
                     <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Remove"}</Text>
                 </TouchableOpacity>}
             </View>

@@ -1,6 +1,6 @@
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import React, { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ImageBackground } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, ActivityIndicator  } from "react-native";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { getUserCreatedRooms, getUserParticipatedRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from "../Components/UserRoomCard";
@@ -16,6 +16,10 @@ const HubScreen = ({ route }) => {
     const [publicRooms, setPublicRooms] = useState([]);
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
     const { theme } = useTheme();
+    const [loadingCreated, setLoadingCreated] = useState(true);
+    const [loadingParticipate, setLoadingParticipate] = useState(true);
+    const [loadingPublic, setLoadingPublic] = useState(true);
+
     const fetchRooms = useCallback(async () => {
         try {
             const createdRoomsData = await getUserCreatedRooms(userInfo.userId);
@@ -32,6 +36,8 @@ const HubScreen = ({ route }) => {
             setCreatedRooms(createdRoomsWithCounts);
         } catch (error) {
             console.error("Failed to fetch created rooms:", error);
+        } finally {
+            setLoadingCreated(false);
         }
 
         try {
@@ -49,10 +55,12 @@ const HubScreen = ({ route }) => {
             setParticipatingRooms(participatingRoomsWithCounts);
         } catch (error) {
             console.error("Failed to fetch participated rooms:", error);
+        } finally {
+            setLoadingParticipate(false);
         }
 
         try {
-            const publicRoomsData = await getPublicRooms();
+            const publicRoomsData = await getPublicRooms(userInfo.userId);
 
             const publicRoomsWithCounts = await Promise.all(
                 publicRoomsData.map(async (room) => {
@@ -65,7 +73,9 @@ const HubScreen = ({ route }) => {
             );
             setPublicRooms(publicRoomsWithCounts);
         } catch (error) {
-            console.error("Failed to fetch public rooms:", error);
+            console.error("Failed to fetch rooms:", error);
+        } finally {
+            setLoadingPublic(false);
         }
     }, [userInfo.userId]);
 
@@ -215,11 +225,6 @@ const HubScreen = ({ route }) => {
         <View style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
                 <View style={styles.header}>
-                    {/* <View style={styles.headerLeft}>
-                        <MatIcon name="arrow-left" size={24} style={{ marginRight: 35 }} onPress={() => navigation.goBack()} />
-                        <Text style={styles.headerTitle}>The Hub</Text>
-                    </View> */}
-
                     <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
                         <Text style={styles.createButtonText}>Create new room</Text>
                         <View style={{ flex: 1 }} />
@@ -227,56 +232,83 @@ const HubScreen = ({ route }) => {
                     </TouchableOpacity>
                 </View>
 
-                {createdRooms.length === 0 && participatingRooms.length === 0 && publicRooms.length === 0 && (
-                    <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
-                        <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
-                    </View>
+                <Text style={styles.sectionTitle}>Rooms You Created</Text>
+                {loadingCreated ? (
+                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                ) : (
+                    <>
+                    {createdRooms.length === 0 && (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
+                            <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                        </View>
+                    )}
+                    {createdRooms.length > 0 && (
+                        <View>
+                            <FlatList
+                                data={createdRooms}
+                                renderItem={renderRoomCard}
+                                keyExtractor={(item) => item.roomId.toString()}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.roomList}
+                            />
+                            <View style={styles.divider} />
+                        </View>
+                    )}
+                    </>
                 )}
 
-                {createdRooms.length > 0 && (
-                    <View>
-                        <Text style={styles.sectionTitle}>Rooms You Created</Text>
-                        <FlatList
-                            data={createdRooms}
-                            renderItem={renderRoomCard}
-                            keyExtractor={(item) => item.roomId.toString()}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.roomList}
-                        />
-                        <View style={styles.divider} />
-                    </View>
+                <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
+                {loadingParticipate ? (
+                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                ) : (
+                    <>
+                    {participatingRooms.length === 0 && (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>Join a room to join in on the fun!</Text>
+                        </View>
+                    )}
+                    {participatingRooms.length > 0 && (
+                        <View>
+                            <FlatList
+                                data={participatingRooms}
+                                renderItem={renderRoomCard}
+                                keyExtractor={(item) => item.roomId.toString()}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.roomList}
+                            />
+                            <View style={styles.divider} />
+                        </View>
+                    )}
+                </>
                 )}
 
-                {participatingRooms.length > 0 && (
-                    <View>
-                        <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
-                        <FlatList
-                            data={participatingRooms}
-                            renderItem={renderRoomCard}
-                            keyExtractor={(item) => item.roomId.toString()}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.roomList}
-                        />
-                        <View style={styles.divider} />
-                    </View>
-                )}
-
-                {publicRooms.length > 0 && (
-                    <View>
-                        <Text style={styles.sectionTitle}>Public Rooms Available</Text>
-                        <FlatList
-                            data={publicRooms}
-                            renderItem={renderRoomCard}
-                            keyExtractor={(item) => item.roomId.toString()}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.roomList}
-                        />
-                        <View style={styles.divider} />
-                    </View>
+                <Text style={styles.sectionTitle}>Public Rooms Available</Text>
+                {loadingPublic ? (
+                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                ) : (
+                    <>
+                    {publicRooms.length === 0 && (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>No public rooms available.</Text>
+                        </View>
+                    )}
+                    {publicRooms.length > 0 && (
+                        <View>
+                            <FlatList
+                                data={publicRooms}
+                                renderItem={renderRoomCard}
+                                keyExtractor={(item) => item.roomId.toString()}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.roomList}
+                            />
+                            <View style={styles.divider} />
+                        </View>
+                    )}
+                    </>
                 )}
             </ScrollView>
             <BottomHeader userInfo={userInfo} />

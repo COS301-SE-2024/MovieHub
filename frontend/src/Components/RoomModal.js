@@ -1,22 +1,37 @@
-import React, { useCallback, useMemo, forwardRef } from "react";
+import React, { useCallback, useMemo, forwardRef, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Share, Alert } from "react-native";
-import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from "@gorhom/bottom-sheet";
+import { inviteUserToRoom, BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { deleteRoom } from "../Services/RoomApiService"
+import InviteModal from "../Components/InviteModal";
 
 const RoomModal = forwardRef((props, ref) => {
     const { theme } = useTheme();
     const navigation = useNavigation();
     const snapPoints = useMemo(() => ["42%", ], []);
-    const isRoomCreator = props.isRoomCreator;
+    const { isRoomCreator, userInfo, roomId } = props;
+    const bottomSheetRef = useRef(null);
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
     const handleCopyLinkPress = () => {
         console.log("Copy link");
     };
+
+    const handleInvitePress = () => {
+        bottomSheetRef.current?.present();
+    };
+    const handleInviteUser = async (friend) => {
+        try {
+            await inviteUserToRoom(userInfo.userId, friend.uid, roomId);
+            Alert.alert("Success", `${friend.name} has been invited.`);
+        } catch (error) {
+            Alert.alert("Error", `Failed to invite ${friend.name}: ${error.message}`);
+        }
+    };
+
     const handleShare = async () => {
         try {
             const result = await Share.share({
@@ -40,16 +55,17 @@ const RoomModal = forwardRef((props, ref) => {
 
     const handleDeleteRoom = async () => {
         console.log("Delete Room");
-        // try {
-        //     await deleteRoom(selectedRoom.id);
-        //     setrooms(rooms.filter(w => w.id !== selectedRoom.id)); // Update state to remove deleted room
-        //     closeModal();
-        //     Alert.alert('Success', 'Room deleted successfully!');
-        // } catch (error) {
-        //     console.error('Error deleting room:', error);
-        //     Alert.alert('Error', 'Failed to delete room. Please try again later.');
-        // }
-        //TODO: get current room id
+        console.log(props);
+        try {
+            await deleteRoom(roomId);
+            // setRooms(rooms.filter(w => w.id !== roomId)); // Update state to remove deleted room
+            // closeModal();
+            Alert.alert('Success', 'Room deleted successfully!');
+            navigation.navigate("HubScreen", {userInfo});
+        } catch (error) {
+            console.error('Error deleting room:', error);
+            Alert.alert('Error', 'Failed to delete room. Please try again later.');
+        }
     };
 
     const handleStartWatchParty = () => {
@@ -119,6 +135,13 @@ const RoomModal = forwardRef((props, ref) => {
             <BottomSheetModal ref={ref} index={0} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
                 <BottomSheetView style={{ backgroundColor: theme.backgroundColor }}>{renderContent()}</BottomSheetView>
             </BottomSheetModal>
+            {/*<InviteModal
+                ref={bottomSheetRef}
+                friends={[]} // Pass an empty array if there are no friends to invite
+                title="Invite Friends"
+                onInvite={handleInviteUser}
+                userInfo={userInfo}
+            />*/}
         </BottomSheetModalProvider>
     );
 });
