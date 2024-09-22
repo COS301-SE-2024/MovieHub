@@ -247,14 +247,26 @@ exports.getUserParticipatedRooms = async (uid) => {
 };
 
 
-exports.getPublicRooms = async () => {
+exports.getPublicRooms = async (uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (r:Room)
-             WHERE r.accessLevel = 'Everyone' AND r.isActive = true
-             RETURN r`
+            `MATCH (r:Room) WHERE r.accessLevel = 'Everyone' 
+            AND r.isActive = true 
+            AND NOT EXISTS((:User {uid: $uid})-[:PARTICIPATES_IN]->(r))
+            AND NOT EXISTS((:User {uid: $uid})-[:CREATED]->(r))
+            RETURN r`,
+            { uid }
         );
+
+        // `MATCH (r:Room)
+        // WHERE r.accessLevel = 'Everyone' 
+        // AND r.isActive = true 
+        // AND NOT EXISTS((:User {uid: "IePcEUZGQlPEQsKwIfbfRR07LwM2"})-[:PARTICIPATES_IN]->(r))
+        // OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(u:User)
+        // WITH r, COUNT(u) AS pCount
+        // WHERE pCount < r.maxParticipants
+        // RETURN r`
 
         if (result.records.length > 0) {
             const publicRooms = result.records.map(record => record.get('r').properties);

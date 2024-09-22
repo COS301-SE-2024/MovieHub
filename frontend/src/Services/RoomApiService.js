@@ -101,9 +101,9 @@ export const getRoomParticipants = async (roomId) => {
 
 
 // Get public rooms
-export const getPublicRooms = async () => {
+export const getPublicRooms = async (uid) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/public-rooms`, {
+    const response = await fetch(`${API_URL}/public-rooms/${uid}`, {
         method: 'GET',
         headers,
     });
@@ -325,7 +325,7 @@ export const fetchRandomImage = async (keyword) => {
 
 export const deleteRoom = async (roomId) => {
     try {
-        const response = await fetch(`${API_URL}${roomId}`, {
+        const response = await fetch(`${API_URL}/${roomId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

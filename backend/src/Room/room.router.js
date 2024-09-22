@@ -21,7 +21,7 @@ router.get('/participated/:uid', roomController.getUserParticipatedRooms); /////
 // Route to get participant count for a specific room
 router.get('/:roomId/participant-count', roomController.getRoomParticipantCount); ////////////////////////////////
 
-router.get('/public-rooms', roomController.getPublicRooms); ////////////////////////////////
+router.get('/public-rooms/:uid', roomController.getPublicRooms); ////////////////////////////////
 router.get('/recent-rooms/:uid', roomController.getRecentRooms); ////////////////////////////////
 
 // Route to invite a user to a room
@@ -34,7 +34,7 @@ router.post('/decline', roomController.declineRoomInvite);
 router.post('/leave', roomController.leaveRoom); ////////////////////////////////
 
 // Route to kick a user from a room
-router.post('/kick', roomController.kickUserFromRoom);
+router.post('/kick', roomController.kickUserFromRoom); ////////////////////////////////
 
 // New route to add a message to a room
 router.post('/message', roomController.addMessageToRoom);
@@ -51,6 +51,6 @@ router.post('/notify', roomController.sendNotification);
 // Route to get room details by roomId or shortCode
 router.get('/:roomId', roomController.getRoomDetails); ////////////////////////////////
 
-router.delete('/:roomId', roomController.deleteRoom);
+router.delete('/:roomId', roomController.deleteRoom); ////////////////////////////////
 
 module.exports = router;

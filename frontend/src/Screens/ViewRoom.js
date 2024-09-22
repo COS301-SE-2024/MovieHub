@@ -172,6 +172,7 @@ const ViewRoom = ({ route }) => {
                 console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
+                console.log(response.room.createdBy == userInfo.userId);
                 setIsRoomCreator(response.room.createdBy == userInfo.userId);
                 console.log("username: ", userInfo.username, isRoomCreator);
                 console.log("Room details fetched: ", response);
@@ -269,7 +270,7 @@ const ViewRoom = ({ route }) => {
                     )}
 
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
+                        <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, isRoomCreator, roomId: route.params.roomId })}>
                             <Text style={styles.enterText}>Enter</Text>
                         </TouchableOpacity>
                         {/*TODO: when user has joined room this must become a leave button, using the handleLeavePress function onPress */}
@@ -295,7 +296,7 @@ const ViewRoom = ({ route }) => {
                     </View>
                 </View>
             </ScrollView>
-            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} />
+            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} userInfo={userInfo} />
         </View>
     );
 };

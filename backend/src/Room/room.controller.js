@@ -112,8 +112,9 @@ exports.getRoomParticipantCount = async (req, res) => {
 };
 
 exports.getPublicRooms = async (req, res) => {
+    const { uid } = req.params;
     try {
-        const result = await roomService.getPublicRooms();
+        const result = await roomService.getPublicRooms(uid);
         if (result.success) {
             return res.status(200).json(result.publicRooms);
         } else {

@@ -9,7 +9,7 @@ import InviteModal from "../Components/InviteModal";
 import moment from "moment";
 
 const WatchParty = ({ route }) => {
-    const { userInfo, roomId } = route.params;
+    const { userInfo, roomId, isRoomCreator } = route.params;
     const { theme } = useTheme();
     const navigation = useNavigation();
     const [message, setMessage] = useState("");
@@ -335,7 +335,9 @@ const WatchParty = ({ route }) => {
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Text style={{ color: theme.iconColor }}>Room: {roomName}</Text>
                     <View style={styles.roomDetails}>
-                        <Ionicons name="people" size={16} color={theme.iconColor} />
+                        <TouchableOpacity onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
+                            <Ionicons name="people" size={16} color={theme.iconColor} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}/>
+                        </TouchableOpacity>
                         <Text style={{ color: theme.textColor, marginLeft: 4 }}>{(Array.isArray(participants) ? participants.length : 0) + 1}</Text>
                     </View>
                 </View>
