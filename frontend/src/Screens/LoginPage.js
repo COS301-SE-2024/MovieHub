@@ -4,13 +4,16 @@ import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
 import { CommonActions, useNavigation } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { isUserVerified, loginUser } from "../Services/AuthApiService";
 import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
 import { getUserProfile } from "../Services/UsersApiService";
+import logo2 from "../../../assets/logo.png";
 
 const LoginPage = () => {
+    const { theme } = useTheme();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -50,10 +53,13 @@ const LoginPage = () => {
             };
 
             const userData = await getUserProfile(userInfo.userId);
+            console.log("Login page", userData)
 
             const verified = await isUserVerified();
+            // console.log("User Verified:", verified);
 
             if (!verified) {
+                console.log("User is not verified");
                 navigation.navigate("VerificationPage", { userInfo });
             } else if (!userData.name) {
                 navigation.navigate("ProfileSetup", { userInfo });
@@ -99,7 +105,7 @@ const LoginPage = () => {
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 50,
-            backgroundColor: "#ffffff",
+            backgroundColor: theme.backgroundColor,
         },
         container: {
             width: "85%",
@@ -118,7 +124,7 @@ const LoginPage = () => {
         },
         title: {
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 24,
             marginBottom: 30,
         },
@@ -129,10 +135,11 @@ const LoginPage = () => {
         label: {
             fontWeight: "bold",
             paddingBottom: 8,
+            color: theme.textColor,
         },
         inputText: {
             height: 40,
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             paddingHorizontal: 10,
             fontSize: 16,
@@ -143,7 +150,7 @@ const LoginPage = () => {
         passwordInputContainer: {
             flexDirection: "row",
             alignItems: "center",
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             height: 40,
             borderRadius: 5,
@@ -161,7 +168,7 @@ const LoginPage = () => {
             textAlign: "center",
         },
         button: {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.primaryColor,
             padding: 10,
             borderRadius: 5,
             width: 245,
@@ -190,12 +197,18 @@ const LoginPage = () => {
         line: {
             flex: 1,
             height: 1,
-            backgroundColor: "#7b7b7b",
+            backgroundColor: theme.gray,
         },
         orText: {
             marginHorizontal: 10,
             fontSize: 15,
-            color: "#7b7b7b",
+            color: theme.gray,
+        },
+        logoImage: {
+            width: 200,
+            height: 100,
+            alignSelf: 'center',
+            resizeMode: 'contain',
         },
         socialContainer: {
             flexDirection: "row",
@@ -214,23 +227,24 @@ const LoginPage = () => {
         },
         signupText: {
             // fontSize: 16,
-            color: colors.primary,
+            color: theme.primaryColor,
             fontWeight: "500",
         },
         link: {
             textDecorationLine: "underline",
-            color: colors.primary,
+            color: theme.primaryColor,
         },
     });
 
     return (
-        <View style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.container}>
-                        <Text style={styles.logo}>MovieHub.</Text>
-                        {/* <Text style={styles.title}>Welcome Back!</Text> */}
-                        <Text style={styles.tagline}>Engage. Share. Discover.</Text>
+                    <Image source={logo2} style={styles.logoImage} />
+                    {/* <Text style={styles.logo}>MovieHub.</Text> */}
+                        {/* <Text style={styles.tagline}>Engage. Share. Discover.</Text> */}
+                        <Text style={styles.title}>Welcome Back!</Text>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Email</Text>
@@ -288,7 +302,7 @@ const LoginPage = () => {
                     </View>
                 </ScrollView>
             </TouchableWithoutFeedback>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 

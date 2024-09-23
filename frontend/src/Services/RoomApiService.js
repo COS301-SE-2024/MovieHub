@@ -31,6 +31,7 @@ const verifyToken = async () => {
 
 // Create a new room
 export const createRoom = async (uid, roomData) => {
+    // console.log("Check the body: ", roomData);
     const headers = await verifyToken();
     // Add Content-Type header to ensure the body is treated as JSON
     headers['Content-Type'] = 'application/json';
@@ -39,6 +40,7 @@ export const createRoom = async (uid, roomData) => {
         headers,
         body: JSON.stringify(roomData),
     });
+    // console.log("Check the body after res: ", roomData);
     if (!response.ok) {
         throw new Error('Failed to create room');
     }
@@ -93,14 +95,15 @@ export const getRoomParticipants = async (roomId) => {
     }
 
     const data = await response.json();
+    // console.log("Here we go agaaaaaaaaaain", data);
     return data; // Return the entire data object, including participants and creator
 };
 
 
 // Get public rooms
-export const getPublicRooms = async () => {
+export const getPublicRooms = async (uid) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/public-rooms`, {
+    const response = await fetch(`${API_URL}/public-rooms/${uid}`, {
         method: 'GET',
         headers,
     });
@@ -120,6 +123,7 @@ export const getRecentRooms = async (uid) => {
         headers,
     });
     if (!response.ok) {
+        console.log(response.ok);
         throw new Error('Failed to fetch recent rooms');
     }
     let data = [];
@@ -127,6 +131,20 @@ export const getRecentRooms = async (uid) => {
     if (contentLength && parseInt(contentLength) > 0) {
         data = await response.json();
     }
+    return data;
+};
+
+export const getIsParticipant = async (uid, roomId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/is-participant/${uid}/${roomId}`, {
+        method: 'GET',
+        headers,
+    });
+    if (!response.ok) {
+        console.log(response.ok);
+        throw new Error('Failed to fetch isParticipant');
+    }
+    const data = await response.json();
     return data;
 };
 
@@ -321,7 +339,7 @@ export const fetchRandomImage = async (keyword) => {
 
 export const deleteRoom = async (roomId) => {
     try {
-        const response = await fetch(`${API_URL}${roomId}`, {
+        const response = await fetch(`${API_URL}/${roomId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -335,4 +353,35 @@ export const deleteRoom = async (roomId) => {
         console.error('Error deleting room:', error);
         throw new Error('Failed to delete room.');
     }
+};
+
+export const getRoomAdmins = async (roomIdentifier) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${roomIdentifier}/admins`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch room admins');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export const toggleAdmin = async (roomId, uid) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/toggleAdmin`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ roomId, uid }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to toggle admin status');
+    }
+
+    const data = await response.json();
+    return data;
 };

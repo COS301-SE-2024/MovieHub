@@ -11,13 +11,9 @@ import Review from "./Review";
 
 export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
     const { theme } = useTheme();
-    const username = userProfile.name;
-    const userHandle = "@" + userInfo.username;
-    const avatar = userProfile.avatar;
     const navigation = useNavigation();
 
     const [posts, setPosts] = useState([]);
-    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -45,6 +41,8 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             const userId = userInfo.userId;
             const [postsResponse, reviewsResponse] = await Promise.all([getPostsOfUser(userId), getReviewsOfUser(userId)]);
 
+            //
+
             let postsWithComments = [];
             if (postsResponse.data) {
                 postsWithComments = await Promise.all(
@@ -52,10 +50,11 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         const commentsResponse = await getCountCommentsOfPost(post.postId);
                         const likesResponse = await getLikesOfPost(post.postId);
                         const likesCount = likesResponse.data;
-                        const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
+                        const commentsCount = commentsResponse.data; // Adjust according to the actual structure
                         return { ...post, commentsCount, likesCount, type: "post" };
                     })
                 );
+                // console.log("Loook ", postsWithComments);
             }
 
             let reviewsWithComments = [];
@@ -65,23 +64,43 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
                         const commentsResponse = await getCountCommentsOfReview(review.reviewId);
                         const likesResponse = await getLikesOfReview(review.reviewId);
                         const likesCount = likesResponse.data;
-                        const commentsCount = commentsResponse.data.reviewCommentCount; // Adjust according to the actual structure
+                        const commentsCount = commentsResponse.data; // Adjust according to the actual structure
                         return { ...review, commentsCount, likesCount, type: "review" };
                     })
                 );
             }
 
-            // Combine posts and reviews and sort by date
-            const combinedData = [...postsWithComments, ...reviewsWithComments].sort((a, b) => new Date(b.createdAt || b.dateReviewed) - new Date(a.createdAt || a.dateReviewed));
+          
+            let combinedData = [...postsWithComments, ...reviewsWithComments];
 
+           
+            combinedData = combinedData.filter(
+                (item, index, self) =>
+                    index ===
+                    self.findIndex((i) => {
+                       
+                        return i.type === "post" ? i.postId === item.postId : i.reviewId === item.reviewId;
+                    })
+            );
+    
+           
+            combinedData = combinedData.sort(
+                (a, b) =>
+                    new Date(b.createdAt || b.dateReviewed) - new Date(a.createdAt || a.dateReviewed)
+            );
+    
             setPosts(combinedData);
+
+            
         } catch (error) {
             console.error("Error fetching posts and reviews:", error);
-            // Handle error state or retry logic
+           
         } finally {
-            setLoading(false); // Set loading to false after fetch completes
+            setLoading(false); 
         }
     };
+
+    
 
     useEffect(() => {
         fetchPostsAndReviews();
@@ -97,6 +116,8 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             Alert.alert("Error", "Failed to delete post");
         }
     };
+
+    
 
     const handleDeleteReview = async (reviewId) => {
         try {

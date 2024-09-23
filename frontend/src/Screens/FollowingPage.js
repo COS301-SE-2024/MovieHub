@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import FollowList from '../Components/FollowList';
 import { getFollowing } from '../Services/UsersApiService';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from "../styles/ThemeContext";
 
 const FollowingPage = ({ route }) => {
     const { userInfo } = route.params;
+    console.log(userInfo);
     const [followers, setFollowing] = useState([]);
     const [loading, setLoading] = useState(true); 
-
+    const navigation = useNavigation();
+    const { theme} = useTheme();
     const fetchFollowing = async () => {
         try {
             const response = await getFollowing(userInfo.userId);
@@ -32,6 +36,33 @@ const FollowingPage = ({ route }) => {
         />
     );
 
+    const styles = StyleSheet.create({
+        container: {
+            paddingTop: 10,
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        loader: {
+            marginTop: 20, 
+        },
+        noFollowersText: {
+            textAlign: 'center',
+            marginTop: 20,
+            fontSize: 16,
+        },
+        followSomeone: {
+            textAlign: 'center',
+            marginTop: 20,
+            fontSize: 16,
+            color: '#4a42c0',
+            fontWeight: 'bold',
+        },
+        separator: {
+            borderColor: 'transparent',
+            borderBottomWidth: 1,
+        },
+    });
+
     return (
         <View style={styles.container}>
             {loading ? (
@@ -45,31 +76,17 @@ const FollowingPage = ({ route }) => {
                     ItemSeparatorComponent={() => <View style={styles.separator} />}
                 />
             ) : (
-                <Text style={styles.noFollowersText}>No followers found</Text>
+                <View >
+                    <Text style={styles.noFollowersText}>You are not following anyone</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('ExplorePage', {userInfo})}>
+                        <Text style={styles.followSomeone}>Find someone to follow</Text>
+                    </TouchableOpacity>
+                </View>
             )}
         </View>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        paddingTop: 10,
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-    loader: {
-        marginTop: 20, 
-    },
-    noFollowersText: {
-        textAlign: 'center',
-        marginTop: 20,
-        fontSize: 16,
-        color: '#4a42c0',
-    },
-    separator: {
-        borderColor: '#ddd',
-        borderBottomWidth: 1,
-    },
-});
+
 
 export default FollowingPage;

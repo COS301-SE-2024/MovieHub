@@ -3,11 +3,13 @@ import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert } from "react-na
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { deleteUserProfile } from "../Services/UsersApiService";
 import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
 
 export default function AccountSettings({ route }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [deletedModalVisible, setDeletedModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { theme } = useTheme();
     const confirmDeleteAccount = () => {
         setModalVisible(true);
     };
@@ -33,19 +35,106 @@ export default function AccountSettings({ route }) {
         }
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        setting: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: "transparent",
+        },
+        settingName: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        deleteButton: {
+            padding: 15,
+            marginTop: 20,
+            borderRadius: 5,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            backgroundColor: theme.backgroundColor,
+        },
+        deleteButtonText: {
+            color: "#ff0000",
+            textAlign: "center",
+            fontWeight: "bold",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            // padding: 16,
+            fontSize: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e0e0e0",
+        },
+        modalOverlay: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            height: "100%",
+        },
+        modalContainer: {
+            width: "80%",
+            backgroundColor: theme.backgroundColor,
+            padding: 20,
+            borderRadius: 10,
+            alignItems: "center",
+        },
+        modalTitle: {
+            fontSize: 18,
+            fontWeight: "bold",
+            marginBottom: 10,
+            color: theme.textColor,
+        },
+        modalMessage: {
+            fontSize: 16,
+            textAlign: "center",
+            marginBottom: 20,
+            color: theme.textColor,
+        },
+        modalActions: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: "100%",
+        },
+        modalButton: {
+            padding: 10,
+            borderRadius: 5,
+            flex: 1,
+            alignItems: "center",
+            marginHorizontal: 5,
+        },
+        modalButtonText: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        modalButtonDelete: {
+        },
+        modalButtonDeleteText: {
+            color: "red",
+        },
+    });
+
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("ChangePassword")}>
                 <Text style={styles.settingName}>Change password</Text>
-                <Icon name="keyboard-arrow-right" size={24} color="black" />
+                <Icon name="keyboard-arrow-right" size={24} color={theme.textColor} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("UpdateEmail")}>
                 <Text style={styles.settingName}>Update email address</Text>
-                <Icon name="keyboard-arrow-right" size={24} color="black" />
+                <Icon name="keyboard-arrow-right" size={24} color={theme.textColor}  />
             </TouchableOpacity>
             <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("AccountPrivacy")}>
                 <Text style={styles.settingName}>Account Privacy</Text>
-                <Icon name="keyboard-arrow-right" size={24} color="black" />
+                <Icon name="keyboard-arrow-right" size={24} color={theme.textColor}  />
             </TouchableOpacity>
             <TouchableOpacity style={styles.setting} onPress={confirmDeleteAccount}>
                 <Text style={styles.deleteButtonText}>Delete Account</Text>
@@ -95,85 +184,3 @@ export default function AccountSettings({ route }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-    },
-    setting: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0",
-    },
-    settingName: {
-        fontSize: 16,
-    },
-    deleteButton: {
-        padding: 15,
-        marginTop: 20,
-        borderRadius: 5,
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
-        borderColor: "#ccc",
-        backgroundColor: "#fff",
-    },
-    deleteButtonText: {
-        color: "#ff0000",
-        textAlign: "center",
-        fontWeight: "bold",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        // padding: 16,
-        fontSize: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0",
-    },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        height: "100%",
-    },
-    modalContainer: {
-        width: "80%",
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
-    modalMessage: {
-        fontSize: 16,
-        textAlign: "center",
-        marginBottom: 20,
-    },
-    modalActions: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-    },
-    modalButton: {
-        padding: 10,
-        borderRadius: 5,
-        flex: 1,
-        alignItems: "center",
-        marginHorizontal: 5,
-    },
-    modalButtonText: {
-        fontSize: 16,
-    },
-    modalButtonDelete: {
-    },
-    modalButtonDeleteText: {
-        color: "red",
-    },
-});

@@ -12,8 +12,8 @@ const driver = neo4j.driver(
 exports.createWatchlist = async (userId, watchlistData) => {
     console.log("In list.services");
 
-    // Ensure all required parameters are present
-    const requiredParams = ['name', 'tags', 'visibility', 'ranked', 'description', 'collaborative', 'movies', 'collabUserIds'];
+    // Ensure all required parameters except collabUserIds (conditionally) are present
+    const requiredParams = ['name', 'tags', 'visibility', 'ranked', 'description', 'collaborative', 'movies'];
     for (const param of requiredParams) {
         if (!(param in watchlistData)) {
             console.error(`Missing required parameter: ${param}`);
@@ -21,12 +21,20 @@ exports.createWatchlist = async (userId, watchlistData) => {
         }
     }
 
+    const { collaborative, collabUserIds } = watchlistData;
+
+    // If the watchlist is collaborative, ensure collabUserIds is provided
+    if (collaborative && (!collabUserIds || collabUserIds.length === 0)) {
+        console.error('Missing required parameter: collabUserIds for collaborative watchlist');
+        throw new Error('collabUserIds are required for a collaborative watchlist');
+    }
+
     const session = driver.session();
     const watchlistId = uuidv4();
-    const { name, tags, visibility, ranked, description, collaborative, movies, collabUserIds } = watchlistData;
+    const { name, tags, visibility, ranked, description, movies } = watchlistData;
 
     try {
-        console.log("All parameters are present. Proceeding with database query.");
+        console.log("All required parameters are present. Proceeding with database query.");
 
         // Start a transaction
         const tx = session.beginTransaction();
@@ -76,13 +84,15 @@ exports.createWatchlist = async (userId, watchlistData) => {
             );
         }
 
-        // Associate collaborator users with the watchlist
-        for (const colabUserId of collabUserIds) {
-            await tx.run(
-                `MERGE (u:User {uid: $colabUserId})
-                 CREATE (u)-[:HAS_WATCHLIST]->(w)`,
-                { watchlistId, colabUserId }
-            );
+        // If collaborative, associate collaborator users with the watchlist
+        if (collaborative) {
+            for (const colabUserId of collabUserIds) {
+                await tx.run(
+                    `MERGE (u:User {uid: $colabUserId})
+                     CREATE (u)-[:HAS_WATCHLIST]->(w)`,
+                    { watchlistId, colabUserId }
+                );
+            }
         }
 
         // Commit the transaction
@@ -218,6 +228,40 @@ exports.getCollaborators = async (watchlistId) => {
     }
 };
 
+exports.getFollowedUsersWatchlists = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:FOLLOWS]->(followee:User)-[:HAS_WATCHLIST]->(w:Watchlist)
+             RETURN w.id AS watchlistId, w.name AS name, w.description AS description, w.ranked AS ranked, w.collaborative AS collaborative, w.tags AS tags`,
+            { userId }
+        );
+
+        if (result.records.length === 0) {
+            return [];
+        }
+
+        const watchlists = result.records.map(record => ({
+            watchlistId: record.get('watchlistId'),
+            name: record.get('name'),
+            description: record.get('description'),
+            ranked: record.get('ranked'),
+            collaborative: record.get('collaborative'),
+            tags: record.get('tags'),
+        }));
+
+        console.log("Watchlists fetched successfully for followed users.");
+        return watchlists;
+    } catch (error) {
+        console.error("Error fetching watchlists of followed users:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
 
 exports.deleteWatchlist = async (watchlistId) => {
     const session = driver.session();
@@ -234,3 +278,4 @@ exports.deleteWatchlist = async (watchlistId) => {
         await session.close();
     }
 };
+

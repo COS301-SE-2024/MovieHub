@@ -247,14 +247,26 @@ exports.getUserParticipatedRooms = async (uid) => {
 };
 
 
-exports.getPublicRooms = async () => {
+exports.getPublicRooms = async (uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (r:Room)
-             WHERE r.accessLevel = 'Everyone' AND r.isActive = true
-             RETURN r`
+            `MATCH (r:Room) WHERE r.accessLevel = 'Everyone' 
+            AND r.isActive = true 
+            AND NOT EXISTS((:User {uid: $uid})-[:PARTICIPATES_IN]->(r))
+            AND NOT EXISTS((:User {uid: $uid})-[:CREATED]->(r))
+            RETURN r`,
+            { uid }
         );
+
+        // `MATCH (r:Room)
+        // WHERE r.accessLevel = 'Everyone' 
+        // AND r.isActive = true 
+        // AND NOT EXISTS((:User {uid: "IePcEUZGQlPEQsKwIfbfRR07LwM2"})-[:PARTICIPATES_IN]->(r))
+        // OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(u:User)
+        // WITH r, COUNT(u) AS pCount
+        // WHERE pCount < r.maxParticipants
+        // RETURN r`
 
         if (result.records.length > 0) {
             const publicRooms = result.records.map(record => record.get('r').properties);
@@ -287,13 +299,38 @@ exports.getRecentRooms = async (uid) => {
             const recentRooms = result.records.map(record => record.get('r').properties);
             return { success: true, recentRooms };
         } else if (result.records.length === 0) {
-            return { success: true, recentRooms: [] }; // Return an empty array when no rooms are found
+            return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
         } else {
             return { success: false, message: 'Unexpected result from the query' };
         }
     } catch (error) {
         console.error('Error retrieving recent rooms:', error);
         return { success: false, message: 'An error occurred while retrieving recent rooms' };
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getIsParticipant = async (uid, roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid}), (r:Room {roomId: $roomId})
+            RETURN EXISTS((u)-[:PARTICIPATES_IN|:CREATED]->(r)) AS p`,
+            { uid, roomId }
+        );
+        console.log("Service", result);
+        if (result.records.length > 0) {
+            const isParticipant = result.records[0].get('p');
+            return { success: true, isParticipant};
+        } else if (result.records.length === 0) {
+            return { success: true, isParticipant: false };
+        }else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving whether user is a participant:', error);
+        return { success: false, message: 'An error occurred while retrieving is participant' };
     } finally {
         await session.close();
     }
@@ -509,13 +546,11 @@ exports.leaveRoom = async (roomId, uid) => {
         }
 
         // Remove the user from the room
-        await session.run(
+        const result = await session.run(
             `MATCH (u:User {uid: $uid})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
              DELETE p`,
             { roomId, uid }
         );
-
-        console.log(`User ${uid} left the room ${roomId}.`);
         return { success: true, roomId: roomId };
     } catch (error) {
         console.error('Error leaving room:', error);
@@ -664,18 +699,19 @@ exports.getRoomAdmins = async (roomId) => {
         const result = await session.run(
             `MATCH (r:Room {roomId: $roomId})
              OPTIONAL MATCH (a:User)-[:IS_ADMIN]->(r)
-             RETURN a`,
+             OPTIONAL MATCH (c:User)-[:CREATED]->(r)
+             RETURN collect(a) AS admins, collect(c) AS creator`,
             { roomId }
         );
 
-        if (result.records.length > 0) {
-            const admins = result.records.map(record => record.get('a').properties);
-            return { success: true, admins };
-        } else if (result.records.length === 0) {
-            return { success: true, admins: [] }; // Return an empty array when no rooms are found
-        } else {
-            return { success: false, message: 'Unexpected result from the query' };
-        }
+        const admins = result.records[0].get('admins').map(user => user.properties);
+        const creator = result.records[0].get('creator')[0]?.properties;
+
+        return {
+            success: true,
+            admins,
+            creator
+        };
     } catch (error) {
         console.error('Error retrieving room admins:', error);
         throw error;
@@ -695,7 +731,6 @@ exports.toggleAdmin = async (uid, roomId) => {
             RETURN a`,
             { uid, roomId }
         );
-        
         if (result.records.length > 0) {
             await session.run(
                 `MATCH (u:User), (r:Room)
@@ -708,7 +743,7 @@ exports.toggleAdmin = async (uid, roomId) => {
         } else {
             await session.run(
                 `MATCH (u:User), (r:Room)
-                WHERE u.uid = $uid AND p.roomId = $roomId
+                WHERE u.uid = $uid AND r.roomId = $roomId
                 MERGE (u)-[:IS_ADMIN]->(r)`,
                 { uid, roomId }
             );

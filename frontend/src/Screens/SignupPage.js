@@ -9,6 +9,7 @@ import FAIcon from "@expo/vector-icons/FontAwesome5";
 import * as SecureStore from "expo-secure-store";
 import { registerUser } from "../Services/AuthApiService";
 import { colors } from "../styles/theme";
+import logo from "../../../assets/logo.png";
 
 const SignupPage = () => {
     const [username, setUsername] = useState("");
@@ -89,11 +90,16 @@ const SignupPage = () => {
             setError("Username must be at least 3 characters long");
             return;
         }
+        console.log("This is the username ", username);
         try {
             //  await signUp(email, password, username);
             const data = await registerUser(email, password, username);
+            console.log("Email verification sent to " + email + ". Please verfiy your email to proceed");
+
+            console.log("User Registering???");
             await SecureStore.setItemAsync("userToken", data.data.token);
             setError("");
+            console.log("User signed up successfully");
             //navigate to the home page with the users info
             const userInfo = {
                 userId: data.data.uid,
@@ -146,6 +152,12 @@ const SignupPage = () => {
         },
         newUsernameButton: {
             marginLeft: 8,
+        },
+        logoImage: {
+            width: 200,
+            height: 100,
+            alignSelf: 'center',
+            resizeMode: 'contain',
         },
         inputText: {
             height: 40,
@@ -252,14 +264,10 @@ const SignupPage = () => {
     });
 
     return (
-        <View behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.container}>
-                    <View style={{ flexDirection: "row", alignItems: "center", }}>
-                        <Text style={styles.logo}>MovieHub.</Text>
-                    </View>
-
-                    <Text style={styles.tagline}>Engage. Share. Discover.</Text>
+                <Image source={logo} style={styles.logoImage} />
                     {/* <Text style={styles.title}>Create Account</Text> */}
                     <View style={{ paddingLeft: 27 }}>
                         <Text style={styles.label}>Username</Text>
@@ -316,7 +324,7 @@ const SignupPage = () => {
                     </View>
                 </View>
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 

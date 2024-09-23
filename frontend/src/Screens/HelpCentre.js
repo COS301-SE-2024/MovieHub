@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 
 const sections = [
     {
@@ -29,7 +30,56 @@ const sections = [
 ];
 
 const HelpCentre = ({ navigation }) => {
-    
+    const { theme, isDarkMode } = useTheme();
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 22,
+            backgroundColor: theme.backgroundColor,
+        },
+        heading: {
+            fontSize: 18,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 5,
+            color: theme.textColor,
+        },
+        intro: {
+            fontSize: 16,
+            textAlign: "center",
+            marginBottom: 30,
+            color: theme.textColor,
+        },
+        grid: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+        },
+        card: {
+            width: "48%",
+            aspectRatio: 1,
+            marginBottom: 16,
+            backgroundColor: isDarkMode ? "#0f0f0f" : "#f0f0f0",
+            borderRadius: 8,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 16,
+        },
+        cardTitle: {
+            marginTop: 8,
+            fontSize: 14,
+            fontWeight: "bold",
+            textAlign: "center",
+            color: theme.textColor,
+        },
+        illustration: {
+            width: "80%",
+            height: "80%",
+            resizeMode: "contain",
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.heading}>Welcome to the MovieHub Help Centre</Text>
@@ -51,50 +101,6 @@ const HelpCentre = ({ navigation }) => {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 22,
-        backgroundColor: "#fff",
-    },
-    heading: {
-        fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: 5,
-    },
-    intro: {
-        fontSize: 16,
-        textAlign: "center",
-        marginBottom: 30,
-    },
-    grid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-    },
-    card: {
-        width: "48%",
-        aspectRatio: 1,
-        marginBottom: 16,
-        backgroundColor: "#f0f0f0",
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 16,
-    },
-    cardTitle: {
-        marginTop: 8,
-        fontSize: 14,
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    illustration: {
-        width: "80%",
-        height: "80%",
-        resizeMode: "contain",
-    },
-});
 
 HelpCentre.navigationOptions = ({ navigation }) => {
     return {

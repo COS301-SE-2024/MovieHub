@@ -1,22 +1,19 @@
-import React , {useState} from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, View, Image, TouchableOpacity, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from '@expo/vector-icons';
-import { Octicons } from '@expo/vector-icons';
-import image1 from "../../../assets/Assassin_movie.jpg";
-import image2 from "../../../assets/oppenheimer_movie.jpg";
-import image3 from "../../../assets/moonlight.jpg";
-
-export default function MovieCard({movieId, imageUrl, title, rating, overview, date}) {
-
+import { useTheme } from "../styles/ThemeContext";
+import { Dimensions } from 'react-native';
+import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+export default function MovieCard({ movieId, imageUrl, title, rating, overview, date }) {
+    const { theme } = useTheme();
+    const [liked, setLiked] = useState(false);
     const navigation = useNavigation();
 
     const handleNewUser = () => {
-        navigation.navigate("MovieDescriptionPage", {movieId : movieId,imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date});
+        navigation.navigate("MovieDescriptionPage", { movieId: movieId, imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date });
     };
 
-
-    const [liked, setLiked] = useState(false);
+    
 
     const handleLikePress = () => {
         setLiked(!liked);
@@ -34,17 +31,19 @@ export default function MovieCard({movieId, imageUrl, title, rating, overview, d
     </View>
     );
 }
+
+const screenWidth = Dimensions.get('window').width;
  
 const styles = StyleSheet.create({
 
     container:{
         flex: 1,
-        justifyContent: 'center',
+        position: 'center',
         alignItems: 'center',
-        width: 400,
-        height: 500,
-        paddingRight: 15,
-        paddingLeft: 15,
+        width: screenWidth,
+        height: 430,
+        // paddingRight: 15,
+        // paddingLeft: 15,
         shadowOffset: {
             width: 0,
             height: 3,
@@ -53,15 +52,19 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 3.84,
         elevation: 5,
+        paddingTop: 10,
+        paddingBottom: 120,
 
 
     },
     card: {
-        position: 'relative',
-        width: '79%',
+        position: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '76%',
         backgroundColor: 'transparent',
         borderRadius: 10,
-        padding: 10,
+        // padding: 10,
         shadowColor: '#000',
         height: 400,
         shadowOffset: {
@@ -78,38 +81,9 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 10,
         marginBottom: 10,
-    },
-    title: {
-        paddingTop: 19,
-        fontSize: 18,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.87)',
-        borderRadius: 10,
-        justifyContent: 'center',
+        position: 'center',
         alignItems: 'center',
-        flexDirection: 'column', 
-      },
-      icon: {
-        marginLeft: 5,
-        fontSize: 20,
-        paddingTop: 20,
-        
     },
-    text: {
-        fontSize: 16,
-        color: 'white', 
-        paddingTop: 5,
-    },
-    iconFirst: {
-        marginLeft: 12,
-        fontSize: 20,
-        paddingTop: 20,
-        
-    },
-    
 
-});
+
+}) 

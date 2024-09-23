@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, FlatList, Image } from "react-native";
+import React, { useState, useEffect, useRef , useLayoutEffect} from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getRoomDetails, getRoomParticipantCount, joinRoom, leaveRoom } from "../Services/RoomApiService";
+import { getRoomDetails, getRoomParticipantCount, joinRoom, leaveRoom, getIsParticipant } from "../Services/RoomApiService";
+import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import FAIcon from "react-native-vector-icons/FontAwesome";
@@ -18,12 +19,14 @@ const platformLogos = {
 
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
+    const { theme } = useTheme();
     const { userInfo, roomId } = route.params;
     const [isRoomCreator, setIsRoomCreator] = useState(false);
     const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
     const [participantCount, setParticipantCount] = useState(0); // State to hold participant count
     const [loading, setLoading] = useState(true); // State to manage loading status
     const [watchPartyStarted, setWatchPartyStarted] = useState(false);
+    const [isParticipant, setIsParticipant] = useState(false);
     const [upcomingParties, setUpcomingParties] = useState([
         {
             id: 1,
@@ -50,6 +53,112 @@ const ViewRoom = ({ route }) => {
             movieTitle: "The Godfather",
         },
     ]);
+    
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        header: {
+            marginTop: 16,
+            height: 50,
+            marginBottom: 30,
+            backgroundColor: theme.backgroundColor,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 16,
+        },
+        roomName: {
+            marginLeft: 35,
+            fontSize: 20,
+            fontWeight: "500",
+            color: theme.textColor,
+        },
+        videoContainer: {
+            marginBottom: 16,
+            paddingHorizontal: 16,
+        },
+        videoPlaceholder: {
+            width: "100%",
+            height: 200,
+            backgroundColor: "#e0e0e0",
+            marginBottom: 8,
+        },
+        enterButton: {
+            padding: 8,
+            backgroundColor: theme.primaryColor,
+            alignItems: "center",
+            borderRadius: 4,
+            marginBottom: 8,
+            width: 100,
+        },
+        enterText: {
+            fontSize: 16,
+            color: "white",
+        },
+        participants: {
+            flexDirection: "row",
+            alignItems: "center",
+        },
+        participantsText: {
+            marginLeft: 6,
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        movieInfo: {
+            marginBottom: 26,
+        },
+        movieTitle: {
+            fontSize: 18,
+            fontWeight: "600",
+            marginBottom: 4,
+            color: theme.textColor,
+        },
+        movieDetails: {
+            fontSize: 15,
+            marginBottom: 8,
+            color: "gray",
+        },
+        rating: {
+            color: "red",
+        },
+        movieDescription: {
+            fontSize: 15,
+            color: theme.gray,
+        },
+        profilePlaceholder: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: "#ccc",
+            marginRight: 8,
+        },
+        loadingContainer: {
+            backgroundColor: theme.backgroundColor,
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        errorContainer: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        upcomingPartiesTitle: {
+            fontSize: 20,
+            fontWeight: "bold",
+            marginBottom: 12,
+            paddingHorizontal: 16,
+            color: theme.textColor,
+        },
+        line: {
+            height: 1,
+            backgroundColor: theme.borderColor,
+            marginVertical: 10,
+            marginHorizontal: 16,
+        },
+    });
 
     const bottomSheetRef = useRef(null);
 
@@ -64,6 +173,11 @@ const ViewRoom = ({ route }) => {
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
                 setIsRoomCreator(response.room.createdBy == userInfo.userId);
+
+                //fetch isParticipant
+                const isParticipantResponse = await getIsParticipant(userInfo.userId, roomId);
+                setIsParticipant(isParticipantResponse);
+                
                 // Fetch participant count
                 const participantResponse = await getRoomParticipantCount(roomId);
                 if (participantResponse.success) {
@@ -80,6 +194,26 @@ const ViewRoom = ({ route }) => {
 
         fetchRoomDetails();
     }, [route.params.roomId]);
+
+    useEffect(() => {
+        if (route.params?.openBottomSheet) {
+          handleOpenBottomSheet();
+          // Reset the param after opening the bottom sheet
+          navigation.setParams({ openBottomSheet: false });
+        }
+      }, [route.params?.openBottomSheet]);
+
+      useLayoutEffect(() => {
+        if (loading) {
+          navigation.setOptions({
+            title: "Loading..."
+          });
+        } else if (roomDetails) {
+          navigation.setOptions({
+            title: roomDetails.roomName
+          });
+        }
+      }, [navigation, loading, roomDetails]);
 
     if (loading) {
         return (
@@ -103,6 +237,9 @@ const ViewRoom = ({ route }) => {
     const handleJoinPress = async () => {
         try {
             const response = await joinRoom(shortCode, userInfo.userId);
+            setIsParticipant(true);
+            setParticipantCount(participantCount+1);
+            Alert.alert('Success', 'You have joined this room!');
         } catch (error) {
             console.error("Failed to join room:", error);
         }
@@ -111,25 +248,17 @@ const ViewRoom = ({ route }) => {
     const handleLeavePress = async () => {
         try {
             const response = await leaveRoom(roomId, userInfo.userId);
+            setIsParticipant(false);
+            setParticipantCount(participantCount-1);
+            Alert.alert('Success', 'You have left this room!');
         } catch (error) {
             console.error("Failed to leave room:", error);
         }
     };
 
-
     return (
         <View style={styles.container}>
             <ScrollView>
-                <View style={styles.header}>
-                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <Icon name="arrow-back" size={24} onPress={() => navigation.goBack()} />
-                        <Text style={styles.roomName}>{roomName || "Asa's Room"}</Text>
-                    </View>
-                    <Pressable onPress={handleOpenBottomSheet}>
-                        <Icon name="more-horiz" size={24} style={{ marginRight: 10 }} />
-                    </Pressable>
-                </View>
-
                 <View style={styles.videoContainer}>
                     {watchPartyStarted ? (
                         <View>
@@ -144,19 +273,27 @@ const ViewRoom = ({ route }) => {
                             </View>
                         </View>
                     ) : (
-                        watchPartyStarted && <Text style={[styles.movieDescription, { paddingVertical: 20 }]}>{roomDescription}</Text>
+                        roomDescription && <Text style={[styles.movieDescription, { paddingVertical: 20 }]}>{roomDescription}</Text>
                     )}
 
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
-                            <Text style={styles.enterText}>Enter</Text>
-                        </TouchableOpacity>
-                        {/*TODO: when user has joined room this must become a leave button, using the handleLeavePress function onPress */}
-                        <TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
-                            <Text style={styles.enterText}>Join Room</Text>
-                        </TouchableOpacity>
-                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId, roomName})}>
-                            <FAIcon name="users" size={16} />
+                        {!isRoomCreator  && (<>    
+                            {isParticipant
+                                ?(<TouchableOpacity style={styles.enterButton} onPress={handleLeavePress}>
+                                    <Text style={styles.enterText}>Leave Room</Text>
+                                </TouchableOpacity>)
+                                :(<TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
+                                    <Text style={styles.enterText}>Join Room</Text>
+                                </TouchableOpacity>)
+                            }
+                        </>)}
+                        {isParticipant && (
+                            <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, isRoomCreator, roomId: route.params.roomId })}>
+                                <Text style={styles.enterText}>Enter</Text>
+                            </TouchableOpacity>
+                        )}
+                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
+                            <FAIcon name="users" size={16} color={theme.textColor} />
                             <Text style={styles.participantsText}>{participantCount}</Text>
                         </Pressable>
                     </View>
@@ -174,7 +311,7 @@ const ViewRoom = ({ route }) => {
                     </View>
                 </View>
             </ScrollView>
-            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} />
+            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} userInfo={userInfo} />
         </View>
     );
 };
@@ -182,11 +319,52 @@ const ViewRoom = ({ route }) => {
 const PartySchedule = ({ movieTitle, partyName, startTime, platform }) => {
     const [reminderSet, setReminderSet] = useState(false);
     const PlatformLogo = platformLogos[platform] || null;
+    const { theme, isDarkMode } = useTheme();
 
     const handleReminder = () => {
         setReminderSet(!reminderSet);
         // TODO: add any logic to actually set the reminder notification
     };
+
+    const styles = StyleSheet.create({
+        upcomingParty: {
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: isDarkMode ? "#0f0f0f" : "#f0f0f0",
+            padding: 16,
+            marginBottom: 10,
+        },
+        platformLogo: {
+            marginRight: 10,
+        },
+        partyDetails: {
+            flex: 1,
+            color: theme.gray
+        },
+        partyName: {
+            fontSize: 16,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        startTime: {
+            fontSize: 14,
+            opacity: 0.5,
+            color: theme.textColor,
+        },
+        upcomingMovieTitle: {
+            fontSize: 14,
+            opacity: 0.5,
+            color: theme.textColor,
+        },
+        reminder: {
+            flexDirection: "row",
+            alignItems: "center",
+        },
+        reminderText: {
+            marginLeft: 5,
+            color: theme.textColor,
+        },
+    });
 
     return (
         <View style={styles.upcomingParty}>
@@ -200,7 +378,7 @@ const PartySchedule = ({ movieTitle, partyName, startTime, platform }) => {
                 <Ionicons
                     name={reminderSet ? "notifications" : "notifications-outline"} // Conditional icon rendering
                     size={24}
-                    color={reminderSet ? "#4a42c0" : "black"} // Conditional color rendering
+                    color={reminderSet ? "#4a42c0" : isDarkMode ? "white" : "black"} // Conditional color rendering
                 />
                 {!reminderSet && <Text style={styles.reminderText}>Remind Me</Text>}
             </TouchableOpacity>
@@ -208,138 +386,6 @@ const PartySchedule = ({ movieTitle, partyName, startTime, platform }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-    },
-    header: {
-        marginTop: 16,
-        height: 50,
-        marginBottom: 30,
-        backgroundColor: "#fff",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 16,
-    },
-    roomName: {
-        marginLeft: 35,
-        fontSize: 20,
-        fontWeight: "500",
-    },
-    videoContainer: {
-        marginBottom: 16,
-        paddingHorizontal: 16,
-    },
-    videoPlaceholder: {
-        width: "100%",
-        height: 200,
-        backgroundColor: "#e0e0e0",
-        marginBottom: 8,
-    },
-    enterButton: {
-        padding: 8,
-        backgroundColor: "#4a42c0",
-        alignItems: "center",
-        borderRadius: 4,
-        marginBottom: 8,
-        width: 100,
-    },
-    enterText: {
-        fontSize: 16,
-        color: "white",
-    },
-    participants: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    participantsText: {
-        marginLeft: 6,
-        fontSize: 16,
-    },
-    movieInfo: {
-        marginBottom: 26,
-    },
-    movieTitle: {
-        fontSize: 18,
-        fontWeight: "600",
-        marginBottom: 4,
-    },
-    movieDetails: {
-        fontSize: 15,
-        marginBottom: 8,
-        color: "gray",
-    },
-    rating: {
-        color: "red",
-    },
-    movieDescription: {
-        fontSize: 15,
-        color: "#7b7b7b",
-    },
-    profilePlaceholder: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: "#ccc",
-        marginRight: 8,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    errorContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    upcomingPartiesTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginBottom: 12,
-        paddingHorizontal: 16,
-    },
-    line: {
-        height: 1,
-        backgroundColor: "#e0e0e0",
-        marginVertical: 10,
-        marginHorizontal: 16,
-    },
-    upcomingParty: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-        marginBottom: 10,
-    },
-    platformLogo: {
-        marginRight: 10,
-    },
-    partyDetails: {
-        flex: 1,
-    },
-    partyName: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    startTime: {
-        fontSize: 14,
-        color: "gray",
-    },
-    upcomingMovieTitle: {
-        fontSize: 16,
-        color: "#333",
-    },
-    reminder: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    reminderText: {
-        marginLeft: 5,
-        fontSize: 14,
-    },
-});
+
 
 export default ViewRoom;
