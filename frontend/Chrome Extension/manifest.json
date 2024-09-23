@@ -17,7 +17,11 @@
     ],
     "action": {
       "default_popup": "popup.html",
-      "default_icon": "icons/icon.png"
+      "default_icon": "icons/icon.png",
+      "default_popup_size": {
+        "width": 600,
+        "height": 400
+      }
     },
     "icons": {
       "128": "icons/icon.png"
