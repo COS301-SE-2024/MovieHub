@@ -1,39 +1,26 @@
 {
-  "manifest_version": 3,
-  "name": "Watch Party Extension",
-  "version": "1.0",
-  "description": "Injects a chat interface into a streaming platform for watch parties.",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage",
-    "tabs"
-  ],
-  "background": {
-    "service_worker": "background.js"
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://*.netflix.com/*"
-      ],
-      "js": [
-        "content.js"
-      ],
+    "name": "My Watch Party Extension",
+    "version": "1.0",
+    "description": "Watch party chat for streaming.",
+    "manifest_version": 3,
+    "permissions": ["activeTab", "storage"],
+    "background": {
+      "service_worker": "js/background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://*.netflix.com/*"],
+        "js": ["js/content.js"],
+        "css": ["css/styles.css"],
       "run_at": "document_end"
+      }
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "icons/icon.png"
+    },
+    "icons": {
+      "128": "icons/icon.png"
     }
-  ],
-  "action": {
-    "default_popup": "popup.html"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "content.js"
-      ],
-      "matches": [
-        "*://*/*"
-      ]
-    }
-  ]
-}
+  }
+  
