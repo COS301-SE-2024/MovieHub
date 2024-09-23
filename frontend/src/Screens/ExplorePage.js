@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, FlatList, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from "react-native";
 import BottomHeader from '../Components/BottomHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import NonFollowerPost from '../Components/NonFollowerPost';
@@ -166,16 +167,20 @@ export default function ExplorePage({ route }) {
     const handleSearch = async (name) => {
 
         if (name.trim() === "") {
-            setSearchResults([]); // Clear results if input is empty
+            setSearchResults([]); 
             return;
         }
-        
-        const response = await searchUser(name);
-        
-        console.log(response);
-
-        setSearchResults(response.users || []);
-       
+        try {
+        const response = await searchUser(name); 
+        if (response.users) {
+            setSearchResults(response.users);
+        } else {
+            setSearchResults([]); 
+        }
+    } catch (error) {
+        console.error("Error during search:", error.message);
+        setSearchResults([]); 
+    }
     };
 
     const renderUser = ({ item }) => (
@@ -243,11 +248,15 @@ export default function ExplorePage({ route }) {
     };
 
     const renderFollower = ({ item }) => (
+        <TouchableOpacity
+        onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo : item })} 
+      >
         <FollowList 
             username={item.username}
             userHandle={item.name}
             userAvatar={item.avatar}
         />
+         </TouchableOpacity>
     );
 
     
@@ -286,7 +295,15 @@ export default function ExplorePage({ route }) {
     return (
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
             <ScrollView>
-                <SearchBar onChangeText={(text) => handleSearch(text)} />
+            <SearchBar onChangeText={handleSearch} />
+                {searchResults.length > 0 && (
+                <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item.uid}
+                    renderItem={renderFollower}
+                    showsVerticalScrollIndicator={false}
+                />
+            )}
 
                 <View style={styles.postsContainer}>
                     <HubTabView>
