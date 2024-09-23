@@ -19,7 +19,7 @@
         "*://*.showmax.com/*"
       ],
       "js": [
-        "contentScript.js"
+        "content.js"
       ]
     }
   ],
