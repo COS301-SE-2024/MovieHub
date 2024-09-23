@@ -289,7 +289,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                 <Icon
                     name={hasLiked ? 'favorite' : 'favorite-border'}
                     size={20}
-                    color={hasLiked ? 'red' : 'black'}
+                    color={hasLiked ? 'red' : theme.iconColor}
                     style={{ marginRight: 5 }}
                 />
                     <Text style={styles.statsNumber}>{likeCount}</Text>
@@ -299,13 +299,13 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
                         onPress={() => {
                             handleCommentPress(postId, false);
                         }}>
-                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                        <CommIcon name="comment-outline" size={20} color={theme.iconColor} style={styles.icon} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
-                    <CommIcon name="share-outline" size={20} style={styles.icon} />
+                    <CommIcon name="share-outline" size={20} color={theme.iconColor} style={styles.icon} />
                 </Pressable>
             </View>
             {modalVisible && (
