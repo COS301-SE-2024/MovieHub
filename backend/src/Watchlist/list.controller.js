@@ -63,6 +63,18 @@ exports.getCollaborators = async (req, res) => {
     }
 };
 
+exports.getFollowedUsersWatchlists = async (req, res) => {
+    const userId = req.params.userId; // Assuming userId is passed in the URL params
+
+    try {
+        const watchlists = await WatchlistService.getFollowedUsersWatchlists(userId);
+        return res.status(200).json(watchlists);
+    } catch (error) {
+        console.error("Error in getFollowedUsersWatchlists controller:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 exports.deleteWatchlist = async (req, res) => {
     const watchlistId = req.params.watchlistId;
 

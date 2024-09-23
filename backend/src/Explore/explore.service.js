@@ -24,19 +24,19 @@ exports.fetchFriendsContent = async (userId) => {
 
     // Query for friends and their posts including friends' information
     const postsQuery = `
-      MATCH (u:User)-[:FOLLOWS]->(friend:User)
-      WHERE u.uid = $userId
-      OPTIONAL MATCH (friend)-[:POSTED]->(post:Post)
-      RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, post
-    `;
+  MATCH (u:User)-[:FOLLOWS]->(friend:User)
+  WHERE u.uid = $userId AND friend.uid <> $userId
+  OPTIONAL MATCH (friend)-[:POSTED]->(post:Post)
+  RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, post
+`;
 
     // Query for friends and their reviews including friends' information
     const reviewsQuery = `
-      MATCH (u:User)-[:FOLLOWS]->(friend:User)
-      WHERE u.uid = $userId
-      OPTIONAL MATCH (friend)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
-      RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, review, movie
-    `;
+  MATCH (u:User)-[:FOLLOWS]->(friend:User)
+  WHERE u.uid = $userId AND friend.uid <> $userId
+  OPTIONAL MATCH (friend)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
+  RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, review, movie
+`;
 
     try {
         // Execute the queries with new sessions
@@ -85,12 +85,12 @@ exports.fetchFriendsContent = async (userId) => {
 // Fetch friends of friends' posts and reviews
 exports.fetchFriendsOfFriendsContent = async (userId) => {
     const query = `
-      MATCH (u:User)-[:FOLLOWS]->(friend:User)-[:FOLLOWS]->(fof:User)
-      WHERE u.uid = $userId AND NOT (u)-[:FOLLOWS]->(fof)
-      OPTIONAL MATCH (fof)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
-      OPTIONAL MATCH (fof)-[:POSTED]->(post:Post)
-      RETURN fof, post, review, movie
-    `;
+  MATCH (u:User)-[:FOLLOWS]->(friend:User)-[:FOLLOWS]->(fof:User)
+  WHERE u.uid = $userId AND NOT (u)-[:FOLLOWS]->(fof) AND fof.uid <> $userId
+  OPTIONAL MATCH (fof)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
+  OPTIONAL MATCH (fof)-[:POSTED]->(post:Post)
+  RETURN fof, post, review, movie
+`;
 
     try {
         const result = await session.run(query, { userId });
@@ -110,17 +110,18 @@ exports.fetchFriendsOfFriendsContent = async (userId) => {
 // Fetch random users' posts
 exports.fetchRandomUsersContent = async (userId) => {
     const query = `
-      MATCH (currentUser:User {uid: $userId})
-      MATCH (u:User)-[:POSTED]->(post:Post)
-      WHERE NOT u = currentUser
-      AND NOT (currentUser)-[:FOLLOWS]->(u)
-      AND NOT EXISTS {
-        MATCH (currentUser)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u)
-      }
-      RETURN u, post
-      ORDER BY rand()
-      LIMIT 10
-    `;
+  MATCH (currentUser:User {uid: $userId})
+  MATCH (u:User)-[:POSTED]->(post:Post)
+  WHERE NOT u = currentUser
+  AND NOT (currentUser)-[:FOLLOWS]->(u)
+  AND u.uid <> $userId
+  AND NOT EXISTS {
+    MATCH (currentUser)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u)
+  }
+  RETURN u, post
+  ORDER BY rand()
+  LIMIT 10
+`;
 
     try {
         const result = await session.run(query, { userId });

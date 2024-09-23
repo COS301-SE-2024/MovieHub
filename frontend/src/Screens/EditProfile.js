@@ -32,7 +32,7 @@ export default function EditProfile({ route }) {
         currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: defaultUserProfile.bio, tempValue: "" },
         pronouns: { isVisible: false, newValue: defaultUserProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
-        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller"] },
+        favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"] },
     });
 
     const applyChanges = async (field) => {
@@ -199,6 +199,8 @@ export default function EditProfile({ route }) {
             height: 80,
             borderRadius: 50,
             marginBottom: 10,
+            borderColor: theme.primaryColor,
+            borderWidth: 1.5,
         },
         section: {
             marginBottom: 20,
@@ -229,8 +231,8 @@ export default function EditProfile({ route }) {
             // color: colors.primary
         },
         entryButton: {
-            backgroundColor: "#4A42C0",
-            padding: 16,
+            backgroundColor: theme.primaryColor,
+            padding: 14,
             borderRadius: 4,
             alignItems: "center",
             marginBottom: 20,
@@ -290,8 +292,8 @@ export default function EditProfile({ route }) {
             padding: 10,
             margin: 6,
             borderRadius: 10,
-            backgroundColor: theme.backgroundColor,
-            color: "#fff",
+            backgroundColor: theme.primaryColor,
+            color: "white",
         },
     });
 
@@ -333,8 +335,8 @@ export default function EditProfile({ route }) {
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Change {field === "favouriteGenres" ? "Favorite Genres" : field.charAt(0).toUpperCase() + field.slice(1)}</Text>
                             {field === "favouriteGenres" ? (
-                                <View>
-                                    <ScrollView style={{ maxHeight: 200 }}>
+                                <View style={{ backgroundColor: theme.backgroundColor }}>
+                                    <ScrollView style={{ maxHeight: 200, backgroundColor: theme.backgroundColor }}>
                                         {modalContent[field].options.map((option, index) => (
                                             <TouchableOpacity key={index} onPress={() => handleOptionPress(field, option)}>
                                                 <Text style={[styles.option, { backgroundColor: modalContent[field].tempValue.includes(option) ? "#7b7b7b" : "#ffffff", color: modalContent[field].tempValue.includes(option) ? "#ffffff" : "#000000" }]}>{option}</Text>
