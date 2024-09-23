@@ -503,8 +503,8 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="WatchlistDetails"
             component={WatchlistDetails}
-            options={({ navigation }) => ({
-                title: "",
+            options={({ route }) => ({
+                title: route.params.watchlist.name,
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: theme.textColor,
