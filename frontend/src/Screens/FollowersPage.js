@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import FollowList from '../Components/FollowList';
 import { getFollowers } from '../Services/UsersApiService';
+import { useTheme } from "../styles/ThemeContext";
 
 const FollowersPage = ({ route }) => {
     const { userInfo } = route.params; 
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true); 
+    const {theme} = useTheme();
 
     // Fetch followers list
     const fetchFollowers = async () => {
@@ -32,6 +34,27 @@ const FollowersPage = ({ route }) => {
         />
     );
 
+    const styles = StyleSheet.create({
+        container: {
+            paddingTop: 10,
+            flex: 1,
+            backgroundColor: theme.backgroundColor, 
+        },
+        loader: {
+            marginTop: 20,
+        },
+        noFollowersText: {
+            textAlign: 'center',
+            marginTop: 20,
+            fontSize: 16,
+            color: '#999',
+        },
+        separator: {
+            borderColor: 'transparent',
+            borderBottomWidth: 1,
+        },
+    });
+
     return (
         <View style={styles.container}>
             {loading ? ( 
@@ -50,25 +73,6 @@ const FollowersPage = ({ route }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        paddingTop: 10,
-        flex: 1,
-        backgroundColor: '#ffffff', 
-    },
-    loader: {
-        marginTop: 20,
-    },
-    noFollowersText: {
-        textAlign: 'center',
-        marginTop: 20,
-        fontSize: 16,
-        color: '#999',
-    },
-    separator: {
-        borderColor: '#ddd',
-        borderBottomWidth: 1,
-    },
-});
+
 
 export default FollowersPage;

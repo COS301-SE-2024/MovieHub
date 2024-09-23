@@ -82,7 +82,7 @@ export default function AccountSettings({ route }) {
         },
         modalContainer: {
             width: "80%",
-            backgroundColor: "#fff",
+            backgroundColor: theme.backgroundColor,
             padding: 20,
             borderRadius: 10,
             alignItems: "center",
@@ -97,6 +97,7 @@ export default function AccountSettings({ route }) {
             fontSize: 16,
             textAlign: "center",
             marginBottom: 20,
+            color: theme.textColor,
         },
         modalActions: {
             flexDirection: "row",
@@ -109,7 +110,6 @@ export default function AccountSettings({ route }) {
             flex: 1,
             alignItems: "center",
             marginHorizontal: 5,
-            
         },
         modalButtonText: {
             fontSize: 16,

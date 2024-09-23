@@ -228,7 +228,7 @@ const HubScreen = ({ route }) => {
                     <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate("CreateRoom", { userInfo, onRoomCreate: handleCreateRoom })}>
                         <Text style={styles.createButtonText}>Create new room</Text>
                         <View style={{ flex: 1 }} />
-                        <MaterialIcons name="add" size={24} />
+                        <MaterialIcons name="add" color={theme.textColor} size={24} />
                     </TouchableOpacity>
                 </View>
 

@@ -100,9 +100,9 @@ export default function ChangePassword({ route }) {
             borderColor: theme.borderColor,
         },
         line: {
-            marginTop: 30,
+            // marginTop: 30,
             height: 1,
-            backgroundColor: "#e0e0e0",
+            backgroundColor: "transparent",
             marginVertical: 5,
             shadowColor: "#e0e0e0",
             shadowOffset: {

@@ -434,7 +434,7 @@ export default function CreatePost({ route }) {
                 <View style={styles.imagePreviewContainer}>
                     <Image source={{ uri: imageUri }} style={styles.imagePreview} />
                     <TouchableOpacity style={styles.removeImageButton} onPress={handleRemoveImage}>
-                        <Icon name="close-circle" size={24} color="#fff" />
+                        <Icon name="close-circle" size={24} color={theme.textColor} />
                     </TouchableOpacity>
                 </View>
             )}
@@ -471,13 +471,13 @@ export default function CreatePost({ route }) {
                 <View style={styles.actionsContainer}>
                     <View style={styles.iconsContainer}>
                         <TouchableOpacity onPress={handleAddLink}>
-                            <CommIcon style={styles.icon} name="link-variant" size={23} />
+                            <CommIcon style={styles.icon} name="link-variant"  color={theme.textColor}size={23} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleAddImage}>
-                            <CommIcon style={styles.icon} name="image-size-select-actual" size={23} />
+                            <CommIcon style={styles.icon} name="image-size-select-actual" color={theme.textColor} size={23} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleAddEmoji}>
-                            <CommIcon style={styles.icon} name="emoticon-happy-outline" size={23} />
+                            <CommIcon style={styles.icon} name="emoticon-happy-outline" color={theme.textColor} size={23} />
                         </TouchableOpacity>
                     </View>
                     <View style={styles.allowCommentsContainer}>
