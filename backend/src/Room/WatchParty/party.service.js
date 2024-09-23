@@ -3,7 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 const WebSocket = require('ws');
 const axios = require('axios');
-const { getDatabase, ref, push } = require('firebase/database');
+const { getDatabase, ref, push, set } = require('firebase/database');
+const { sendNotification } = require('./notification.service'); // Assuming you have this for notifications
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -13,6 +14,97 @@ const driver = neo4j.driver(
 const WS_SERVER_URL = process.env.WS_SERVER_URL;
 const HYPERBEAM_API_URL = 'https://engine.hyperbeam.com/v0/vm';
 const HYPERBEAM_API_KEY = process.env.HYPERBEAM_API_KEY;
+
+// Function to generate unique party code
+const generatePartyCode = () => {
+    return Math.random().toString(36).substr(2, 6).toUpperCase();
+};
+
+    // Function to handle starting a watch party
+exports.startWatchParty = async (userId, roomId) => {
+        const session = driver.session();
+        const partyCode = generatePartyCode();  // Generate unique code
+        const timestamp = Date.now();
+
+        try {
+            // Store the watch party details in Neo4j
+            const result = await session.run(
+                `CREATE (p:WatchParty {partyCode: $partyCode, roomId: $roomId, createdBy: $userId, createdAt: $timestamp}) 
+                 RETURN p`,
+                { partyCode, roomId, userId, timestamp }
+            );
+
+            // Store the party message in Firebase Realtime Database (for the room)
+            const watchPartyMessageRef = ref(db, `rooms/${roomId}/WatchParty`);
+            await set(push(watchPartyMessageRef), {
+                message: `Watch party started! Join with the code: ${partyCode}`,
+                partyCode,
+                createdBy: userId,
+                createdAt: timestamp
+            });
+
+            // Notify users about the watch party (via Firebase Notifications)
+            await sendNotification({
+                roomId,
+                message: `A new watch party has started. Join with code: ${partyCode}`,
+                type: 'WATCH_PARTY'
+            });
+
+            return { success: true, partyCode };
+        } catch (error) {
+            console.error('Error starting watch party:', error);
+            return { success: false, error: 'Failed to start watch party' };
+        } finally {
+            await session.close();
+        }
+    };
+
+    // Function to handle joining a watch party
+exports.joinWatchParty = async ( username, partyCode) => {
+        const session = driver.session();
+
+        try {
+            // Retrieve the watch party details from Neo4j
+            const result = await session.run(
+                `MATCH (p:WatchParty {partyCode: $partyCode}) 
+                 RETURN p.roomId AS roomId, p.createdBy AS createdBy, p.createdAt AS createdAt`,
+                { partyCode }
+            );
+
+            const record = result.records[0];
+            if (!record) {
+                return { success: false, error: 'Invalid party code' };
+            }
+
+            const roomId = record.get('roomId');
+            const createdBy = record.get('createdBy');
+            const createdAt = record.get('createdAt');
+
+            // Send a message to the room about the new user joining
+            const joinMessageRef = ref(db, `rooms/${roomId}/WatchParty`);
+            await set(push(joinMessageRef), {
+                message: `User ${username} has joined the watch party!`,
+                username,
+                createdAt: Date.now()
+            });
+
+            return {
+                success: true,
+                roomId,
+                partyDetails: {
+                    createdBy,
+                    createdAt
+                }
+            };
+        } catch (error) {
+            console.error('Error joining watch party:', error);
+            return { success: false, error: 'Failed to join watch party' };
+        } finally {
+            await session.close();
+        }
+    };
+
+
 
 // Function to schedule a watch party (Needs to be revisited)
 exports.scheduleWatchParty = async (userId, partyData) => {

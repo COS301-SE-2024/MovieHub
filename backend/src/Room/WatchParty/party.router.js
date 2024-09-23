@@ -2,6 +2,13 @@ const express = require('express');
 const partyController = require('./party.controller');
 
 const router = express.Router();
+// Route to start a watch party
+router.post('/start', partyController.startWatchParty);
+
+// Route to join a watch party
+router.post('/join', partyController.joinWatchParty);
+
+
 
 // Route to schedule a new watch party
 router.post('/schedule/:userId', partyController.scheduleWatchParty);

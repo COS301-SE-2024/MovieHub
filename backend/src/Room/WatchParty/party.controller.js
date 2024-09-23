@@ -1,5 +1,52 @@
 const partyService = require('./party.service');
 
+// Controller for starting a watch party
+exports.startWatchParty = async (req, res) => {
+    const { userId, roomId } = req.body;
+
+    if (!userId || !roomId) {
+        return res.status(400).json({ success: false, message: 'User ID and Room ID are required' });
+    }
+
+    try {
+        const result = await partyService.startWatchParty(userId, roomId);
+        if (result.success) {
+            return res.status(200).json({ success: true, partyCode: result.partyCode });
+        } else {
+            return res.status(500).json({ success: false, message: result.error });
+        }
+    } catch (error) {
+        console.error('Error in startWatchParty controller:', error);
+        return res.status(500).json({ success: false, message: 'Failed to start watch party' });
+    }
+};
+
+// Controller for joining a watch party
+exports.joinWatchParty = async (req, res) => {
+    const { username, partyCode } = req.body;
+
+    if (!username || !partyCode) {
+        return res.status(400).json({ success: false, message: 'Username and Party Code are required' });
+    }
+
+    try {
+        const result = await partyService.joinWatchParty(userId, partyCode);
+        if (result.success) {
+            return res.status(200).json({
+                success: true,
+                roomId: result.roomId,
+                partyDetails: result.partyDetails
+            });
+        } else {
+            return res.status(400).json({ success: false, message: result.error });
+        }
+    } catch (error) {
+        console.error('Error in joinWatchParty controller:', error);
+        return res.status(500).json({ success: false, message: 'Failed to join watch party' });
+    }
+};
+
+
 exports.scheduleWatchParty = async (req, res) => {
     const userId = req.params.userId;
     const partyData = req.body;
