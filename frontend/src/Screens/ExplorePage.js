@@ -18,6 +18,7 @@ import Post from "../Components/Post";  // To render posts
 import Review from "../Components/Review";  // To render reviews
 import moment from "moment";
 import { useTheme } from '../styles/ThemeContext';
+import SearchBar from '../Components/SearchBar';
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
@@ -237,25 +238,7 @@ export default function ExplorePage({ route }) {
     return (
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
             <ScrollView>
-                {/* <View style={styles.header}>
-                    <Text style={styles.heading}>The Hub</Text>
-                    <Ionicons name="chevron-forward" size={24} color="black" style={{ marginLeft: "auto" }} onPress={handleOpenHub} />
-                </View>
-
-                {recentRooms.length > 0 && (
-                    <View>
-                        <FlatList
-                            data={recentRooms}
-                            renderItem={renderRoomCard}
-                            keyExtractor={(item) => item.roomId.toString()}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.roomList}
-                        />
-                        <View style={styles.divider} />
-                    </View>
-                )} */}
-
+                <SearchBar onChangeText={(text) => handleSearch(text)} />
                 <View style={styles.postsContainer}>
                     <HubTabView>
                         <View>
