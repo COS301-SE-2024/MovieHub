@@ -3,6 +3,7 @@ import { View, FlatList, StyleSheet, Text, ActivityIndicator, TouchableOpacity }
 import FollowList from '../Components/FollowList';
 import { getFollowing } from '../Services/UsersApiService';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from "../styles/ThemeContext";
 
 const FollowingPage = ({ route }) => {
     const { userInfo } = route.params;
@@ -10,7 +11,7 @@ const FollowingPage = ({ route }) => {
     const [followers, setFollowing] = useState([]);
     const [loading, setLoading] = useState(true); 
     const navigation = useNavigation();
-
+    const { theme} = useTheme();
     const fetchFollowing = async () => {
         try {
             const response = await getFollowing(userInfo.userId);
@@ -34,6 +35,33 @@ const FollowingPage = ({ route }) => {
             userAvatar={item.avatar}
         />
     );
+
+    const styles = StyleSheet.create({
+        container: {
+            paddingTop: 10,
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        loader: {
+            marginTop: 20, 
+        },
+        noFollowersText: {
+            textAlign: 'center',
+            marginTop: 20,
+            fontSize: 16,
+        },
+        followSomeone: {
+            textAlign: 'center',
+            marginTop: 20,
+            fontSize: 16,
+            color: '#4a42c0',
+            fontWeight: 'bold',
+        },
+        separator: {
+            borderColor: 'transparent',
+            borderBottomWidth: 1,
+        },
+    });
 
     return (
         <View style={styles.container}>
@@ -59,31 +87,6 @@ const FollowingPage = ({ route }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        paddingTop: 10,
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-    loader: {
-        marginTop: 20, 
-    },
-    noFollowersText: {
-        textAlign: 'center',
-        marginTop: 20,
-        fontSize: 16,
-    },
-    followSomeone: {
-        textAlign: 'center',
-        marginTop: 20,
-        fontSize: 16,
-        color: '#4a42c0',
-        fontWeight: 'bold',
-    },
-    separator: {
-        borderColor: '#ddd',
-        borderBottomWidth: 1,
-    },
-});
+
 
 export default FollowingPage;
