@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, FlatList, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from "react-native";
 import BottomHeader from '../Components/BottomHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import NonFollowerPost from '../Components/NonFollowerPost';
@@ -9,9 +10,11 @@ import { getFriendsOfFriendsContent, getRandomUsersContent } from '../Services/E
 import { InstagramLoader } from 'react-native-easy-content-loader';
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; 
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
+import {  searchUser  } from "../Services/UsersApiService";
 import CommentsModal from '../Components/CommentsModal';
 import { getRecentRooms, getPublicRooms, getRoomParticipantCount } from "../Services/RoomApiService";
 import UserRoomCard from '../Components/UserRoomCard';
+import FollowList from '../Components/FollowList';
 import HubTabView from '../Components/HubTabView';
 import { getFriendsContent } from "../Services/ExploreApiService"; // Add this if not already imported
 import Post from "../Components/Post";  // To render posts
@@ -19,6 +22,7 @@ import Review from "../Components/Review";  // To render reviews
 import moment from "moment";
 import { useTheme } from '../styles/ThemeContext';
 import SearchBar from '../Components/SearchBar';
+
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
@@ -34,7 +38,9 @@ export default function ExplorePage({ route }) {
     const [loadingComments, setLoadingComments] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null); 
     const [recentRooms, setRecentRooms] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
     const [sortedContent, setSortedContent] = useState([]);
+
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
     useEffect(() => {
@@ -158,6 +164,40 @@ export default function ExplorePage({ route }) {
         bottomSheetRef.current?.present();
     };
 
+    const handleSearch = async (name) => {
+
+        if (name.trim() === "") {
+            setSearchResults([]); 
+            return;
+        }
+        try {
+        const response = await searchUser(name); 
+        if (response.users) {
+            setSearchResults(response.users);
+        } else {
+            setSearchResults([]); 
+        }
+    } catch (error) {
+        console.error("Error during search:", error.message);
+        setSearchResults([]); 
+    }
+    };
+
+    const renderUser = ({ item }) => (
+        <View style={styles.container}>
+            <View style={styles.profileInfo}>
+                <Image source={{ uri: item.avatar }} style={styles.avatar} />
+                <View style={{ alignItems: "left" }}>
+                    <Text style={styles.username}>{item.name}</Text>
+                    <Text style={styles.userHandle}>{item.username}</Text>
+                </View>
+            </View>
+            {item.avatar && <Image source={{ uri: item.avatar }} style={styles.postImage} />}
+            <View style={styles.statsContainer}>
+            </View>
+        </View>
+    );
+
     const fetchRooms = useCallback(async () => {
         try {
             const recentRoomsData = await getRecentRooms(userInfo.userId);
@@ -202,6 +242,23 @@ export default function ExplorePage({ route }) {
             coverImage={item.coverImage}
         />
     );
+
+    const getRandomKeyword = () => {
+        return keywords[Math.floor(Math.random() * keywords.length)];
+    };
+
+    const renderFollower = ({ item }) => (
+        <TouchableOpacity
+        onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo : item })} 
+      >
+        <FollowList 
+            username={item.username}
+            userHandle={item.name}
+            userAvatar={item.avatar}
+        />
+         </TouchableOpacity>
+    );
+
     
     const styles = StyleSheet.create({
         container: {
@@ -238,7 +295,16 @@ export default function ExplorePage({ route }) {
     return (
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
             <ScrollView>
-                <SearchBar onChangeText={(text) => handleSearch(text)} />
+            <SearchBar onChangeText={handleSearch} />
+                {searchResults.length > 0 && (
+                <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item.uid}
+                    renderItem={renderFollower}
+                    showsVerticalScrollIndicator={false}
+                />
+            )}
+
                 <View style={styles.postsContainer}>
                     <HubTabView>
                         <View>
