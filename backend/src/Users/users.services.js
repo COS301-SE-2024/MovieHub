@@ -75,6 +75,41 @@ exports.changeMode = async (uid, mode) => {
     }
 };
 
+exports.toggleMode = async (uid) => {
+    console.log("In Services: toggleMode");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User { uid: $uid })
+             RETURN u.mode AS currentMode`,
+            { uid }
+        );
+
+        if (result.records.length === 0) {
+            throw new Error("User not found");
+        }
+
+        // Get the current mode and determine the new mode
+        const currentMode = result.records[0].get('currentMode');
+        const newMode = (currentMode === 'light' || currentMode == null) ? 'dark' : 'light';
+
+        // Set the new mode
+        const updateResult = await session.run(
+            `MATCH (u:User { uid: $uid })
+             SET u.mode = $newMode
+             RETURN u`,
+            { uid, newMode }
+        );
+
+        return updateResult.records[0].get('u').properties.mode;
+    } catch (error) {
+        console.error("Error toggling mode: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 exports.getMode = async (uid) => {
     console.log("In Services: getMode");
     const session = driver.session();

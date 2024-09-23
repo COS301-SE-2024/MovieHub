@@ -11,6 +11,7 @@ router.patch('/:id', userController.updateUserProfile);  // Change PUT to PATCH
 router.delete('/:id', userController.deleteUserProfile);
 router.patch('/:id/mode/change', userController.changeMode); // Route to change mode
 router.get('/:id/mode', userController.getMode); // Route to get the current mode
+router.patch('/:id/mode/toggle', userController.toggleMode);
 
 router.get('/:id/watchlists', userController.getUserWatchlists);
 

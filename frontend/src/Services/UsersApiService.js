@@ -117,6 +117,22 @@ export const changeMode = async (userId, mode) => {
     return data;
 };
 
+export const toggleMode = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode/toggle`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+    });
+    if (!response.ok) {
+        throw new Error('Failed to toggle mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
 // API service to get the current mode
 export const getMode = async (userId) => {
     const headers = await verifyToken();

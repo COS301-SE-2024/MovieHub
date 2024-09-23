@@ -56,6 +56,24 @@ exports.changeMode = async (req, res) => {
     }
 };
 
+exports.toggleMode = async (req, res) => {
+    console.log('toggleMode called in user.controller');
+    const userId = req.params.id;
+
+    try {
+        console.log(`Toggling mode for user ID: ${userId}`);
+        const newMode = await userService.toggleMode(userId);
+        console.log('New mode:', newMode);
+        res.status(200).json({ message: 'Mode toggled successfully', mode: newMode });
+    } catch (error) {
+        console.error('Error toggling mode:', error);
+        res.status(500).json({ message: 'Error toggling mode', error: error.message });
+    }
+};
+
+
+
+
 exports.getMode = async (req, res) => {
     console.log('getMode called in user.controller');
     const userId = req.params.id;
