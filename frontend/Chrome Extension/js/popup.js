@@ -1,6 +1,8 @@
 document.getElementById("startPartyBtn").addEventListener("click", async () => {
     // Generate a unique party code
     const partyCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+    const roomShortCode = document.getElementById("roomShortCode").value;
+    // Logic to start the watch party with the room short code
     document.getElementById("partyCode").innerText = `Party Code: ${partyCode}`;
 
     // Send the code to the backend and broadcast to the chatroom
@@ -9,7 +11,7 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ partyCode }),
+        body: JSON.stringify({ roomShortCode, partyCode }),
     });
 
     if (response.ok) {

@@ -68,44 +68,58 @@ const generatePartyCode = () => {
     return Math.random().toString(36).substr(2, 6).toUpperCase();
 };
 
-    // Function to handle starting a watch party
-exports.startWatchParty = async (userId, roomId) => {
-        const session = driver.session();
-        const partyCode = generatePartyCode();  // Generate unique code
-        const timestamp = Date.now();
+// Function to handle starting a watch party
+exports.startWatchParty = async ( partyCode, roomShortCode) => {
+    const session = driver.session();
+   // const partyCode = generatePartyCode();  // Generate unique code
+    const timestamp = Date.now();
+    let roomId;
 
-        try {
-            // Store the watch party details in Neo4j
-            const result = await session.run(
-                `CREATE (p:WatchParty {partyCode: $partyCode, roomId: $roomId, createdBy: $userId, createdAt: $timestamp}) 
-                 RETURN p`,
-                { partyCode, roomId, userId, timestamp }
-            );
+    try {
+        // Retrieve the room ID using the room short code
+        const roomResult = await session.run(
+            `MATCH (r:Room {shortCode: $roomShortCode}) 
+             RETURN r.roomId AS roomId`,
+            { roomShortCode }
+        );
 
-            // Store the party message in Firebase Realtime Database (for the room)
-            const watchPartyMessageRef = ref(db, `rooms/${roomId}/WatchParty`);
-            await set(push(watchPartyMessageRef), {
-                message: `Watch party started! Join with the code: ${partyCode}`,
-                partyCode,
-                createdBy: userId,
-                createdAt: timestamp
-            });
-
-            // Notify users about the watch party (via Firebase Notifications)
-            await sendNotification({
-                roomId,
-                message: `A new watch party has started. Join with code: ${partyCode}`,
-                type: 'WATCH_PARTY'
-            });
-
-            return { success: true, partyCode };
-        } catch (error) {
-            console.error('Error starting watch party:', error);
-            return { success: false, error: 'Failed to start watch party' };
-        } finally {
-            await session.close();
+        const record = roomResult.records[0];
+        if (!record) {
+            return { success: false, error: 'Invalid room short code' };
         }
-    };
+        roomId = record.get('roomId');
+
+        // Store the watch party details in Neo4j
+        await session.run(
+            `CREATE (p:WatchParty {partyCode: $partyCode, roomId: $roomId, createdAt: $timestamp}) 
+             RETURN p`,
+            { partyCode, roomId, timestamp }
+        );
+
+        // Store the party message in Firebase Realtime Database (for the room)
+        const watchPartyMessageRef = ref(db, `rooms/${roomId}/WatchParty`);
+        await set(push(watchPartyMessageRef), {
+            message: `Watch party started! Join with the code: ${partyCode}`,
+            partyCode,
+            createdAt: timestamp
+        });
+
+        // Notify users about the watch party (via Firebase Notifications)
+        await sendNotification({
+            roomId,
+            message: `A new watch party has started. Join with code: ${partyCode}`,
+            type: 'WATCH_PARTY'
+        });
+
+        return { success: true, partyCode };
+    } catch (error) {
+        console.error('Error starting watch party:', error);
+        return { success: false, error: 'Failed to start watch party' };
+    } finally {
+        await session.close();
+    }
+};
+
 
     // Function to handle joining a watch party
 exports.joinWatchParty = async ( username, partyCode) => {
