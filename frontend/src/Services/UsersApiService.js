@@ -99,6 +99,37 @@ export const deleteUserProfile = async (userId) => {
     }
 };
 
+// API service to change mode
+export const changeMode = async (userId, mode) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+        body: JSON.stringify({ mode }),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to change mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
+// API service to get the current mode
+export const getMode = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode`, {
+        headers,
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
 // export const deleteUserProfile = async (userId) => {
 //     try {
 //         const response = await fetch(`${API_URL}${userId}`, {

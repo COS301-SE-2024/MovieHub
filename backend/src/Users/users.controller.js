@@ -40,6 +40,39 @@ exports.updateUserProfile = async (req, res) => {
     }
 };
 
+exports.changeMode = async (req, res) => {
+    console.log('changeMode called in user.controller');
+    const userId = req.params.id;
+    const { mode } = req.body;
+
+    try {
+        console.log(`Changing mode for user ID: ${userId} to ${mode}`);
+        const result = await userService.changeMode(userId, mode);
+        console.log('Result in controller:', result);
+        res.status(200).json({ message: 'Mode changed successfully', mode: result.mode });
+    } catch (error) {
+        console.error('Error changing mode:', error);
+        res.status(500).json({ message: 'Error changing mode', error: error.message });
+    }
+};
+
+exports.getMode = async (req, res) => {
+    console.log('getMode called in user.controller');
+    const userId = req.params.id;
+
+    try {
+        console.log(`Fetching mode for user ID: ${userId}`);
+        const mode = await userService.getMode(userId);
+        console.log('Mode:', mode);
+        res.status(200).json({ mode });
+    } catch (error) {
+        console.error('Error fetching mode:', error);
+        res.status(500).json({ message: 'Error fetching mode', error: error.message });
+    }
+};
+
+
+
 exports.deleteUserProfile = async (req, res) => {
     console.log('DeleteUserProfile called');
     const userId = req.params.id;

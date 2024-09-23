@@ -17,7 +17,14 @@ exports.getUserProfile = async (userId) => {
         if (result.records.length === 0) {
             return null;
         }
-        return result.records[0].get("u").properties;
+
+        const profileGot = result.records[0].get('u').properties;
+
+        if (profileGot.mode == null) {
+            profileGot.mode = "light";
+        }
+
+        return profileGot;
     } finally {
         await session.close();
     }
@@ -38,6 +45,56 @@ exports.updateUserProfile = async (userId, updates) => {
         updateUserContent(userId);
         return result.records[0].get("u").properties;
     } catch (error) {
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
+exports.changeMode = async (uid, mode) => {
+    console.log("In Services: changeMode");
+    const session = driver.session();
+    try {
+        console.log(mode);
+        const result = await session.run(
+            `MATCH (u:User { uid: $uid})
+             SET u.mode = $mode
+             RETURN u`,
+            {uid, mode}
+        );
+        if (result.records.length === 0) {
+            throw new Error("User does not exist or is not autherized");
+        }
+        return result.records[0].get('u').properties;
+    } catch (error) {
+        console.error("Error changing mode: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getMode = async (uid) => {
+    console.log("In Services: getMode");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User { uid: $uid})
+             RETURN u`,
+            {uid}
+        );
+        if (result.records.length === 0) {
+            throw new Error("User does not exist");
+        }
+        const gotten = result.records[0].get('u').properties
+        if (gotten.mode === undefined) {
+            return "light"
+        }else{
+           return gotten.mode;
+        }
+    } catch (error) {
+        console.error("Error getting mode: ", error);
         throw error;
     } finally {
         await session.close();
@@ -101,7 +158,8 @@ exports.createUserNode = async (uid, username) => {
         }
 
         // Create the new user node
-        const createUserResult = await session.run("CREATE (u:User {uid: $uid, username: $username}) RETURN u", { uid, username });
+        const mode = "light";
+        const createUserResult = await session.run("CREATE (u:User {uid: $uid, username: $username,mode :$mode  }) RETURN u", { uid, username,mode });
 
         return createUserResult.records[0].get("u");
     } catch (error) {
