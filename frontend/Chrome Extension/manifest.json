@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Watch Party Extension",
+  "version": "1.0",
+  "description": "Start a watch party with chat and audio features on supported streaming platforms.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "webNavigation"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.netflix.com/*",
+        "*://*.showmax.com/*"
+      ],
+      "js": [
+        "contentScript.js"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  }
+}
