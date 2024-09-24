@@ -46,7 +46,22 @@ exports.joinWatchParty = async (req, res) => {
     }
 };
 
+// Controller to delete a watch party
+exports.deleteWatchParty = async (req, res) => {
+    const { username, partyCode } = req.body;
 
+    if (!username || !partyCode) {
+        return res.status(400).json({ success: false, error: 'Username and party code are required' });
+    }
+
+    const result = await partyService.deleteWatchParty(username, partyCode);
+
+    if (result.success) {
+        res.status(200).json(result);
+    } else {
+        res.status(400).json(result);
+    }
+};
 exports.scheduleWatchParty = async (req, res) => {
     const userId = req.params.userId;
     const partyData = req.body;

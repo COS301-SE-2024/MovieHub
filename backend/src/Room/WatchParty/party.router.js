@@ -8,6 +8,7 @@ router.post('/start', partyController.startWatchParty);
 // Route to join a watch party
 router.post('/join', partyController.joinWatchParty);
 
+router.delete('/delete', partyController.deleteWatchParty);
 
 
 // Route to schedule a new watch party

@@ -194,6 +194,44 @@ exports.syncPlaybackControls = async (roomId, controls) => {
     }
 };
 
+exports.deleteWatchParty = async (username, partyCode) => {
+    const session = driver.session();
+
+    try {
+        // Check if the user is hosting the watch party
+        const watchPartyResult = await session.run(
+            `MATCH (p:WatchParty {partyCode: $partyCode})<-[:HOSTS]-(u:User {username: $username})
+             RETURN p, u`,
+            { partyCode, username }
+        );
+
+        if (watchPartyResult.records.length === 0) {
+            return { success: false, error: 'You do not have permission to delete this watch party or the party does not exist' };
+        }
+
+        // Get roomId for the WatchParty
+        const roomId = watchPartyResult.records[0].get('p').properties.roomId;
+
+        // Delete the WatchParty node
+        await session.run(
+            `MATCH (p:WatchParty {partyCode: $partyCode})
+             DETACH DELETE p`,
+            { partyCode }
+        );
+
+        // Remove WatchParty data from Firebase
+        const watchPartyRef = ref(db, `rooms/${roomId}/WatchParty`);
+        await set(watchPartyRef, null);  // Removes the data at this reference
+
+        return { success: true, message: 'Watch party deleted successfully' };
+    } catch (error) {
+        console.error('Error deleting watch party:', error);
+        return { success: false, error: 'Failed to delete watch party' };
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Function to schedule a watch party (Needs to be revisited)
 exports.scheduleWatchParty = async (userId, partyData) => {
