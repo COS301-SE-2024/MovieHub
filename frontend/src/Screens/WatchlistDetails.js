@@ -15,11 +15,23 @@ const WatchlistDetails = ({ route }) => {
 
     const { watchlist } = route.params;
     console.log('Here is the watchlist passed: ', JSON.stringify(watchlist));
+
+    const extractWatchlistId = (watchlist) => {
+        const possibleKeys = ['watchlistId', 'id', 'watchlist_id'];
+    
+        for (const key of possibleKeys) {
+            if (watchlist[key] !== undefined) {
+                return watchlist[key];
+            }
+        }
+    
+        throw new Error('No valid watchlist ID found');
+    };
    
     useEffect(() => {
         const fetchWatchlistDetails = async () => {
             try {
-                const watchlistId = watchlist.id;
+                const watchlistId = extractWatchlistId(watchlist);
                 console.log(watchlistId);
                 let data = await getWatchlistDetails(watchlistId);
                 console.log('Watchlist Id in WatchListDetails', JSON.stringify(watchlistId));
