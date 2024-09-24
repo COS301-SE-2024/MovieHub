@@ -34,6 +34,11 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
     if (response.ok) {
         alert("Watch party started!");
 
+        // Store username and partyCode in localStorage
+        localStorage.setItem('username', username);
+        localStorage.setItem('partyCode', partyCode);
+
+
         // Initialize WebSocket connection with the roomId from the response
         ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
         // retrieved roomId from the server in the start/join logic
@@ -115,6 +120,10 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
 
         if (response.ok) {
             alert("Joined watch party!");
+            // Store username and partyCode in localStorage
+            localStorage.setItem('username', username);
+            localStorage.setItem('partyCode', partyCode);
+
 
             // Initialize WebSocket connection with the roomId from the response
              ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);

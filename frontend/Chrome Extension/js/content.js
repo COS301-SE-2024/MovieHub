@@ -3,29 +3,64 @@ const chatBox = document.createElement('div');
 chatBox.id = 'watchPartyChat';
 document.body.appendChild(chatBox);
 
-// Initialize Firebase (ensure Firebase SDK is loaded and initialized elsewhere in your project)
-import { getDatabase, ref, onChildAdded, push, set } from "firebase/database";
-
-const db = getDatabase();
-const chatRoomId = "your-chatroom-id";  // This should correspond to the roomId or partyCode
-
-// Function to handle new incoming messages from Firebase
-const chatRoomRef = ref(db, `rooms/${chatRoomId}/WatchPartyChat`);
-onChildAdded(chatRoomRef, (snapshot) => {
-  const message = snapshot.val();
+// Function to render a new chat message in the chatbox
+function addChatMessage(username, text) {
   const chatMessage = document.createElement('p');
-  chatMessage.textContent = `[${message.username}] ${message.text}`;
+  chatMessage.textContent = `[${username}] ${text}`;
   chatBox.appendChild(chatMessage);
-});
+}
 
-// Function to send a message to Firebase
-function sendMessage(username, text) {
-  const newMessageRef = push(chatRoomRef);
-  set(newMessageRef, {
-    username: username,
-    text: text,
-    timestamp: Date.now()
-  });
+// Function to dynamically retrieve username and party code
+function getUserDetails() {
+  // Retrieve username and partyCode from localStorage or any other mechanism
+  const username = localStorage.getItem('username') || prompt("Enter your username:");
+  const partyCode = localStorage.getItem('partyCode') || prompt("Enter your party code:");
+
+  // Store in localStorage if not already stored
+  if (!localStorage.getItem('username')) {
+    localStorage.setItem('username', username);
+  }
+  if (!localStorage.getItem('partyCode')) {
+    localStorage.setItem('partyCode', partyCode);
+  }
+
+  return { username, partyCode };
+}
+
+// Function to fetch watch party chat messages using PartyApiService
+async function fetchChatMessages(partyCode) {
+  try {
+    const response = await fetch(`http://localhost:3000/party/${partyCode}/chat`);
+    if (response.ok) {
+      const messages = await response.json();
+      messages.forEach(msg => addChatMessage(msg.username, msg.text));
+    } else {
+      console.error('Failed to fetch chat messages:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error fetching chat messages:', error);
+  }
+}
+
+// Function to send chat message via PartyApiService
+async function sendMessage(partyCode, username, text) {
+  try {
+    const response = await fetch(`http://localhost:3000/party/${partyCode}/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username,
+        text: text,
+      }),
+    });
+    if (!response.ok) {
+      console.error('Failed to send message:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error sending message:', error);
+  }
 }
 
 // Optional: Add input fields for sending messages
@@ -38,37 +73,18 @@ const sendButton = document.createElement('button');
 sendButton.textContent = 'Send';
 document.body.appendChild(sendButton);
 
+// Event listener for the send button
 sendButton.addEventListener('click', () => {
-  const username = "your-username";  // Replace with the actual username
+  const { username, partyCode } = getUserDetails();
   const text = chatInput.value;
   if (text) {
-    sendMessage(username, text);
+    sendMessage(partyCode, username, text);
     chatInput.value = '';  // Clear the input after sending
   }
 });
 
-// Optionally integrate WebRTC for audio capabilities
-navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-  const audioElement = document.createElement('audio');
-  audioElement.srcObject = stream;
-  document.body.appendChild(audioElement);
-  audioElement.play();
+// Fetch initial chat messages when the page loads
+window.addEventListener('load', () => {
+  const { partyCode } = getUserDetails();
+  fetchChatMessages(partyCode);
 });
-
-// // Create a link element for the CSS
-// const link = document.createElement('link');
-// link.href = chrome.runtime.getURL('css/styles.css'); // Path to the CSS file
-// link.type = 'text/css';
-// link.rel = 'stylesheet';
-
-// // Inject the link into the document's head
-// document.head.appendChild(link);
-
-// // Now add the chat UI (as explained earlier)
-// const chatDiv = document.createElement('div');
-// chatDiv.id = 'watch-party-chat';
-// chatDiv.innerHTML = `
-//   <div id="chat-box"></div>
-//   <input id="chat-input" type="text" placeholder="Enter message...">
-// `;
-// document.body.appendChild(chatDiv);
