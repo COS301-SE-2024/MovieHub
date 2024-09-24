@@ -2,14 +2,14 @@ const partyService = require('./party.service');
 
 // Controller for starting a watch party
 exports.startWatchParty = async (req, res) => {
-    const { roomShortCode, partyCode } = req.body;
+    const { username,roomShortCode, partyCode } = req.body;
 
-    if (!partyCode || !roomShortCode) {
+    if (!partyCode || !roomShortCode || !username) {
         return res.status(400).json({ success: false, message: 'Party code and Room code are required' });
     }
 
     try {
-        const result = await partyService.startWatchParty(partyCode, roomShortCode);
+        const result = await partyService.startWatchParty(username, partyCode, roomShortCode);
         if (result.success) {
             return res.status(200).json({ success: true, partyCode: result.partyCode });
         } else {

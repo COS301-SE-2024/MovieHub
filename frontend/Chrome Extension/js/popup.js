@@ -1,13 +1,22 @@
+
+
 document.getElementById("startPartyBtn").addEventListener("click", async () => {
     // Generate a unique party code
     let ws;//////////////////////////////// = new WebSocket("ws://localhost:3000?roomId=${roomId}");
     const partyCode = Math.random().toString(36).substr(2, 6).toUpperCase();
     const roomShortCode = document.getElementById("roomShortCode").value;
+    const username = document.getElementById("username").value;
     // Ensure both fields are filled
     if (!roomShortCode) {
         alert("Please enter the room's code.");
         return;
     }
+
+    if (!username) {
+        alert("Please enter your username.");
+        return;
+    }
+
     // Logic to start the watch party with the room short code
     document.getElementById("partyCode").innerText = `Party Code: ${partyCode}`;
 
@@ -17,11 +26,11 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ roomShortCode, partyCode }),
+        body: JSON.stringify({ username, roomShortCode, partyCode }),
     });
    
     const data = await response.json();
-    console.log("The wtch party data: ", data);
+    console.log("The watch party data: ", data);
     if (response.ok) {
         alert("Watch party started!");
 
@@ -32,6 +41,27 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
             console.log('WebSocket connection established');
         };
 
+        // // Listen for incoming messages
+        // ws.onmessage = function (event) {
+        //     const message = JSON.parse(event.data);
+        //     if (message.type === 'chat') {
+        //         const chatMessage = document.createElement('p');
+        //         chatMessage.textContent = `[${message.username}] ${message.text}`;
+        //         document.getElementById('messages').appendChild(chatMessage);
+        //     }
+        // };
+
+        // // Send message on button click
+        // document.getElementById('sendMessage').onclick = function () {
+        //     const input = document.getElementById('messageInput');
+        //     const message = {
+        //         type: 'chat',
+        //         username: 'User', // Replace with actual username
+        //         text: input.value
+        //     };
+        //     ws.send(JSON.stringify(message));
+        //     input.value = ''; // Clear input
+        // };
         ws.onmessage = (event) => {
             console.log('Received:', event.data);
         };
@@ -43,6 +73,8 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         ws.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
+
+        
     } else {
         alert("Error starting the watch party.");
     }
@@ -90,6 +122,28 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
             ws.onopen = () => {
                 console.log('WebSocket connection established');
             };
+
+            // Listen for incoming messages
+            // ws.onmessage = function (event) {
+            //     const message = JSON.parse(event.data);
+            //     if (message.type === 'chat') {
+            //         const chatMessage = document.createElement('p');
+            //         chatMessage.textContent = `[${message.username}] ${message.text}`;
+            //         document.getElementById('messages').appendChild(chatMessage);
+            //     }
+            // };
+
+            // // Send message on button click
+            // document.getElementById('sendMessage').onclick = function () {
+            //     const input = document.getElementById('messageInput');
+            //     const message = {
+            //         type: 'chat',
+            //         username: 'User', // Replace with actual username
+            //         text: input.value
+            //     };
+            //     ws.send(JSON.stringify(message));
+            //     input.value = ''; // Clear input
+            // };
 
             ws.onmessage = (event) => {
                 console.log('Received:', event.data);

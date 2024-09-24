@@ -68,10 +68,8 @@ const generatePartyCode = () => {
     return Math.random().toString(36).substr(2, 6).toUpperCase();
 };
 
-// Function to handle starting a watch party
-exports.startWatchParty = async ( partyCode, roomShortCode) => {
+exports.startWatchParty = async (username, partyCode, roomShortCode) => {
     const session = driver.session();
-   // const partyCode = generatePartyCode();  // Generate unique code
     const timestamp = Date.now();
     let roomId;
 
@@ -89,12 +87,32 @@ exports.startWatchParty = async ( partyCode, roomShortCode) => {
         }
         roomId = record.get('roomId');
         console.log('Room ID:', roomId);
-        // Store the watch party details in Neo4j
-        await session.run(
-            `CREATE (p:WatchParty {partyCode: $partyCode, roomId: $roomId, createdAt: $timestamp}) 
-             RETURN p`,
-            { partyCode, roomId, timestamp }
+
+        // Check if the user has permission to start the watch party
+        const permissionResult = await session.run(
+            `MATCH (u:User {username: $username})-[:CREATED|PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+             RETURN u`,
+            { username, roomId }
         );
+
+        if (permissionResult.records.length === 0) {
+            return { success: false, error: 'User does not have permission to start the watch party' };
+        }
+
+        // Create the WatchParty node and establish HOSTS relationship
+        const watchPartyResult = await session.run(
+            `CREATE (p:WatchParty {partyCode: $partyCode, roomId: $roomId, createdAt: $timestamp})
+             WITH p
+             MATCH (u:User {username: $username})
+             CREATE (u)-[:HOSTS]->(p)
+             RETURN p`,
+            { partyCode, roomId, timestamp, username }
+        );
+
+        const watchPartyNode = watchPartyResult.records[0];
+        if (!watchPartyNode) {
+            return { success: false, error: 'Failed to create watch party' };
+        }
 
         // Store the party message in Firebase Realtime Database (for the room)
         const watchPartyMessageRef = ref(db, `rooms/${roomId}/WatchParty`);
@@ -104,13 +122,6 @@ exports.startWatchParty = async ( partyCode, roomShortCode) => {
             createdAt: timestamp
         });
 
-        // // Notify users about the watch party (via Firebase Notifications)
-        // await sendNotification({
-        //     roomId,
-        //     message: `A new watch party has started. Join with code: ${partyCode}`,
-        //     type: 'WATCH_PARTY'
-        // });
-
         return { success: true, partyCode, roomId };
     } catch (error) {
         console.error('Error starting watch party:', error);
@@ -119,7 +130,6 @@ exports.startWatchParty = async ( partyCode, roomShortCode) => {
         await session.close();
     }
 };
-
 
     // Function to handle joining a watch party
 exports.joinWatchParty = async ( username, partyCode) => {
