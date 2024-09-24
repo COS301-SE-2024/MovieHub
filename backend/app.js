@@ -33,6 +33,9 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
+// Import WebSocket and create the server
+const WebSocket = require('ws');
+
 
 app.use(
     cors({
@@ -90,6 +93,54 @@ app.post("/extract-colors", async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+const server = app.listen(port, () => {
+    console.log(`HTTP Server running at http://localhost:${port}`);
+});
+
+// Setup WebSocket Server
+const wss = new WebSocket.Server({ server }); // Use the same server for WebSocket
+
+// Store connected clients in an object
+const clients = {};
+
+// Broadcast to all clients in a watch party room
+const broadcast = (roomId, data) => {
+    const roomClients = clients[roomId] || [];
+    roomClients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
+    });
+};
+
+// Set up the WebSocket server to handle new connections
+wss.on('connection', (ws, req) => {
+    // Extract the roomId from the query parameter (e.g., ?roomId=xxx)
+    const params = new URLSearchParams(req.url.split('?')[1]);
+    const roomId = params.get('roomId');
+
+    if (!roomId) {
+        ws.close();
+        return;
+    }
+
+    // Add the WebSocket client to the room
+    if (!clients[roomId]) {
+        clients[roomId] = [];
+    }
+    clients[roomId].push(ws);
+
+    // Handle messages from clients (playback controls)
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+        if (data.type === 'playback') {
+            // Broadcast playback control messages to all other clients
+            broadcast(roomId, data);
+        }
+    });
+
+    // Remove the client when they disconnect
+    ws.on('close', () => {
+        clients[roomId] = clients[roomId].filter(client => client !== ws);
+    });
 });

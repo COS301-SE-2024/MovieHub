@@ -2,6 +2,11 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
     // Generate a unique party code
     const partyCode = Math.random().toString(36).substr(2, 6).toUpperCase();
     const roomShortCode = document.getElementById("roomShortCode").value;
+    // Ensure both fields are filled
+    if (!roomShortCode) {
+        alert("Please enter the room's code.");
+        return;
+    }
     // Logic to start the watch party with the room short code
     document.getElementById("partyCode").innerText = `Party Code: ${partyCode}`;
 
@@ -14,8 +19,19 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         body: JSON.stringify({ roomShortCode, partyCode }),
     });
 
+    const data = await response.json();
+
     if (response.ok) {
-        alert("Watch party started! Share the code with others to join.");
+        alert("Watch party started!");
+
+        // Initialize WebSocket connection with the roomId from the response
+        const ws = new WebSocket(`ws://localhost:8080?roomId=${data.roomId}`);
+
+        ws.onmessage = (event) => {
+            console.log('Received:', event.data);
+        };
+    } else {
+        alert("Error starting the watch party.");
     }
 });
 
@@ -52,13 +68,17 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
 
         const data = await response.json();
 
-        // Handle success response
-        if (response.ok && data.success) {
-            alert(`Successfully joined the watch party for room: ${data.roomId}`);
-            // Optionally, redirect or open the watch party in a new tab
-            chrome.tabs.create({ url: `https://your-watchparty-url.com/room/${data.roomId}` });
+        if (response.ok) {
+            alert("Joined watch party!");
+
+            // Initialize WebSocket connection with the roomId from the response
+            const ws = new WebSocket(`ws://localhost:8080?roomId=${data.roomId}`);
+
+            ws.onmessage = (event) => {
+                console.log('Received:', event.data);
+            };
         } else {
-            alert(`Failed to join the watch party: ${data.message}`);
+            alert(`Failed to join party: ${data.message}`);
         }
     } catch (error) {
         console.error('Error joining the watch party:', error);
@@ -66,3 +86,21 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
     }
 });
 
+// retrieved roomId from the server in the start/join logic
+ws.onopen = () => {
+    console.log('WebSocket connection established');
+};
+
+ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    // Handle incoming WebSocket messages (e.g., playback controls)
+    console.log('Message received:', message);
+};
+
+ws.onclose = () => {
+    console.log('WebSocket connection closed');
+};
+
+ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+};

@@ -4,7 +4,7 @@ require('dotenv').config();
 const WebSocket = require('ws');
 const axios = require('axios');
 const { getDatabase, ref, push, set } = require('firebase/database');
-const { sendNotification } = require('./notification.service'); // Assuming you have this for notifications
+const { sendNotification } = require('../../Notifications/notification.service'); // Assuming you have this for notifications
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -111,7 +111,7 @@ exports.startWatchParty = async ( partyCode, roomShortCode) => {
             type: 'WATCH_PARTY'
         });
 
-        return { success: true, partyCode };
+        return { success: true, partyCode, roomId };
     } catch (error) {
         console.error('Error starting watch party:', error);
         return { success: false, error: 'Failed to start watch party' };
