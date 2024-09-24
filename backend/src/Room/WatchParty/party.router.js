@@ -8,6 +8,12 @@ router.post('/start', partyController.startWatchParty);
 // Route to join a watch party
 router.post('/join', partyController.joinWatchParty);
 
+// Fetch chat messages for a watch party
+router.get('/:partyCode/chat', partyController.getWatchPartyChatMessages);
+
+// Send a chat message to a watch party
+router.post('/:partyCode/chat', partyController.sendWatchPartyChatMessage);
+
 router.delete('/delete', partyController.deleteWatchParty);
 
 

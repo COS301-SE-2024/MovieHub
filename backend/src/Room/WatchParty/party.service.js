@@ -232,6 +232,44 @@ exports.deleteWatchParty = async (username, partyCode) => {
     }
 };
 
+// Function to retrieve watch party messages from Firebase Realtime Database
+exports.getWatchPartyMessages = async (roomId) => {
+    const db = getDatabase();
+
+    try {
+        const messagesRef = ref(db, `rooms/${roomId}/WatchParty/chat`);
+        let messages = [];
+
+        // Listen for child added events and fetch all messages
+        await onChildAdded(messagesRef, (snapshot) => {
+            const messageData = snapshot.val();
+            messages.push(messageData);
+        });
+
+        return { success: true, messages };
+    } catch (error) {
+        console.error('Error fetching watch party messages:', error);
+        return { success: false, error: 'Failed to retrieve messages' };
+    }
+};
+
+// Function to send a new chat message
+exports.sendWatchPartyChatMessage = async (roomId, username, text) => {
+    const db = getDatabase();
+    const newMessageRef = push(ref(db, `rooms/${roomId}/WatchParty/chat`));
+
+    try {
+        await set(newMessageRef, {
+            username: username,
+            text: text,
+            timestamp: Date.now(),
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('Error sending chat message:', error);
+        return { success: false, error: 'Failed to send chat message' };
+    }
+};
 
 // Function to schedule a watch party (Needs to be revisited)
 exports.scheduleWatchParty = async (userId, partyData) => {

@@ -46,6 +46,39 @@ exports.joinWatchParty = async (req, res) => {
     }
 };
 
+// Fetch chat messages for a watch party
+exports.getWatchPartyChatMessages = async (req, res) => {
+    const { partyCode } = req.params;
+
+    try {
+        const { roomId } = await partyService.getWatchPartyByCode(partyCode); // Ensure this function exists in the service
+        const messages = await partyService.getWatchPartyChatMessages(roomId);
+        res.status(200).json(messages);
+    } catch (error) {
+        console.error('Error fetching chat messages:', error);
+        res.status(500).json({ error: 'Failed to fetch chat messages' });
+    }
+};
+
+// Send a chat message to a watch party
+exports.sendWatchPartyChatMessage = async (req, res) => {
+    const { partyCode } = req.params;
+    const { username, text } = req.body;
+
+    try {
+        const { roomId } = await partyService.getWatchPartyByCode(partyCode);
+        const result = await partyService.sendWatchPartyChatMessage(roomId, username, text);
+        if (result.success) {
+            res.status(200).json({ message: 'Message sent successfully' });
+        } else {
+            res.status(500).json(result);
+        }
+    } catch (error) {
+        console.error('Error sending chat message:', error);
+        res.status(500).json({ error: 'Failed to send chat message' });
+    }
+};
+
 // Controller to delete a watch party
 exports.deleteWatchParty = async (req, res) => {
     const { username, partyCode } = req.body;
