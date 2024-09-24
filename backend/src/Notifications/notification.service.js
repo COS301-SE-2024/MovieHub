@@ -22,9 +22,9 @@ exports.clearNotifications = async (userId, type) => {
 };
 
 // Send a notification
-exports.sendNotification = async (userId, type, message) => {
+exports.sendNotification = async (roomId,message, type) => {
     const db = getDatabase();
-    const notificationRef = ref(db, `notifications/${userId}/${type}`);
+    const notificationRef = ref(db, `notifications/${roomId}/${type}`);
 
     // Push a new notification
     const newNotificationRef = push(notificationRef);

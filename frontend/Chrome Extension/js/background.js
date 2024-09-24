@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:8080?roomId=${roomId}"); // Replace with production WebSocket server
+const socket = new WebSocket("ws://localhost:3000?roomId=${roomId}"); // Replace with production WebSocket server
 
 socket.addEventListener("message", (event) => {
     const data = JSON.parse(event.data);

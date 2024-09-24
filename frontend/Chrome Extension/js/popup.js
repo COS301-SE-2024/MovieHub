@@ -1,5 +1,6 @@
 document.getElementById("startPartyBtn").addEventListener("click", async () => {
     // Generate a unique party code
+    let ws;//////////////////////////////// = new WebSocket("ws://localhost:3000?roomId=${roomId}");
     const partyCode = Math.random().toString(36).substr(2, 6).toUpperCase();
     const roomShortCode = document.getElementById("roomShortCode").value;
     // Ensure both fields are filled
@@ -11,24 +12,36 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
     document.getElementById("partyCode").innerText = `Party Code: ${partyCode}`;
 
     // Send the code to the backend and broadcast to the chatroom
-    const response = await fetch('https://localhost:3000/party/start', {
+    const response = await fetch('http://localhost:3000/party/start', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ roomShortCode, partyCode }),
     });
-
+   
     const data = await response.json();
-
+    console.log("The wtch party data: ", data);
     if (response.ok) {
         alert("Watch party started!");
 
         // Initialize WebSocket connection with the roomId from the response
-        const ws = new WebSocket(`ws://localhost:8080?roomId=${data.roomId}`);
+        ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
+        // retrieved roomId from the server in the start/join logic
+        ws.onopen = () => {
+            console.log('WebSocket connection established');
+        };
 
         ws.onmessage = (event) => {
             console.log('Received:', event.data);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
         };
     } else {
         alert("Error starting the watch party.");
@@ -51,7 +64,7 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
     }
 
     // Backend API endpoint for joining the watch party
-    const joinPartyApiUrl = 'https://localhost:3000/party/join';
+    const joinPartyApiUrl = 'http://localhost:3000/party/join';
 
     try {
         // Send request to join the party with the username and party code
@@ -72,10 +85,22 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
             alert("Joined watch party!");
 
             // Initialize WebSocket connection with the roomId from the response
-            const ws = new WebSocket(`ws://localhost:8080?roomId=${data.roomId}`);
+             ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
+            // retrieved roomId from the server in the start/join logic
+            ws.onopen = () => {
+                console.log('WebSocket connection established');
+            };
 
             ws.onmessage = (event) => {
                 console.log('Received:', event.data);
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket connection closed');
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
             };
         } else {
             alert(`Failed to join party: ${data.message}`);
@@ -86,21 +111,12 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
     }
 });
 
-// retrieved roomId from the server in the start/join logic
-ws.onopen = () => {
-    console.log('WebSocket connection established');
-};
 
-ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    // Handle incoming WebSocket messages (e.g., playback controls)
-    console.log('Message received:', message);
-};
 
-ws.onclose = () => {
-    console.log('WebSocket connection closed');
-};
+// ws.onmessage = (event) => {
+//     const message = JSON.parse(event.data);
+//     // Handle incoming WebSocket messages (e.g., playback controls)
+//     console.log('Message received:', message);
+// };
 
-ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
-};
+

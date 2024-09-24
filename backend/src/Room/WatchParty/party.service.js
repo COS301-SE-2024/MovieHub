@@ -5,7 +5,7 @@ const WebSocket = require('ws');
 const axios = require('axios');
 const { getDatabase, ref, push, set } = require('firebase/database');
 const { sendNotification } = require('../../Notifications/notification.service'); // Assuming you have this for notifications
-
+const db = getDatabase();
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
     neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
@@ -15,53 +15,53 @@ const WS_SERVER_URL = process.env.WS_SERVER_URL;
 const HYPERBEAM_API_URL = 'https://engine.hyperbeam.com/v0/vm';
 const HYPERBEAM_API_KEY = process.env.HYPERBEAM_API_KEY;
 
-// Setup WebSocket Server
-const wss = new WebSocket.Server({ port: process.env.WS_PORT || 8080 });
+// // Setup WebSocket Server
+// //const wss = new WebSocket.Server({ port: process.env.WS_PORT || 3000 });
 
-// Store connected clients in an object
-const clients = {};
+// // Store connected clients in an object
+// const clients = {};
 
-// Broadcast to all clients in a watch party room
-const broadcast = (roomId, data) => {
-    const roomClients = clients[roomId] || [];
-    roomClients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
-        }
-    });
-};
+// // Broadcast to all clients in a watch party room
+// const broadcast = (roomId, data) => {
+//     const roomClients = clients[roomId] || [];
+//     roomClients.forEach(client => {
+//         if (client.readyState === WebSocket.OPEN) {
+//             client.send(JSON.stringify(data));
+//         }
+//     });
+// };
 
-// Set up the WebSocket server to handle new connections
-wss.on('connection', (ws, req) => {
-    // Extract the roomId from the query parameter (e.g., ?roomId=xxx)
-    const params = new URLSearchParams(req.url.split('?')[1]);
-    const roomId = params.get('roomId');
+// // Set up the WebSocket server to handle new connections
+// wss.on('connection', (ws, req) => {
+//     // Extract the roomId from the query parameter (e.g., ?roomId=xxx)
+//     const params = new URLSearchParams(req.url.split('?')[1]);
+//     const roomId = params.get('roomId');
 
-    if (!roomId) {
-        ws.close();
-        return;
-    }
+//     if (!roomId) {
+//         ws.close();
+//         return;
+//     }
 
-    // Add the WebSocket client to the room
-    if (!clients[roomId]) {
-        clients[roomId] = [];
-    }
-    clients[roomId].push(ws);
+//     // Add the WebSocket client to the room
+//     if (!clients[roomId]) {
+//         clients[roomId] = [];
+//     }
+//     clients[roomId].push(ws);
 
-    // Handle messages from clients (playback controls)
-    ws.on('message', (message) => {
-        const data = JSON.parse(message);
-        if (data.type === 'playback') {
-            // Broadcast playback control messages to all other clients
-            broadcast(roomId, data);
-        }
-    });
+//     // Handle messages from clients (playback controls)
+//     ws.on('message', (message) => {
+//         const data = JSON.parse(message);
+//         if (data.type === 'playback') {
+//             // Broadcast playback control messages to all other clients
+//             broadcast(roomId, data);
+//         }
+//     });
 
-    // Remove the client when they disconnect
-    ws.on('close', () => {
-        clients[roomId] = clients[roomId].filter(client => client !== ws);
-    });
-});
+//     // Remove the client when they disconnect
+//     ws.on('close', () => {
+//         clients[roomId] = clients[roomId].filter(client => client !== ws);
+//     });
+// });
 
 // Function to generate unique party code
 const generatePartyCode = () => {
@@ -88,7 +88,7 @@ exports.startWatchParty = async ( partyCode, roomShortCode) => {
             return { success: false, error: 'Invalid room short code' };
         }
         roomId = record.get('roomId');
-
+        console.log('Room ID:', roomId);
         // Store the watch party details in Neo4j
         await session.run(
             `CREATE (p:WatchParty {partyCode: $partyCode, roomId: $roomId, createdAt: $timestamp}) 
@@ -104,12 +104,12 @@ exports.startWatchParty = async ( partyCode, roomShortCode) => {
             createdAt: timestamp
         });
 
-        // Notify users about the watch party (via Firebase Notifications)
-        await sendNotification({
-            roomId,
-            message: `A new watch party has started. Join with code: ${partyCode}`,
-            type: 'WATCH_PARTY'
-        });
+        // // Notify users about the watch party (via Firebase Notifications)
+        // await sendNotification({
+        //     roomId,
+        //     message: `A new watch party has started. Join with code: ${partyCode}`,
+        //     type: 'WATCH_PARTY'
+        // });
 
         return { success: true, partyCode, roomId };
     } catch (error) {

@@ -101,7 +101,7 @@ exports.createRoom = async (uid, roomData) => {
 
         // Commit the transaction
         await tx.commit();
-
+ 
         console.log("Room created successfully.");
 
         return { success: true, roomId, shortCode, ...roomData, createdBy: uid, createdAt, updatedAt, isActive };
