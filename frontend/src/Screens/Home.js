@@ -479,7 +479,7 @@ const Home = ({ route }) => {
                 fontFamily: 'Roboto',
                 fontWeight: 'bold',
                 paddingTop: 10,
-            }}>Romance</Text>
+            }}>Action</Text>
              {/* <Text style={styles.viewalltext}>View all</Text> */}
             </View>
 
