@@ -49,14 +49,14 @@ const checkAndSetupIndex = async () => {
 };
 
 
-const recommendMoviesByTMDBId = async (tmdbId) => {
+const recommendMoviesByTMDBId = async (tmdbId, userId) => {
     try {
         await checkAndSetupIndex();
 
         const tmdbMovie = await getMovieDetails(tmdbId);
-       // const userFavoriteGenres = await getUserFavoriteGenres(userId);
+        const userFavoriteGenres = await getUserFavoriteGenres(userId);
 
-        const genreQuery = [...tmdbMovie.genres.map(genre => genre.id)];
+        const genreQuery = [...tmdbMovie.genres.map(genre => genre.id), ...userFavoriteGenres];
 
         console.log("About to make use of Elasticsearch client");
 
