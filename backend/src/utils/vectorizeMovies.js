@@ -1,16 +1,29 @@
 const natural = require('natural');
 const TfIdf = natural.TfIdf;
+const { tokenize } = require('natural');
+
+// Enhanced tokenization function to remove stop words and use n-grams
+function enhancedTokenize(text, n = 1) {
+    const tokenizer = new natural.WordTokenizer();
+    const stopWords = natural.stopwords; // Import natural's default stop words
+    const tokens = tokenizer.tokenize(text.toLowerCase());
+
+    // Remove stop words and create n-grams
+    const filteredTokens = tokens.filter(token => !stopWords.includes(token));
+    return n === 1 ? filteredTokens : natural.NGrams.ngrams(filteredTokens, n).map(ngram => ngram.join(' '));
+}
 
 function vectorizeMovies(combinedFeatures) {
     const tfidf = new TfIdf();
     const termSet = new Set();
 
-    // First pass: Add each movie's combined features to the TfIdf instance and collect all terms
+    // First pass: Add each movie's combined features to the TfIdf instance
     combinedFeatures.forEach(features => {
-        tfidf.addDocument(features);
+        const tokens = enhancedTokenize(features, 2); // Using bigrams
+        tfidf.addDocument(tokens.join(' ')); // Rejoin the tokens to add as a single document
 
         // Collect all unique terms across all movies
-        features.split(' ').forEach(term => {
+        tokens.forEach(term => {
             termSet.add(term);
         });
     });
@@ -32,6 +45,14 @@ function vectorizeMovies(combinedFeatures) {
                 vector[termIndex] = term.tfidf; // Assign the tfidf value at the correct index
             }
         });
+
+        // Normalize the vector (optional, depending on your similarity metric)
+        const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
+        if (magnitude > 0) {
+            for (let i = 0; i < vector.length; i++) {
+                vector[i] /= magnitude; // Normalize the vector
+            }
+        }
 
         return vector;
     });

@@ -4,20 +4,59 @@ const vectorizeMovies = require('../utils/vectorizeMovies');
 const cosineSimilarity = require('compute-cosine-similarity');
 const setupIndex = require('../scripts/setupElastic');
 const indexMovies = require('../scripts/indexMovies');
+const neo4j = require('neo4j-driver');
+require('dotenv').config();
+
+const driver = neo4j.driver(
+    process.env.NEO4J_URI,
+    neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
+);
 
 const client = new Client({ node: 'http://localhost:9200' });
+
+// New function to get user favorite genres
+const getUserFavoriteGenres = async (userId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            'MATCH (u:User {id: $userId}) RETURN u.favorite_genres AS favoriteGenres',
+            { userId }
+        );
+
+        // Assuming favorite_genres is stored as a list in Neo4j
+        if (result.records.length > 0) {
+            const favoriteGenres = result.records[0].get('favoriteGenres');
+            return favoriteGenres; // This should return an array of genre IDs
+        } else {
+            return []; // Return an empty array if no favorite genres are found
+        }
+    } catch (error) {
+        console.error('Error fetching user favorite genres:', error);
+        throw new Error('Failed to retrieve favorite genres');
+    } finally {
+        await session.close();
+    }
+};
+
+// Don't forget to close the driver when your application is shutting down
+const closeNeo4jConnection = async () => {
+    await driver.close();
+};
 
 const checkAndSetupIndex = async () => {
     await setupIndex();
     await indexMovies(); // Ensure movies are indexed after setup
 };
 
+
 const recommendMoviesByTMDBId = async (tmdbId) => {
     try {
         await checkAndSetupIndex();
 
         const tmdbMovie = await getMovieDetails(tmdbId);
-        const genreQuery = tmdbMovie.genres.map(genre => genre.id);
+       // const userFavoriteGenres = await getUserFavoriteGenres(userId);
+
+        const genreQuery = [...tmdbMovie.genres.map(genre => genre.id)];
 
         console.log("About to make use of Elasticsearch client");
 
@@ -27,11 +66,11 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
                 query: {
                     bool: {
                         should: [
-                            { match: { overview: tmdbMovie.overview } }, // Prioritize matching overview
-                            { terms: { 'genre_ids': genreQuery } } // Consider genres as well
+                            { match: { overview: tmdbMovie.overview } },
+                            { terms: { 'genre_ids': genreQuery } }
                         ],
                         must_not: [
-                            { match: { id: tmdbId } } // Exclude the movie with the same tmdbId
+                            { match: { id: tmdbId } }
                         ],
                         minimum_should_match: 1
                     }
@@ -48,12 +87,11 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
 
         // Ensure we have enough movies to recommend at least 5
         if (allMovies.length < 5) {
-            // If fewer than 5 movies are found, broaden the search criteria
             const additionalMovies = await client.search({
                 index: 'movies',
                 body: {
                     query: {
-                        match_all: {} // Match all movies to ensure at least 5 are returned
+                        match_all: {}
                     },
                     size: 100
                 },
@@ -62,7 +100,7 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
             allMovies = [...allMovies, ...additionalMovies.body.hits.hits.map(hit => hit._source)];
         }
 
-        // Filter out the movie being recommended (with the same tmdbId)
+        // Filter out the movie being recommended
         allMovies = allMovies.filter(movie => movie.id !== tmdbId);
 
         // Combine the features of the input movie and all other movies
@@ -79,19 +117,20 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
         console.log("Movie Vectors: ", movieVectors);
 
         // Calculate cosine similarity for each movie and sort by relevance
-        const cosineSimilarities = allMoviesVectors.map((vector, index) => ({
-            movie: allMovies[index],
-            similarity: cosineSimilarity(tmdbMovieVector, vector)
-        }));
+        const cosineSimilarities = allMoviesVectors.map((vector, index) => {
+            const similarity = cosineSimilarity(tmdbMovieVector, vector);
 
-        // Sort the movies by similarity in descending order (most relevant first)
+            return {
+                movie: allMovies[index],
+                similarity: isNaN(similarity) ? 0 : similarity // Handle NaN cases
+            };
+        });
+
+        // Sort the movies by similarity in descending order
         cosineSimilarities.sort((a, b) => b.similarity - a.similarity);
 
-        // Filter out the movie being recommended (tmdbMovie)
-        const filteredRecommendations = cosineSimilarities.filter(rec => rec.movie.id !== tmdbId);
-
         // Return the top 15 highest similarity movies
-        const topRecommendations = filteredRecommendations
+        const topRecommendations = cosineSimilarities
             .slice(0, 15) // Return the top 15 recommendations based on similarity
             .map(rec => ({
                 id: rec.movie.id,

@@ -24,13 +24,14 @@ const fetchMovies = async () => {
     const trendingMovies = await axios.get(`${TMDB_BASE_URL}/trending/movie/week`, {
         params: { api_key: TMDB_API_KEY },
     });
-
+    const nowPlayingMovies = await fetchMoviesFromEndpoint('now_playing');
     // Combine all movie lists and remove duplicates by movie ID
     const allMovies = [
         ...popularMovies,
         ...topRatedMovies,
         ...upcomingMovies,
         ...trendingMovies.data.results,
+        ...nowPlayingMovies,
     ];
 
     // Remove duplicate movies by filtering based on the movie's ID
