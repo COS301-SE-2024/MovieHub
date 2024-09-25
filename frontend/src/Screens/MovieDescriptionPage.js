@@ -17,7 +17,7 @@ export default function MovieDescriptionPage({route}) {
   // console.log("MovieDes route ", route.params.userInfo)
     const { userInfo } = route.params;
     const {movieId, imageUrl, title, rating, overview, date } = route.params;
-   // console.log("Look ", userInfo)
+   //console.log("Look ", userInfo)
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",
@@ -116,7 +116,7 @@ export default function MovieDescriptionPage({route}) {
         // Fetch recommended movies based on the current movie's genre or similarity score
         const fetchRecommendedMovies = async () => {
             try {
-                const recommendations = await getRecommendedMovies(movieId);
+                const recommendations = await getRecommendedMovies(movieId, userInfo.userId);
                 setRecommendedMovies(recommendations);
             } catch (error) {
                 console.error('Error fetching recommended movies:', error);
