@@ -27,7 +27,6 @@ import SearchBar from '../Components/SearchBar';
 
 export default function ExplorePage({ route }) {
     const { userInfo } = route.params;
-    const { theme } = useTheme();
     console.log(userInfo);
     const navigation = useNavigation();
     const {theme } = useTheme();

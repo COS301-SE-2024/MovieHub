@@ -524,7 +524,7 @@ export default function CreatePost({ route }) {
                     <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
                     <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
                 </View>
-            </View>
+            {/* </View> */}
             {/* </View>s */}
 
             <View style={styles.footer}>
