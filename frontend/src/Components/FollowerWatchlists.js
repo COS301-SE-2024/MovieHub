@@ -83,7 +83,7 @@ const WatchlistTab = ({ userInfo }) => {
             justifyContent: "space-between",
             padding: 16,
             borderBottomWidth: 1,
-            borderBottomColor: "#ccc",
+            borderBottomColor: theme.borderColor,
         },
         watchlistImage: {
             width: 182,
@@ -100,6 +100,7 @@ const WatchlistTab = ({ userInfo }) => {
         watchlistName: {
             fontSize: 18,
             fontWeight: "bold",
+            color: theme.textColor,
         },
         watchlistPrivacy: {
             fontSize: 14,

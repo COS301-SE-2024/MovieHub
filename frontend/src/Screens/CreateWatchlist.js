@@ -66,6 +66,7 @@ export default function CreateWatchlist({ route, navigation }) {
             name: modalContent.name.newValue,
             description: modalContent.description.newValue,
             tags: modalContent.tags.newValue,
+            img : cover,
             visibility,
             collaborative,
             ranked,

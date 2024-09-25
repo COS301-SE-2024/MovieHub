@@ -111,7 +111,7 @@ const RoomModal = forwardRef((props, ref) => {
     return (
         <>
             <BottomSheetModalProvider>
-                <BottomSheetModal ref={ref} index={0} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
+                <BottomSheetModal ref={ref} index={0} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backgroundStyle={{ backgroundColor: theme.backgroundColor }} backdropComponent={renderBackdrop}>
                     <BottomSheetView style={{ backgroundColor: theme.backgroundColor }}>{renderContent()}</BottomSheetView>
                 </BottomSheetModal>
             </BottomSheetModalProvider>

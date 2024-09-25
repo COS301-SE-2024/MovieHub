@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
@@ -9,7 +9,7 @@ import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loade
 import Post from "./Post";
 import Review from "./Review";
 
-export default function PostsTab({ userInfo, userProfile, handleCommentPress }) {
+export default function PostsTab({ userInfo, userProfile, handleCommentPress, refreshing, onRefresh}) {
     const { theme } = useTheme();
     const navigation = useNavigation();
 
@@ -100,11 +100,22 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
         }
     };
 
-    
-
     useEffect(() => {
         fetchPostsAndReviews();
     }, []);
+
+    if (refreshing) {
+        console.log("refreshing");
+        fetchPostsAndReviews();
+    }
+
+    const handleRefresh = async () => {
+        console.log("handleRefresh");
+        if (refreshing) {
+            console.log("refreshing");
+            fetchPostsAndReviews();
+        }
+    };
 
     // Function to handle post deletion and state update
     const handleDeletePost = async (postId) => {
@@ -116,8 +127,6 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
             Alert.alert("Error", "Failed to delete post");
         }
     };
-
-    
 
     const handleDeleteReview = async (reviewId) => {
         try {
@@ -170,12 +179,12 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress }) 
     }
 
     return (
-        <View style={styles.outerContainer}>
+        <View style={styles.outerContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
             {posts.length === 0 ? (
                 <View style={styles.container}>
                     <Text style={styles.title}>Share your thoughts!</Text>
                     <Pressable onPress={() => navigation.navigate("CreatePost", { userInfo })}>
-                        <Text style={styles.subtitle}>Create your first post</Text>
+                        <Text style={styles.subtitle}>Create your first post or review</Text>
                     </Pressable>
                 </View>
             ) : (

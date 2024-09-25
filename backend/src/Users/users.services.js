@@ -17,7 +17,14 @@ exports.getUserProfile = async (userId) => {
         if (result.records.length === 0) {
             return null;
         }
-        return result.records[0].get("u").properties;
+
+        const profileGot = result.records[0].get('u').properties;
+
+        if (profileGot.mode == null) {
+            profileGot.mode = "light";
+        }
+
+        return profileGot;
     } finally {
         await session.close();
     }
@@ -38,6 +45,91 @@ exports.updateUserProfile = async (userId, updates) => {
         updateUserContent(userId);
         return result.records[0].get("u").properties;
     } catch (error) {
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
+exports.changeMode = async (uid, mode) => {
+    console.log("In Services: changeMode");
+    const session = driver.session();
+    try {
+        console.log(mode);
+        const result = await session.run(
+            `MATCH (u:User { uid: $uid})
+             SET u.mode = $mode
+             RETURN u`,
+            {uid, mode}
+        );
+        if (result.records.length === 0) {
+            throw new Error("User does not exist or is not autherized");
+        }
+        return result.records[0].get('u').properties;
+    } catch (error) {
+        console.error("Error changing mode: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.toggleMode = async (uid) => {
+    console.log("In Services: toggleMode");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User { uid: $uid })
+             RETURN u.mode AS currentMode`,
+            { uid }
+        );
+
+        if (result.records.length === 0) {
+            throw new Error("User not found");
+        }
+
+        // Get the current mode and determine the new mode
+        const currentMode = result.records[0].get('currentMode');
+        const newMode = (currentMode === 'light' || currentMode == null) ? 'dark' : 'light';
+
+        // Set the new mode
+        const updateResult = await session.run(
+            `MATCH (u:User { uid: $uid })
+             SET u.mode = $newMode
+             RETURN u`,
+            { uid, newMode }
+        );
+
+        return updateResult.records[0].get('u').properties.mode;
+    } catch (error) {
+        console.error("Error toggling mode: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getMode = async (uid) => {
+    console.log("In Services: getMode");
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User { uid: $uid})
+             RETURN u`,
+            {uid}
+        );
+        if (result.records.length === 0) {
+            throw new Error("User does not exist");
+        }
+        const gotten = result.records[0].get('u').properties
+        if (gotten.mode === undefined) {
+            return "light"
+        }else{
+           return gotten.mode;
+        }
+    } catch (error) {
+        console.error("Error getting mode: ", error);
         throw error;
     } finally {
         await session.close();
@@ -101,7 +193,8 @@ exports.createUserNode = async (uid, username) => {
         }
 
         // Create the new user node
-        const createUserResult = await session.run("CREATE (u:User {uid: $uid, username: $username}) RETURN u", { uid, username });
+        const mode = "light";
+        const createUserResult = await session.run("CREATE (u:User {uid: $uid, username: $username,mode :$mode  }) RETURN u", { uid, username,mode });
 
         return createUserResult.records[0].get("u");
     } catch (error) {
@@ -319,6 +412,26 @@ exports.getFollowing = async (userId) => {
     }
 };
 
+// return whther a user is following another user
+exports.isFollowing = async (userId, targetUserId) => {
+    const session = driver.session();
+
+    try {
+        const result = await session.run(
+            `MATCH (user:User {uid: $userId})-[:FOLLOWS]->(following:User {uid: $targetUserId})
+             RETURN following`,
+            { userId, targetUserId }
+        );
+
+        return result.records.length > 0;
+    } catch (error) {
+        console.error("Error checking if user is following:", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 exports.getFollowerCount = async (userId) => {
     const session = driver.session();
 
@@ -421,6 +534,7 @@ exports.getUnreadNotifications = async (userId) => {
         }
 
         const notifications = snapshot.val();
+        console.log("Notifications:", notifications);
 
         if (!notifications) {
             return 0; // No notifications found
@@ -432,6 +546,16 @@ exports.getUnreadNotifications = async (userId) => {
                 unreadCount++;
             }
         }
+
+        if (notifications.likes) {
+            for (const key in notifications.likes) {
+                if (notifications.likes[key].read === false) {
+                    unreadCount++;
+                }
+            }
+        }
+
+        console.log("Unread notifications count:", unreadCount);
 
         return { unreadCount };
     } catch (error) {

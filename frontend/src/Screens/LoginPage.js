@@ -9,11 +9,11 @@ import Icon from "@expo/vector-icons/MaterialIcons";
 import { isUserVerified, loginUser } from "../Services/AuthApiService";
 import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
-import { getUserProfile } from "../Services/UsersApiService";
+import { getUserProfile, getMode } from "../Services/UsersApiService";
 import logo2 from "../../../assets/logo.png";
 
 const LoginPage = () => {
-    const { theme } = useTheme();
+    const { theme, setMode } = useTheme();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -71,6 +71,14 @@ const LoginPage = () => {
                         routes: [{ name: "Home", params: { userInfo } }], // Replace 'Home' with your home screen name
                     })
                 );
+                try {
+                    const mode = await getMode(userInfo.userId);
+                    console.log("Mode:", mode);
+                    setMode(mode);
+                } catch (error) {
+                    console.log("Error fetching mode:", error);
+                }
+                
                 navigation.navigate("Home", { userInfo });
             }
         } catch (error) {
@@ -144,7 +152,7 @@ const LoginPage = () => {
             paddingHorizontal: 10,
             fontSize: 16,
             color: "#000",
-            backgroundColor: "#fff",
+            backgroundColor: "transparent",
             borderRadius: 5,
         },
         passwordInputContainer: {
@@ -184,7 +192,7 @@ const LoginPage = () => {
             marginTop: 10,
         },
         forgotText: {
-            color: "black",
+            color: theme.textColor,
             textAlign: "center",
             textDecorationLine: "underline",
         },
@@ -248,22 +256,22 @@ const LoginPage = () => {
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Email</Text>
-                            <TextInput style={styles.inputText} onChangeText={setEmail} value={email} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+                            <TextInput style={styles.inputText} onChangeText={setEmail} value={email} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                         </View>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Password</Text>
                             <View style={styles.passwordInputContainer}>
-                                <TextInput style={styles.passwordInput} onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} autoCapitalize="none" autoCorrect={false} />
+                                <TextInput style={styles.passwordInput} onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} autoCapitalize="none" autoCorrect={false} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                                 <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
-                                    <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                                    <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color={theme.textColor} />
                                 </TouchableOpacity>
                             </View>
                         </View>
 
-                        <Pressable style={styles.button} onPress={HandleLogin}>
+                        <TouchableOpacity style={styles.button} onPress={HandleLogin}>
                             <Text style={styles.buttonText}>Login</Text>
-                        </Pressable>
+                        </TouchableOpacity>
 
                         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 

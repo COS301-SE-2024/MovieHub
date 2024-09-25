@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimension
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
-
 import Svg from "react-native-svg";
 import MovieCard from "../Components/MovieCard"
 import TrendingMovie from "../Components/TrendingMovies"
@@ -16,12 +15,8 @@ import {getFollowedUsersWatchlists} from "../Services/ListApiService"
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
-import Post from "../Components/Post";
-import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
-import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
-import NonFollowerPost from "../Components/NonFollowerPost";
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 import { getUserWatchlists } from "../Services/UsersApiService";
@@ -214,7 +209,10 @@ const Home = ({ route }) => {
         const fetchUserWatchlists = async () => {
             try {
                 const userId = userInfo.userId;
-                let userWatchlists = await getFollowedUsersWatchlists(userId);
+                let userWatchlists = await getUserWatchlists(userId);
+
+                //let userWatchlists = await getFollowedUsersWatchlists(userId);
+
         
                 // Remove duplicates based on watchlist IDs
                 userWatchlists = userWatchlists.filter((watchlist, index, self) => 
@@ -375,7 +373,7 @@ const Home = ({ route }) => {
 
                             return (
                                 <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
-                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
                                         <Animated.View
                                             style={{
                                                 marginHorizontal: SPACING,
@@ -394,7 +392,7 @@ const Home = ({ route }) => {
                                             <Text style={{ fontSize: 12, color: theme.textColor }} numberOfLines={3}>
                                                 {item.description}
                                             </Text>
-                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
                                                 <Text style={{ fontSize: 12, fontWeight: "500", color: theme.primaryColor, marginTop: 10 }}>Read more</Text>
                                             </Pressable>
                                         </Animated.View>
@@ -452,13 +450,23 @@ const Home = ({ route }) => {
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {watchlists.map((watchlist, index) => (
-                    <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+            {watchlists.map((watchlist) => (
+                    <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
                         <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={{
-                fontSize: 12,
-                color: theme.textColor, 
+                fontSize: 12, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
+
+//             {watchlists.map((watchlist, index) => (
+//                     <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+//                         <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+//                         <View style={styles.watchlistInfo}>
+//                             <Text style={{
+//                 fontSize: 12,
+//                 color: theme.textColor, 
+
                 fontFamily: 'Roboto',
                 fontWeight: 'bold',
                 paddingTop: 10,

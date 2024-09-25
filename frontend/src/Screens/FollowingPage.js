@@ -1,27 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import FollowList from '../Components/FollowList';
-import { getFollowing } from '../Services/UsersApiService';
+import { getFollowing, isFollowed } from '../Services/UsersApiService';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from "../styles/ThemeContext";
 
 const FollowingPage = ({ route }) => {
     const { userInfo } = route.params;
-    console.log(userInfo);
     const [followers, setFollowing] = useState([]);
     const [loading, setLoading] = useState(true); 
     const navigation = useNavigation();
     const { theme} = useTheme();
     const fetchFollowing = async () => {
         try {
-            const response = await getFollowing(userInfo.userId);
-            setFollowing(response);
+            const response = await getFollowing(userInfo.userId); // Fetch following list using userId
+    
+            // Map through each following user and check if they are still being followed
+            const followingWithStatus = await Promise.all(response.map(async (followingUser) => {
+                const isFollowing = await isFollowed(userInfo.userId, followingUser.uid);
+                return {
+                    ...followingUser,  // Spread the original following user object
+                    isFollowing,       // Add the isFollowing property
+                };
+            }));
+    
+            setFollowing(followingWithStatus); // Set the updated following list
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching following:", error);
         } finally {
             setLoading(false); 
         }
     };
+    
 
     useEffect(() => {
         fetchFollowing();
@@ -30,9 +40,12 @@ const FollowingPage = ({ route }) => {
 
     const renderFollower = ({ item }) => (
         <FollowList 
+            route={route}
+            uid={item.uid}
             username={item.username}
             userHandle={item.name}
             userAvatar={item.avatar}
+            isFollowing={item.isFollowing}
         />
     );
 

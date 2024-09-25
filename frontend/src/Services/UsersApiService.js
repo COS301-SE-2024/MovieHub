@@ -99,6 +99,53 @@ export const deleteUserProfile = async (userId) => {
     }
 };
 
+// API service to change mode
+export const changeMode = async (userId, mode) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+        body: JSON.stringify({ mode }),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to change mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const toggleMode = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode/toggle`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+    });
+    if (!response.ok) {
+        throw new Error('Failed to toggle mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
+// API service to get the current mode
+export const getMode = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode`, {
+        headers,
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
 // export const deleteUserProfile = async (userId) => {
 //     try {
 //         const response = await fetch(`${API_URL}${userId}`, {
@@ -282,6 +329,22 @@ export const getFollowing = async (userId) => {
 
     if (!response.ok) {
         throw new Error('Failed to get following');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+// return whether user is followed by targetUserId
+export const isFollowed = async (userId, targetUserId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/follows/${targetUserId}`, {
+        headers,
+        method: 'GET',
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to check if user is followed');
     }
 
     const data = await response.json();
