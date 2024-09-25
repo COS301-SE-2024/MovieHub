@@ -269,9 +269,9 @@ const LoginPage = () => {
                             </View>
                         </View>
 
-                        <Pressable style={styles.button} onPress={HandleLogin}>
+                        <TouchableOpacity style={styles.button} onPress={HandleLogin}>
                             <Text style={styles.buttonText}>Login</Text>
-                        </Pressable>
+                        </TouchableOpacity>
 
                         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 

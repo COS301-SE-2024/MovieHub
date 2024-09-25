@@ -303,9 +303,9 @@ const SignupPage = () => {
                         </View>
                     </View>
                     <View style={styles.btn}>
-                        <Pressable style={styles.button} onPress={handleSignup}>
+                        <TouchableOpacity style={styles.button} onPress={handleSignup}>
                             <Text style={styles.buttonText}>Sign Up</Text>
-                        </Pressable>
+                        </TouchableOpacity>
                         {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text> : null}
                     </View>
                     <View style={styles.or}>
