@@ -514,16 +514,13 @@ export default function CreatePost({ route }) {
                             <CommIcon style={styles.icon} name="emoticon-happy-outline" color={theme.textColor} size={23} />
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.allowCommentsContainer}>
+                    {/* <View style={styles.allowCommentsContainer}>
                         <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
                         <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
-                    </View>
+                    </View> */}
 
                 </View>
-                <View style={styles.allowCommentsContainer}>
-                    <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
-                    <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
-                </View>
+               
             {/* </View> */}
             {/* </View>s */}
 
