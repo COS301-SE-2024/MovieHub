@@ -1,18 +1,19 @@
 import React, { useCallback, useMemo, forwardRef, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Share, Alert } from "react-native";
-import { inviteUserToRoom, BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
-import { deleteRoom } from "../Services/RoomApiService"
+import { deleteRoom } from "../Services/RoomApiService";
+import { inviteUserToRoom } from "../Services/RoomApiService";
 import InviteModal from "../Components/InviteModal";
 
 const RoomModal = forwardRef((props, ref) => {
     const { theme } = useTheme();
     const navigation = useNavigation();
-    const snapPoints = useMemo(() => ["42%", ], []);
-    const { isRoomCreator, userInfo, roomId } = props;
+    const snapPoints = useMemo(() => ["42%"], []);
+    const { isRoomCreator, userInfo, roomId, onSharePress } = props;
     const bottomSheetRef = useRef(null);
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
@@ -21,15 +22,17 @@ const RoomModal = forwardRef((props, ref) => {
     };
 
     const handleInvitePress = () => {
-        <View>
-            <InviteModal
-                ref={bottomSheetRef}
-                friends={[]} // Pass an empty array if there are no friends to invite
-                title="Invite Friends"
-                onInvite={handleInviteUser}
-                userInfo={userInfo}
-            />
-        </View>
+        // <View>
+        //     <InviteModal
+        //         ref={bottomSheetRef}
+        //         friends={[]} // Pass an empty array if there are no friends to invite
+        //         title="Invite Friends"
+        //         onInvite={handleInviteUser}
+        //         userInfo={userInfo}
+        //     />
+        // </View>
+
+        bottomSheetRef.current?.present();
     };
     const handleInviteUser = async (friend) => {
         try {
@@ -68,11 +71,11 @@ const RoomModal = forwardRef((props, ref) => {
             await deleteRoom(roomId);
             // setRooms(rooms.filter(w => w.id !== roomId)); // Update state to remove deleted room
             // closeModal();
-            Alert.alert('Success', 'Room deleted successfully!');
-            navigation.navigate("HubScreen", {userInfo});
+            Alert.alert("Success", "Room deleted successfully!");
+            navigation.navigate("HubScreen", { userInfo });
         } catch (error) {
-            console.error('Error deleting room:', error);
-            Alert.alert('Error', 'Failed to delete room. Please try again later.');
+            console.error("Error deleting room:", error);
+            Alert.alert("Error", "Failed to delete room. Please try again later.");
         }
     };
 
@@ -108,7 +111,7 @@ const RoomModal = forwardRef((props, ref) => {
             </View>
         </View>
     );
-    
+
     const styles = StyleSheet.create({
         container: {
             backgroundColor: theme.backgroundColor,
@@ -139,11 +142,20 @@ const RoomModal = forwardRef((props, ref) => {
     });
 
     return (
-        <BottomSheetModalProvider >
-            <BottomSheetModal ref={ref} index={0} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
-                <BottomSheetView style={{ backgroundColor: theme.backgroundColor }}>{renderContent()}</BottomSheetView>
-            </BottomSheetModal>
-        </BottomSheetModalProvider>
+        <>
+            <BottomSheetModalProvider>
+                <BottomSheetModal ref={ref} index={0} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop}>
+                    <BottomSheetView style={{ backgroundColor: theme.backgroundColor }}>{renderContent()}</BottomSheetView>
+                </BottomSheetModal>
+            </BottomSheetModalProvider>
+            <InviteModal
+                ref={bottomSheetRef}
+                friends={[]} // Pass an empty array if there are no friends to invite
+                title="Invite Friends"
+                onInvite={handleInviteUser}
+                userInfo={userInfo}
+            />
+        </>
     );
 });
 
