@@ -21,7 +21,15 @@ const RoomModal = forwardRef((props, ref) => {
     };
 
     const handleInvitePress = () => {
-        bottomSheetRef.current?.present();
+        <View>
+            <InviteModal
+                ref={bottomSheetRef}
+                friends={[]} // Pass an empty array if there are no friends to invite
+                title="Invite Friends"
+                onInvite={handleInviteUser}
+                userInfo={userInfo}
+            />
+        </View>
     };
     const handleInviteUser = async (friend) => {
         try {
@@ -32,26 +40,26 @@ const RoomModal = forwardRef((props, ref) => {
         }
     };
 
-    const handleShare = async () => {
-        try {
-            const result = await Share.share({
-                url: "",
-                title: "MovieHub",
-                message: "Watch Party Invite | Join my watch party at ...[link]",
-            });
-            if (result.action === Share.sharedAction) {
-                if (result.activityType) {
-                    // shared with activity type of result.activityType
-                } else {
-                    // shared
-                }
-            } else if (result.action === Share.dismissedAction) {
-                // dismissed
-            }
-        } catch (error) {
-            Alert.alert(error.message);
-        }
-    };
+    // const handleShare = async () => {
+    //     try {
+    //         const result = await Share.share({
+    //             url: "",
+    //             title: "MovieHub",
+    //             message: "Watch Party Invite | Join my watch party at ...[link]",
+    //         });
+    //         if (result.action === Share.sharedAction) {
+    //             if (result.activityType) {
+    //                 // shared with activity type of result.activityType
+    //             } else {
+    //                 // shared
+    //             }
+    //         } else if (result.action === Share.dismissedAction) {
+    //             // dismissed
+    //         }
+    //     } catch (error) {
+    //         Alert.alert(error.message);
+    //     }
+    // };
 
     const handleDeleteRoom = async () => {
         console.log("Delete Room");
@@ -77,7 +85,7 @@ const RoomModal = forwardRef((props, ref) => {
         <View style={styles.container}>
             <Text style={styles.title}>{props.title}</Text>
             <View style={styles.iconsContainer}>
-                <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
+                <TouchableOpacity style={styles.iconButton} onPress={handleInvitePress}>
                     <Ionicons name="share-social" size={22} color={theme.iconColor} style={styles.icon} />
                     <Text style={{ color: theme.textColor }}>Share</Text>
                 </TouchableOpacity>
@@ -135,13 +143,6 @@ const RoomModal = forwardRef((props, ref) => {
             <BottomSheetModal ref={ref} index={0} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backgroundStyle={{ backgroundColor: theme.backgroundColor }} backdropComponent={renderBackdrop}>
                 <BottomSheetView style={{ backgroundColor: theme.backgroundColor }}>{renderContent()}</BottomSheetView>
             </BottomSheetModal>
-            {/*<InviteModal
-                ref={bottomSheetRef}
-                friends={[]} // Pass an empty array if there are no friends to invite
-                title="Invite Friends"
-                onInvite={handleInviteUser}
-                userInfo={userInfo}
-            />*/}
         </BottomSheetModalProvider>
     );
 });

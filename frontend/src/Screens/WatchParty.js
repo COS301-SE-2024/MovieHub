@@ -382,6 +382,7 @@ const WatchParty = ({ route }) => {
                 title="Invite Friends"
                 onInvite={handleInviteUser}
                 userInfo={userInfo}
+                roomId={roomId}
             />
         </KeyboardAvoidingView>
     );
