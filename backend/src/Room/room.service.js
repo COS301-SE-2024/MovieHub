@@ -441,7 +441,7 @@ exports.inviteUserToRoom = async (adminId, uid, roomId) => {
     try {
         // Check if the room is invite-only and the admin is the creator, and get the room's shortCode
         const roomCheck = await session.run(
-            `MATCH (r:Room {roomId: $roomId, accessLevel: 'invite', createdBy: $adminId})
+            `MATCH (r:Room {roomId: $roomId, createdBy: $adminId})
              RETURN r.shortCode AS shortCode, r.roomName AS roomName`,
             { roomId, adminId }
         );

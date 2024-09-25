@@ -7,6 +7,7 @@ import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import SearchBar from '../Components/SearchBar';
 import FollowList from '../Components/FollowList';
+import { inviteUserToRoom } from '../Services/RoomApiService';
 
 const InviteModal = forwardRef((props, ref) => {
     const snapPoints = useMemo(() => ["30%", "40%", "65%"], []);
@@ -15,6 +16,7 @@ const InviteModal = forwardRef((props, ref) => {
     const [searchResults, setSearchResults] = useState([]);
     const [friends, setFriends] = useState([]);
     const [filteredFriends, setFilteredFriends] = useState([]);
+    const { roomId } = props;
 
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
@@ -73,28 +75,37 @@ const InviteModal = forwardRef((props, ref) => {
     };
 
     const handleSearch = async (name) => {
-
         if (name.trim() === "") {
             setSearchResults([]); 
             return;
         }
         try {
-        const response = await searchUser(name); 
-        if (response.users) {
-            setSearchResults(response.users);
-        } else {
+            const response = await searchUser(name); 
+            if (response.users) {
+                setSearchResults(response.users);
+            } else {
+                setSearchResults([]); 
+            }
+        } catch (error) {
+            console.error("Error during search:", error.message);
             setSearchResults([]); 
         }
-    } catch (error) {
-        console.error("Error during search:", error.message);
-        setSearchResults([]); 
-    }
+    };
+
+    const handleInvite = async (item) => {
+        try {
+            console.log("AdminId", props.userInfo.userId);
+            console.log("Uid", item.uid);
+            console.log("RoomId", roomId);
+            const response = await inviteUserToRoom(props.userInfo.userId, item.uid, roomId);
+            Alert.alert("Success", "User invited successfully.");
+        } catch (error) {
+            Alert.alert("Error", error.message);
+        }
     };
 
     const renderFollower = ({ item }) => (
-        <TouchableOpacity
-        onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo : item })} 
-      >
+        <TouchableOpacity onPress={() => handleInvite(item)}>
         <FollowList 
             username={item.username}
             userHandle={item.name}
