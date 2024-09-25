@@ -12,7 +12,7 @@ import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
 import { getCommentsOfPost } from "../Services/PostsApiServices";
-import { getUserProfile, followUser, unfollowUser } from "../Services/UsersApiService";
+import { getUserProfile, followUser, unfollowUser, getFollowingCount, getFollowersCount, getFollowers, getFollowing} from "../Services/UsersApiService";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function FollowersProfilePage({ route }) {
@@ -32,6 +32,7 @@ export default function FollowersProfilePage({ route }) {
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
     const [isPost, setIsPost] = useState(false);
+
     const [followerCount, setFollowerCount] = useState(0);
     const [followingCount, setFollowingCount] = useState(0);
     const [routes] = useState([
@@ -49,12 +50,32 @@ export default function FollowersProfilePage({ route }) {
     // console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
     // console.log("FollowerPostTab() - Other User Info:", userInfo);
 
-    const handlePressFollowers = () => {
-        navigation.navigate("FollowersPage", { route, username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted });
+    const handlePressFollowers = async () => {
+        try {
+            const followers = await getFollowers(otherUserInfo.uid);
+            navigation.navigate("FollowersPage", { 
+                followers,
+                username: userProfile.name,
+                userHandle: userProfile.username,
+                userAvatar: userProfile.avatar
+            });
+        } catch (error) {
+            console.error("Error fetching followers:", error);
+        }
     };
 
-    const handlePressFollowing = () => {
-        navigation.navigate("FollowingPage", { route, username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted });
+    const handlePressFollowing = async () => {
+        try {
+            const following = await getFollowing(otherUserInfo.uid);
+            navigation.navigate("FollowingPage", { 
+                following,
+                username: userProfile.name,
+                userHandle: userProfile.username,
+                userAvatar: userProfile.avatar
+            });
+        } catch (error) {
+            console.error("Error fetching following:", error);
+        }
     };
 
     const fetchData = async () => {
@@ -72,6 +93,10 @@ export default function FollowersProfilePage({ route }) {
             if (response.following && response.following.low !== undefined) {
                 setFollowing(response.following.low);
             }
+            const followersCount = await getFollowersCount(userId);
+            const followingCount = await getFollowingCount(userId);
+            setFollowers(followersCount.followerCount);
+            setFollowing(followingCount.followingCount);
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
@@ -253,18 +278,14 @@ export default function FollowersProfilePage({ route }) {
                     <Text style={styles.userHandle}>@{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                    <TouchableOpacity onPress={handlePressFollowers}>
-                        <Text>
-                            <Text style={styles.number}>{followers} </Text>
-                            <Text style={styles.label}>Followers</Text>
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handlePressFollowing}>
-                        <Text>
-                            <Text style={styles.number}>{following} </Text>
-                            <Text style={styles.label}>Following</Text>
-                        </Text>
-                    </TouchableOpacity>
+                    <Text onPress={() => navigation.navigate("FollowersPage", { otherUserInfo, userProfile, followers })}>
+                        <Text style={styles.number}>{followers} </Text>
+                        <Text style={styles.label}>Followers</Text>
+                    </Text>
+                    <Text onPress={() => navigation.navigate("FollowingPage", { otherUserInfo, userProfile, following })}>
+                        <Text style={styles.number}>{following} </Text>
+                        <Text style={styles.label}>Following</Text>
+                    </Text>
                 </View>
                 <View style={styles.buttonContainer}>
                     <Pressable style={isFollowing ? styles.followingButton : styles.followButton} onPress={handlePress}>
