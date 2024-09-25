@@ -141,8 +141,8 @@ export default function MovieDescriptionPage({route}) {
                         </View>
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
-                            <Text style={styles.movietitle2}> &bull; </Text>
-                            <Text style={styles.movietitle2}> {runtime ? 
+                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16}}> &bull; </Text>
+                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16 }}> {runtime ? 
                             `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins` 
                             : 'NoN'}</Text>
                         </View>

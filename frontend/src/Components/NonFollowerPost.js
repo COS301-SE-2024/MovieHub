@@ -238,7 +238,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             fontSize: 16,
         },
         moreIcon: {
-            paddingLeft: 10,
+            // paddingLeft: 10,
             color: theme.iconColor,
         },
         followingButton: {

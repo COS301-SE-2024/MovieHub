@@ -9,20 +9,12 @@ import MovieCard from "../Components/MovieCard"
 import TrendingMovie from "../Components/TrendingMovies"
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getMovies } from "../api";
-import { getFriendsContent } from "../Services/ExploreApiService";
-import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
-import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
-import Post from "../Components/Post";
-import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
-import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
-import NonFollowerPost from "../Components/NonFollowerPost";
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
-import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 import { getUserWatchlists } from "../Services/UsersApiService";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
@@ -231,42 +223,42 @@ const Home = ({ route }) => {
     }, []);
 
 
-    useEffect(() => {
-        let interval;
+    // useEffect(() => {
+    //     let interval;
     
-        if (isAutoScrolling) {
-            interval = setInterval(() => {
-                if (activeIndex === 9) {
-                    if (movies1.length > 0) {
-                    flatlistRef.current?.scrollToIndex({
-                        index: 0,
-                        animated: true,
-                    });
-                }
-                    setActiveIndex(0);
-                } else {
-                    if (movies1.length > 0) {
-                    flatlistRef.current?.scrollToIndex({
-                        index: activeIndex + 1,
-                        animated: true,
-                    });
-                }
-                    setActiveIndex(activeIndex + 1);
-                }
-            }, 2000); // Adjust the interval as needed
-        }
+    //     if (isAutoScrolling) {
+    //         interval = setInterval(() => {
+    //             if (activeIndex === 9) {
+    //                 if (movies1.length > 0) {
+    //                 flatlistRef.current?.scrollToIndex({
+    //                     index: 0,
+    //                     animated: true,
+    //                 });
+    //             }
+    //                 setActiveIndex(0);
+    //             } else {
+    //                 if (movies1.length > 0) {
+    //                 flatlistRef.current?.scrollToIndex({
+    //                     index: activeIndex + 1,
+    //                     animated: true,
+    //                 });
+    //             }
+    //                 setActiveIndex(activeIndex + 1);
+    //             }
+    //         }, 2000); // Adjust the interval as needed
+    //     }
     
-        return () => clearInterval(interval);
-    }, [isAutoScrolling, activeIndex, movies1]);
-    const getItemLayout = (data, index) => ({
-		length: screenWidth,
-		offset: screenWidth * index, // for first image - 300 * 0 = 0pixels, 300 * 1 = 300, 300*2 = 600
-		index: index,
-	});
+    //     return () => clearInterval(interval);
+    // }, [isAutoScrolling, activeIndex, movies1]);
+    // const getItemLayout = (data, index) => ({
+	// 	length: screenWidth,
+	// 	offset: screenWidth * index, // for first image - 300 * 0 = 0pixels, 300 * 1 = 300, 300*2 = 600
+	// 	index: index,
+	// });
 
-    const handleScrollBeginDrag = () => {
-        setIsAutoScrolling(false);
-    };
+    // const handleScrollBeginDrag = () => {
+    //     setIsAutoScrolling(false);
+    // };
 
     const handleScrollEndDrag = () => {
         setTimeout(() => {
@@ -519,10 +511,10 @@ const Home = ({ route }) => {
             renderItem={renderItem}
             contentContainerStyle={{ paddingHorizontal: 0 }} // Optional: Adjust spacing
             onScroll={handleScroll}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onScrollEndDrag={handleScrollEndDrag}
-            getItemLayout={getItemLayout}
-            onScrollToIndexFailed={handleScrollToIndexFailed}
+            // onScrollBeginDrag={handleScrollBeginDrag}
+            // onScrollEndDrag={handleScrollEndDrag}
+            // getItemLayout={getItemLayout}
+            // onScrollToIndexFailed={handleScrollToIndexFailed}
 
         />
             </View>   

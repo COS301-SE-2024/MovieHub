@@ -534,6 +534,7 @@ exports.getUnreadNotifications = async (userId) => {
         }
 
         const notifications = snapshot.val();
+        console.log("Notifications:", notifications);
 
         if (!notifications) {
             return 0; // No notifications found
@@ -545,6 +546,16 @@ exports.getUnreadNotifications = async (userId) => {
                 unreadCount++;
             }
         }
+
+        if (notifications.likes) {
+            for (const key in notifications.likes) {
+                if (notifications.likes[key].read === false) {
+                    unreadCount++;
+                }
+            }
+        }
+
+        console.log("Unread notifications count:", unreadCount);
 
         return { unreadCount };
     } catch (error) {

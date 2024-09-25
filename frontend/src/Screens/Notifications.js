@@ -38,20 +38,21 @@ const Notifications = ({ route }) => {
                 }
                 flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
                 setNotifications(flattenedNotifications);
-                console.log("Notifications fetched:", notifications);
-                setCategorizedNotifications(categorizeNotifications(notifications));
+                setCategorizedNotifications(categorizeNotifications(flattenedNotifications));
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
             }
         };
-
+    
         fetchNotifications();
-    }, [userInfo.userId]);
+    }, []);  // Removed notifications from the dependency array
+    
 
     const handleMarkAsRead = async (id, type) => {
         try {
             await markNotificationAsRead(userInfo.userId, type, id);
             setNotifications(notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)));
+            console.log("Notification marked as read:", id, type);
         } catch (error) {
             console.error("Failed to mark notification as read:", error);
         }
@@ -61,6 +62,7 @@ const Notifications = ({ route }) => {
         try {
             await deleteNotification(userInfo.userId, type, id);
             setNotifications(notifications.filter((notification) => notification.id !== id));
+
         } catch (error) {
             console.error("Failed to delete notification:", error);
         }
@@ -153,12 +155,24 @@ const Notifications = ({ route }) => {
             </View>
             <View style={styles.buttonContainer}>
                 {item.notificationType === "follow" && (
-                    <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
-                        <Text style={styles.buttonText}>{item.isFollowing ? "Following" : "Follow"}</Text>
-                    </TouchableOpacity>
+                    <>
+                        {!item.read && (
+                            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
+                                <Text style={styles.buttonText}>Read</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
+                            <Text style={styles.buttonText}>{item.isFollowing ? "Following" : "Follow"}</Text>
+                        </TouchableOpacity>
+                    </>
                 )}
                 {item.notificationType === "room_invite" && (
                     <>
+                        {!item.read && (
+                            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
+                                <Text style={styles.buttonText}>Read</Text>
+                            </TouchableOpacity>
+                        )}
                         <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAcceptInvite(item.shortCode, item.id)}>
                             <Text style={styles.buttonText}>Accept</Text>
                         </TouchableOpacity>
@@ -167,11 +181,17 @@ const Notifications = ({ route }) => {
                         </TouchableOpacity>
                     </>
                 )}
-
                 {item.notificationType !== "room_invite" && (
-                    <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id, item.type)}>
-                        <Text style={styles.buttonText}>Delete</Text>
-                    </TouchableOpacity>
+                    <>
+                        {!item.read && (
+                            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
+                                <Text style={styles.buttonText}>Read</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id, item.type)}>
+                            <Text style={styles.buttonText}>Delete</Text>
+                        </TouchableOpacity>
+                    </>
                 )}
             </View>
         </View>
@@ -185,7 +205,7 @@ const Notifications = ({ route }) => {
         },
         listContainer: {
             flexGrow: 1,
-            marginHorizontal: 5, // Optional: adjust as needed
+            marginHorizontal:12, // Optional: adjust as needed
         },
         avatar: {
             width: 40,
@@ -212,7 +232,6 @@ const Notifications = ({ route }) => {
         },
         boldText: {
             fontWeight: "bold",
-            
         },
         readText: {
             color: "#888",
