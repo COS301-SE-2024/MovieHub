@@ -4,12 +4,22 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
+import { toggleMode } from "../Services/UsersApiService";
+import { useUser } from "../Services/UseridContext";
 
 function CustomDrawer({ route }) {
+    // const { userInfo } = route.params;
+    const { userInfo } = useUser();
     const { isDarkMode, toggleTheme, theme } = useTheme();
     const navigation = useNavigation();
-    const handleToggleSwitch = () => {
+    const handleToggleSwitch = async () => {
         toggleTheme();
+        try {
+            await toggleMode(userInfo.userId);
+            console.log("Theme toggled");
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
@@ -47,8 +57,8 @@ function CustomDrawer({ route }) {
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Enable Dark Mode</Text>
                     <Switch
                         style={{ marginLeft: "auto", marginRight: 10 }}
-                        trackColor={theme.textColor }
-                        thumbColor={isDarkMode ? "#fff" : "#fff"}
+                        trackColor={{ false: "#767577", true: "#827DC3" }} 
+                        thumbColor={isDarkMode ? "#4a42c0" : "#fff"}
                         ios_backgroundColor="#3e3e3e"
                         onValueChange={handleToggleSwitch}
                         value={isDarkMode}

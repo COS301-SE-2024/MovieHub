@@ -280,6 +280,7 @@ const Notifications = ({ route }) => {
             fontWeight: "bold",
             marginVertical: 10,
             marginLeft: 10,
+            color: theme.textColor
         },
         clearButton: {
             backgroundColor: "#4a42c0",

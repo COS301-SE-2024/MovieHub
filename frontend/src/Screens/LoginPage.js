@@ -9,11 +9,11 @@ import Icon from "@expo/vector-icons/MaterialIcons";
 import { isUserVerified, loginUser } from "../Services/AuthApiService";
 import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
-import { getUserProfile } from "../Services/UsersApiService";
+import { getUserProfile, getMode } from "../Services/UsersApiService";
 import logo2 from "../../../assets/logo.png";
 
 const LoginPage = () => {
-    const { theme } = useTheme();
+    const { theme, setMode } = useTheme();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -71,6 +71,14 @@ const LoginPage = () => {
                         routes: [{ name: "Home", params: { userInfo } }], // Replace 'Home' with your home screen name
                     })
                 );
+                try {
+                    const mode = await getMode(userInfo.userId);
+                    console.log("Mode:", mode);
+                    setMode(mode);
+                } catch (error) {
+                    console.log("Error fetching mode:", error);
+                }
+                
                 navigation.navigate("Home", { userInfo });
             }
         } catch (error) {
