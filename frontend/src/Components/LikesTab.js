@@ -8,7 +8,7 @@ import Post from "./Post";
 import Review from "./Review";
 
 
-export default function LikesTab({ userInfo, userProfile, handleCommentPress }) {
+export default function LikesTab({ userInfo, userProfile, handleCommentPress, refreshing }) {
     const [likedPosts, setLikedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
     const { theme } = useTheme();
@@ -89,6 +89,12 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
     useEffect(() => {
         fetchLikedPosts();
     }, []);
+    
+    const handleRefresh = () => {
+        if (refreshing) {
+            fetchLikedPosts();
+        }
+    };
 
     const handleDeletePost = async (postId) => {
         try {
@@ -143,7 +149,6 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
 
     return (
         <View style={{ flex: 1 }}>
-            
                 {likedPosts.length === 0 ? (
                     <View style={styles.container}>
                         <Text style={styles.title}>You haven't liked any posts or reviews yet.</Text>

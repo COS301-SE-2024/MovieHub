@@ -25,8 +25,6 @@ export default function ProfilePage({ route }) {
         { key: "watchlist", title: "Watchlist" },
     ]);
 
-
-
     const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
@@ -98,6 +96,7 @@ export default function ProfilePage({ route }) {
     const handleRefresh = () => {
         setRefreshing(true);
         fetchData().finally(() => setRefreshing(false));
+        console.log("Refreshed");
     };
 
     useEffect(() => {
@@ -197,11 +196,11 @@ export default function ProfilePage({ route }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "posts":
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} refreshing={refreshing} onRefresh={handleRefresh}  />;
             case "likes":
-                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} refreshing={refreshing} onRefresh={handleRefresh} />;
             case "watchlist":
-                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
+                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} refreshing={refreshing} onRefresh={handleRefresh} />;
 
             default:
                 return null;

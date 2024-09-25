@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import FollowList from '../Components/FollowList';
-import { getFollowers } from '../Services/UsersApiService';
+import { getFollowers, isFollowed } from '../Services/UsersApiService';
 import { useTheme } from "../styles/ThemeContext";
 
 const FollowersPage = ({ route }) => {
@@ -14,13 +14,23 @@ const FollowersPage = ({ route }) => {
     const fetchFollowers = async () => {
         try {
             const response = await getFollowers(userInfo.userId); // Fetch followers using userId
-            setFollowers(response);
+            
+            // Map through each follower and check if they are followed
+            const followersWithStatus = await Promise.all(response.map(async (follower) => {
+                const isFollowing = await isFollowed(userInfo.userId, follower.uid);
+                return {
+                    ...follower,    // Spread the follower object
+                    isFollowing,    // Add the isFollowing property
+                };
+            }));
+            
+            setFollowers(followersWithStatus); // Set the updated followers list
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching followers:", error);
         } finally {
             setLoading(false); 
         }
-    };
+    };    
 
     useEffect(() => {
         fetchFollowers();
@@ -28,9 +38,12 @@ const FollowersPage = ({ route }) => {
 
     const renderFollower = ({ item }) => (
         <FollowList 
+            route={route}
+            uid={item.uid}
             username={item.username}
             userHandle={item.name}
             userAvatar={item.avatar}
+            isFollowing={item.isFollowing}
         />
     );
 

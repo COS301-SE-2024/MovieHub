@@ -9,8 +9,12 @@ import InviteModal from "../Components/InviteModal";
 import moment from "moment";
 
 const WatchParty = ({ route }) => {
-    const { userInfo, roomId, isRoomCreator } = route.params;
-    const { theme } = useTheme();
+    const { userInfo, roomId } = route.params;
+    const { theme, isDarkMode } = useTheme();
+
+//     const { userInfo, roomId, isRoomCreator } = route.params;
+//     const { theme } = useTheme();
+
     const navigation = useNavigation();
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
@@ -20,6 +24,7 @@ const WatchParty = ({ route }) => {
     const flatListRef = useRef(null);
     const bottomSheetRef = useRef(null);
     const [visibleTimestamp, setVisibleTimestamp] = useState(null);
+    const [watchPartyStarted, setWatchPartyStarted] = useState(false);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchParticipantsAndMessages = async () => {
@@ -159,16 +164,14 @@ const WatchParty = ({ route }) => {
         container: {
             flex: 1,
             backgroundColor: theme.backgroundColor,
+            position: "relative",
         },
         header: {
-            backgroundColor: theme.backgroundColor,
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            borderBottomWidth: 1,
-            borderBottomColor: "#ddd",
             flexDirection: "row",
             alignItems: "center",
-            // justifyContent: "space-between",
+            justifyContent: "space-between",
+            padding: 16,
+            backgroundColor: isDarkMode ? theme.backgroundColor : "#f1f1f1",
         },
         title: {
             fontSize: 18,
@@ -176,106 +179,103 @@ const WatchParty = ({ route }) => {
             color: theme.textColor,
         },
         videoPlayer: {
-            backgroundColor: "#ddd",
             height: 200,
+            backgroundColor: "#d3d3d3",
             justifyContent: "center",
             alignItems: "center",
         },
         roomInfo: {
             flexDirection: "row",
-            justifyContent: "space-between",
             alignItems: "center",
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: "#ddd",
+            justifyContent: "space-between",
+            padding: 16,
+            backgroundColor: isDarkMode ? theme.borderColor : "#f9f9f9",
         },
         roomDetails: {
+            marginLeft: 8,
             flexDirection: "row",
             alignItems: "center",
-            marginLeft: 8,
         },
         chatbox: {
-            flex: 1,
-            paddingHorizontal: 16,
-            marginTop: 8,
+            flex: 1, // Make chatbox take up the remaining space
+        },
+        messageContainer: {
+            marginVertical: 4,
+            paddingHorizontal: 14,
+        },
+        userMessageContainer: {
+            alignItems: "flex-end", // Align the user's messages to the right
+        },
+        messageRow: {
+            flexDirection: "row",
+            alignItems: "flex-start",
+        },
+        avatar: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: "#d3d3d3",
+            justifyContent: "center",
+            alignItems: "center",
+            marginRight: 8,
+        },
+        message: {
+            padding: 12,
+            borderRadius: 20,
+            maxWidth: "70%",
+        },
+        userMessage: {
+            backgroundColor: "#d1e7ff",
+            alignSelf: "flex-end",
+        },
+        otherMessage: {
+            backgroundColor: "#e0e0e0",
+            alignSelf: "flex-start",
+        },
+        messageSender: {
+            marginBottom: 4,
+            fontSize: 13,
+            color: theme.gray,
+            alignSelf: "flex-start",
+            fontWeight: "600",
         },
         chatInput: {
             flexDirection: "row",
             alignItems: "center",
-            paddingHorizontal: 16,
-            paddingVertical: 8,
+            padding: 16,
             borderTopWidth: 1,
-            borderTopColor: "#ddd",
+            borderTopColor: theme.borderColor,
+            alignSelf: "flex-end", // Align chat input to the bottom
         },
         inputContainer: {
-            flex: 1,
             flexDirection: "row",
             alignItems: "center",
-            borderWidth: 1,
-            borderColor: "#ddd",
-            borderRadius: 50,
-            paddingHorizontal: 12,
-            paddingVertical: 3,
-            marginRight: 8,
+            flex: 1,
+            backgroundColor: isDarkMode ? theme.inputBackground : "#f1f1f1",
+            borderRadius: 20,
+            paddingHorizontal: 16,
         },
         input: {
             flex: 1,
             height: 40,
         },
         sendButton: {
-            backgroundColor: "#007aff",
+            marginLeft: 8,
+            backgroundColor: theme.primaryColor,
             borderRadius: 20,
-            padding: 8,
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        messageContainer: {
-            marginVertical: 4,
-        },
-        userMessageContainer: {
-            alignSelf: "flex-end",
-        },
-        otherMessageContainer: {
-            alignSelf: "flex-start",
-        },
-        message: {
-            padding: 8,
-            borderRadius: 16,
-            maxWidth: "80%",
-        },
-        userMessage: {
-            backgroundColor: "#CBC3E3",
-            alignSelf: "flex-end",
-        },
-        otherMessage: {
-            backgroundColor: theme.backgroundColor,
-            alignSelf: "flex-start",
-        },
-        messageRow: {
-            flexDirection: "row",
-            alignItems: "center",
-        },
-        messageSender: {
-            fontWeight: "bold",
-            marginBottom: 4,
-        },
-        avatar: {
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            marginRight: 8,
+            padding: 10,
         },
         dateDivider: {
             alignSelf: "center",
             paddingVertical: 4,
             paddingHorizontal: 12,
-            backgroundColor: "#eee",
+            backgroundColor: theme.primaryColor,
             borderRadius: 12,
             marginVertical: 4,
+            marginTop: 10,
         },
         dateDividerText: {
-            color: theme.borderColor,
+            color: "white",
         },
         timestamp: {
             fontSize: 12,
@@ -336,12 +336,17 @@ const WatchParty = ({ route }) => {
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
                     <MatIcon name="arrow-left" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
+                {watchPartyStarted && <Text style={styles.title}>Interstellar</Text>}
+            </View>
                 <Text style={styles.title}>Interstellar</Text>
             </View> */}
 
-            <View style={styles.videoPlayer}>
-                <Text>Video Player Placeholder</Text>
-            </View>
+
+            {watchPartyStarted && (
+                <View style={styles.videoPlayer}>
+                    <Text>Video Player Placeholder</Text>
+                </View>
+            )}
 
             <View style={styles.roomInfo}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -362,7 +367,7 @@ const WatchParty = ({ route }) => {
 
             <View style={styles.chatInput}>
                 <View style={styles.inputContainer}>
-                    <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} onSubmitEditing={sendMessage} placeholderTextColor={theme.borderColor} />
+                    <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} onSubmitEditing={sendMessage} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                     {/* <TouchableOpacity>
                         <Ionicons name="happy" size={24} color="black" />
                     </TouchableOpacity> */}

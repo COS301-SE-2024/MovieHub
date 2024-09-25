@@ -5,7 +5,7 @@ import { getRoomParticipants, kickUserFromRoom, toggleAdmin } from "../Services/
 import Icon from "react-native-vector-icons/MaterialIcons";
 import RoomModal from "../Components/RoomModal";
 import { useNavigation } from "@react-navigation/native";
-// import BottomSheet from "@gorhom/bottom-sheet"; // Assuming you're using the Gorhom Bottom Sheet library
+import BottomSheet from "@gorhom/bottom-sheet"; // Assuming you're using the Gorhom Bottom Sheet library
 
 const participantsData = [
     // { id: "1", name: "Itumeleng", username: "@ElectricTance" },
@@ -23,8 +23,10 @@ const ViewParticipants = ({ route }) => {
     console.log("Route",route);
     console.log("RoomId", roomId);
     console.log("Is room creator ", isRoomCreator);
-    const navigation = useNavigation();
-    const [participants, setParticipants] = useState(participantsData);
+    const [participants, setParticipants] = useState([]);
+
+//     const navigation = useNavigation();
+//     const [participants, setParticipants] = useState(participantsData);
 
     const handleFollowPress = (id) => {
         setParticipants((prevParticipants) =>

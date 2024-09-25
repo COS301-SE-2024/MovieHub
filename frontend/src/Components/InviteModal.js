@@ -181,8 +181,9 @@ const InviteModal = forwardRef((props, ref) => {
                 enablePanDownToClose={true}
                 handleIndicatorStyle={{ backgroundColor: "#4A42C0" }}
                 backdropComponent={renderBackdrop}
+                backgroundStyle={{ backgroundColor: theme.backgroundColor }}
             >
-                <BottomSheetScrollView>
+                <BottomSheetScrollView style={{ backgroundColor: theme.backgroundColor }}>
                     {renderContent()}
                 </BottomSheetScrollView>
             </BottomSheetModal>

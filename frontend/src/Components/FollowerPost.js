@@ -107,15 +107,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
             backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
-            // shadowColor: "#000",
-            // shadowOffset: {
-            //     width: 0,
-            //     height: 2,
-            // },
-            // shadowOpacity: 0.45,
-            // shadowRadius: 3.84,
-            // elevation: 5,
-            borderBottomWidth: 0.5,
+            borderBottomWidth: 0.8,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
@@ -185,7 +177,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
             position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -203,7 +195,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         confirmationModal: {
@@ -252,7 +244,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
                     <Text style={styles.userHandle}>{userHandle} &bull; {datePosted}</Text>
                 </View>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                    <Icon name="more-vert" size={20} />
+                    <Icon name="more-vert" size={20} color={theme.iconColor} />
                 </Pressable>
             </View>
             {image && <Image source={{ uri: image }} style={styles.postImage} resizeMode="cover" />}
@@ -263,7 +255,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
                 <Icon
                     name={hasLiked ? 'favorite' : 'favorite-border'}
                     size={20}
-                    color={hasLiked ? 'red' : 'black'}
+                    color={hasLiked ? 'red' : theme.iconColor}
                     style={{ marginRight: 5 }}
                 />
                     <Text style={styles.statsNumber}>{likeCount}</Text>

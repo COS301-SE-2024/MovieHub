@@ -6,6 +6,7 @@ import { TouchableOpacity } from "react-native";
 import BottomHeader from '../Components/BottomHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import NonFollowerPost from '../Components/NonFollowerPost';
+import NonFollowerReview from '../Components/NonFollowerReview';
 import { getFriendsOfFriendsContent, getRandomUsersContent } from '../Services/ExploreApiService';
 import { InstagramLoader } from 'react-native-easy-content-loader';
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; 
@@ -282,6 +283,7 @@ export default function ExplorePage({ route }) {
         },
         postsContainer: {
             flex: 1,
+            backgroundColor: theme.backgroundColor,
         },
         roomList: {
             paddingHorizontal: 10,
@@ -322,7 +324,7 @@ export default function ExplorePage({ route }) {
                                                 otherUserInfo={content.friend}
                                                 username={content.post.name}
                                                 userAvatar={content.friend.avatar}
-                                                userHandle={`@${content.post.username}`}
+                                                userHandle={`${content.post.username}`}
                                                 likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
                                                 comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
                                                 postTitle={content.post.postTitle}
@@ -343,7 +345,7 @@ export default function ExplorePage({ route }) {
                                                 uid={userInfo.userId}
                                                 userInfo={userInfo}
                                                 otherUserInfo={content.friend}
-                                                username={content.friend.username}
+                                                username={content.review.name}
                                                 userHandle={`${content.friend.username}`}
                                                 userAvatar={content.friend.avatar}
                                                 likes={content.review.likeCount ?? 0} // Update with actual likes data if available

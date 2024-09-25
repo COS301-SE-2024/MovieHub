@@ -100,6 +100,7 @@ const WatchlistTab = ({ userInfo }) => {
         watchlistName: {
             fontSize: 18,
             fontWeight: "bold",
+            color: theme.textColor,
         },
         watchlistPrivacy: {
             fontSize: 14,
@@ -164,7 +165,6 @@ const WatchlistTab = ({ userInfo }) => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-
                 onPress={() => navigation.navigate('CreateWatchlist', {userInfo})}
 
             >

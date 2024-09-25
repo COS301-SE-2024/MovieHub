@@ -26,7 +26,7 @@ export default function MovieDescriptionPage({route}) {
     const [loading, setLoading] = useState(true);
     const [isAddedToList, setIsAddedToList] = useState(false);
     const [isWatched, setIsWatched] = useState(false);
-    const [runtime, setRuntime] = useState(null);
+    const [runtime, setRuntime] = useState({ hours: 0, mins: 0 });
     const [isReviewed, setIsReviewed] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const navigation = useNavigation();
@@ -37,7 +37,8 @@ export default function MovieDescriptionPage({route}) {
     };
 
     const handleAddPress = () => {
-        setIsModalVisible(true);
+        // setIsModalVisible(true);
+        // alert with three options
     };
 
     const handleLogBookPress = () => {
@@ -54,6 +55,10 @@ export default function MovieDescriptionPage({route}) {
         navigation.navigate('EditWatchlist', { userInfo });
         setIsModalVisible(false);
     };
+
+    const handleWatchPartyPress = () => {
+        navigation.navigate('WatchParty', { userInfo });
+    }
 
     useEffect(() => {
         const fetchCredits = async () => {
@@ -132,12 +137,12 @@ export default function MovieDescriptionPage({route}) {
                     <View style={styles.moviedes}>
                         <View style={styles.movieinfo}>
                             <Text style={styles.movietitle}>{title}</Text>
-                            <Text style={styles.movieRating}>{roundedRating}/10</Text>
+                            <Text style={styles.movieRating}>{roundedRating}/<Text style={{fontSize: 18}}>10</Text></Text>
                         </View>
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
-                            <Text style={styles.movietitle2}> | </Text>
-                            <Text style={styles.movietitle2}> {runtime ? 
+                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16}}> &bull; </Text>
+                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16 }}> {runtime ? 
                             `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins` 
                             : 'NoN'}</Text>
                         </View>
@@ -162,7 +167,7 @@ export default function MovieDescriptionPage({route}) {
                                     </View>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.block4}>
+                                <TouchableOpacity style={styles.block4} onPress={handleWatchPartyPress}>
                                     <View style={styles.iconTextContainer}>
                                         <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
                                         <Text style={styles.text}>Watch Party</Text>
@@ -280,7 +285,7 @@ const styles = StyleSheet.create({
     movieinfo2: {
         flex: 1,
         flexDirection: "row",
-        paddingLeft: 10,
+        paddingLeft: 12,
     },
     movietitle: {
         fontSize: 30,
