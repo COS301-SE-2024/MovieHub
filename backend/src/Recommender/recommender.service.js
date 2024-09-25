@@ -56,9 +56,10 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
         const tmdbMovie = await getMovieDetails(tmdbId);
         const userFavoriteGenres = await getUserFavoriteGenres(userId);
 
+        // Collect genre IDs for querying
         const genreQuery = [...tmdbMovie.genres.map(genre => genre.id), ...userFavoriteGenres];
 
-        console.log("About to make use of Elasticsearch client");
+        console.log("Searching movies in Elasticsearch with genre query:", genreQuery);
 
         let { body } = await client.search({
             index: 'movies',
@@ -75,14 +76,10 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
                         minimum_should_match: 1
                     }
                 },
-                size: 100 // Retrieve up to 100 movies for comparison
+                size: 100
             },
-        }).catch(error => {
-            console.error('Error during Elasticsearch search:', error);
-            throw error;
         });
 
-        console.log("Awaited client...");
         let allMovies = body.hits.hits.map(hit => hit._source);
 
         // Ensure we have enough movies to recommend at least 5
@@ -100,7 +97,6 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
             allMovies = [...allMovies, ...additionalMovies.body.hits.hits.map(hit => hit._source)];
         }
 
-        // Filter out the movie being recommended
         allMovies = allMovies.filter(movie => movie.id !== tmdbId);
 
         // Combine the features of the input movie and all other movies
@@ -108,15 +104,13 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
         const allMoviesFeatures = allMovies.map(combineFeatures);
         const combinedFeatures = [tmdbMovieFeatures, ...allMoviesFeatures];
 
-        console.log("The combined features: ", combinedFeatures);
+        console.log("Combined features for all movies: ", combinedFeatures);
 
         // Vectorize the movie features
         const movieVectors = vectorizeMovies(combinedFeatures);
         const [tmdbMovieVector, ...allMoviesVectors] = movieVectors;
 
-        console.log("Movie Vectors: ", movieVectors);
-
-        // Calculate cosine similarity for each movie and sort by relevance
+        // Calculate cosine similarity for each movie
         const cosineSimilarities = allMoviesVectors.map((vector, index) => {
             const similarity = cosineSimilarity(tmdbMovieVector, vector);
 
@@ -131,21 +125,22 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
 
         // Return the top 15 highest similarity movies
         const topRecommendations = cosineSimilarities
-            .slice(0, 15) // Return the top 15 recommendations based on similarity
+            .slice(0, 15)
             .map(rec => ({
                 id: rec.movie.id,
                 title: rec.movie.title,
-                posterUrl: `https://image.tmdb.org/t/p/w500${rec.movie.poster_path}`, // Assuming 'poster_path' contains the URL or path to the poster
-                similarity: (rec.similarity * 100).toFixed(2) // Round off similarity score to 2 decimal points
+                posterUrl: `https://image.tmdb.org/t/p/w500${rec.movie.poster_path}`,
+                similarity: (rec.similarity * 100).toFixed(2)
             }));
 
-        console.log("Top recommendations ", topRecommendations);
-        console.log("TMDB ", tmdbId)
+        console.log("Top recommendations: ", topRecommendations);
         return topRecommendations;
     } catch (error) {
+        console.error('Failed to recommend movies:', error);
         throw new Error('Failed to recommend movies: ' + error.message);
     }
 };
+
 
 const combineFeatures = (movie) => {
     const genres = Array.isArray(movie.genres) ? movie.genres.map(genre => genre.name).join(' ') : '';
