@@ -204,7 +204,7 @@ const Home = ({ route }) => {
             try {
                 let moviesData = await getMovies();
                 moviesData = shuffleArray(moviesData); // Shuffle the movies array
-                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
+                setMovies([{ key: "empty-left" }, ...moviesData.slice(0, 9), { key: "empty-right" }]);
             } catch (error) {
                 console.error("Failed to fetch movies:", error);
             }
