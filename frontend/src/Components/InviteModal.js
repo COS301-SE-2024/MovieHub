@@ -2,16 +2,21 @@ import React, { useState, useCallback, useMemo, useEffect, forwardRef } from "re
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Share, Alert, FlatList } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
-import { getFriends } from "../Services/UsersApiService"; // Import the getFriends function
+import { getFriends, searchUser } from "../Services/UsersApiService"; // Import the getFriends function
 import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import SearchBar from '../Components/SearchBar';
+import FollowList from '../Components/FollowList';
+import { inviteUserToRoom } from '../Services/RoomApiService';
 
 const InviteModal = forwardRef((props, ref) => {
     const snapPoints = useMemo(() => ["30%", "40%", "65%"], []);
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
     const [friends, setFriends] = useState([]);
     const [filteredFriends, setFilteredFriends] = useState([]);
+    const { roomId } = props;
 
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
@@ -69,6 +74,46 @@ const InviteModal = forwardRef((props, ref) => {
         props.onInvite(friend); // Call the onInvite prop to handle the invitation
     };
 
+    const handleSearch = async (name) => {
+        if (name.trim() === "") {
+            setSearchResults([]); 
+            return;
+        }
+        try {
+            const response = await searchUser(name); 
+            if (response.users) {
+                setSearchResults(response.users);
+            } else {
+                setSearchResults([]); 
+            }
+        } catch (error) {
+            console.error("Error during search:", error.message);
+            setSearchResults([]); 
+        }
+    };
+
+    const handleInvite = async (item) => {
+        try {
+            console.log("AdminId", props.userInfo.userId);
+            console.log("Uid", item.uid);
+            console.log("RoomId", roomId);
+            const response = await inviteUserToRoom(props.userInfo.userId, item.uid, roomId);
+            Alert.alert("Success", "User invited successfully.");
+        } catch (error) {
+            Alert.alert("Error", error.message);
+        }
+    };
+
+    const renderFollower = ({ item }) => (
+        <TouchableOpacity onPress={() => handleInvite(item)}>
+        <FollowList 
+            username={item.username}
+            userHandle={item.name}
+            userAvatar={item.avatar}
+        />
+         </TouchableOpacity>
+    );
+
     const renderContent = () => (
         <View style={styles.container}>
             <Text style={styles.title}>{props.title}</Text>
@@ -84,15 +129,15 @@ const InviteModal = forwardRef((props, ref) => {
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.searchBar}>
-                <Icon name="search" size={24} style={{ color: "#7b7b7b" }} />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Find a friend"
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
+            <SearchBar onChangeText={handleSearch} />
+                {searchResults.length > 0 && (
+                <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item.uid}
+                    renderItem={renderFollower}
+                    showsVerticalScrollIndicator={false}
                 />
-            </View>
+            )}
 
             <FlatList
                 data={filteredFriends}
@@ -181,8 +226,9 @@ const InviteModal = forwardRef((props, ref) => {
                 enablePanDownToClose={true}
                 handleIndicatorStyle={{ backgroundColor: "#4A42C0" }}
                 backdropComponent={renderBackdrop}
+                backgroundStyle={{ backgroundColor: theme.backgroundColor }}
             >
-                <BottomSheetScrollView>
+                <BottomSheetScrollView style={{ backgroundColor: theme.backgroundColor }}>
                     {renderContent()}
                 </BottomSheetScrollView>
             </BottomSheetModal>

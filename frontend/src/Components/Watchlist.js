@@ -100,6 +100,7 @@ const WatchlistTab = ({ userInfo }) => {
         watchlistName: {
             fontSize: 18,
             fontWeight: "bold",
+            color: theme.textColor,
         },
         watchlistPrivacy: {
             fontSize: 14,
@@ -114,10 +115,10 @@ const WatchlistTab = ({ userInfo }) => {
             margin: 5,
         },
         emptyContainer: {
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 16,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 35,
+            paddingTop: 55,
+            textAlign: "center",
         },
         emptyText: {
             fontSize: 16,
@@ -146,13 +147,24 @@ const WatchlistTab = ({ userInfo }) => {
             marginLeft: 8,
             color: theme.backgroundColor
         },
+        title: {
+            fontSize: 18,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 6,
+            color: theme.textColor,
+        },
+        subtitle: {
+            fontSize: 14,
+            textAlign: "center",
+            color: theme.gray,
+        },
     });
 
     return (
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.createButton}
-
                 onPress={() => navigation.navigate('CreateWatchlist', {userInfo})}
 
             >
@@ -160,10 +172,10 @@ const WatchlistTab = ({ userInfo }) => {
                 <View style={{ flex: 1 }} />
                 <MaterialIcons name="add" size={24} color={theme.textColor} />
             </TouchableOpacity>
-            <ScrollView>
+            
                 {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
                             <Text style={styles.watchlistPrivacy}>
@@ -178,10 +190,11 @@ const WatchlistTab = ({ userInfo }) => {
                 ))}
                 {watchlists.length === 0 && (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>Your watchlists will appear here</Text>
+                        <Text style={styles.title}>Your watchlists will appear here</Text>
+                        <Text style={styles.subtitle}>Start exploring and create new watchlists with your favourite movies!</Text>
                     </View>
                 )}
-            </ScrollView>
+            
             <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={closeModal}>
                 <TouchableOpacity style={styles.modalOverlay} onPress={closeModal}>
                     <View style={styles.modalContainer}>

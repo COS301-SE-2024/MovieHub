@@ -30,10 +30,17 @@ const darkTheme = {
 export const ThemeProvider = ({ children }) => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const toggleTheme = () => setIsDarkMode((prevMode) => !prevMode);
+    const setMode = (mode) => {
+        if (mode === "dark") {
+            setIsDarkMode(true);
+        } else {
+            setIsDarkMode(false);
+        }
+    };
 
     const theme = isDarkMode ? darkTheme : lightTheme;
 
-    return <ThemeContext.Provider value={{ theme, isDarkMode, toggleTheme }}>{children}</ThemeContext.Provider>;
+    return <ThemeContext.Provider value={{ theme, isDarkMode, toggleTheme, setMode }}>{children}</ThemeContext.Provider>;
 };
 
 // Custom hook to use theme context

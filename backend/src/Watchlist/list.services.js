@@ -31,7 +31,7 @@ exports.createWatchlist = async (userId, watchlistData) => {
 
     const session = driver.session();
     const watchlistId = uuidv4();
-    const { name, tags, visibility, ranked, description, movies } = watchlistData;
+    const { name, tags, visibility, ranked, description, movies, img } = watchlistData;
 
     try {
         console.log("All required parameters are present. Proceeding with database query.");
@@ -63,11 +63,11 @@ exports.createWatchlist = async (userId, watchlistData) => {
         const movieIds = await Promise.all(movieDetailsPromises);
 
         const result = await tx.run(
-            `CREATE (w:Watchlist {id: $watchlistId, name: $name, tags: $tags, visibility: $visibility, ranked: $ranked, description: $description, collaborative: $collaborative})
+            `CREATE (w:Watchlist {id: $watchlistId, name: $name, tags: $tags, visibility: $visibility, ranked: $ranked, description: $description,img : $img, collaborative: $collaborative})
              MERGE (u:User {uid: $userId})
              CREATE (u)-[:HAS_WATCHLIST]->(w)
              RETURN w`,
-            { watchlistId, name, tags, visibility, ranked, description, collaborative, userId }
+            { watchlistId, name, tags, visibility, ranked, description, collaborative, img, userId }
         );
 
         console.log("Watchlist created and associated with the user.");

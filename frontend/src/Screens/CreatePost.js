@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, FlatList, Image, Alert, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import Octicons from "react-native-vector-icons/Octicons";
 import * as ImagePicker from "expo-image-picker";
 import { addPost, addReview } from "../Services/PostsApiServices";
 import { colors } from "../styles/theme";
@@ -24,7 +25,8 @@ export default function CreatePost({ route }) {
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [feedbackSuccess, setFeedbackSuccess] = useState(false);
-    const [linkUrl, setLinkUrl] = useState('');
+    const [linkUrl, setLinkUrl] = useState("");
+    const [isTooltipVisible, setTooltipVisibility] = useState(false);
     const isPostButtonDisabled = title.trim() === "" || thoughts.trim() === "";
     const navigation = useNavigation();
 
@@ -83,43 +85,47 @@ export default function CreatePost({ route }) {
         }
     };
 
+    const toggleTooltip = () => {
+        setTooltipVisibility(!isTooltipVisible);
+    };
+
     const handleRemoveImage = () => {
         setImageUri(null);
     };
 
     const handleAddLink = () => {
         Alert.prompt(
-          "Add Link",
-          "Please enter a URL:",
-          [
-            {
-              text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
-              style: "cancel"
-            },
-            {
-              text: "OK",
-              onPress: (url) => {
-                if (url && isValidUrl(url)) {
-                  setLinkUrl(url);
-                } else {
-                  Alert.alert("Invalid URL", "Please enter a valid URL");
-                }
-              }
-            }
-          ],
-          "plain-text"
+            "Add Link",
+            "Please enter a URL:",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel",
+                },
+                {
+                    text: "OK",
+                    onPress: (url) => {
+                        if (url && isValidUrl(url)) {
+                            setLinkUrl(url);
+                        } else {
+                            Alert.alert("Invalid URL", "Please enter a valid URL");
+                        }
+                    },
+                },
+            ],
+            "plain-text"
         );
-      };
-      
-      const isValidUrl = (string) => {
+    };
+
+    const isValidUrl = (string) => {
         try {
-          new URL(string);
-          return true;
+            new URL(string);
+            return true;
         } catch (_) {
-          return false;
+            return false;
         }
-      };
+    };
 
     const handleAddEmoji = () => {
         Alert.alert("Add Emoji", "This functionality is not implemented yet.");
@@ -146,7 +152,7 @@ export default function CreatePost({ route }) {
                     {
                         text: "OK",
                         onPress: () => {
-                            // clear all inputs 
+                            // clear all inputs
                             setTitle("");
                             setThoughts("");
                             setRating(0);
@@ -186,7 +192,7 @@ export default function CreatePost({ route }) {
                     {
                         text: "OK",
                         onPress: () => {
-                            // clear all inputs 
+                            // clear all inputs
                             setTitle("");
                             setThoughts("");
                             setRating(0);
@@ -237,7 +243,7 @@ export default function CreatePost({ route }) {
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 20,
+            marginBottom: 10,
         },
         label: {
             fontSize: 14,
@@ -306,7 +312,7 @@ export default function CreatePost({ route }) {
             opacity: 0.7,
         },
         postButtonText: {
-            color: theme.textColor,
+            color: "white",
             fontWeight: "bold",
         },
         imagePreviewContainer: {
@@ -352,7 +358,7 @@ export default function CreatePost({ route }) {
         },
         ratingText: {
             fontSize: 16,
-            color: theme.textColor
+            color: theme.textColor,
         },
         modalContainer: {
             flex: 1,
@@ -421,14 +427,42 @@ export default function CreatePost({ route }) {
             height: 75,
             marginRight: 8,
         },
+        infoIcon: {
+            marginLeft: 5,
+        },
+        tooltip: {
+            backgroundColor: "#f9c74f",
+            padding: 10,
+            borderRadius: 5,
+            marginVerticalBottom: 5,
+            marginBottom: 15,
+        },
+        tooltipText: {
+            color: "#000",
+            fontSize: 12,
+        },
+        bold: {
+            fontWeight: "bold",
+        }
     });
 
     return (
         <ScrollView style={styles.container}>
             <View style={styles.toggleContainer}>
-                <Text style={styles.label}>Is this a movie review?</Text>
+                <View style={{ flexDirection: "row", }}>
+                    <Text style={styles.label}>Is this a movie review?</Text>
+                    <TouchableOpacity onPress={toggleTooltip} style={styles.infoIcon}>
+                        <Octicons name="question" size={15} color={theme.iconColor} />
+                    </TouchableOpacity>
+                </View>
                 <Switch value={isMovieReview} onValueChange={setIsMovieReview} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={isMovieReview ? "#4A42C0" : "#fff"} />
             </View>
+            {isTooltipVisible && (
+                <View style={styles.tooltip}>
+                    <Text style={styles.tooltipText}><Text style={styles.bold}>Post:</Text> A short update where users share thoughts, ideas, or comments. </Text>
+                    <Text style={styles.tooltipText}><Text style={styles.bold}>Movie Review:</Text> A detailed critique or opinion about a movie. Reviews include ratings, in-depth analysis, and personal views on specific movies.</Text>
+                </View>
+            )}
 
             {imageUri && (
                 <View style={styles.imagePreviewContainer}>
@@ -484,15 +518,17 @@ export default function CreatePost({ route }) {
                         <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
                         <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
                     </View>
+
                 </View>
+                <View style={styles.allowCommentsContainer}>
+                    <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
+                    <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
+                </View>
+            {/* </View> */}
             {/* </View>s */}
 
             <View style={styles.footer}>
-                <TouchableOpacity
-                    style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
-                    disabled={isPostButtonDisabled}
-                    onPress={isMovieReview ? handleAddReview : handleAddPost}
-                >
+                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={isMovieReview ? handleAddReview : handleAddPost}>
                     <Text style={styles.postButtonText}>{isMovieReview ? "Review" : "Post"}</Text>
                 </TouchableOpacity>
             </View>
@@ -507,7 +543,6 @@ export default function CreatePost({ route }) {
         </ScrollView>
     );
 }
-
 
 const styles = StyleSheet.create({
     container: {
@@ -702,16 +737,16 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     inputContainer: {
-        position: 'relative',
+        position: "relative",
         zIndex: 1,
     },
     movieSearchContainer: {
-        position: 'relative',
+        position: "relative",
         zIndex: 2,
     },
     movieResultsScrollView: {
         position: "absolute",
-        top: '100%',
+        top: "100%",
         left: 0,
         right: 0,
         maxHeight: 240,
@@ -730,4 +765,3 @@ const styles = StyleSheet.create({
         borderWidth: 0.4,
     },
 });
-

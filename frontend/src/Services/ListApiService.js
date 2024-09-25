@@ -2,6 +2,7 @@
 //const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/list/'; // Update to your Expo URL
 // const API_URL = 'http://localhost:3000/list/';
 import { getLocalIP } from './getLocalIP';
+import {uploadImage} from './imageUtils';
 
 const localIP = getLocalIP();
 const API_URL = `http://${localIP}:3000/list/`;
@@ -9,6 +10,13 @@ const API_URL = `http://${localIP}:3000/list/`;
 
 export const createWatchlist = async (userId, watchlistData) => {
     // collabUserIds is the array that contaions all the user IDs that collabarate
+
+    if(watchlistData.img === null){
+        watchlistData.img = null;
+    }else{
+    watchlistData.img = await uploadImage(watchlistData.img, 'lists');
+    }
+
     //also the array is stored in the wathclist details
     try {
         const response = await fetch(`${API_URL}${userId}`, {
@@ -104,5 +112,30 @@ export const deleteWatchlist = async (watchlistId) => {
     } catch (error) {
         console.error('Error deleting watchlist:', error);
         throw new Error('Failed to delete watchlist.');
+    }
+};
+
+export const getFollowedUsersWatchlists = async (userId) => {
+    try {
+        const response = await fetch(`${API_URL}${userId}/followed-watchlists`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log("Watclists -services", response)
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch followed users watchlists.');
+        }
+
+        const data = await response.json();
+
+        console.log("Watclists -services/data", data)
+        return data;  // Assuming the API returns an array of watchlists
+    } catch (error) {
+        console.error('Error fetching followed users watchlists:', error);
+        throw new Error('Failed to fetch followed users watchlists.');
     }
 };

@@ -77,7 +77,7 @@ export default function BottomHeader({ userInfo }) {
             width: 40,
             borderRadius: 20,
             borderColor: theme.iconColor,
-            borderWidth: 2
+            borderWidth: 2,
         },
         activeImage: {
             borderColor: colors.primary,

@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import RatingStars from '../Components/RatingStars';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
+import RatingStars from "../Components/RatingStars";
+import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const LogBookScreen = () => {
-    const [movieRating, setMovieRating] = useState('');
-    const [review, setReview] = useState('');
-    const [dateWatched, setDateWatched] = useState('');
+    const { theme } = useTheme();
+    const [movieRating, setMovieRating] = useState("");
+    const [review, setReview] = useState("");
+    const [dateWatched, setDateWatched] = useState("");
     const [logEntries, setLogEntries] = useState([]);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const route = useRoute();
@@ -41,20 +43,20 @@ const LogBookScreen = () => {
 
     const loadLogEntries = async () => {
         try {
-            const entries = await AsyncStorage.getItem('logEntries');
+            const entries = await AsyncStorage.getItem("logEntries");
             if (entries) {
                 setLogEntries(JSON.parse(entries));
             }
         } catch (error) {
-            console.error('Failed to load log entries', error);
+            console.error("Failed to load log entries", error);
         }
     };
 
     const saveLogEntries = async (entries) => {
         try {
-            await AsyncStorage.setItem('logEntries', JSON.stringify(entries));
+            await AsyncStorage.setItem("logEntries", JSON.stringify(entries));
         } catch (error) {
-            console.error('Failed to save log entries', error);
+            console.error("Failed to save log entries", error);
         }
     };
 
@@ -73,14 +75,116 @@ const LogBookScreen = () => {
         const updatedEntries = [...logEntries, newEntry];
         setLogEntries(updatedEntries);
         saveLogEntries(updatedEntries);
-        setMovieRating('');
-        setReview('');
-        setDateWatched('');
+        setMovieRating("");
+        setReview("");
+        setDateWatched("");
     };
 
     const viewLogEntries = () => {
-        navigation.navigate('LogEntriesScreen', { logEntries });
+        navigation.navigate("LogEntriesScreen", { logEntries });
     };
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 20,
+            backgroundColor: theme.backgroundColor,
+        },
+        textArea: {
+            height: 100,
+            textAlignVertical: "top",
+            paddingTop: 8,
+        },
+        heading: {
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+            outlineStyle: "none",
+            textAlign: "center",
+            color: theme.textColor,
+            paddingBottom: 8
+        },
+        input: {
+            height: 40,
+            borderColor: theme.borderColor,
+            borderWidth: 1,
+            marginBottom: 10,
+            paddingHorizontal: 10,
+        },
+        logEntry: {
+            padding: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+        },
+        logText: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        buttonContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingTop: 10,
+        },
+        buttonText: {
+            color: "#0f5bd1",
+            textAlign: "center",
+        },
+        entryButton: {
+            backgroundColor: theme.primaryColor,
+            padding: 16,
+            borderRadius: 4,
+            alignItems: "center",
+        },
+        entryButtonText: {
+            color: "#fff",
+            fontSize: 16,
+            fontWeight: "bold",
+        },
+
+        movieTitle: {
+            fontSize: 20,
+            marginTop: 10,
+            marginBottom: 10,
+            fontWeight: "bold",
+            textAlign: "center",
+            color: theme.textColor
+        },
+        subtitle: {
+            fontSize: 18,
+            marginTop: 20,
+            fontWeight: "bold",
+            color: theme.textColor,
+            marginBottom: 10
+        },
+        label: {
+            fontSize: 16,
+            fontWeight: "600",
+            paddingBottom: 10,
+            color: theme.textColor
+        },
+        input: {
+            height: 45,
+            borderRadius: 10,
+            backgroundColor: theme.inputBackground,
+            paddingHorizontal: 10,
+            marginBottom: 20,
+        },
+        datePickerButton: {
+            flexDirection: "row",
+            alignItems: "center",
+            padding: 10,
+            borderWidth: 1,
+            borderColor: theme.borderColor,
+            borderRadius: 5,
+            marginTop: 10,
+        },
+        dateText: {
+            marginLeft: 10,
+            fontSize: 16,
+        },
+    });
 
     return (
         <View style={styles.container}>
@@ -90,29 +194,16 @@ const LogBookScreen = () => {
 
             <TouchableOpacity onPress={showDatePicker} style={styles.datePickerButton}>
                 <Ionicons name="calendar-outline" size={24} color="black" />
-                <Text style={styles.dateText}>
-                    {dateWatched ? dateWatched.toDateString() : "Select Date Watched"}
-                </Text>
+                <Text style={styles.dateText}>{dateWatched ? dateWatched.toDateString() : "Select Date Watched"}</Text>
             </TouchableOpacity>
 
-            <DateTimePickerModal
-                isVisible={isDatePickerVisible}
-                mode="date"
-                onConfirm={handleConfirm}
-                onCancel={hideDatePicker}
-            />
+            <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} />
 
             <Text style={styles.subtitle}>Rate the movie:</Text>
             <RatingStars rating={rating} setRating={setRating} />
 
             <Text style={styles.subtitle}>Write a review</Text>
-            <TextInput
-                style={[styles.input, styles.textArea]}
-                selectionColor="#000"
-                value={review}
-                onChangeText={setReview}
-                placeholder="Add your thoughts"
-            />
+            <TextInput style={[styles.input, styles.textArea]} selectionColor={theme.textColor} placeholderTextColor={theme.gray} value={review} onChangeText={setReview} placeholder="Add your thoughts" />
 
             <TouchableOpacity style={styles.entryButton} onPress={addLogEntry}>
                 <Text style={styles.entryButtonText}>Log Entry</Text>
@@ -120,101 +211,5 @@ const LogBookScreen = () => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: "#fff"
-    },
-    textArea: {
-        height: 100,
-        textAlignVertical: "top",
-        paddingTop: 8,
-    },
-
-    heading: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: "#7b7b7b",
-        outlineStyle: "none",
-        textAlign: "center"
-    },
-    input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-    },
-    logEntry: {
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: 'gray',
-    },
-    logText: {
-        fontSize: 16,
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingTop: 10,
-    },
-    buttonText: {
-        color: "#0f5bd1",
-        textAlign: "center",
-    },
-    entryButton: {
-        backgroundColor: "black",
-        padding: 16,
-        borderRadius: 4,
-        alignItems: "center",
-    },
-    entryButtonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    
-    movieTitle: {
-        fontSize: 20,
-        marginTop: 10,
-        marginBottom: 10,
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    subtitle: {
-        fontSize: 18,
-        marginTop: 20,
-        fontWeight: "bold"
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: "600",
-        paddingBottom: 10,
-    },
-    input: {
-        height: 45,
-        borderRadius: 10,
-        backgroundColor: "#D9D9D9",
-        paddingHorizontal: 10,
-        marginBottom: 20,
-    },
-    datePickerButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 5,
-        marginTop: 10,
-    },
-    dateText: {
-        marginLeft: 10,
-        fontSize: 16,
-    },
-});
 
 export default LogBookScreen;

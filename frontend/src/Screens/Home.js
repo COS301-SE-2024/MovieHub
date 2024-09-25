@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView,ScrollView } from "react-native";
+import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView,ScrollView , TouchableOpacity,} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
@@ -11,17 +11,15 @@ import { getMovies } from "../api";
 import { getFriendsContent } from "../Services/ExploreApiService";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
+import {getFollowedUsersWatchlists} from "../Services/ListApiService"
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
-import Post from "../Components/Post";
-import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
-import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
-import NonFollowerPost from "../Components/NonFollowerPost";
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
+import { getUserWatchlists } from "../Services/UsersApiService";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -121,7 +119,6 @@ const Home = ({ route }) => {
     const screenWidth = Dimensions.get("window").width;
     const [activeIndex, setActiveIndex] = useState(0);
     const { userInfo } = route.params;
-
     const { theme } = useTheme();
     const { avatar } = route.params;
     const navigation = useNavigation();
@@ -142,6 +139,7 @@ const Home = ({ route }) => {
     let [refreshing, setRefreshing] = useState(false);
     const [moviesByGenre, setMoviesByGenre] = useState({});
     const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+    const [watchlists, setWatchlists] = useState([]);
 
 
     useEffect(() => {
@@ -207,43 +205,67 @@ const Home = ({ route }) => {
         fetchMovies();
     }, []);
 
-
     useEffect(() => {
-        let interval;
-    
-        if (isAutoScrolling) {
-            interval = setInterval(() => {
-                if (activeIndex === 9) {
-                    if (movies1.length > 0) {
-                    flatlistRef.current?.scrollToIndex({
-                        index: 0,
-                        animated: true,
-                    });
-                }
-                    setActiveIndex(0);
-                } else {
-                    if (movies1.length > 0) {
-                    flatlistRef.current?.scrollToIndex({
-                        index: activeIndex + 1,
-                        animated: true,
-                    });
-                }
-                    setActiveIndex(activeIndex + 1);
-                }
-            }, 2000); // Adjust the interval as needed
-        }
-    
-        return () => clearInterval(interval);
-    }, [isAutoScrolling, activeIndex, movies1]);
-    const getItemLayout = (data, index) => ({
-		length: screenWidth,
-		offset: screenWidth * index, // for first image - 300 * 0 = 0pixels, 300 * 1 = 300, 300*2 = 600
-		index: index,
-	});
+        const fetchUserWatchlists = async () => {
+            try {
+                const userId = userInfo.userId;
+                let userWatchlists = await getUserWatchlists(userId);
 
-    const handleScrollBeginDrag = () => {
-        setIsAutoScrolling(false);
-    };
+                //let userWatchlists = await getFollowedUsersWatchlists(userId);
+
+        
+                // Remove duplicates based on watchlist IDs
+                userWatchlists = userWatchlists.filter((watchlist, index, self) => 
+                    index === self.findIndex((w) => w.id === watchlist.id)
+                );
+        
+                setWatchlists(userWatchlists);
+            } catch (error) {
+                console.error('Error fetching user watchlists:', error);
+                setWatchlists([]);
+            }
+        };
+
+        fetchUserWatchlists();
+    }, []);
+
+
+    // useEffect(() => {
+    //     let interval;
+    
+    //     if (isAutoScrolling) {
+    //         interval = setInterval(() => {
+    //             if (activeIndex === 9) {
+    //                 if (movies1.length > 0) {
+    //                 flatlistRef.current?.scrollToIndex({
+    //                     index: 0,
+    //                     animated: true,
+    //                 });
+    //             }
+    //                 setActiveIndex(0);
+    //             } else {
+    //                 if (movies1.length > 0) {
+    //                 flatlistRef.current?.scrollToIndex({
+    //                     index: activeIndex + 1,
+    //                     animated: true,
+    //                 });
+    //             }
+    //                 setActiveIndex(activeIndex + 1);
+    //             }
+    //         }, 2000); // Adjust the interval as needed
+    //     }
+    
+    //     return () => clearInterval(interval);
+    // }, [isAutoScrolling, activeIndex, movies1]);
+    // const getItemLayout = (data, index) => ({
+	// 	length: screenWidth,
+	// 	offset: screenWidth * index, // for first image - 300 * 0 = 0pixels, 300 * 1 = 300, 300*2 = 600
+	// 	index: index,
+	// });
+
+    // const handleScrollBeginDrag = () => {
+    //     setIsAutoScrolling(false);
+    // };
 
     const handleScrollEndDrag = () => {
         setTimeout(() => {
@@ -258,16 +280,8 @@ const Home = ({ route }) => {
 
     // auto scroll
     const handleScroll = (event) => {
-		// Get the scroll position
 		const scrollPosition = event.nativeEvent.contentOffset.x;
-		
-		// Get the index of current active item
-
 		const index = scrollPosition / screenWidth;
-
-		
-		// Update the index
-
 		setActiveIndex(index);
 	};
 
@@ -278,81 +292,10 @@ const Home = ({ route }) => {
         flatlistRef.current.scrollToIndex({ index: 0, animated: true });
     };
 
-    // Fetch friends content
-    const fetchFriendsContent = useCallback(async () => {
-        try {
-            const friendsData = await getFriendsContent(userInfo);
-            const { posts, reviews } = friendsData;
-
-            const combinedContent = [...posts.map((post) => ({ ...post, type: "post" })), ...reviews.map((review) => ({ ...review, type: "review" }))];
-
-            const sortedContent = combinedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
-
-            const enrichedContent = await Promise.all(
-                sortedContent.map(async (content) => {
-                    if (content.type === "post") {
-                        const likes = await getLikesOfPost(content.post.postId);
-                        const comments = await getCountCommentsOfPost(content.post.postId);
-                        return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
-                    }
-                    if (content.type === "review") {
-                        const likes = await getLikesOfReview(content.review.reviewId);
-                        const comments = await getCountCommentsOfReview(content.review.reviewId);
-                        return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
-                    }
-                    return content;
-                })
-            );
-
-            setSortedContent(enrichedContent);
-        } catch (error) {
-            console.error("Failed to fetch friends content:", error);
-        }
-    }, [userInfo]);
-
-    useFocusEffect(
-        useCallback(() => {
-            if (userInfo) {
-                fetchFriendsContent();
-            }
-        }, [userInfo, fetchFriendsContent])
-    );
 
     if (movies.length === 0 ) {
         return <Loading />;
     }
-
-    const fetchComments = async (postId, isReview) => {
-        setLoadingComments(true);
-        if (isReview) {
-            try {
-                const response = await getCommentsOfReview(postId);
-                setComments(response.data);
-            } catch (error) {
-                console.error("Error fetching comments of review:", error.message);
-                throw new Error("Failed to fetch comments of review");
-            } finally {
-                setLoadingComments(false);
-            }
-        } else {
-            try {
-                const response = await getCommentsOfPost(postId);
-                setComments(response.data);
-            } catch (error) {
-                console.error("Error fetching comments of post:", error.message);
-                throw new Error("Failed to fetch comments of post");
-            } finally {
-                setLoadingComments(false);
-            }
-        }
-    };
-
-    const handleCommentPress = async (postId, isReview) => {
-        setSelectedPostId(postId);
-        setIsPost(!isReview);
-        const response = await fetchComments(postId, isReview);
-        bottomSheetRef.current?.present();
-    };
 
     
 
@@ -369,6 +312,10 @@ const Home = ({ route }) => {
             textAlign: "center",
         },
     });
+
+    const goToWatchlistDetails = (watchlist) => {
+        navigation.navigate('WatchlistDetails', { watchlist });
+    };
 
     const renderItem = ({ item }) => (
         <MovieCard
@@ -426,7 +373,7 @@ const Home = ({ route }) => {
 
                             return (
                                 <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
-                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo : userInfo,  ...movieDetails })}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
                                         <Animated.View
                                             style={{
                                                 marginHorizontal: SPACING,
@@ -458,40 +405,12 @@ const Home = ({ route }) => {
 
             <View style={styles.line}></View>
 
-            <View style={styles.viewall}>
-             <Text  style={{
-                fontSize: 23, // Ensure only one fontSize is set
-                color: theme.textColor,
-                paddingLeft: 16, // Padding should work
-                fontFamily: 'Roboto',
-                fontWeight: 'bold',
-                paddingTop: 10,
-            }}>Thriller</Text>
-             {/* <Text style={styles.viewalltext}>View all</Text> */}
-            </View>
-
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {thrillerMovies.slice(0, 20).map((movie, index) => (
-
-                            <TrendingMovie
-                                key={index}
-                                movieId={movie.id}
-                                imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                                title={movie.title}
-                                overview={movie.overview}
-                                rating={movie.vote_average.toFixed(1)}
-                                date={new Date(movie.release_date).getFullYear()}
-                            />
-                        ))}
-
-            </ScrollView>
 
             <View style={styles.viewall}>
              <Text  style={{
-                fontSize: 23, // Ensure only one fontSize is set
+                fontSize: 23, 
                 color: theme.textColor,
-                paddingLeft: 16, // Padding should work
+                paddingLeft: 16,
                 fontFamily: 'Roboto',
                 fontWeight: 'bold',
                 paddingTop: 10,
@@ -517,6 +436,50 @@ const Home = ({ route }) => {
             </ScrollView>
 
             <View style={styles.viewall}>
+             <Text  style={{
+                fontSize: 23, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+                paddingBottom: 10,
+                textAlign: "center",
+            }}>Watchlists</Text>
+             {/* <Text style={styles.viewalltext}>View all</Text> */}
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {watchlists.map((watchlist) => (
+                    <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+                        <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+                        <View style={styles.watchlistInfo}>
+                            <Text style={{
+                fontSize: 12, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
+
+//             {watchlists.map((watchlist, index) => (
+//                     <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+//                         <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+//                         <View style={styles.watchlistInfo}>
+//                             <Text style={{
+//                 fontSize: 12,
+//                 color: theme.textColor, 
+
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+                paddingBottom: 10,
+                textAlign: "center",
+            }}>{watchlist.name}</Text>
+                        </View>
+                       
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+
+            <View style={styles.viewall}>
                         <Text  style={{
                 fontSize: 23, // Ensure only one fontSize is set
                 color: theme.textColor,
@@ -524,7 +487,7 @@ const Home = ({ route }) => {
                 fontFamily: 'Roboto',
                 fontWeight: 'bold',
                 paddingTop: 10,
-            }}>Romance</Text>
+            }}>Action</Text>
              {/* <Text style={styles.viewalltext}>View all</Text> */}
             </View>
 
@@ -564,10 +527,10 @@ const Home = ({ route }) => {
             renderItem={renderItem}
             contentContainerStyle={{ paddingHorizontal: 0 }} // Optional: Adjust spacing
             onScroll={handleScroll}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onScrollEndDrag={handleScrollEndDrag}
-            getItemLayout={getItemLayout}
-            onScrollToIndexFailed={handleScrollToIndexFailed}
+            // onScrollBeginDrag={handleScrollBeginDrag}
+            // onScrollEndDrag={handleScrollEndDrag}
+            // getItemLayout={getItemLayout}
+            // onScrollToIndexFailed={handleScrollToIndexFailed}
 
         />
             </View>   
@@ -602,65 +565,11 @@ const Home = ({ route }) => {
         </View>
       ))}
     </ScrollView>
-                    {/* Friends' Content */}
 
-                    {/* {sortedContent.length > 0 && (
-                        <View style={styles.friendsContent}>
-                            <Text style={styles.sectionTitle}>Feed</Text>
-                            {sortedContent.map((content, index) =>
-                                content.post ? ( // Check if post property exists
-                                    <Post
-                                        key={index}
-                                        postId={content.post.postId}
-                                        uid={content.friend.uid}
-                                        userInfo={userInfo}
-                                        otherUserInfo={content.friend}
-                                        username={content.post.name}
-                                        userAvatar={content.friend.avatar}
-                                        userHandle={`@${content.post.username}`}
-                                        likes={content.post.likeCount ?? 0} // Default to 0 if likeCount is undefined or null
-                                        comments={content.post.commentCount ?? 0} // Default to 0 if commentCount is undefined or null
-                                        postTitle={content.post.postTitle}
-                                        image={content.post.img}
-                                        datePosted={formatDate(content.post.createdAt)} // Format the date
-                                        preview={content.post.text}
-                                        isUserPost={userInfo.userId == content.post.uid}
-                                        handleCommentPress={handleCommentPress}
-                                        Otheruid={content.friend.uid}
-                                    />
-                                ) : null // Render nothing if post property does not exist
-                            )}
-                            {sortedContent.map((content, index) =>
-                                content.review ? ( // Check if review property exists
-                                    <Review
-                                        key={index}
-                                        reviewId={content.review.reviewId}
-                                        uid={userInfo.userId}
-                                        userInfo={userInfo}
-                                        otherUserInfo={content.friend}
-                                        username={content.friend.username}
-                                        userHandle={`${content.friend.username}`}
-                                        userAvatar={content.friend.avatar}
-                                        likes={content.review.likeCount ?? 0} // Update with actual likes data if available
-                                        comments={content.review.commentCount ?? 0} // Update with actual comments data if available
-                                        reviewTitle={content.review.reviewTitle}
-                                        preview={content.review.text}
-                                        dateReviewed={formatDate(content.review.createdAt)}
-                                        movieName={content.review.movieTitle}
-                                        image={content.review.img}
-                                        rating={content.review.rating}
-                                        isUserReview={userInfo.userId == content.review.uid}
-                                        handleCommentPress={handleCommentPress}
-                                        Otheruid={content.friend.uid}
-                                    />
-                                ) : null // Render nothing if review property does not exist
-                            )}
-                        </View>
-                    )} */}
                 </View>
             </VirtualizedList>
             <BottomHeader userInfo={userInfo} />
-            <CommentsModal ref={bottomSheetRef} isPost={isPost} postId={selectedPostId} userId={userInfo.userId} username={userInfo.username} currentUserAvatar={userProfile ? userProfile.avatar : null} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
+            {/* <CommentsModal ref={bottomSheetRef} isPost={isPost} postId={selectedPostId} userId={userInfo.userId} username={userInfo.username} currentUserAvatar={userProfile ? userProfile.avatar : null} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} /> */}
         </View>
     );
 };
@@ -688,12 +597,26 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         margin: 0,
         marginBottom: 10,
-    }, line: {
-        borderBottomColor: 'transparent',  
+    }, 
+    watchlistName: {
+        fontSize: 12,
+        fontWeight: "bold",
+        textAlign: "center",
+        paddingTop: 10,
+
+    },line: {
+        borderBottomColor: '#D3D3D3',  
         borderBottomWidth: 1,        
         marginVertical: 10,    
         paddingTop: 10,       
-      },
+      },watchlistImage: {
+        width: 182,
+        height: 180,
+        borderRadius: 8,
+        marginRight: 16,
+        objectFit: "cover",
+        marginLeft: 10,
+    },
     justforyou: {
         // textAlign: 'center',
         fontFamily: 'Roboto',
