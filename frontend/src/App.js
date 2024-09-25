@@ -474,9 +474,17 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="ViewParticipants"
             component={ViewParticipants}
-            options={{
-                headerShown: false,
-            }}
+            options={({ navigation }) => ({
+                title: "Participants",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "black",
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+                headerLeft: () => null,
+            })}
         />
         <Nav.Screen
             name="Notifications"
@@ -495,8 +503,8 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="WatchlistDetails"
             component={WatchlistDetails}
-            options={({ navigation }) => ({
-                title: "",
+            options={({ route }) => ({
+                title: route.params.watchlist.name,
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: theme.textColor,
@@ -553,7 +561,14 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="WatchParty"
             component={WatchParty}
             options={({ navigation }) => ({
-                headerShown: false,
+                title: "Interstella",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "black",
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
             })}
         />
 

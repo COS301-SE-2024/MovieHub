@@ -114,7 +114,7 @@ export default function ProfilePage({ route }) {
 
     const styles = StyleSheet.create({
         container: {
-            backgroundColor: "#fff",
+            backgroundColor: theme.backgroundColor,
         },
         avatar: {
             width: 80,
@@ -180,7 +180,7 @@ export default function ProfilePage({ route }) {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 1,
-            borderBottomColor: "#ddd",
+            borderBottomColor: "transparent",
         },
         indicator: {
             backgroundColor: colors.primary,

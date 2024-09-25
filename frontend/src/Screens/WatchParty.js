@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList, KeyboardAvoidingView, Platform, Image, PanResponder } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,7 +20,7 @@ const WatchParty = ({ route }) => {
     const flatListRef = useRef(null);
     const bottomSheetRef = useRef(null);
     const [visibleTimestamp, setVisibleTimestamp] = useState(null);
-
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchParticipantsAndMessages = async () => {
             try {
@@ -97,6 +97,18 @@ const WatchParty = ({ route }) => {
             return () => navigation.removeListener("beforeRemove", onBeforeRemove);
         }, [navigation])
     );
+
+    // useLayoutEffect(() => {
+    //     if (loading) {
+    //       navigation.setOptions({
+    //         title: "Loading..."
+    //       });
+    //     } else if (roomDetails) {
+    //       navigation.setOptions({
+    //         title: roomDetails.roomName
+    //       });
+    //     }
+    //   }, [navigation, loading, roomDetails]);
 
     const sendMessage = async () => {
         if (message.trim() === "") return;
@@ -320,12 +332,12 @@ const WatchParty = ({ route }) => {
 
     return (
         <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}>
-            <View style={styles.header}>
+            {/* <View style={styles.header}>
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
                     <MatIcon name="arrow-left" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Interstellar</Text>
-            </View>
+            </View> */}
 
             <View style={styles.videoPlayer}>
                 <Text>Video Player Placeholder</Text>

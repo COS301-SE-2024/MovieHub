@@ -143,7 +143,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
 
     return (
         <View style={{ flex: 1 }}>
-            <ScrollView>
+            
                 {likedPosts.length === 0 ? (
                     <View style={styles.container}>
                         <Text style={styles.title}>You haven't liked any posts or reviews yet.</Text>
@@ -194,7 +194,7 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress }) 
                         )
                     )
                 )}
-            </ScrollView>
+            
         </View>
     );
 }
