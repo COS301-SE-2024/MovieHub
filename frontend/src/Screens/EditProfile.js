@@ -165,14 +165,14 @@ export default function EditProfile({ route }) {
             return;
         }
 
-        const pickerResult = await ImagePicker.launchImageLibraryAsync();
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({mediaTypes: ImagePicker.MediaTypeOptions.Images,});
         if (pickerResult.canceled === true) {
             return;
         }
         const { uri } = pickerResult.assets[0];
         const name = pickerResult.assets[0].fileName;
-        const avatarUrl = await uploadImage(uri, name, 'profile');
-        setAvatar(uri);   
+        // const avatarUrl = await uploadImage(uri, name, 'profile');
+        setAvatar(pickerResult.assets[0].uri);   
         setAvatarChanged(true);
     };
 
