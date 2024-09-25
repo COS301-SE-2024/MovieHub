@@ -1,7 +1,57 @@
 import React from "react";
 import { ScrollView, Text, View, StyleSheet } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 
 const AccountManagement = () => {
+    const { theme } = useTheme();
+
+    const styles = StyleSheet.create({
+        container: {
+            padding: 16,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 20,
+        },
+        heading: {
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 16,
+            color: "#E8B159",
+        },
+        subheading: {
+            fontSize: 20,
+            fontWeight: "bold",
+            marginTop: 24,
+            marginBottom: 8,
+            color: "#E8B159",
+        },
+        bold: {
+            fontSize: 16,
+            fontWeight: "bold",
+            marginTop: 16,
+            marginBottom: 4,
+            color: theme.textColor,
+        },
+        listItem: {
+            fontSize: 16,
+            marginTop: 8,
+            color: theme.textColor,
+        },
+        paragraph: {
+            fontSize: 16,
+            marginBottom: 8,
+            color: theme.textColor,
+        },
+        underline: {
+            textDecorationLine: "underline",
+        },
+        conclusion: {
+            fontSize: 16,
+            marginTop: 24,
+            marginBottom: 30,
+            color: theme.textColor,
+        },
+    });    
+
     return (
         <ScrollView style={styles.container}>
             {/* <Text style={styles.heading}>Account Management</Text> */}
@@ -69,48 +119,5 @@ const AccountManagement = () => {
         </ScrollView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        padding: 16,
-        backgroundColor: "#fff",
-        paddingHorizontal: 20,
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 16,
-        color: "#E8B159",
-    },
-    subheading: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginTop: 24,
-        marginBottom: 8,
-        color: "#E8B159",
-    },
-    bold: {
-        fontSize: 16,
-        fontWeight: "bold",
-        marginTop: 16,
-        marginBottom: 4,
-    },
-    listItem: {
-        fontSize: 16,
-        marginTop: 8,
-    },
-    paragraph: {
-        fontSize: 16,
-        marginBottom: 8,
-    },
-    underline: {
-        textDecorationLine: "underline",
-    },
-    conclusion: {
-        fontSize: 16,
-        marginTop: 24,
-        marginBottom: 30,
-    },
-});
 
 export default AccountManagement;

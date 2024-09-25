@@ -4,7 +4,7 @@ import responseHandler from '../utils/responseHandler';
 exports.getLikesOfUser = async (req, res) => {
     try {
         const uid = req.params.uid;
-        console.log(`Fetching user likes for ID: ${uid}`);
+        // console.log(`Fetching user likes for ID: ${uid}`);
         const likes = await likesService.getLikesOfUser(uid);
         responseHandler(res, 200, 'Likes fetched successfully', likes);
     } catch (error) {
@@ -21,7 +21,7 @@ exports.getLikesOfMovie = async (req, res) => {
     }
     try {
         const likes = await likesService.getLikesOfMovie(movieId);
-        console.log("response: ", likes);
+        // console.log("response: ", likes);
         if (likes)
             responseHandler(res, 200, 'Likes fetched successfully', likes);
         else
@@ -56,9 +56,9 @@ exports.getLikesOfReview = async (req, res) => {
 
 exports.getLikesOfPost = async (req, res) => {
     const postId = req.params.postId;
-    console.log(req.params.postId);
+    // console.log(req.params.postId);
     try {
-        console.log(postId);
+        // console.log(postId);
         const likes = await likesService.getLikesOfPost(postId);
         responseHandler(res, 200, 'Likes fetched successfully', likes);
     } catch (error) {
@@ -118,7 +118,7 @@ exports.toggleLikeMovie = async (req, res) => {
 exports.toggleLikePost = async (req, res) => {
     const uid = req.body.uid;
     const postId = req.body.postId;
-    console.log('toggleLikePost controller',uid,postId);
+    // console.log('toggleLikePost controller',uid,postId);
     try {
         const liked = await likesService.toggleLikePost(uid, postId);
         const message = liked ? 'Post liked successfully' : 'Like removed successfully';

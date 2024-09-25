@@ -1,4 +1,4 @@
-
+import { getDatabase, push, ref, set } from "firebase/database";
 const { v4: uuidv4 } = require('uuid');
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
@@ -70,22 +70,51 @@ exports.addCommentToPost = async (uid, postId, text) => {
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
+
     try {
         const comId = uuidv4();
         const reviewId = -1;
         const comOnId = -1;
+
+        // Fetch the post, user, and post owner details
         const result = await session.run(
-            `MATCH (u:User {uid: $uid}), (p:Post {postId: $postId})
-             CREATE (c:Comment {comId: $comId, text: $text, movieId: p.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: $postId, reviewId: $reviewId, comOnId: $comOnId , username : u.username, avatar : u.avatar , name : u.name})
+            `MATCH (u:User {uid: $uid}), (p:Post {postId: $postId})<-[:POSTED]-(owner:User)
+             CREATE (c:Comment {comId: $comId, text: $text, movieId: p.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: $postId, reviewId: $reviewId, comOnId: $comOnId , username: u.username, avatar: u.avatar, name: u.name})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(p)
-             RETURN c`,
+             RETURN c, owner.uid AS ownerUid, owner.username AS ownerUsername`,
             { uid, postId, text, comId, reviewId, comOnId, createdAt, updatedAt }
         );
+
+        // Extract the comment and owner details from the result
+        const comment = result.records[0].get('c').properties;
+        const ownerUid = result.records[0].get('ownerUid');
+        const ownerUsername = result.records[0].get('ownerUsername');
+
+        // Send a notification to the post owner using Firebase Realtime Database
+        const db = getDatabase();
+        const notificationsRef = ref(db, `notifications/${ownerUid}/comments`); // Reference to the owner's notifications
+        const newNotificationRef = push(notificationsRef); // Create a new notification entry
+
+        // Set the notification details
+        await set(newNotificationRef, {
+            message: `${comment.username} commented on your post.`,
+            postId: postId,
+            commentId: comId,
+            commentedBy: uid,
+            avatar: comment.avatar,
+            user: comment.username,
+            commenterName: comment.username,
+            notificationType: 'post_comment',
+            timestamp: new Date().toISOString(),
+            read: false // Mark notification as unread
+        });
+
+        console.log(`User ${uid} commented on post ${postId}. Notification sent to post owner ${ownerUid}.`);
+
         return result.records[0].get('c').properties;
     } catch (error) {
         console.error("Error adding comment to post: ", error);
         throw error;
-
     } finally {
         await session.close();
     }
@@ -97,38 +126,122 @@ exports.addCommentToReview = async (uid, reviewId, text) => {
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
+
     try {
         const comId = uuidv4();
-        const postId = -1;
-        const comOnId = -1;
+        const postId = -1; // Not applicable for reviews
+        const comOnId = -1; // Not applicable for reviews
+
+        // Create the comment and fetch the review owner details
         const result = await session.run(
-            `MATCH (u:User {uid: $uid}), (r:Review {reviewId: $reviewId})
-             CREATE (c:Comment {comId: $comId, text: $text, movieId: r.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, reviewId: $reviewId, postId: $postId, comOnId: $comOnId, username : u.username, avatar : u.avatar , name : u.name})
+            `MATCH (u:User {uid: $uid}), (r:Review {reviewId: $reviewId})<-[:WROTE]-(owner:User)
+             CREATE (c:Comment {comId: $comId, text: $text, movieId: r.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, reviewId: $reviewId, postId: $postId, comOnId: $comOnId, username: u.username, avatar: u.avatar, name: u.name})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(r)
-             RETURN c`,
+             RETURN c, owner.uid AS ownerUid, owner.username AS ownerUsername`,
             { uid, reviewId, text, comId, postId, comOnId, createdAt, updatedAt }
         );
+
+        // Extract the comment and owner details from the result
+        const comment = result.records[0].get('c').properties;
+        const ownerUid = result.records[0].get('ownerUid');
+        const ownerUsername = result.records[0].get('ownerUsername');
+
+        // Send a notification to the review owner using Firebase Realtime Database
+        const db = getDatabase();
+        const notificationsRef = ref(db, `notifications/${ownerUid}/comments`); // Reference to the owner's notifications
+        const newNotificationRef = push(notificationsRef); // Create a new notification entry
+
+        // Set the notification details
+        await set(newNotificationRef, {
+            message: `${comment.username} commented on your review.`,
+            reviewId: reviewId,
+            commentId: comId,
+            commentedBy: uid,
+            avatar: comment.avatar,
+            user: comment.username,
+            commenterName: comment.username,
+            notificationType: 'post_comment',
+            timestamp: new Date().toISOString(),
+            read: false // Mark notification as unread
+        });
+
+        console.log(`User ${uid} commented on review ${reviewId}. Notification sent to review owner ${ownerUid}.`);
+        console.log("The Result: ", comment);
+        // Return the comment details, including the profile picture
         return result.records[0].get('c').properties;
+    } catch (error) {
+        console.error("Error adding comment to review: ", error);
+        throw error;
     } finally {
         await session.close();
     }
 };
-
 
 exports.addCommentToComment = async (uid, comOnId, text) => {
     console.log("In Services: addCommentToComment");
     const session = driver.session();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
+
     try {
         const comId = uuidv4();
+
+        // Fetch comment and post owner details and create the new comment
         const result = await session.run(
-            `MATCH (u:User {uid: $uid}), (c:Comment {comId: $comOnId})
-             CREATE (n:Comment {comId: $comId, comOnId: $comOnId, text: $text, movieId: c.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: c.postId, reviewId: c.reviewId, username : u.username, avatar : u.avatar, name : u.name})
+            `MATCH (u:User {uid: $uid}), (c:Comment {comId: $comOnId})<-[:COMMENTED]-(commentOwner:User), (p:Post {postId: c.postId})<-[:POSTED]-(postOwner:User)
+             CREATE (n:Comment {comId: $comId, comOnId: $comOnId, text: $text, movieId: c.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, postId: c.postId, reviewId: c.reviewId, username: u.username, avatar: u.avatar, name: u.name})
              CREATE (u)-[:COMMENTED]->(n)-[:COMMENTED_ON]->(c)
-             RETURN n`,
+             RETURN n, commentOwner.uid AS commentOwnerUid, commentOwner.username AS commentOwnerUsername, postOwner.uid AS postOwnerUid, postOwner.username AS postOwnerUsername`,
             { uid, comOnId, text, comId, createdAt, updatedAt }
         );
+
+        // Extract new comment, comment owner, and post owner details
+        const newComment = result.records[0].get('n').properties;
+        const commentOwnerUid = result.records[0].get('commentOwnerUid');
+        const commentOwnerUsername = result.records[0].get('commentOwnerUsername');
+        const postOwnerUid = result.records[0].get('postOwnerUid');
+        const postOwnerUsername = result.records[0].get('postOwnerUsername');
+
+        const db = getDatabase();
+
+        // Send notification to the owner of the original comment (the one being replied to)
+        const commentOwnerNotificationsRef = ref(db, `notifications/${commentOwnerUid}/comments`);
+        const newCommentNotificationRef = push(commentOwnerNotificationsRef);
+        await set(newCommentNotificationRef, {
+            message: `${newComment.username} replied to your comment.`,
+            commentId: comId,
+            repliedOnCommentId: comOnId,
+            repliedBy: uid,
+            avatar: newComment.avatar,
+            user: newComment.username,
+            replierName: newComment.username,
+            notificationType: 'comment_reply',
+            timestamp: new Date().toISOString(),
+            read: false // Mark notification as unread
+        });
+
+        // Send notification to the owner of the post
+        if (postOwnerUid !== commentOwnerUid) { // Ensure we don't send duplicate notifications to the same person
+            const postOwnerNotificationsRef = ref(db, `notifications/${postOwnerUid}/comments`);
+            const newPostNotificationRef = push(postOwnerNotificationsRef);
+            await set(newPostNotificationRef, {
+                message: `${newComment.username} replied to a comment on your post.`,
+                commentId: comId,
+                postId: newComment.postId,
+                repliedBy: uid,
+                avatar: newComment.avatar,
+                user: newComment.username,
+                replierName: newComment.username,
+                notificationType: 'post_comment',
+                timestamp: new Date().toISOString(),
+                read: false // Mark notification as unread
+            });
+        }
+
+        console.log(`User ${uid} replied to comment ${comOnId}. Notifications sent to comment owner ${commentOwnerUid} and post owner ${postOwnerUid}.`);
+        console.log("The Result: ", newComment);
+
+        // Return the new comment details
         return result.records[0].get('n').properties;
     } catch (error) {
         console.error("Error adding comment to comment: ", error);
@@ -137,6 +250,7 @@ exports.addCommentToComment = async (uid, comOnId, text) => {
         await session.close();
     }
 };
+
 
 // EDIT //
 exports.editPost = async (postId, uid, text, postTitle, img) => {
@@ -270,7 +384,7 @@ exports.removePost = async (postId, uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (p:Post {postId: $postId, uid: $uid})
+            `MATCH (p {postId: $postId, uid: $uid})
              DETACH DELETE p`,
             { postId, uid }
         );
@@ -289,7 +403,7 @@ exports.removeReview = async (reviewId, uid) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            `MATCH (r:Review {reviewId: $reviewId, uid: $uid})
+            `MATCH (r {reviewId: $reviewId, uid: $uid})
              DETACH DELETE r`,
             { reviewId, uid }
         );
@@ -308,7 +422,8 @@ exports.removeComment = async (commentId, uid) => {
     try {
         const result = await session.run(
             `MATCH (c:Comment {comId: $commentId, uid: $uid})
-             DETACH DELETE c`,
+             OPTIONAL MATCH (c)<-[:COMMENTED_ON*]-(nestedComments)
+             DETACH DELETE c, nestedComments`,
             { commentId, uid }
         );
         return true;
@@ -412,7 +527,7 @@ exports.getCommentsOfComment = async (commentId) => {
 };
 
 exports.getPostsOfUser = async (uid) => {
-    console.log("In Services: getPostsOfUser");
+    // console.log("In Services: getPostsOfUser");
     const session = driver.session();
     try {
         const result = await session.run(
@@ -454,7 +569,7 @@ exports.getReviewsOfUser = async (uid) => {
 };
 
 exports.getCommentsOfUser = async (uid) => {
-    console.log("In Services: getCommentsOfUser");
+    // console.log("In Services: getCommentsOfUser");
     const session = driver.session();
     try {
         const result = await session.run(
@@ -501,7 +616,7 @@ exports.getAverageRating = async (movieId) => {
 };
 
 exports.getCountCommentsOfPost = async (postId) => {
-    console.log("In Services: getTotalCommentsOfPost");
+    // console.log("In Services: getTotalCommentsOfPost");
     const session = driver.session();
     try {
         const result = await session.run(
@@ -525,7 +640,7 @@ exports.getCountCommentsOfPost = async (postId) => {
 };
 
 exports.getCountCommentsOfReview = async (reviewId) => {
-    console.log("In Services: getTotalCommentsOfReview");
+    // console.log("In Services: getTotalCommentsOfReview");
     const session = driver.session();
     try {
         const result = await session.run(

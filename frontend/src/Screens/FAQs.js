@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import Collapsible from "react-native-collapsible";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useTheme } from "../styles/ThemeContext";
 
 const faqs = [
     {
@@ -64,6 +65,7 @@ const faqs = [
 ];
 
 const FAQPage = (navigation) => {
+    const { theme, isDarkMode } = useTheme();
     const [activeSections, setActiveSections] = useState([]);
 
     const toggleSection = (index) => {
@@ -73,6 +75,55 @@ const FAQPage = (navigation) => {
                 : [...prevSections, index]
         );
     };
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 16,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 20, 
+        },
+        heading: {
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 20,
+            color: "#BF4D00",
+        },
+        intro : {
+            fontSize: 16,
+            paddingBottom: 20,
+            color: theme.textColor,
+        },
+        faqItem: {
+            marginBottom: 15,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e0e0e0",
+        },
+        questionContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingVertical: 10,
+            paddingHorizontal: 15,
+            backgroundColor: isDarkMode? "black" : "#f7f7f7",
+            borderRadius: 5,
+        },
+        question: {
+            fontSize: 16,
+            fontWeight: "bold",
+            color: theme.textColor,
+        },
+        answerContainer: {
+            backgroundColor: isDarkMode? "black" : "#f7f7f7",
+            padding: 15,
+            paddingTop: 5
+        },
+        answer: {
+            fontSize: 14,
+            color: isDarkMode? "white": "#555",
+        },
+    });
+    
 
     return (
         <ScrollView style={styles.container}>
@@ -99,57 +150,12 @@ const FAQPage = (navigation) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: "#fff",
-        paddingHorizontal: 20, 
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 20,
-        color: "#BF4D00",
-    },
-    intro : {
-        fontSize: 16,
-        paddingBottom: 20,
-    },
-    faqItem: {
-        marginBottom: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0",
-    },
-    questionContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        backgroundColor: "#f7f7f7",
-        borderRadius: 5,
-    },
-    question: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    answerContainer: {
-        backgroundColor: "#f7f7f7",
-        padding: 15,
-        paddingTop: 5
-    },
-    answer: {
-        fontSize: 14,
-        color: "#555",
-    },
-});
-
 FAQPage.navigationOptions = ({ navigation }) => {
+    const { theme } = useTheme();
     return {
         headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.navigate('HelpCentre')}>
-                <Icon name="arrow-back" size={24} color="#000" style={{ marginLeft: 15 }} />
+                <Icon name="arrow-back" size={24} color={theme.iconColor} style={{ marginLeft: 15 }} />
             </TouchableOpacity>
         ),
     };

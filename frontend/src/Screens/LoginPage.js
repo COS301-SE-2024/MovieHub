@@ -4,13 +4,16 @@ import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
 import { CommonActions, useNavigation } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { isUserVerified, loginUser } from "../Services/AuthApiService";
 import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
-import { getUserProfile } from "../Services/UsersApiService";
+import { getUserProfile, getMode } from "../Services/UsersApiService";
+import logo2 from "../../../assets/logo.png";
 
 const LoginPage = () => {
+    const { theme, setMode } = useTheme();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -50,6 +53,7 @@ const LoginPage = () => {
             };
 
             const userData = await getUserProfile(userInfo.userId);
+            console.log("Login page", userData)
 
             const verified = await isUserVerified();
             // console.log("User Verified:", verified);
@@ -58,7 +62,6 @@ const LoginPage = () => {
                 console.log("User is not verified");
                 navigation.navigate("VerificationPage", { userInfo });
             } else if (!userData.name) {
-                console.log("User has no name");
                 navigation.navigate("ProfileSetup", { userInfo });
             } else {
                 // prevents the user from going back to the login page
@@ -68,6 +71,14 @@ const LoginPage = () => {
                         routes: [{ name: "Home", params: { userInfo } }], // Replace 'Home' with your home screen name
                     })
                 );
+                try {
+                    const mode = await getMode(userInfo.userId);
+                    console.log("Mode:", mode);
+                    setMode(mode);
+                } catch (error) {
+                    console.log("Error fetching mode:", error);
+                }
+                
                 navigation.navigate("Home", { userInfo });
             }
         } catch (error) {
@@ -102,7 +113,7 @@ const LoginPage = () => {
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 50,
-            backgroundColor: "#ffffff",
+            backgroundColor: theme.backgroundColor,
         },
         container: {
             width: "85%",
@@ -121,7 +132,7 @@ const LoginPage = () => {
         },
         title: {
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 24,
             marginBottom: 30,
         },
@@ -132,21 +143,22 @@ const LoginPage = () => {
         label: {
             fontWeight: "bold",
             paddingBottom: 8,
+            color: theme.textColor,
         },
         inputText: {
             height: 40,
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             paddingHorizontal: 10,
             fontSize: 16,
             color: "#000",
-            backgroundColor: "#fff",
+            backgroundColor: "transparent",
             borderRadius: 5,
         },
         passwordInputContainer: {
             flexDirection: "row",
             alignItems: "center",
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             height: 40,
             borderRadius: 5,
@@ -164,7 +176,7 @@ const LoginPage = () => {
             textAlign: "center",
         },
         button: {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.primaryColor,
             padding: 10,
             borderRadius: 5,
             width: 245,
@@ -180,7 +192,7 @@ const LoginPage = () => {
             marginTop: 10,
         },
         forgotText: {
-            color: "black",
+            color: theme.textColor,
             textAlign: "center",
             textDecorationLine: "underline",
         },
@@ -193,12 +205,18 @@ const LoginPage = () => {
         line: {
             flex: 1,
             height: 1,
-            backgroundColor: "#7b7b7b",
+            backgroundColor: theme.gray,
         },
         orText: {
             marginHorizontal: 10,
             fontSize: 15,
-            color: "#7b7b7b",
+            color: theme.gray,
+        },
+        logoImage: {
+            width: 200,
+            height: 100,
+            alignSelf: 'center',
+            resizeMode: 'contain',
         },
         socialContainer: {
             flexDirection: "row",
@@ -217,12 +235,12 @@ const LoginPage = () => {
         },
         signupText: {
             // fontSize: 16,
-            color: colors.primary,
+            color: theme.primaryColor,
             fontWeight: "500",
         },
         link: {
             textDecorationLine: "underline",
-            color: colors.primary,
+            color: theme.primaryColor,
         },
     });
 
@@ -231,28 +249,29 @@ const LoginPage = () => {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.container}>
-                        <Text style={styles.logo}>MovieHub.</Text>
-                        {/* <Text style={styles.title}>Welcome Back!</Text> */}
-                        <Text style={styles.tagline}>Engage. Share. Discover.</Text>
+                    <Image source={logo2} style={styles.logoImage} />
+                    {/* <Text style={styles.logo}>MovieHub.</Text> */}
+                        {/* <Text style={styles.tagline}>Engage. Share. Discover.</Text> */}
+                        <Text style={styles.title}>Welcome Back!</Text>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Email</Text>
-                            <TextInput style={styles.inputText} onChangeText={setEmail} value={email} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+                            <TextInput style={styles.inputText} onChangeText={setEmail} value={email} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                         </View>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Password</Text>
                             <View style={styles.passwordInputContainer}>
-                                <TextInput style={styles.passwordInput} onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} autoCapitalize="none" autoCorrect={false} />
+                                <TextInput style={styles.passwordInput} onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} autoCapitalize="none" autoCorrect={false} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                                 <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
-                                    <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                                    <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color={theme.textColor} />
                                 </TouchableOpacity>
                             </View>
                         </View>
 
-                        <Pressable style={styles.button} onPress={HandleLogin}>
+                        <TouchableOpacity style={styles.button} onPress={HandleLogin}>
                             <Text style={styles.buttonText}>Login</Text>
-                        </Pressable>
+                        </TouchableOpacity>
 
                         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 

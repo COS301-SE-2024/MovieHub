@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { sendPasswordResetEmail } from "../Services/AuthApiService";
+import { useTheme } from "../styles/ThemeContext";
 import { colors } from "../styles/theme";
 
 const ForgotPasswordPage = () => {
+    const { theme } = useTheme();
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
@@ -41,7 +43,7 @@ const ForgotPasswordPage = () => {
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 50,
-            backgroundColor: "#ffffff",
+            backgroundColor: theme.backgroundColor,
         },
         container: {
             width: "85%",
@@ -49,18 +51,18 @@ const ForgotPasswordPage = () => {
         },
         logo: {
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 30,
             fontWeight: "bold",
             marginBottom: 10,
         },
         tagline: {
-            color: "#7b7b7b",
+            color: theme.gray,
             paddingBottom: 20,
         },
         title: {
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 24,
             marginBottom: 30,
         },
@@ -71,15 +73,16 @@ const ForgotPasswordPage = () => {
         label: {
             fontWeight: "bold",
             paddingBottom: 8,
+            color: theme.textColor,
         },
         inputText: {
             height: 40,
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             paddingHorizontal: 10,
             fontSize: 16,
             color: "#000",
-            backgroundColor: "#fff",
+            backgroundColor: "transparent",
             borderRadius: 5,
         },
         errorText: {
@@ -93,7 +96,7 @@ const ForgotPasswordPage = () => {
             textAlign: "center",
         },
         button: {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.primaryColor,
             padding: 10,
             borderRadius: 5,
             width: 245,
@@ -109,7 +112,7 @@ const ForgotPasswordPage = () => {
             marginTop: 20,
         },
         backToLoginText: {
-            color: colors.primary,
+            color: theme.textColor,
             textAlign: "center",
             textDecorationLine: "underline",
         },
@@ -132,6 +135,8 @@ const ForgotPasswordPage = () => {
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 autoCorrect={false}
+                                placeholderTextColor={theme.gray} 
+                                selectionColor={theme.textColor} color={theme.textColor}
                             />
                         </View>
 

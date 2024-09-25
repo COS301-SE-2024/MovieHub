@@ -1,43 +1,62 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useState } from "react";
 import { TouchableOpacity } from "react-native";
+import {useUser} from "../Services/UseridContext";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { followUser, unfollowUser } from "../Services/UsersApiService";
-import { toggleLikePost } from "../Services/LikesApiService";
+
+import { toggleLikePost, checkUserLike } from "../Services/LikesApiService";
 
 export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid, isUserPost, handleCommentPress, postId }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [hasLiked,setHasLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
+    const { oguserInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
 
-    // console.log(postId)
-    // console.log("helllloo", likes)
-
     const toggleLike = async () => {
+        if (liked) return; 
+    
+        setLiked(true);
+
         const body = {
             postId: postId,
-            uid: userInfo.userId,
-        };
+            uid: userInfo.userId
+        }
 
         try {
             await toggleLikePost(body);
-            console.log("Toggle like successful");
+            setHasLiked(!hasLiked);
+            setLikeCount(prevCount => hasLiked ? prevCount - 1 : prevCount + 1);
         } catch (error) {
-            console.error("Error toggling like:", error);
+            console.error('Error toggling like:', error);
         }
 
         setLiked(!liked);
     };
+
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const data = await checkUserLike(userInfo.userId, postId, 'Post');
+                setHasLiked(data.hasLiked); 
+            } catch (error) {
+                console.error('Error fetching like status:', error);
+            }
+        };
+
+        fetchLikeStatus();
+    }, [userInfo.userId, postId]);
 
     const handleShare = async () => {
         try {
@@ -48,12 +67,12 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             });
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {
-                    // shared with activity type of result.activityType
+                    
                 } else {
-                    // shared
+                    
                 }
             } else if (result.action === Share.dismissedAction) {
-                // dismissed
+                
             }
         } catch (error) {
             Alert.alert(error.message);
@@ -61,8 +80,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
     };
 
     const navigation = useNavigation();
-
-    console.log("yayy User Info:", otherUserInfo);
 
     const handlePress = () => {
         navigation.navigate("Profile", {
@@ -73,8 +90,6 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
 
     const toggleFollow = async () => {
         try {
-            console.log("This is the current users info: ", userInfo);
-            console.log("This is the other users info: ", otherUserInfo);
             if (isFollowing) {
                 await unfollowUser(userInfo.userId, otherUserInfo.uid);
             } else {
@@ -117,9 +132,9 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             //     width: 0,
             //     height: 2,
             // },
-            borderColor: "#000000",
+            borderColor: theme.borderColor,
             borderTopWidth: 0,
-            borderBottomWidth: 0.3,
+            borderBottomWidth: 0.8,
             // borderTopWidth: 0.3,
         },
         avatar: {
@@ -176,6 +191,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
         },
         icon: {
             marginRight: 5,
+            color: theme.iconColor
         },
         statsContainer: {
             display: "flex",
@@ -200,7 +216,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             position: "absolute",
             top: 30,
             right: 10,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -218,11 +234,12 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         moreIcon: {
-            paddingLeft: 10,
+            // paddingLeft: 10,
+            color: theme.iconColor,
         },
         followingButton: {
             backgroundColor: isFollowing ? "grey" : "#4a42c0", // Dynamic background color
@@ -247,22 +264,22 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                 <TouchableOpacity onPress={handlePress}>
                     <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 </TouchableOpacity>
-                <View style={styles.nameAndHandleContainer}>
+                <TouchableOpacity onPress={handlePress} style={styles.nameAndHandleContainer}>
                     <View style={{ flex: 1 }}>
                         <Text style={styles.username} numberOfLines={1} ellipsizeMode="tail">
-                            {username}
+                            {userHandle}
                         </Text>
                         <Text style={styles.userHandle}>
-                            {userHandle} &bull; {timeDifference()}
+                            {username} &bull; {timeDifference()}
                         </Text>
                     </View>
-                </View>
+                </TouchableOpacity>
                 <View style={{ flexDirection: "row", alignItems: "center", paddingBottom: 18 }}>
                     <TouchableOpacity style={styles.followingButton} onPress={toggleFollow}>
                         <Text style={styles.followingText}>{isFollowing ? "Following" : "Follow"}</Text>
                     </TouchableOpacity>
                     <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                        <Icon name="more-vert" size={20} />
+                        <Icon name="more-vert" size={20} style={styles.moreIcon} />
                     </Pressable>
                 </View>
             </View>
@@ -270,9 +287,14 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             <Text style={styles.postTitle}>{postTitle}</Text>
             <Text style={styles.postPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-                <TouchableOpacity style={styles.stats}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} onPress={toggleLike} />
-                    <Text style={styles.statsNumber}>{likes > 0 ? likes : 0}</Text>
+            <TouchableOpacity style={styles.stats} onPress={toggleLike}>
+                <Icon
+                    name={hasLiked ? 'favorite' : 'favorite-border'}
+                    size={20}
+                    color={hasLiked ? 'red' : theme.iconColor}
+                    style={{ marginRight: 5 }}
+                />
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable

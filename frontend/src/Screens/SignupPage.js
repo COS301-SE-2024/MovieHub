@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, Alert } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 import google from "../../../assets/googles.png";
 import facebook from "../../../assets/facebook.png";
 import twitter from "../../../assets/apple-logo.png";
@@ -9,8 +10,10 @@ import FAIcon from "@expo/vector-icons/FontAwesome5";
 import * as SecureStore from "expo-secure-store";
 import { registerUser } from "../Services/AuthApiService";
 import { colors } from "../styles/theme";
+import logo from "../../../assets/logo.png";
 
 const SignupPage = () => {
+    const { theme } = useTheme();
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -66,7 +69,6 @@ const SignupPage = () => {
     };
 
     const handleSignup = async () => {
-
         if (!email || !password || !username || !confirmPassword) {
             setError("All fields are required");
             return;
@@ -74,11 +76,11 @@ const SignupPage = () => {
         if (!validatePassword(password)) {
             setError("Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
             return;
-        }    
+        }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-        setError("Invalid email address format");
-        return;
+            setError("Invalid email address format");
+            return;
         }
         if (password !== confirmPassword) {
             setError("Passwords do not match");
@@ -129,11 +131,12 @@ const SignupPage = () => {
             flexGrow: 1,
             justifyContent: "center",
             alignItems: "center",
+            backgroundColor: theme.backgroundColor,
         },
         title: {
             textAlign: "center",
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 25,
             fontWeight: "bold",
             paddingBottom: 15,
@@ -141,26 +144,32 @@ const SignupPage = () => {
         logo: {
             textAlign: "center",
             fontFamily: "Roboto",
-            color: "#000000",
+            color: theme.textColor,
             fontSize: 30,
             fontWeight: "bold",
             marginBottom: 10,
         },
         tagline: {
-            color: "#7b7b7b",
+            color: theme.gray,
         },
         newUsernameButton: {
             marginLeft: 8,
         },
+        logoImage: {
+            width: 200,
+            height: 100,
+            alignSelf: "center",
+            resizeMode: "contain",
+        },
         inputText: {
             height: 40,
             width: 250,
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             paddingHorizontal: 10,
             // fontSize: 16,
             color: "#000",
-            backgroundColor: "#fff",
+            backgroundColor: "transparent",
             borderRadius: 5,
         },
         socialContainer: {
@@ -178,7 +187,7 @@ const SignupPage = () => {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            backgroundColor: "#ffffff",
+            backgroundColor: theme.backgroundColor,
             paddingVertical: 100,
         },
         or: {
@@ -190,14 +199,14 @@ const SignupPage = () => {
             marginHorizontal: 15,
             height: 1,
             width: "25%",
-            backgroundColor: "#7b7b7b",
+            backgroundColor: theme.gray,
             marginVertical: 20,
         },
         label: {
             fontWeight: "bold",
             paddingBottom: 8,
             paddingTop: 20,
-
+            color: theme.textColor,
         },
         forgot: {
             alignItems: "flex-start",
@@ -240,7 +249,7 @@ const SignupPage = () => {
         passwordInputContainer: {
             flexDirection: "row",
             alignItems: "center",
-            borderColor: "#7b7b7b",
+            borderColor: theme.gray,
             borderWidth: 1,
             height: 40,
             width: 250,
@@ -260,16 +269,12 @@ const SignupPage = () => {
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.container}>
-                    <View style={{ flexDirection: "row", alignItems: "center", }}>
-                        <Text style={styles.logo}>MovieHub.</Text>
-                    </View>
-
-                    <Text style={styles.tagline}>Engage. Share. Discover.</Text>
+                    <Image source={logo} style={styles.logoImage} />
                     {/* <Text style={styles.title}>Create Account</Text> */}
                     <View style={{ paddingLeft: 27 }}>
                         <Text style={styles.label}>Username</Text>
                         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                            <TextInput style={styles.inputText} onChangeText={setUsername} value={username} placeholder="" />
+                            <TextInput style={styles.inputText} onChangeText={setUsername} value={username} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                             <TouchableOpacity style={styles.newUsernameButton} onPress={getRandomName} disabled={isLoadingUsername}>
                                 {isLoadingUsername ? <ActivityIndicator size="small" color={colors.primary} /> : <FAIcon name="redo" size={18} color={colors.primary} />}
                             </TouchableOpacity>
@@ -277,35 +282,35 @@ const SignupPage = () => {
                     </View>
                     <View>
                         <Text style={styles.label}>Email</Text>
-                        <TextInput style={styles.inputText} onChangeText={setEmail} keyboardType="email-address" value={email} placeholder="" />
+                        <TextInput style={styles.inputText} onChangeText={setEmail} keyboardType="email-address" value={email} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                     </View>
                     <View>
                         <Text style={styles.label}>Password</Text>
                         <View style={styles.passwordInputContainer}>
-                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} />
+                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setPassword} value={password} secureTextEntry={!isPasswordVisible} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                             <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordVisibilityButton}>
-                                <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                                <Icon name={isPasswordVisible ? "visibility" : "visibility-off"} size={20} color={theme.iconColor} />
                             </TouchableOpacity>
                         </View>
                     </View>
                     <View>
                         <Text style={styles.label}>Confirm Password</Text>
                         <View style={styles.passwordInputContainer}>
-                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
+                            <TextInput style={[styles.input, styles.passwordInput]} placeholder="" onChangeText={setConfirmPassword} value={confirmPassword} secureTextEntry={!isConfirmPasswordVisible} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
                             <TouchableOpacity onPress={toggleConfirmPasswordVisibility} style={styles.passwordVisibilityButton}>
-                                <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color="black" />
+                                <Icon name={isConfirmPasswordVisible ? "visibility" : "visibility-off"} size={20} color={theme.iconColor} />
                             </TouchableOpacity>
                         </View>
                     </View>
                     <View style={styles.btn}>
-                        <Pressable style={styles.button} onPress={handleSignup}>
+                        <TouchableOpacity style={styles.button} onPress={handleSignup}>
                             <Text style={styles.buttonText}>Sign Up</Text>
-                        </Pressable>
+                        </TouchableOpacity>
                         {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text> : null}
                     </View>
                     <View style={styles.or}>
                         <View style={styles.line} />
-                        <Text style={{ fontSize: 15, color: "#7b7b7b" }}>Or</Text>
+                        <Text style={{ fontSize: 15, color: theme.gray }}>Or</Text>
                         <View style={styles.line} />
                     </View>
                     <View style={styles.socialContainer}>

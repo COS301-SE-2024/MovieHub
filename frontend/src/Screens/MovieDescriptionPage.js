@@ -9,11 +9,15 @@ import { getRecommendedMovies } from "../Services/RecApiService";  // Importing 
 import Cast from "../Components/Cast";
 import axios from "axios";
 
-export default function MovieDescriptionPage({ userInfo }) {
-    const localIP = getLocalIP();
-    const route = useRoute();
-    const { movieId, imageUrl, title, rating, overview, date } = route.params;
 
+export default function MovieDescriptionPage({ userInfo }) {
+
+    const localIP = getLocalIP();
+   // const route = useRoute();
+  // console.log("MovieDes route ", route.params.userInfo)
+    const { userInfo } = route.params;
+    const {movieId, imageUrl, title, rating, overview, date } = route.params;
+   // console.log("Look ", userInfo)
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",
@@ -24,7 +28,7 @@ export default function MovieDescriptionPage({ userInfo }) {
     const [loading, setLoading] = useState(true);
     const [isAddedToList, setIsAddedToList] = useState(false);
     const [isWatched, setIsWatched] = useState(false);
-    const [runtime, setRuntime] = useState(null);
+    const [runtime, setRuntime] = useState({ hours: 0, mins: 0 });
     const [isReviewed, setIsReviewed] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [recommendedMovies, setRecommendedMovies] = useState([]); // State for recommended movies
@@ -36,7 +40,8 @@ export default function MovieDescriptionPage({ userInfo }) {
     };
 
     const handleAddPress = () => {
-        setIsModalVisible(true);
+        // setIsModalVisible(true);
+        // alert with three options
     };
 
     const handleLogBookPress = () => {
@@ -44,6 +49,7 @@ export default function MovieDescriptionPage({ userInfo }) {
     };
 
     const handleCreateNewWatchlist = () => {
+     //   console.log("Look ", userInfo)
         navigation.navigate('CreateWatchlist', { userInfo });
         setIsModalVisible(false);
     };
@@ -52,6 +58,10 @@ export default function MovieDescriptionPage({ userInfo }) {
         navigation.navigate('EditWatchlist', { userInfo });
         setIsModalVisible(false);
     };
+
+    const handleWatchPartyPress = () => {
+        navigation.navigate('WatchParty', { userInfo });
+    }
 
     useEffect(() => {
         const fetchCredits = async () => {
@@ -143,42 +153,43 @@ export default function MovieDescriptionPage({ userInfo }) {
                     <View style={styles.moviedes}>
                         <View style={styles.movieinfo}>
                             <Text style={styles.movietitle}>{title}</Text>
-                            <Text style={styles.movieRating}>{roundedRating}/10</Text>
+                            <Text style={styles.movieRating}>{roundedRating}/<Text style={{fontSize: 18}}>10</Text></Text>
                         </View>
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
-                            <Text style={styles.movietitle2}> | </Text>
-                            <Text style={styles.movietitle2}> {runtime ?
-                                `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins`
-                                : 'NoN'}</Text>
+
+                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16}}> &bull; </Text>
+                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16 }}> {runtime ? 
+                            `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins` 
+                            : 'NoN'}</Text>
                         </View>
                         <View style={styles.icons}>
+                            
+                                <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
+                                    <View style={styles.iconTextContainer}>
+                                        <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
+                                        <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
+                                    <View style={styles.iconTextContainer}>
+                                        <Ionicons name="book-outline" size={24} color="white" style={styles.icon}/>
+                                        <Text style={styles.text}>Log Movie</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
+                                    <View style={styles.iconTextContainer}>
+                                        <Ionicons name="star-outline" size={24} color={isReviewed ? 'gold' : 'white'} style={styles.icon} />
+                                        <Text style={styles.text}>{isReviewed ? 'Reviewed' : 'Review'}</Text>
+                                    </View>
+                                </TouchableOpacity>
 
-                            <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
-                                <View style={styles.iconTextContainer}>
-                                    <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
-                                    <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
-                                <View style={styles.iconTextContainer}>
-                                    <Ionicons name="book-outline" size={24} color="white" style={styles.icon} />
-                                    <Text style={styles.text}>Log Movie</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
-                                <View style={styles.iconTextContainer}>
-                                    <Ionicons name="star-outline" size={24} color={isReviewed ? 'gold' : 'white'} style={styles.icon} />
-                                    <Text style={styles.text}>{isReviewed ? 'Reviewed' : 'Review'}</Text>
-                                </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={styles.block4}>
-                                <View style={styles.iconTextContainer}>
-                                    <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
-                                    <Text style={styles.text}>Watch Party</Text>
-                                </View>
-                            </TouchableOpacity>
+                                <TouchableOpacity style={styles.block4} onPress={handleWatchPartyPress}>
+                                    <View style={styles.iconTextContainer}>
+                                        <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
+                                        <Text style={styles.text}>Watch Party</Text>
+                                    </View>
+                                </TouchableOpacity>
                         </View>
 
                         <View style={styles.moviebio}>
@@ -303,7 +314,7 @@ const styles = StyleSheet.create({
     movieinfo2: {
         flex: 1,
         flexDirection: "row",
-        paddingLeft: 10,
+        paddingLeft: 12,
     },
     movietitle: {
         fontSize: 30,
@@ -372,6 +383,7 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5
     },
+
     recommendedTitle: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -402,3 +414,4 @@ const styles = StyleSheet.create({
         color: 'lightgray',
     },
 });
+
