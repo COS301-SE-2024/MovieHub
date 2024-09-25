@@ -82,8 +82,8 @@ const CommentsModal = forwardRef((props, ref) => {
     };
 
     const toggleDeleteModal = (index) => {
-        // check if it's my own comment
-        if (comments[index].username !== username) {
+        // check if it's my own comment]
+        if (comments[index].uid !== userId) {
             return;
         }
         setDeleteModalState((prev) => {

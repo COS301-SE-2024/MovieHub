@@ -166,6 +166,10 @@ const ViewRoom = ({ route }) => {
         bottomSheetRef.current?.present();
     };
 
+    const toggleTooltip = () => {
+        setTooltipVisibility(!isTooltipVisible);
+    };
+
     // Fetch room details
     useEffect(() => {
         const fetchRoomDetails = async () => {
@@ -203,17 +207,17 @@ const ViewRoom = ({ route }) => {
         }
       }, [route.params?.openBottomSheet]);
 
-      useLayoutEffect(() => {
+    useLayoutEffect(() => {
         if (loading) {
-          navigation.setOptions({
+            navigation.setOptions({
             title: "Loading..."
-          });
+            });
         } else if (roomDetails) {
-          navigation.setOptions({
-            title: roomDetails.roomName
-          });
+            navigation.setOptions({
+                title: roomDetails.roomName
+            });
         }
-      }, [navigation, loading, roomDetails]);
+    }, [navigation, loading, roomDetails]);
 
     if (loading) {
         return (
@@ -308,6 +312,14 @@ const ViewRoom = ({ route }) => {
                         {upcomingParties.map((party, index) => (
                             <PartySchedule key={index} {...party} />
                         ))}
+                        {
+                            upcomingParties.length === 0 && (
+                                <View>
+                                    <Text>No upcoming watch parties</Text>
+                                    <Text></Text>
+                                </View>
+                            )
+                        }
                     </View>
                 </View>
             </ScrollView>

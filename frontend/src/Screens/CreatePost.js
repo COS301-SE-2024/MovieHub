@@ -434,7 +434,6 @@ export default function CreatePost({ route }) {
             backgroundColor: "#f9c74f",
             padding: 10,
             borderRadius: 5,
-            marginVerticalBottom: 5,
             marginBottom: 15,
         },
         tooltipText: {
