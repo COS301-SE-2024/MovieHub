@@ -22,16 +22,6 @@ const RoomModal = forwardRef((props, ref) => {
     };
 
     const handleInvitePress = () => {
-        // <View>
-        //     <InviteModal
-        //         ref={bottomSheetRef}
-        //         friends={[]} // Pass an empty array if there are no friends to invite
-        //         title="Invite Friends"
-        //         onInvite={handleInviteUser}
-        //         userInfo={userInfo}
-        //     />
-        // </View>
-
         bottomSheetRef.current?.present();
     };
     const handleInviteUser = async (friend) => {
@@ -43,34 +33,11 @@ const RoomModal = forwardRef((props, ref) => {
         }
     };
 
-    // const handleShare = async () => {
-    //     try {
-    //         const result = await Share.share({
-    //             url: "",
-    //             title: "MovieHub",
-    //             message: "Watch Party Invite | Join my watch party at ...[link]",
-    //         });
-    //         if (result.action === Share.sharedAction) {
-    //             if (result.activityType) {
-    //                 // shared with activity type of result.activityType
-    //             } else {
-    //                 // shared
-    //             }
-    //         } else if (result.action === Share.dismissedAction) {
-    //             // dismissed
-    //         }
-    //     } catch (error) {
-    //         Alert.alert(error.message);
-    //     }
-    // };
-
     const handleDeleteRoom = async () => {
         console.log("Delete Room");
         console.log(props);
         try {
             await deleteRoom(roomId);
-            // setRooms(rooms.filter(w => w.id !== roomId)); // Update state to remove deleted room
-            // closeModal();
             Alert.alert("Success", "Room deleted successfully!");
             navigation.navigate("HubScreen", { userInfo });
         } catch (error) {
@@ -154,6 +121,7 @@ const RoomModal = forwardRef((props, ref) => {
                 title="Invite Friends"
                 onInvite={handleInviteUser}
                 userInfo={userInfo}
+                roomId={roomId}
             />
         </>
     );
