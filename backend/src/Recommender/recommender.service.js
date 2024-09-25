@@ -90,16 +90,16 @@ const recommendMoviesByTMDBId = async (tmdbId) => {
         // Filter out the movie being recommended (tmdbMovie)
         const filteredRecommendations = cosineSimilarities.filter(rec => rec.movie.id !== tmdbId);
 
+        // Return the top 15 highest similarity movies
         const topRecommendations = filteredRecommendations
-            .filter(rec => rec.movie.id !== tmdbId) // Exclude the movie with the same id as tmdbId
-            .slice(0, Math.max(5, filteredRecommendations.length)) // Ensure at least 5 recommendations
+            .slice(0, 15) // Return the top 15 recommendations based on similarity
             .map(rec => ({
                 id: rec.movie.id,
                 title: rec.movie.title,
                 posterUrl: `https://image.tmdb.org/t/p/w500${rec.movie.poster_path}`, // Assuming 'poster_path' contains the URL or path to the poster
                 similarity: (rec.similarity * 100).toFixed(2) // Round off similarity score to 2 decimal points
             }));
-            
+
         console.log("Top recommendations ", topRecommendations);
         console.log("TMDB ", tmdbId)
         return topRecommendations;

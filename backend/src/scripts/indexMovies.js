@@ -1,4 +1,3 @@
-// backend/src/scripts/indexMovies.js
 const { Client } = require('@elastic/elasticsearch');
 const axios = require('axios');
 require('dotenv').config();
@@ -40,10 +39,42 @@ const fetchMovies = async () => {
     return uniqueMovies;
 };
 
+// Function to delete the index if it exists
+const deleteIndexIfExists = async (indexName) => {
+    const exists = await client.indices.exists({ index: indexName });
+    if (exists.body) {
+        await client.indices.delete({ index: indexName });
+        console.log(`Deleted existing index: ${indexName}`);
+    }
+};
+
 const indexMovies = async () => {
+    const indexName = 'movies';
+
+    // Delete the index if it exists
+    await deleteIndexIfExists(indexName);
+
+    // Create a new index
+    await client.indices.create({
+        index: indexName,
+        body: {
+            mappings: {
+                properties: {
+                    id: { type: 'integer' },
+                    title: { type: 'text' },
+                    overview: { type: 'text' },
+                    genres: { type: 'text' },
+                    genre_ids: { type: 'integer' },
+                    poster_path: { type: 'text' }
+                }
+            }
+        }
+    });
+
+    // Fetch movies and index them
     const movies = await fetchMovies();
     const bulkOps = movies.flatMap(movie => [
-        { index: { _index: 'movies', _id: movie.id } },
+        { index: { _index: indexName, _id: movie.id } },
         {
             id: movie.id,
             title: movie.title,
@@ -55,7 +86,7 @@ const indexMovies = async () => {
     ]);
 
     await client.bulk({ body: bulkOps });
-    await client.indices.refresh({ index: 'movies' });
+    await client.indices.refresh({ index: indexName });
 };
 
 const genresMap = {
