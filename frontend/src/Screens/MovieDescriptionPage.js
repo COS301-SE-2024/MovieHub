@@ -10,7 +10,7 @@ import Cast from "../Components/Cast";
 import axios from "axios";
 
 
-export default function MovieDescriptionPage({ userInfo }) {
+export default function MovieDescriptionPage({route}) {
 
     const localIP = getLocalIP();
    // const route = useRoute();
