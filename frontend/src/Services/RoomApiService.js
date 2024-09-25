@@ -101,9 +101,9 @@ export const getRoomParticipants = async (roomId) => {
 
 
 // Get public rooms
-export const getPublicRooms = async () => {
+export const getPublicRooms = async (uid) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/public-rooms`, {
+    const response = await fetch(`${API_URL}/public-rooms/${uid}`, {
         method: 'GET',
         headers,
     });
@@ -131,6 +131,20 @@ export const getRecentRooms = async (uid) => {
     if (contentLength && parseInt(contentLength) > 0) {
         data = await response.json();
     }
+    return data;
+};
+
+export const getIsParticipant = async (uid, roomId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/is-participant/${uid}/${roomId}`, {
+        method: 'GET',
+        headers,
+    });
+    if (!response.ok) {
+        console.log(response.ok);
+        throw new Error('Failed to fetch isParticipant');
+    }
+    const data = await response.json();
     return data;
 };
 
@@ -325,7 +339,7 @@ export const fetchRandomImage = async (keyword) => {
 
 export const deleteRoom = async (roomId) => {
     try {
-        const response = await fetch(`${API_URL}${roomId}`, {
+        const response = await fetch(`${API_URL}/${roomId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -339,4 +353,35 @@ export const deleteRoom = async (roomId) => {
         console.error('Error deleting room:', error);
         throw new Error('Failed to delete room.');
     }
+};
+
+export const getRoomAdmins = async (roomIdentifier) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${roomIdentifier}/admins`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch room admins');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export const toggleAdmin = async (roomId, uid) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/toggleAdmin`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ roomId, uid }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to toggle admin status');
+    }
+
+    const data = await response.json();
+    return data;
 };

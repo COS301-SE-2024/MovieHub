@@ -65,7 +65,7 @@ const CreateRoomScreen = ({ route }) => {
                 navigation.navigate("CreateWatchParty", { userInfo, roomId: newRoom.roomId });
             } else {
                 // Navigate to the HubScreen with the new room data
-                navigation.navigate("HubScreen", { userInfo, newRoom });
+                navigation.navigate("HubScreen", { userInfo, newRoom });// Should we rather navigate to ViewRooms?
             }
         } catch (error) {
             console.error("Failed to create room:", error);

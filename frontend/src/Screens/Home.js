@@ -3,18 +3,22 @@ import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimension
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
-
 import Svg from "react-native-svg";
 import MovieCard from "../Components/MovieCard"
 import TrendingMovie from "../Components/TrendingMovies"
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getMovies } from "../api";
+import { getFriendsContent } from "../Services/ExploreApiService";
+import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
+import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
+import {getFollowedUsersWatchlists} from "../Services/ListApiService"
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
 import HomeHeader from "../Components/HomeHeader";
 import moment from "moment";
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
+import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 import { getUserWatchlists } from "../Services/UsersApiService";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
@@ -206,6 +210,9 @@ const Home = ({ route }) => {
             try {
                 const userId = userInfo.userId;
                 let userWatchlists = await getUserWatchlists(userId);
+
+                //let userWatchlists = await getFollowedUsersWatchlists(userId);
+
         
                 // Remove duplicates based on watchlist IDs
                 userWatchlists = userWatchlists.filter((watchlist, index, self) => 
@@ -451,6 +458,15 @@ const Home = ({ route }) => {
                 fontSize: 12, // Ensure only one fontSize is set
                 color: theme.textColor,
                 paddingLeft: 16, // Padding should work
+
+//             {watchlists.map((watchlist, index) => (
+//                     <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+//                         <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+//                         <View style={styles.watchlistInfo}>
+//                             <Text style={{
+//                 fontSize: 12,
+//                 color: theme.textColor, 
+
                 fontFamily: 'Roboto',
                 fontWeight: 'bold',
                 paddingTop: 10,
@@ -471,7 +487,7 @@ const Home = ({ route }) => {
                 fontFamily: 'Roboto',
                 fontWeight: 'bold',
                 paddingTop: 10,
-            }}>Romance</Text>
+            }}>Action</Text>
              {/* <Text style={styles.viewalltext}>View all</Text> */}
             </View>
 

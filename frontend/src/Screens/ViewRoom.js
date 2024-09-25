@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef , useLayoutEffect} from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getRoomDetails, getRoomParticipantCount, joinRoom, leaveRoom } from "../Services/RoomApiService";
+import { getRoomDetails, getRoomParticipantCount, joinRoom, leaveRoom, getIsParticipant } from "../Services/RoomApiService";
 import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -26,6 +26,7 @@ const ViewRoom = ({ route }) => {
     const [participantCount, setParticipantCount] = useState(0); // State to hold participant count
     const [loading, setLoading] = useState(true); // State to manage loading status
     const [watchPartyStarted, setWatchPartyStarted] = useState(false);
+    const [isParticipant, setIsParticipant] = useState(false);
     const [upcomingParties, setUpcomingParties] = useState([
         {
             id: 1,
@@ -169,12 +170,14 @@ const ViewRoom = ({ route }) => {
     useEffect(() => {
         const fetchRoomDetails = async () => {
             try {
-                console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomDetails(roomId);
                 setRoomDetails(response.room);
                 setIsRoomCreator(response.room.createdBy == userInfo.userId);
-                console.log("username: ", userInfo.username, isRoomCreator);
-                console.log("Room details fetched: ", response);
+
+                //fetch isParticipant
+                const isParticipantResponse = await getIsParticipant(userInfo.userId, roomId);
+                setIsParticipant(isParticipantResponse);
+                
                 // Fetch participant count
                 const participantResponse = await getRoomParticipantCount(roomId);
                 if (participantResponse.success) {
@@ -234,6 +237,9 @@ const ViewRoom = ({ route }) => {
     const handleJoinPress = async () => {
         try {
             const response = await joinRoom(shortCode, userInfo.userId);
+            setIsParticipant(true);
+            setParticipantCount(participantCount+1);
+            Alert.alert('Success', 'You have joined this room!');
         } catch (error) {
             console.error("Failed to join room:", error);
         }
@@ -242,11 +248,13 @@ const ViewRoom = ({ route }) => {
     const handleLeavePress = async () => {
         try {
             const response = await leaveRoom(roomId, userInfo.userId);
+            setIsParticipant(false);
+            setParticipantCount(participantCount-1);
+            Alert.alert('Success', 'You have left this room!');
         } catch (error) {
             console.error("Failed to leave room:", error);
         }
     };
-
 
     return (
         <View style={styles.container}>
@@ -269,13 +277,21 @@ const ViewRoom = ({ route }) => {
                     )}
 
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, roomId: route.params.roomId })}>
-                            <Text style={styles.enterText}>Enter</Text>
-                        </TouchableOpacity>
-                        {/*TODO: when user has joined room this must become a leave button, using the handleLeavePress function onPress */}
-                        <TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
-                            <Text style={styles.enterText}>Join Room</Text>
-                        </TouchableOpacity>
+                        {!isRoomCreator  && (<>    
+                            {isParticipant
+                                ?(<TouchableOpacity style={styles.enterButton} onPress={handleLeavePress}>
+                                    <Text style={styles.enterText}>Leave Room</Text>
+                                </TouchableOpacity>)
+                                :(<TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
+                                    <Text style={styles.enterText}>Join Room</Text>
+                                </TouchableOpacity>)
+                            }
+                        </>)}
+                        {isParticipant && (
+                            <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, isRoomCreator, roomId: route.params.roomId })}>
+                                <Text style={styles.enterText}>Enter</Text>
+                            </TouchableOpacity>
+                        )}
                         <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
                             <FAIcon name="users" size={16} color={theme.textColor} />
                             <Text style={styles.participantsText}>{participantCount}</Text>
@@ -295,7 +311,7 @@ const ViewRoom = ({ route }) => {
                     </View>
                 </View>
             </ScrollView>
-            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} />
+            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} userInfo={userInfo} />
         </View>
     );
 };

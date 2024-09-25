@@ -16,12 +16,23 @@ const WatchlistDetails = ({ route }) => {
     const navigation = useNavigation();
 
     const { watchlist } = route.params;
-    console.log("Here is the watchlist passed: ", JSON.stringify(watchlist));
+    console.log('Here is the watchlist passed: ', JSON.stringify(watchlist));
 
+    const extractWatchlistId = (watchlist) => {
+        const possibleKeys = ['watchlistId', 'id', 'watchlist_id'];
+    
+        for (const key of possibleKeys) {
+            if (watchlist[key] !== undefined) {
+                return watchlist[key];
+            }
+        }
+    
+        throw new Error('No valid watchlist ID found');
+    };
     useEffect(() => {
         const fetchWatchlistDetails = async () => {
             try {
-                const watchlistId = watchlist.id;
+                const watchlistId = extractWatchlistId(watchlist);
                 console.log(watchlistId);
                 let data = await getWatchlistDetails(watchlistId);
                 console.log("Watchlist Id in WatchListDetails", JSON.stringify(watchlistId));
@@ -78,50 +89,45 @@ const WatchlistDetails = ({ route }) => {
         },
         title: {
             fontSize: 24,
-            fontWeight: "bold",
+            fontWeight: 'bold',
             marginBottom: 16,
-            alignSelf: "center",
+            alignSelf: 'center',
             color: theme.textColor,
         },
         movieItem: {
-            flexDirection: "row",
+            flexDirection: 'row',
             marginBottom: 16,
-            alignItems: "center",
+            alignItems: 'center',
+            
         },
         imagePlaceholder: {
             width: 110,
             height: 150,
-            backgroundColor: "#e0e0e0",
-            justifyContent: "center",
-            alignItems: "center",
+            backgroundColor: theme.backgroundColor,
+            justifyContent: 'center',
+            alignItems: 'center',
             marginRight: 16,
         },
         movieImage: {
-            width: "100%",
-            height: "100%",
+            width: '100%',
+            height: '100%',
         },
         movieDetails: {
             flex: 1,
         },
         movieTitle: {
             fontSize: 18,
-            fontWeight: "bold",
-            color: theme.textColor
+            fontWeight: 'bold',
+            color: theme.textColor,
         },
         movieGenre: {
             fontSize: 14,
-            color: theme.gray,
+            color: '#888',
             marginBottom: 4,
         },
         movieDuration: {
             fontSize: 14,
-            color: theme.gray,
-        },
-        movieRating: {
-            color: theme.textColor,
-        },
-        movieDate: {
-            color: theme.textColor,
+            color: '#888',
         },
         indicator: {
             backgroundColor: colors.primary,
@@ -133,6 +139,17 @@ const WatchlistDetails = ({ route }) => {
             alignItems: "center",
             backgroundColor: theme.backgroundColor,
         },
+        movieRating: {
+            fontSize: 14,
+            color: theme.textColor,
+            marginBottom: 4,
+        },
+        movieDate: {
+            fontSize: 14,
+            color: theme.textColor,
+            marginBottom: 4,
+        },
+
     });
 
     if (loading) {
@@ -144,9 +161,9 @@ const WatchlistDetails = ({ route }) => {
     }
     if (error) return <Text>Error: {error}</Text>;
 
+    
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{iniWatchlist.name}</Text>
             <ScrollView>
                 {iniWatchlist.movieList &&
                     iniWatchlist.movieList.map((movie) => (
@@ -171,3 +188,4 @@ const WatchlistDetails = ({ route }) => {
 };
 
 export default WatchlistDetails;
+

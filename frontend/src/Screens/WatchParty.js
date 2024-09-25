@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList, KeyboardAvoidingView, Platform, Image, PanResponder } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,6 +11,10 @@ import moment from "moment";
 const WatchParty = ({ route }) => {
     const { userInfo, roomId } = route.params;
     const { theme, isDarkMode } = useTheme();
+
+//     const { userInfo, roomId, isRoomCreator } = route.params;
+//     const { theme } = useTheme();
+
     const navigation = useNavigation();
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
@@ -21,7 +25,7 @@ const WatchParty = ({ route }) => {
     const bottomSheetRef = useRef(null);
     const [visibleTimestamp, setVisibleTimestamp] = useState(null);
     const [watchPartyStarted, setWatchPartyStarted] = useState(false);
-
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchParticipantsAndMessages = async () => {
             try {
@@ -98,6 +102,18 @@ const WatchParty = ({ route }) => {
             return () => navigation.removeListener("beforeRemove", onBeforeRemove);
         }, [navigation])
     );
+
+    // useLayoutEffect(() => {
+    //     if (loading) {
+    //       navigation.setOptions({
+    //         title: "Loading..."
+    //       });
+    //     } else if (roomDetails) {
+    //       navigation.setOptions({
+    //         title: roomDetails.roomName
+    //       });
+    //     }
+    //   }, [navigation, loading, roomDetails]);
 
     const sendMessage = async () => {
         if (message.trim() === "") return;
@@ -316,12 +332,15 @@ const WatchParty = ({ route }) => {
 
     return (
         <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}>
-            <View style={styles.header}>
+            {/* <View style={styles.header}>
                 <TouchableOpacity style={{ marginRight: 35 }} onPress={() => navigation.goBack()}>
                     <MatIcon name="arrow-left" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
                 {watchPartyStarted && <Text style={styles.title}>Interstellar</Text>}
             </View>
+                <Text style={styles.title}>Interstellar</Text>
+            </View> */}
+
 
             {watchPartyStarted && (
                 <View style={styles.videoPlayer}>
@@ -333,7 +352,9 @@ const WatchParty = ({ route }) => {
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Text style={{ color: theme.iconColor }}>Room: {roomName}</Text>
                     <View style={styles.roomDetails}>
-                        <Ionicons name="people" size={16} color={theme.iconColor} />
+                        <TouchableOpacity onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
+                            <Ionicons name="people" size={16} color={theme.iconColor} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}/>
+                        </TouchableOpacity>
                         <Text style={{ color: theme.textColor, marginLeft: 4 }}>{(Array.isArray(participants) ? participants.length : 0) + 1}</Text>
                     </View>
                 </View>

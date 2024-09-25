@@ -106,3 +106,28 @@ export const deleteWatchlist = async (watchlistId) => {
         throw new Error('Failed to delete watchlist.');
     }
 };
+
+export const getFollowedUsersWatchlists = async (userId) => {
+    try {
+        const response = await fetch(`${API_URL}${userId}/followed-watchlists`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log("Watclists -services", response)
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch followed users watchlists.');
+        }
+
+        const data = await response.json();
+
+        console.log("Watclists -services/data", data)
+        return data;  // Assuming the API returns an array of watchlists
+    } catch (error) {
+        console.error('Error fetching followed users watchlists:', error);
+        throw new Error('Failed to fetch followed users watchlists.');
+    }
+};
