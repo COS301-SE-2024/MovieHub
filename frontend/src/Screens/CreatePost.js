@@ -519,9 +519,6 @@ export default function CreatePost({ route }) {
                     </View> */}
 
                 </View>
-               
-            {/* </View> */}
-            {/* </View>s */}
 
             <View style={styles.footer}>
                 <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={isMovieReview ? handleAddReview : handleAddPost}>

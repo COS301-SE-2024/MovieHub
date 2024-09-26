@@ -166,6 +166,7 @@ export default function EditProfile({ route }) {
         }
 
         const pickerResult = await ImagePicker.launchImageLibraryAsync({mediaTypes: ImagePicker.MediaTypeOptions.Images,});
+
         if (pickerResult.canceled === true) {
             return;
         }

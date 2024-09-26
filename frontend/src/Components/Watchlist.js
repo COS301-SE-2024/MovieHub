@@ -49,6 +49,10 @@ const WatchlistTab = ({ userInfo }) => {
         navigation.navigate('WatchlistDetails', { watchlist });
     };
 
+    const handleEditWatchlist = () => {
+        navigation.navigate('EditWatchlist', { watchlist: selectedWatchlist, userInfo });
+    };
+
     const handleDeleteWatchlist = async () => {
         try {
             await deleteWatchlist(selectedWatchlist.id);
@@ -113,6 +117,7 @@ const WatchlistTab = ({ userInfo }) => {
         },
         moreButton: {
             margin: 5,
+            color: theme.iconColor,
         },
         emptyContainer: {
             backgroundColor: theme.backgroundColor,
@@ -127,7 +132,7 @@ const WatchlistTab = ({ userInfo }) => {
         },
         modalOverlay: {
             flex: 1,
-            backgroundColor: theme.backgroundColor,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             justifyContent: "center",
             alignItems: "center",
         },
@@ -145,7 +150,7 @@ const WatchlistTab = ({ userInfo }) => {
         modalOptionText: {
             fontSize: 18,
             marginLeft: 8,
-            color: theme.backgroundColor
+            color: theme.textColor
         },
         title: {
             fontSize: 18,
@@ -200,11 +205,8 @@ const WatchlistTab = ({ userInfo }) => {
                     <View style={styles.modalContainer}>
                         <TouchableOpacity
                             style={styles.modalOption}
-                            onPress={() => {
-                                navigation.navigate('EditWatchlist', {userInfo});
-                                closeModal();
-                                console.log(`Edit ${selectedWatchlist.name}`);
-                            }}>
+                            onPress={() => {handleEditWatchlist()}}
+                        >
                             <MaterialIcons name="edit" size={24} color="black" />
                             <Text style={styles.modalOptionText}>Edit</Text>
                         </TouchableOpacity>

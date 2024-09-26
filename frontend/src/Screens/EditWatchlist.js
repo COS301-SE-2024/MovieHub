@@ -2,18 +2,22 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../styles/ThemeContext";
+import { useNavigation } from "@react-navigation/native";
 
-export default function EditWatchlist({ navigation }) {
+export default function EditWatchlist({ route }) {
     const { theme } = useTheme();
+    const { watchlist } = route.params;
+
     const [modalContent, setModalContent] = useState({
-        name: { isVisible: false, newValue: "", tempValue: "" },
-        description: { isVisible: false, newValue: "", tempValue: "" },
-        tags: { isVisible: false, newValue: "", tempValue: "" },
+        name: { isVisible: false, newValue: watchlist.name, tempValue: "" },
+        description: { isVisible: false, newValue: watchlist.description, tempValue: "" },
+        tags: { isVisible: false, newValue: watchlist.tags, tempValue: "" },
     });
-    const [cover, setCover] = useState(null);
-    const [visibility, setVisibility] = useState(true);
-    const [collaborative, setCollaborative] = useState(false);
-    const [ranked, setRanked] = useState(false);
+    const [cover, setCover] = useState(watchlist.img);
+    const [visibility, setVisibility] = useState(watchlist.visibility);
+    const [collaborative, setCollaborative] = useState(watchlist.collaborative);
+    const [ranked, setRanked] = useState(watchlist.ranked);
+    const navigation = useNavigation();
 
     const chooseCover = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -141,6 +145,7 @@ export default function EditWatchlist({ navigation }) {
             padding: 16,
             borderRadius: 4,
             alignItems: "center",
+            marginBottom: 15,
         },
         nextButtonText: {
             color: "#fff",
@@ -171,7 +176,7 @@ export default function EditWatchlist({ navigation }) {
                 <Text style={styles.sectionTitle}>Visibility</Text>
                 <View style={styles.switchContainer}>
                     <Text style={styles.sectionValue}>{visibility ? "Private" : "Public"}</Text>
-                    <Switch value={visibility} onValueChange={setVisibility} thumbColor={visibility ? "white" : "black"} />
+                    <Switch value={visibility} onValueChange={setVisibility} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={visibility ? theme.primaryColor : "#fff"} />
                 </View>
             </View>
             <View style={styles.line} />
@@ -180,7 +185,7 @@ export default function EditWatchlist({ navigation }) {
                 <Text style={styles.sectionTitle}>Collaborative</Text>
                 <View style={styles.switchContainer}>
                     <Text style={styles.sectionValue}>{collaborative ? "Yes" : "No"}</Text>
-                    <Switch value={collaborative} onValueChange={setCollaborative} thumbColor={visibility ? "grey" : "black"} />
+                    <Switch value={collaborative} onValueChange={setCollaborative} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={collaborative ? theme.primaryColor : "#fff"} />
                 </View>
             </View>
             <View style={styles.line} />
@@ -189,7 +194,7 @@ export default function EditWatchlist({ navigation }) {
                 <Text style={styles.sectionTitle}>Ranked</Text>
                 <View style={styles.switchContainer}>
                     <Text style={styles.sectionValue}>{ranked ? "Yes" : "No"}</Text>
-                    <Switch value={ranked} onValueChange={setRanked} thumbColor={visibility ? "grey" : "black"} />
+                    <Switch value={ranked} onValueChange={setRanked} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={ranked ? theme.primaryColor : "#fff"} />
                 </View>
             </View>
             <View style={styles.line} />

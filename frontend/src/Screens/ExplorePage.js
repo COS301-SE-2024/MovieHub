@@ -172,16 +172,19 @@ export default function ExplorePage({ route }) {
             return;
         }
         try {
-        const response = await searchUser(name); 
-        if (response.users) {
-            setSearchResults(response.users);
-        } else {
+            const response = await searchUser(name); 
+            console.log(response);
+            if (response.users) {
+                console.log("we finna get crunk");
+                setSearchResults(response.users);
+            } else {
+                console.loh("no we not")
+                setSearchResults([]); 
+            }
+        } catch (error) {
+            console.error("Error during search:", error.message);
             setSearchResults([]); 
         }
-    } catch (error) {
-        console.error("Error during search:", error.message);
-        setSearchResults([]); 
-    }
     };
 
     const renderUser = ({ item }) => (
@@ -250,14 +253,16 @@ export default function ExplorePage({ route }) {
 
     const renderFollower = ({ item }) => (
         <TouchableOpacity
-        onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo : item })} 
-      >
-        <FollowList 
-            username={item.username}
-            userHandle={item.name}
-            userAvatar={item.avatar}
-        />
-         </TouchableOpacity>
+            onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo : item })} 
+        >
+            <FollowList 
+                route={route}
+                uid={item.uid}
+                username={item.username}
+                userHandle={item.name}
+                userAvatar={item.avatar}
+            />
+        </TouchableOpacity>
     );
 
     
@@ -298,14 +303,15 @@ export default function ExplorePage({ route }) {
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
             <ScrollView>
             <SearchBar onChangeText={handleSearch} />
-                {searchResults.length > 0 && (
+
+            {searchResults.length > 0 ? (
                 <FlatList
                     data={searchResults}
-                    keyExtractor={(item) => item.uid}
+                    // keyExtractor={(item) => item.uid}
                     renderItem={renderFollower}
                     showsVerticalScrollIndicator={false}
                 />
-            )}
+            ) : null}
 
                 <View style={styles.postsContainer}>
                     <HubTabView>

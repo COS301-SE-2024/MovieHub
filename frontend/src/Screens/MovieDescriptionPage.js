@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button, FlatList } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { getMovieCredits, getMovieRuntime } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons, Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from '@expo/vector-icons';
-import { getLocalIP } from '../Services/getLocalIP';
-import { getRecommendedMovies } from "../Services/RecApiService";  // Importing the recommendation service
+import { useTheme } from "../styles/ThemeContext";
+import { Ionicons, Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
+import { getLocalIP } from "../Services/getLocalIP";
+import { getRecommendedMovies } from "../Services/RecApiService"; // Importing the recommendation service
+import { getUserWatchlists } from "../Services/UsersApiService";
 import Cast from "../Components/Cast";
 import axios from "axios";
 
-
-export default function MovieDescriptionPage({route}) {
-
+export default function MovieDescriptionPage({ route }) {
     const localIP = getLocalIP();
-   // const route = useRoute();
-  // console.log("MovieDes route ", route.params.userInfo)
+    const { theme } = useTheme();
     const { userInfo } = route.params;
-    const {movieId, imageUrl, title, rating, overview, date } = route.params;
-   //console.log("Look ", userInfo)
+    console.log("Look ", userInfo);
+    const { movieId, imageUrl, title, rating, overview, date } = route.params;
+    //    console.log("Look ", title)
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",
@@ -31,37 +31,63 @@ export default function MovieDescriptionPage({route}) {
     const [runtime, setRuntime] = useState({ hours: 0, mins: 0 });
     const [isReviewed, setIsReviewed] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [watchlistModalVisible, setWatchlistModalVisible] = useState(false);
     const [recommendedMovies, setRecommendedMovies] = useState([]); // State for recommended movies
+    const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
+
+    useEffect(() => {
+        const fetchUserWatchlists = async () => {
+            try {
+                const userId = userInfo.userId;
+                let userWatchlists = await getUserWatchlists(userId);
+
+                // Remove duplicates based on watchlist IDs
+                userWatchlists = userWatchlists.filter((watchlist, index, self) => index === self.findIndex((w) => w.id === watchlist.id));
+
+                setWatchlists(userWatchlists);
+            } catch (error) {
+                console.error("Error fetching user watchlists:", error);
+                setWatchlists([]);
+            }
+        };
+
+        fetchUserWatchlists();
+    }, []);
 
     const handleReviewPress = () => {
         setIsReviewed(true);
-        navigation.navigate('CreatePost', { userInfo });
+        navigation.navigate("CreatePost", { userInfo });
     };
 
     const handleAddPress = () => {
-        // setIsModalVisible(true);
+        setIsModalVisible(true);
         // alert with three options
     };
 
     const handleLogBookPress = () => {
-        navigation.navigate('LogBookScreen', { title });
+        navigation.navigate("LogBookScreen", { title });
     };
 
     const handleCreateNewWatchlist = () => {
-     //   console.log("Look ", userInfo)
-        navigation.navigate('CreateWatchlist', { userInfo });
+        //   console.log("Look ", userInfo)
+        navigation.navigate("CreateWatchlist", { userInfo });
         setIsModalVisible(false);
     };
 
     const handleAddToExistingWatchlist = () => {
-        navigation.navigate('EditWatchlist', { userInfo });
         setIsModalVisible(false);
+        setWatchlistModalVisible(true);
+        // navigation.navigate("EditWatchlist", { userInfo });
     };
 
     const handleWatchPartyPress = () => {
-        navigation.navigate('WatchParty', { userInfo });
-    }
+        navigation.navigate("WatchParty", { userInfo });
+    };
+
+    const handleSelectWatchlist = (watchlist) => {
+        navigation.navigate("EditWatchlist", { watchlist, userInfo });
+    };
 
     useEffect(() => {
         const fetchCredits = async () => {
@@ -80,7 +106,7 @@ export default function MovieDescriptionPage({route}) {
                 const mins = minutes % 60;
                 setRuntime({ hours, mins });
             } catch (error) {
-                console.error('Error fetching runtime:', error);
+                console.error("Error fetching runtime:", error);
             }
         };
 
@@ -119,14 +145,205 @@ export default function MovieDescriptionPage({route}) {
                 const recommendations = await getRecommendedMovies(movieId, userInfo.userId);
                 setRecommendedMovies(recommendations);
             } catch (error) {
-                console.error('Error fetching recommended movies:', error);
+                console.error("Error fetching recommended movies:", error);
             }
         };
         fetchRecommendedMovies();
     }, [movieId]);
 
     const director = credits.crew.find((person) => person.job === "Director");
-    const cast = credits.cast.slice(0, 5).map((person) => person.name).join(", ");
+    const cast = credits.cast
+        .slice(0, 5)
+        .map((person) => person.name)
+        .join(", ");
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            width: "100%",
+        },
+        content: {
+            flex: 1,
+            paddingTop: 50,
+            width: "100%",
+        },
+        scrollContent: {
+            flexGrow: 1,
+        },
+        activityIndicator: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        wholecontainer: {
+            alignItems: "center",
+            paddingTop: 5,
+            paddingBottom: 50,
+        },
+        iconTextContainer: {
+            width: 79,
+            alignItems: "center",
+            // justifyContent: "space-evenly",
+        },
+        icons: {
+            paddingTop: 30,
+            paddingLeft: 12,
+            paddingBottom: 10,
+            flexDirection: "row", // Align icons horizontally
+            justifyContent: "space-between", // Space icons evenly
+            alignItems: "center", // Align items vertically
+            width: "100%", // Ensure full width for proper spacing
+            paddingHorizontal: 20, // Add some padding on the sides
+        },
+        iconsContent: {
+            flexDirection: "row",
+        },
+        icon: {
+            paddingLeft: 0,
+        },
+        text: {
+            // paddingLeft: 0,
+            color: "white",
+            fontWeight: "bold",
+        },
+        card: {
+            paddingTop: 20,
+            padding: 10,
+            height: 430,
+            width: "100%",
+        },
+        image: {
+            width: "100%",
+            height: "115%",
+            objectFit: "contain",
+            shadowOffset: {
+                width: 0,
+                height: 3,
+            },
+            shadowOpacity: 0.5,
+            shadowRadius: 3.84,
+            elevation: 5,
+        },
+        movieinfo: {
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            padding: 20,
+        },
+        movieinfo2: {
+            flex: 1,
+            flexDirection: "row",
+            paddingLeft: 12,
+        },
+        movietitle: {
+            fontSize: 30,
+            fontWeight: "bold",
+            textAlign: "left",
+            color: "white",
+            width: "70%",
+        },
+        movieRating: {
+            fontSize: 23,
+            fontWeight: "bold",
+            textAlign: "center",
+            color: "white",
+            paddingTop: 7,
+        },
+        movietitle2: {
+            paddingLeft: 10,
+            fontSize: 16,
+            fontWeight: "bold",
+            textAlign: "center",
+            color: "white",
+        },
+        moviebio: {
+            paddingTop: 20,
+            paddingLeft: 20,
+            color: "white",
+        },
+        moviebiotext: {
+            fontSize: 15,
+            paddingRight: 10,
+            color: "white",
+        },
+        castContainer: {
+            flexDirection: "row",
+        },
+        moviecast: {
+            paddingTop: 20,
+            fontSize: 25,
+            paddingLeft: 15,
+            fontWeight: "bold",
+            color: "white",
+        },
+        bold: {
+            fontWeight: "bold",
+            fontSize: 15,
+            color: "white",
+        },
+        modalOverlay: {
+            flex: 1,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        modalContainer: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+        },
+        modalView: {
+            margin: 20,
+            backgroundColor: theme.backgroundColor,
+            borderRadius: 20,
+            padding: 35,
+            alignItems: "center",
+            shadowColor: "#000",
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 5,
+        },
+        modalButton: {
+            padding: 10,
+            alignItems: "center",
+            marginTop: 8,
+            // backgroundColor: "#4a42c0",
+        },
+        recommendedTitle: {
+            fontSize: 24,
+            fontWeight: "bold",
+            color: "white",
+            paddingLeft: 15,
+            paddingTop: 20,
+        },
+        recommendationContainer: {
+            paddingLeft: 15,
+            paddingBottom: 30,
+        },
+        recommendationCard: {
+            width: 120,
+            marginRight: 15,
+        },
+        recommendationImage: {
+            width: 120,
+            height: 180,
+            borderRadius: 10,
+        },
+        recommendationTitle: {
+            fontSize: 14,
+            color: "white",
+            marginTop: 5,
+        },
+        recommendationScore: {
+            fontSize: 12,
+            color: "lightgray",
+        },
+    });
 
     if (loading) {
         return (
@@ -153,43 +370,42 @@ export default function MovieDescriptionPage({route}) {
                     <View style={styles.moviedes}>
                         <View style={styles.movieinfo}>
                             <Text style={styles.movietitle}>{title}</Text>
-                            <Text style={styles.movieRating}>{roundedRating}/<Text style={{fontSize: 18}}>10</Text></Text>
+                            <Text style={styles.movieRating}>
+                                {roundedRating}/<Text style={{ fontSize: 18 }}>10</Text>
+                            </Text>
                         </View>
                         <View style={styles.movieinfo2}>
                             <Text style={styles.movietitle2}>{date} </Text>
 
-                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16}}> &bull; </Text>
-                            <Text style={{color: "white", fontWeight: "bold", fontSize: 16 }}> {runtime ? 
-                            `${runtime.hours > 0 ? `${runtime.hours} h ` : ''}${runtime.mins} mins` 
-                            : 'NoN'}</Text>
+                            <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}> &bull; </Text>
+                            <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}> {runtime ? `${runtime.hours > 0 ? `${runtime.hours} h ` : ""}${runtime.mins} mins` : "NoN"}</Text>
                         </View>
                         <View style={styles.icons}>
-                            
-                                <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
-                                    <View style={styles.iconTextContainer}>
-                                        <FontAwesome6 name={isAddedToList ? 'check' : 'add'} size={24} color="white" style={styles.icon} />
-                                        <Text style={styles.text}>{isAddedToList ? 'Added' : 'Add to list'}</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.block3} onPress={handleLogBookPress} >
-                                    <View style={styles.iconTextContainer}>
-                                        <Ionicons name="book-outline" size={24} color="white" style={styles.icon}/>
-                                        <Text style={styles.text}>Log Movie</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
-                                    <View style={styles.iconTextContainer}>
-                                        <Ionicons name="star-outline" size={24} color={isReviewed ? 'gold' : 'white'} style={styles.icon} />
-                                        <Text style={styles.text}>{isReviewed ? 'Reviewed' : 'Review'}</Text>
-                                    </View>
-                                </TouchableOpacity>
+                            <TouchableOpacity onPress={handleAddPress} style={styles.block1}>
+                                <View style={styles.iconTextContainer}>
+                                    <FontAwesome6 name={isAddedToList ? "check" : "add"} size={24} color="white" style={styles.icon} />
+                                    <Text style={styles.text}>{isAddedToList ? "Added" : "Add to list"}</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.block3} onPress={handleLogBookPress}>
+                                <View style={styles.iconTextContainer}>
+                                    <Ionicons name="book-outline" size={24} color="white" style={styles.icon} />
+                                    <Text style={styles.text}>Log Movie</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.block3} onPress={handleReviewPress}>
+                                <View style={styles.iconTextContainer}>
+                                    <Ionicons name="star-outline" size={24} color={isReviewed ? "gold" : "white"} style={styles.icon} />
+                                    <Text style={styles.text}>{isReviewed ? "Reviewed" : "Review"}</Text>
+                                </View>
+                            </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.block4} onPress={handleWatchPartyPress}>
-                                    <View style={styles.iconTextContainer}>
-                                        <SimpleLineIcons name="screen-desktop" size={24} color='white' style={styles.icon} />
-                                        <Text style={styles.text}>Watch Party</Text>
-                                    </View>
-                                </TouchableOpacity>
+                            <TouchableOpacity style={styles.block4} onPress={handleWatchPartyPress}>
+                                <View style={styles.iconTextContainer}>
+                                    <SimpleLineIcons name="screen-desktop" size={24} color="white" style={styles.icon} />
+                                    <Text style={styles.text}>Watch Party</Text>
+                                </View>
+                            </TouchableOpacity>
                         </View>
 
                         <View style={styles.moviebio}>
@@ -204,7 +420,7 @@ export default function MovieDescriptionPage({route}) {
                             </Text>
                         </View>
                         <Text style={styles.moviecast}> Cast</Text>
-                        <ScrollView horizontal contentContainerStyle={styles.castContainer}>
+                        <ScrollView horizontal contentContainerStyle={styles.castContainer} showsHorizontalScrollIndicator={false}>
                             {credits.cast.slice(0, 5).map((member, index) => (
                                 <Cast key={index} imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`} name={member.name} />
                             ))}
@@ -220,198 +436,47 @@ export default function MovieDescriptionPage({route}) {
                                 </View>
                             ))}
                         </ScrollView>
-
                     </View>
                 </ScrollView>
             </LinearGradient>
 
             <Modal animationType="slide" transparent={true} visible={isModalVisible} onRequestClose={() => setIsModalVisible(false)}>
-                <View style={styles.modalContainer}>
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsModalVisible(false)}>
+                    {/* <View style={styles.modalContainer}> */}
                     <View style={styles.modalView}>
-                        <Button title="Create a new watchlist" onPress={handleCreateNewWatchlist} color="#000" />
-                        <Button title="Add to existing watchlist" onPress={handleAddToExistingWatchlist} color="#000" />
-                        <Button title="Cancel" onPress={() => setIsModalVisible(false)} color="#f44336" />
+                        <TouchableOpacity style={styles.modalButton} onPress={handleCreateNewWatchlist} color="#000">
+                            <Text style={{ color: theme.textColor }}>Create a new watchlist</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.modalButton} onPress={handleAddToExistingWatchlist} color="#000">
+                            <Text style={{ color: theme.textColor }}>Add to existing watchlist</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.modalButton} onPress={() => setIsModalVisible(false)} color="#f44336">
+                            <Text style={{ color: "red" }}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
-                </View>
+                    {/* </View> */}
+                </TouchableOpacity>
+            </Modal>
+
+            <Modal animationType="slide" transparent={true} visible={watchlistModalVisible} onRequestClose={() => setWatchlistModalVisible(false)}>
+                <TouchableOpacity style={styles.modalOverlay} onPress={() => setWatchlistModalVisible(false)}>
+                    <View style={{ width: 300, backgroundColor: "white", borderRadius: 10, padding: 25 }}>
+                        <FlatList
+                            data={watchlists}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity onPress={() => handleSelectWatchlist(item)} style={{ flexDirection: "row", alignItems: "center", paddingBottom: 10, paddingTop: 8 }}>
+                                    <Image source={{ uri: item.img }} style={{ width: 50, height: 60, marginRight: 15 }} />
+                                    <Text style={{ padding: 10, fontSize: 18 }}>{item.name}</Text>
+                                </TouchableOpacity>
+                            )}
+                        />
+                        <TouchableOpacity style={{ position: "absolute", top: 10, right: 10 }} onPress={() => setWatchlistModalVisible(false)}>
+                            <Text>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
             </Modal>
         </View>
     );
-};
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        width: '100%',
-    },
-    content: {
-        flex: 1,
-        paddingTop: 50,
-        width: '100%',
-    },
-    scrollContent: {
-        flexGrow: 1,
-    },
-    activityIndicator: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    wholecontainer: {
-        alignItems: "center",
-        paddingTop: 5,
-        paddingBottom: 50,
-    },
-    iconTextContainer: {
-        width: 79,
-        alignItems: 'center',
-        // justifyContent: "space-evenly",
-    },
-    icons: {
-        paddingTop: 30,
-        paddingLeft: 12,
-        paddingBottom: 10,
-        flexDirection: "row", // Align icons horizontally
-        justifyContent: "space-between", // Space icons evenly
-        alignItems: "center", // Align items vertically
-        width: '100%', // Ensure full width for proper spacing
-        paddingHorizontal: 20, // Add some padding on the sides
-    },
-    iconsContent: {
-        flexDirection: "row",
-    },
-    icon: {
-        paddingLeft: 0,
-    },
-    text: {
-        // paddingLeft: 0,
-        color: "white",
-        fontWeight: "bold",
-    },
-    card: {
-        paddingTop: 20,
-        padding: 10,
-        height: 430,
-        width: "100%",
-    },
-    image: {
-        width: "100%",
-        height: "115%",
-        objectFit: "contain",
-        shadowOffset: {
-            width: 0,
-            height: 3,
-        },
-        shadowOpacity: 0.5,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    movieinfo: {
-        flex: 1,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        padding: 20,
-    },
-    movieinfo2: {
-        flex: 1,
-        flexDirection: "row",
-        paddingLeft: 12,
-    },
-    movietitle: {
-        fontSize: 30,
-        fontWeight: "bold",
-        textAlign: "left",
-        color: "white",
-        width: "70%",
-    },
-    movieRating: {
-        fontSize: 23,
-        fontWeight: "bold",
-        textAlign: "center",
-        color: "white",
-        paddingTop: 7,
-    },
-    movietitle2: {
-        paddingLeft: 10,
-        fontSize: 16,
-        fontWeight: "bold",
-        textAlign: "center",
-        color: "white",
-    },
-    moviebio: {
-        paddingTop: 20,
-        paddingLeft: 20,
-        color: "white",
-    },
-    moviebiotext: {
-        fontSize: 15,
-        paddingRight: 10,
-        color: "white",
-    },
-    castContainer: {
-        flexDirection: 'row',
-    },
-    moviecast: {
-        paddingTop: 20,
-        fontSize: 25,
-        paddingLeft: 15,
-        fontWeight: "bold",
-        color: "white",
-    },
-    bold: {
-        fontWeight: "bold",
-        fontSize: 15,
-        color: "white",
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0,0,0,0.5)"
-    },
-    modalView: {
-        margin: 20,
-        backgroundColor: "white",
-        borderRadius: 20,
-        padding: 35,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5
-    },
-
-    recommendedTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'white',
-        paddingLeft: 15,
-        paddingTop: 20,
-    },
-    recommendationContainer: {
-        paddingLeft: 15,
-        paddingBottom: 30,
-    },
-    recommendationCard: {
-        width: 120,
-        marginRight: 15,
-    },
-    recommendationImage: {
-        width: 120,
-        height: 180,
-        borderRadius: 10,
-    },
-    recommendationTitle: {
-        fontSize: 14,
-        color: 'white',
-        marginTop: 5,
-    },
-    recommendationScore: {
-        fontSize: 12,
-        color: 'lightgray',
-    },
-});
-
+}

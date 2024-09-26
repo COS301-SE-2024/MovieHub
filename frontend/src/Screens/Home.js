@@ -177,7 +177,33 @@ const Home = ({ route }) => {
         fetchOTHERMovies();
       }, []);
 
-      useEffect(() => {
+
+      const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        }
+        return array;
+    }
+
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                let moviesData = await getMovies();
+                moviesData = shuffleArray(moviesData); // Shuffle the movies array
+                setMovies([{ key: "empty-left" }, ...moviesData.slice(0, 9), { key: "empty-right" }]);
+            } catch (error) {
+                console.error("Failed to fetch movies:", error);
+            }
+        };
+        
+        fetchMovies();
+    }, []);
+
+
+
+    useEffect(() => {
+
         const fetchUserWatchlists = async () => {
             try {
                 const userId = userInfo.userId;
@@ -383,7 +409,7 @@ const Home = ({ route }) => {
 
                             return (
                                 <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
-                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails, userInfo })}>
                                         <Animated.View
                                             style={{
                                                 marginHorizontal: SPACING,
@@ -614,7 +640,7 @@ const styles = StyleSheet.create({
         paddingTop: 10,
 
     },line: {
-        borderBottomColor: '#D3D3D3',  
+        borderBottomColor: 'transparent', 
         borderBottomWidth: 1,        
         marginVertical: 10,    
         paddingTop: 10,       

@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, ScrollView, useWindowDimensions, RefreshControl, ActivityIndicator, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { TabView, TabBar } from "react-native-tab-view";
-import { Pressable } from "react-native";
 import { Image } from "react-native";
 import LikesTab from "../Components/LikesTab";
 import PostsTab from "../Components/PostsTab";
@@ -12,29 +10,21 @@ import CommentsModal from "../Components/CommentsModal";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
 import { getCommentsOfPost, getCommentsOfReview } from "../Services/PostsApiServices";
-import {useUser} from "../Services/UseridContext";
+import { useUser } from "../Services/UseridContext";
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 
 export default function ProfilePage({ route }) {
     const { theme } = useTheme();
     const layout = useWindowDimensions();
-    const [index, setIndex] = useState(0);
-    const [routes] = useState([
-        { key: "posts", title: "Posts" },
-        { key: "likes", title: "Likes" },
-        { key: "watchlist", title: "Watchlist" },
-    ]);
-
+    const [activeTab, setActiveTab] = useState('posts');
     const { userInfo } = route.params;
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
     const { setUserInfo } = useUser();
     const [userProfile, setUserProfile] = useState({});
-    const [followers, setFollowers] = useState(0);
-    const [following, setFollowing] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
-    const [loading, setLoading] = useState(true); // Add this line
-    const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
+    const [loading, setLoading] = useState(true);
+    const [selectedPostId, setSelectedPostId] = useState(null);
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
     const [isPost, setIsPost] = useState(false);
@@ -44,59 +34,36 @@ export default function ProfilePage({ route }) {
     const fetchData = async () => {
         try {
             const userId = userInfo.userId;
-            setUserInfo({  userId }); 
+            setUserInfo({ userId });
             const response = await getUserProfile(userId);
             setUserProfile(response);
-
-            if (response.followers && response.followers.low !== undefined) {
-                setFollowers(response.followers.low);
-            }
-
-            if (response.following && response.following.low !== undefined) {
-                setFollowing(response.following.low);
-            }
             
             const followersCount = await getFollowersCount(userId);
             const followingCount = await getFollowingCount(userId);
             setFollowerCount(followersCount.followerCount);
             setFollowingCount(followingCount.followingCount);
-
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
-            setLoading(false); // Set loading to false after data is fetched
+            setLoading(false);
         }
     };
 
     const fetchComments = async (postId, isReview) => {
         setLoadingComments(true);
-        if (isReview) {
-            try {
-                const response = await getCommentsOfReview(postId);
-                setComments(response.data);
-            } catch (error) {
-                console.error("Error fetching comments of review:", error.message);
-                throw new Error("Failed to fetch comments of review");
-            } finally {
-                setLoadingComments(false);
-            }
-        } else {
-            try {
-                const response = await getCommentsOfPost(postId);
-                setComments(response.data);
-            } catch (error) {
-                console.error("Error fetching comments of post:", error.message);
-                throw new Error("Failed to fetch comments of post");
-            } finally {
-                setLoadingComments(false);
-            }
+        try {
+            const response = await (isReview ? getCommentsOfReview(postId) : getCommentsOfPost(postId));
+            setComments(response.data);
+        } catch (error) {
+            console.error(`Error fetching comments of ${isReview ? 'review' : 'post'}:`, error.message);
+        } finally {
+            setLoadingComments(false);
         }
     };
 
     const handleRefresh = () => {
         setRefreshing(true);
         fetchData().finally(() => setRefreshing(false));
-        console.log("Refreshed");
     };
 
     useEffect(() => {
@@ -106,14 +73,17 @@ export default function ProfilePage({ route }) {
     const handleCommentPress = async (postId, isReview) => {
         setSelectedPostId(postId);
         setIsPost(!isReview);
-        const response = await fetchComments(postId, isReview);
-        // console.log("Comments:", response);
+        await fetchComments(postId, isReview);
         bottomSheetRef.current?.present();
     };
 
     const styles = StyleSheet.create({
         container: {
+            flex: 1,
             backgroundColor: theme.backgroundColor,
+        },
+        scrollContent: {
+            flexGrow: 1,
         },
         avatar: {
             width: 80,
@@ -170,20 +140,28 @@ export default function ProfilePage({ route }) {
             marginTop: 25,
             marginHorizontal: 25,
         },
-        tabContainer: {
-            marginTop: 25,
-            height: layout.height,
-        },
         tabBar: {
+            flexDirection: 'row',
+            justifyContent: 'space-around',
             backgroundColor: theme.backgroundColor,
             elevation: 0,
             shadowOpacity: 0,
+            marginTop: 20,
             borderBottomWidth: 1,
-            borderBottomColor: "transparent",
+            borderBottomColor: 'transparent',
         },
-        indicator: {
-            backgroundColor: colors.primary,
-            borderRadius: 50,
+        tabItem: {
+            paddingVertical: 10,
+            paddingHorizontal: 35,
+        },
+        tabText: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: theme.textColor,
+        },
+        activeTab: {
+            borderBottomWidth: 2,
+            borderBottomColor: colors.primary,
         },
         loadingContainer: {
             flex: 1,
@@ -193,15 +171,14 @@ export default function ProfilePage({ route }) {
         },
     });
 
-    const renderScene = ({ route }) => {
-        switch (route.key) {
-            case "posts":
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} refreshing={refreshing} onRefresh={handleRefresh}  />;
-            case "likes":
-                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} refreshing={refreshing} onRefresh={handleRefresh} />;
-            case "watchlist":
-                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} refreshing={refreshing} onRefresh={handleRefresh} />;
-
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'posts':
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+            case 'likes':
+                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+            case 'watchlist':
+                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
             default:
                 return null;
         }
@@ -216,13 +193,11 @@ export default function ProfilePage({ route }) {
     }
 
     return (
-        <View style={{ flex: 1 }}>
-            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false} >
                 <View style={styles.accountInfo}>
                     <Image
-                        source={{
-                            uri: userProfile.avatar,
-                        }}
+                        source={{ uri: userProfile.avatar }}
                         style={styles.avatar}
                     />
                     <Text style={styles.username}>{userProfile.name || "Itumeleng Moshokoa"}</Text>
@@ -251,14 +226,33 @@ export default function ProfilePage({ route }) {
                         {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text> : <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>}
                     </Text>
                 </View>
-                <View style={styles.tabContainer}>
-                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
+                <View style={styles.tabBar}>
+                    {['posts', 'likes', 'watchlist'].map((tab) => (
+                        <Pressable
+                            key={tab}
+                            style={[styles.tabItem, activeTab === tab && styles.activeTab]}
+                            onPress={() => setActiveTab(tab)}
+                        >
+                            <Text style={styles.tabText}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
+                        </Pressable>
+                    ))}
                 </View>
+                {renderTabContent()}
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
 
-            <CommentsModal ref={bottomSheetRef} isPost={isPost} postId={selectedPostId} userId={userInfo.userId} username={userInfo.username} currentUserAvatar={userProfile.avatar} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
+            <CommentsModal
+                ref={bottomSheetRef}
+                isPost={isPost}
+                postId={selectedPostId}
+                userId={userInfo.userId}
+                username={userInfo.username}
+                currentUserAvatar={userProfile.avatar}
+                comments={comments}
+                loadingComments={loadingComments}
+                onFetchComments={fetchComments}
+            />
         </View>
     );
 }

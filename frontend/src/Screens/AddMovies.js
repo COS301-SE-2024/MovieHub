@@ -172,7 +172,7 @@ export default function AddMovies({ route, navigation }) {
         tick: {
             width: 30,
             height: 30,
-            backgroundColor: "black",
+            backgroundColor: theme.primaryColor,
             borderRadius: 15,
             position: "absolute",
             top: 10,

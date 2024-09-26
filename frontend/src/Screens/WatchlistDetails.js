@@ -12,7 +12,7 @@ const WatchlistDetails = ({ route }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigation = useNavigation();
-
+    const { userInfo } = route.params;
     const { watchlist } = route.params;
     console.log('Here is the watchlist passed: ', JSON.stringify(watchlist));
 
@@ -60,6 +60,11 @@ const WatchlistDetails = ({ route }) => {
     }, [watchlist]);
 
     const handleMoviePress = (movie) => {
+
+//         console.log("Movie pressed:", JSON.stringify(movie, null, 2));
+//         navigation.navigate("MovieDescriptionPage", {
+//             userInfo,
+
         console.log('Movie pressed:', JSON.stringify(movie, null, 2));
         navigation.navigate('MovieDescriptionPage', {
             movieId: movie.id,
