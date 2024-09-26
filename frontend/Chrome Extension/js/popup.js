@@ -1,11 +1,10 @@
-
-
 document.getElementById("startPartyBtn").addEventListener("click", async () => {
     // Generate a unique party code
-    let ws;//////////////////////////////// = new WebSocket("ws://localhost:3000?roomId=${roomId}");
+    let ws;
     const partyCode = Math.random().toString(36).substr(2, 6).toUpperCase();
     const roomShortCode = document.getElementById("roomShortCode").value;
     const username = document.getElementById("username").value;
+
     // Ensure both fields are filled
     if (!roomShortCode) {
         alert("Please enter the room's code.");
@@ -28,45 +27,25 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         },
         body: JSON.stringify({ username, roomShortCode, partyCode }),
     });
-   
+
     const data = await response.json();
     console.log("The watch party data: ", data);
+
     if (response.ok) {
         alert("Watch party started!");
 
-        // Store username and partyCode in localStorage
-        localStorage.setItem('username', username);
-        localStorage.setItem('partyCode', partyCode);
-
+        // Store username and partyCode in chrome.storage.sync
+        chrome.storage.sync.set({ username, partyCode }, () => {
+            console.log("Stored username and partyCode in chrome.storage.sync:", { username, partyCode });
+        });
 
         // Initialize WebSocket connection with the roomId from the response
         ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
-        // retrieved roomId from the server in the start/join logic
+
         ws.onopen = () => {
             console.log('WebSocket connection established');
         };
 
-        // // Listen for incoming messages
-        // ws.onmessage = function (event) {
-        //     const message = JSON.parse(event.data);
-        //     if (message.type === 'chat') {
-        //         const chatMessage = document.createElement('p');
-        //         chatMessage.textContent = `[${message.username}] ${message.text}`;
-        //         document.getElementById('messages').appendChild(chatMessage);
-        //     }
-        // };
-
-        // // Send message on button click
-        // document.getElementById('sendMessage').onclick = function () {
-        //     const input = document.getElementById('messageInput');
-        //     const message = {
-        //         type: 'chat',
-        //         username: 'User', // Replace with actual username
-        //         text: input.value
-        //     };
-        //     ws.send(JSON.stringify(message));
-        //     input.value = ''; // Clear input
-        // };
         ws.onmessage = (event) => {
             console.log('Received:', event.data);
         };
@@ -78,8 +57,6 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         ws.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
-
-        
     } else {
         alert("Error starting the watch party.");
     }
@@ -120,39 +97,18 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
 
         if (response.ok) {
             alert("Joined watch party!");
-            // Store username and partyCode in localStorage
-            localStorage.setItem('username', username);
-            localStorage.setItem('partyCode', partyCode);
 
+            // Store username and partyCode in chrome.storage.sync
+            chrome.storage.sync.set({ username, partyCode: joinCode }, () => {
+                console.log("Stored username and partyCode in chrome.storage.sync:", { username, partyCode: joinCode });
+            });
 
             // Initialize WebSocket connection with the roomId from the response
-             ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
-            // retrieved roomId from the server in the start/join logic
+            ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
+
             ws.onopen = () => {
                 console.log('WebSocket connection established');
             };
-
-            // Listen for incoming messages
-            // ws.onmessage = function (event) {
-            //     const message = JSON.parse(event.data);
-            //     if (message.type === 'chat') {
-            //         const chatMessage = document.createElement('p');
-            //         chatMessage.textContent = `[${message.username}] ${message.text}`;
-            //         document.getElementById('messages').appendChild(chatMessage);
-            //     }
-            // };
-
-            // // Send message on button click
-            // document.getElementById('sendMessage').onclick = function () {
-            //     const input = document.getElementById('messageInput');
-            //     const message = {
-            //         type: 'chat',
-            //         username: 'User', // Replace with actual username
-            //         text: input.value
-            //     };
-            //     ws.send(JSON.stringify(message));
-            //     input.value = ''; // Clear input
-            // };
 
             ws.onmessage = (event) => {
                 console.log('Received:', event.data);
@@ -173,13 +129,3 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
         alert('An error occurred while trying to join the watch party. Please try again.');
     }
 });
-
-
-
-// ws.onmessage = (event) => {
-//     const message = JSON.parse(event.data);
-//     // Handle incoming WebSocket messages (e.g., playback controls)
-//     console.log('Message received:', message);
-// };
-
-
