@@ -298,6 +298,9 @@ export default function ExplorePage({ route }) {
             backgroundColor: "#ccc",
             marginVertical: 16,
         },
+        friendsContent: {
+            backgroundColor: theme.backgroundColor,
+        }
     });    
     return (
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
@@ -317,7 +320,8 @@ export default function ExplorePage({ route }) {
                     <HubTabView>
                         <View>
                             {/* Friends' Content */}
-                            <InstagramLoader active loading={randomUsersContent.length === 0} />
+                            <InstagramLoader active loading={sortedContent.length === 0} />
+                            <InstagramLoader active loading={sortedContent.length === 0} />
                             {sortedContent.length > 0 && (
                                 <View style={styles.friendsContent}>
                                     {sortedContent.map((content, index) =>

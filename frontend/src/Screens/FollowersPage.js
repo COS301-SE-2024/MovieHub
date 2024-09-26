@@ -5,7 +5,8 @@ import { getFollowers, isFollowed } from '../Services/UsersApiService';
 import { useTheme } from "../styles/ThemeContext";
 
 const FollowersPage = ({ route }) => {
-    const { userInfo } = route.params; 
+    const { userInfo } = route.params;
+    console.log(userInfo) 
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true); 
     const {theme} = useTheme();
