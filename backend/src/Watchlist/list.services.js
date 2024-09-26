@@ -233,8 +233,9 @@ exports.getFollowedUsersWatchlists = async (userId) => {
 
     try {
         const result = await session.run(
-            `MATCH (u:User {uid: $userId})-[:FOLLOWS]->(followee:User)-[:HAS_WATCHLIST]->(w:Watchlist)
-             RETURN w.id AS watchlistId, w.name AS name, w.description AS description, w.ranked AS ranked, w.collaborative AS collaborative, w.tags AS tags`,
+            `MATCH (u:User {uid: $userId})-[:FOLLOWS]->(followee:User)-[:HAS_WATCHLIST]->(w:Watchlist) 
+             RETURN w.id AS watchlistId, w.name AS name, w.description AS description, w.ranked AS ranked, 
+                    w.collaborative AS collaborative, w.tags AS tags, w.img AS img`,
             { userId }
         );
 
@@ -249,6 +250,7 @@ exports.getFollowedUsersWatchlists = async (userId) => {
             ranked: record.get('ranked'),
             collaborative: record.get('collaborative'),
             tags: record.get('tags'),
+            img: record.get('img'),
         }));
 
         console.log("Watchlists fetched successfully for followed users.");
