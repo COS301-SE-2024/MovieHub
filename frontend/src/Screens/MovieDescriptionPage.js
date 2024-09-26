@@ -439,6 +439,13 @@ export default function MovieDescriptionPage({ route }) {
             color: "white",
             marginTop: 10,
         },
+        noReviewsText: {
+            color: "white",
+            fontSize: 16,
+            textAlign: "center",
+            marginBottom: 50,
+            fontStyle: "italic",
+        },
     });
 
     if (loading) {
@@ -535,11 +542,13 @@ export default function MovieDescriptionPage({ route }) {
 
                         <View>
                             <Text style={styles.reviewsTitle}>Reviews</Text>
-                            {
-                                movieReviews.length > 0 && movieReviews.map((review, index) => (
+                            {movieReviews.length > 0 ? (
+                                movieReviews.map((review, index) => (
                                     renderReview(review, index)
                                 ))
-                            }
+                            ) : (
+                                <Text style={styles.noReviewsText}>No reviews yet. Be the first one to write a review about this movie!</Text>
+                            )}
                         </View>
                     </View>
                 </ScrollView>
