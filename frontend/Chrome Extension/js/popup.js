@@ -129,3 +129,10 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
         alert('An error occurred while trying to join the watch party. Please try again.');
     }
 });
+
+navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    // Use this stream in your WebRTC connection
+    stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+}).catch(error => {
+    console.error('Error accessing audio devices:', error);
+});

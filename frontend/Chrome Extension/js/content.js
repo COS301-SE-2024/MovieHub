@@ -1,3 +1,105 @@
+let localStream;
+let peerConnections = {};
+const signalingSocket = new WebSocket('ws://localhost:3000');
+
+let isMuted = false;
+
+// Get user's audio stream
+async function startAudioStream() {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStream.getAudioTracks().forEach(track => track.enabled = !isMuted); // Initially, set the track to be enabled
+  } catch (error) {
+    console.error('Error accessing microphone:', error);
+  }
+}
+
+// Initialize WebRTC peer connection
+function createPeerConnection(partyCode, targetSocketId) {
+  const peerConnection = new RTCPeerConnection();
+
+  // Add the local audio track to the connection
+  localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+  // Handle ICE candidates
+  peerConnection.onicecandidate = event => {
+    if (event.candidate) {
+      signalingSocket.send(JSON.stringify({
+        type: 'webrtc-ice-candidate',
+        candidate: event.candidate,
+        targetSocketId: targetSocketId,
+        partyCode
+      }));
+    }
+  };
+
+  // Handle remote audio streams
+  peerConnection.ontrack = event => {
+    const remoteAudio = new Audio();
+    remoteAudio.srcObject = event.streams[0];
+    remoteAudio.play();
+  };
+
+  return peerConnection;
+}
+
+// Handle incoming WebRTC signaling messages
+signalingSocket.onmessage = async (event) => {
+  const data = JSON.parse(event.data);
+
+  if (data.type === 'webrtc-offer') {
+    const peerConnection = createPeerConnection(data.partyCode, data.socketId);
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+
+    signalingSocket.send(JSON.stringify({
+      type: 'webrtc-answer',
+      answer: answer,
+      targetSocketId: data.socketId,
+      partyCode: data.partyCode
+    }));
+
+    peerConnections[data.socketId] = peerConnection;
+  } else if (data.type === 'webrtc-answer') {
+    const peerConnection = peerConnections[data.socketId];
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+  } else if (data.type === 'webrtc-ice-candidate') {
+    const peerConnection = peerConnections[data.socketId];
+    if (peerConnection) {
+      await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+    }
+  }
+};
+
+// Mic Button to toggle mute/unmute
+const micButton = document.createElement('button');
+micButton.textContent = '🎤 Mute';
+micButton.style.position = 'fixed';
+micButton.style.bottom = '20px';
+micButton.style.right = '320px';
+micButton.style.zIndex = '10000';
+micButton.style.backgroundColor = '#7e57c2';
+micButton.style.color = 'white';
+micButton.style.padding = '10px';
+micButton.style.border = 'none';
+micButton.style.borderRadius = '5px';
+micButton.style.cursor = 'pointer';
+
+document.body.appendChild(micButton);
+
+// Toggle mute/unmute on mic button click
+micButton.addEventListener('click', () => {
+  isMuted = !isMuted;
+  micButton.textContent = isMuted ? '🎤 Unmute' : '🎤 Mute';
+  if (localStream) {
+    localStream.getAudioTracks().forEach(track => {
+      track.enabled = !isMuted;
+      console.log('Track status:', track.enabled ? 'Unmuted' : 'Muted');
+    });
+  }
+});
+
 // Inject chat interface into the streaming platform
 const chatBox = document.createElement('div');
 chatBox.id = 'watchPartyChat';
@@ -205,6 +307,22 @@ function createSendButton(chatInput, userDetails) {
   return sendButton;
 }
 
+
+
+// Start WebRTC audio when party starts
+async function startWatchParty() {
+const userDetails = getUserDetails();
+  await startAudioStream();
+
+  signalingSocket.onopen = () => {
+    signalingSocket.send(JSON.stringify({
+      type: 'join-party',
+      partyCode: `${userDetails.partyCode}`,
+      username: `${userDetails.username}`
+    }));
+  };
+}
+
 // Main function to initialize the chat
 async function initChat() {
   try {
@@ -226,4 +344,4 @@ async function initChat() {
 
 // Start the chat interface
 initChat();
-
+startWatchParty();

@@ -104,14 +104,16 @@ const wss = new WebSocket.Server({ server }); // Use the same server for WebSock
 const clients = {};
 
 // Broadcast to all clients in a watch party room
-const broadcast = (roomId, data) => {
-    const roomClients = clients[roomId] || [];
-    roomClients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
-        }
-    });
-};
+// Broadcast function to send messages to all clients in a room
+function broadcast(roomId, message, sender) {
+    if (clients[roomId]) {
+        clients[roomId].forEach(client => {
+            if (client !== sender && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify(message));
+            }
+        });
+    }
+}
 
 // Set up the WebSocket server to handle new connections
 wss.on('connection', (ws, req) => {
@@ -130,12 +132,19 @@ wss.on('connection', (ws, req) => {
     }
     clients[roomId].push(ws);
 
-    // Handle messages from clients (playback controls)
+    // Handle incoming messages from clients
     ws.on('message', (message) => {
         const data = JSON.parse(message);
+
+        // Playback control logic (existing functionality)
         if (data.type === 'playback') {
-            // Broadcast playback control messages to all other clients
-            broadcast(roomId, data);
+            broadcast(roomId, data, ws);
+        }
+
+        // WebRTC signaling logic for audio (new functionality)
+        if (data.type === 'webrtc-offer' || data.type === 'webrtc-answer' || data.type === 'webrtc-ice-candidate') {
+            // Broadcast WebRTC signaling data to all other clients in the room
+            broadcast(roomId, data, ws);
         }
     });
 
