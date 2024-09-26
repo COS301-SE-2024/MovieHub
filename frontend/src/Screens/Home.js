@@ -147,32 +147,9 @@ const Home = ({ route }) => {
     const [isAutoScrolling, setIsAutoScrolling] = useState(true);
     const [watchlists, setWatchlists] = useState([]);
 
+
+    
     useEffect(() => {
-        const fetchMoviesByGenres = async () => {
-           try {
-              const genreMoviesPromises = Object.entries(genres).map(([genreName, genreId]) =>
-                 getNewMovies(genreId)
-              );
-      
-              const fetchedMovies = await Promise.all(genreMoviesPromises);
-      
-              const moviesByGenreData = Object.keys(genres).reduce((acc, genreName, index) => {
-                 acc[genreName] = fetchedMovies[index];
-                 return acc;
-              }, {});
-      
-              setMoviesByGenre(moviesByGenreData);
-           } catch (error) {
-              console.error('Error fetching movies by genres:', error);
-           }
-        };
-      
-        fetchMoviesByGenres(); 
-     }, []);
-
-
-
-     useEffect(() => {
         const fetchOTHERMovies = async () => {
           try {
             // Create an array of promises for parallel fetching
@@ -200,6 +177,47 @@ const Home = ({ route }) => {
         fetchOTHERMovies();
       }, []);
 
+      useEffect(() => {
+        const fetchUserWatchlists = async () => {
+            try {
+                const userId = userInfo.userId;
+                let userWatchlists = await getFollowedUsersWatchlists(userId);
+    
+        
+                setWatchlists(userWatchlists);
+            } catch (error) {
+                console.error('Error fetching user watchlists:', error);
+                setWatchlists([]);
+            }
+        };
+
+        fetchUserWatchlists();
+    }, []);
+
+    useEffect(() => {
+        const fetchMoviesByGenres = async () => {
+           try {
+              const genreMoviesPromises = Object.entries(genres).map(([genreName, genreId]) =>
+                 getNewMovies(genreId)
+              );
+      
+              const fetchedMovies = await Promise.all(genreMoviesPromises);
+      
+              const moviesByGenreData = Object.keys(genres).reduce((acc, genreName, index) => {
+                 acc[genreName] = fetchedMovies[index];
+                 return acc;
+              }, {});
+      
+              setMoviesByGenre(moviesByGenreData);
+           } catch (error) {
+              console.error('Error fetching movies by genres:', error);
+           }
+        };
+      
+        fetchMoviesByGenres(); 
+     }, []);
+
+
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -212,27 +230,6 @@ const Home = ({ route }) => {
         };
         
         fetchMovies();
-    }, []);
-
-    useEffect(() => {
-        const fetchUserWatchlists = async () => {
-            try {
-                const userId = userInfo.userId;
-                let userWatchlists = await getFollowedUsersWatchlists(userId);
-        
-                // Remove duplicates based on watchlist IDs
-                userWatchlists = userWatchlists.filter((watchlist, index, self) => 
-                    index === self.findIndex((w) => w.id === watchlist.id)
-                );
-        
-                setWatchlists(userWatchlists);
-            } catch (error) {
-                console.error('Error fetching user watchlists:', error);
-                setWatchlists([]);
-            }
-        };
-
-        fetchUserWatchlists();
     }, []);
 
 
@@ -475,7 +472,9 @@ const Home = ({ route }) => {
                 paddingTop: 10,
                 paddingBottom: 10,
                 textAlign: "center",
-            }}>{watchlist.name}</Text>
+            }} numberOfLines={1} // Limits the text to 1 line
+            ellipsizeMode="tail" 
+            >{watchlist.name}</Text>
                         </View>
                        
                     </TouchableOpacity>

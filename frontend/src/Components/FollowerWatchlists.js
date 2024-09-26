@@ -154,7 +154,7 @@ const WatchlistTab = ({ userInfo }) => {
             <ScrollView>
                 {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
                             <Text style={styles.watchlistPrivacy}>
