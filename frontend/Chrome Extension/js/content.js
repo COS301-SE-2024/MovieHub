@@ -3,6 +3,8 @@ const chatBox = document.createElement('div');
 chatBox.id = 'watchPartyChat';
 document.body.appendChild(chatBox);
 
+console.log("In content.js")
+
 // Function to render a new chat message in the chatbox
 function addChatMessage(username, text) {
   const chatMessage = document.createElement('p');

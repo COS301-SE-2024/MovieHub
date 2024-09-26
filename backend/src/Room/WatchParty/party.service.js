@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 const WebSocket = require('ws');
 const axios = require('axios');
-const { getDatabase, ref, push, set } = require('firebase/database');
+const { getDatabase, ref, push, set, onChildAdded } = require('firebase/database');
 const { sendNotification } = require('../../Notifications/notification.service'); // Assuming you have this for notifications
 const db = getDatabase();
 const driver = neo4j.driver(
@@ -121,7 +121,7 @@ exports.startWatchParty = async (username, partyCode, roomShortCode) => {
             partyCode,
             createdAt: timestamp
         });
-
+        console.log("Return start party->service");
         return { success: true, partyCode, roomId };
     } catch (error) {
         console.error('Error starting watch party:', error);
@@ -160,6 +160,7 @@ exports.joinWatchParty = async ( username, partyCode) => {
                 createdAt: Date.now()
             });
 
+            console.log("Return join party->service");
             return {
                 success: true,
                 roomId,
@@ -246,12 +247,59 @@ exports.getWatchPartyMessages = async (roomId) => {
             messages.push(messageData);
         });
 
+        // Check if there are no messages
+        if (messages.length === 0) {
+            console.log("No messages found in the chat room.");
+            return { success: true, messages: [], message: "No messages available in the chat room." };
+        }
+
+        console.log("Get messages: ", messages);
         return { success: true, messages };
     } catch (error) {
         console.error('Error fetching watch party messages:', error);
         return { success: false, error: 'Failed to retrieve messages' };
     }
 };
+
+
+exports.getWatchPartyByCode = async (partyCode) => {
+    const session = driver.session();
+    try {
+        const query = `
+                MATCH (p:WatchParty {partyCode: $partyCode})
+                RETURN p
+            `;
+        const result = await session.run(query, { partyCode });
+
+        // Log the entire result for debugging purposes
+        console.log("Watch party result:", result);
+
+        // Check if any records were returned
+        if (result.records.length > 0) {
+            const partyRecord = result.records[0];
+            console.log("Watch party record:", partyRecord);
+
+            // Extract the properties from the 'p' node (WatchParty)
+            const partyNode = partyRecord.get('p');
+            if (partyNode && partyNode.properties) {
+                console.log("Watch party properties:", partyNode.properties);
+                return {
+                    roomId: partyNode.properties.roomId,
+                };
+            } else {
+                throw new Error('Watch party properties are missing.');
+            }
+        } else {
+            throw new Error('Watch party not found.');
+        }
+    } catch (error) {
+        console.error('Error fetching watch party by code:', error);
+        throw new Error('Unable to retrieve watch party information.');
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Function to send a new chat message
 exports.sendWatchPartyChatMessage = async (roomId, username, text) => {

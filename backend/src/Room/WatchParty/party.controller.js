@@ -2,6 +2,7 @@ const partyService = require('./party.service');
 
 // Controller for starting a watch party
 exports.startWatchParty = async (req, res) => {
+    console.log('Starting watch party -> controller');
     const { username,roomShortCode, partyCode } = req.body;
 
     if (!partyCode || !roomShortCode || !username) {
@@ -10,6 +11,7 @@ exports.startWatchParty = async (req, res) => {
 
     try {
         const result = await partyService.startWatchParty(username, partyCode, roomShortCode);
+        console.log("Result => ", result);
         if (result.success) {
             return res.status(200).json({ success: true, partyCode: result.partyCode });
         } else {
@@ -48,11 +50,12 @@ exports.joinWatchParty = async (req, res) => {
 
 // Fetch chat messages for a watch party
 exports.getWatchPartyChatMessages = async (req, res) => {
+    console.log('Get Watch Party-controller');
     const { partyCode } = req.params;
-
+    console.log("Controller party Code-> ", partyCode);
     try {
         const { roomId } = await partyService.getWatchPartyByCode(partyCode); // Ensure this function exists in the service
-        const messages = await partyService.getWatchPartyChatMessages(roomId);
+        const messages = await partyService.getWatchPartyMessages(roomId);
         res.status(200).json(messages);
     } catch (error) {
         console.error('Error fetching chat messages:', error);
