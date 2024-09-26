@@ -43,7 +43,7 @@ exports.searchMoviesFuzzy = async (query) => {
               'tagline',
               'keywords^1.5',
               'overview',
-              'credits'
+              'credits^2.1'
             ],
             fuzziness: 'AUTO',
           }
