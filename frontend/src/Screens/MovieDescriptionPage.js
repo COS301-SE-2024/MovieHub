@@ -16,7 +16,7 @@ export default function MovieDescriptionPage({route}) {
    // const route = useRoute();
   // console.log("MovieDes route ", route.params.userInfo)
     const { userInfo } = route.params;
-    console.log("Look ", userInfo)
+    console.log("Looook ", userInfo)
     const {movieId, imageUrl, title, rating, overview, date } = route.params;
 //    console.log("Look ", title)
     const [colors, setColors] = useState([
