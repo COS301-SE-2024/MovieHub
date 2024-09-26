@@ -639,12 +639,14 @@ const styles = StyleSheet.create({
         textAlign: "center",
         paddingTop: 10,
 
+
     }, line: {
         borderBottomColor: 'transparent',
         borderBottomWidth: 1,
         marginVertical: 10,
         paddingTop: 10,
     }, watchlistImage: {
+
         width: 182,
         height: 180,
         borderRadius: 8,

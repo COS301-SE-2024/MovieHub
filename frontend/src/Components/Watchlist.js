@@ -71,6 +71,7 @@ const WatchlistTab = ({ userInfo }) => {
             flex: 1,
             padding: 12,
             backgroundColor: theme.useBackgroundColor,
+            paddingHorizontal: 4
         },
         createButton: {
             flexDirection: "row",
@@ -190,7 +191,7 @@ const WatchlistTab = ({ userInfo }) => {
                             <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>
                         <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
-                            <MaterialIcons name="more-vert" size={24} color="black" />
+                            <MaterialIcons name="more-vert" size={24} color={theme.iconColor} />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 ))}
@@ -208,7 +209,7 @@ const WatchlistTab = ({ userInfo }) => {
                             style={styles.modalOption}
                             onPress={() => {handleEditWatchlist()}}
                         >
-                            <MaterialIcons name="edit" size={24} color="black" />
+                            <MaterialIcons name="edit" size={24} color={theme.iconColor} />
                             <Text style={styles.modalOptionText}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -216,7 +217,7 @@ const WatchlistTab = ({ userInfo }) => {
                             onPress={() => {
                                 handleDeleteWatchlist();
                             }}>
-                            <MaterialIcons name="delete" size={24} color="black" />
+                            <MaterialIcons name="delete" size={24} color={theme.iconColor} />
                             <Text style={styles.modalOptionText}>Delete</Text>
                         </TouchableOpacity>
                     </View>

@@ -148,7 +148,9 @@ export default function ProfilePage({ route }) {
             shadowOpacity: 0,
             marginTop: 20,
             borderBottomWidth: 1,
+
             borderBottomColor: 'transparent',
+
         },
         tabItem: {
             paddingVertical: 10,
