@@ -165,7 +165,9 @@ export default function EditProfile({ route }) {
             return;
         }
 
-        const pickerResult = await ImagePicker.launchImageLibraryAsync();
+        const pickerResult = await ImagePicker.launchImageLibraryAsync(
+            
+        );
         if (pickerResult.canceled === true) {
             return;
         }
