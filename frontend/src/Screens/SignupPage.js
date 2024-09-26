@@ -34,7 +34,7 @@ const SignupPage = () => {
 
     useEffect(() => {
         getRandomName();
-    })
+    }, [])
 
     // get username from random name generator api
 
