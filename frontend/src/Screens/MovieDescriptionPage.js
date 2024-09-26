@@ -4,11 +4,14 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { getMovieCredits, getMovieRuntime } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { Ionicons, Octicons, FontAwesome6, FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
 import { getLocalIP } from "../Services/getLocalIP";
 import { getRecommendedMovies } from "../Services/RecApiService"; // Importing the recommendation service
 import { getUserWatchlists } from "../Services/UsersApiService";
+import { getReviewsOfMovie } from "../Services/PostsApiServices";
 import Cast from "../Components/Cast";
+import moment from "moment";
 import axios from "axios";
 
 export default function MovieDescriptionPage({ route }) {
@@ -34,6 +37,7 @@ export default function MovieDescriptionPage({ route }) {
     const [watchlistModalVisible, setWatchlistModalVisible] = useState(false);
     const [recommendedMovies, setRecommendedMovies] = useState([]); // State for recommended movies
     const [watchlists, setWatchlists] = useState([]);
+    const [movieReviews, setMovieReviews] = useState([]);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -150,6 +154,44 @@ export default function MovieDescriptionPage({ route }) {
         };
         fetchRecommendedMovies();
     }, [movieId]);
+
+    useEffect(() => {
+        const fetchMovieReviews = async () => {
+            try {
+                const reviews = await getReviewsOfMovie(movieId);
+                setMovieReviews(reviews.data);
+                console.log("reviews",reviews);
+            } catch (error) {
+                console.error("Error fetching movie reviews:", error);
+            }
+        }
+        fetchMovieReviews();
+    }, [])
+
+    const renderReview = (review, index) => {
+        // convert date to mmm//yyyy using moment
+        const date = moment(review.createdAt).format("LL");
+        console.log(date)
+
+        return (
+            <View key={index} style={styles.reviewContainer}>
+                <View style={{ flexDirection: "row", alignItems: "center",  }}>
+                    <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
+                    <View style={{ flexDirection: "column"}}>
+                        <View style={{ flexDirection: "row", justifyContent: "space-between"}}>
+                            <Text style={styles.reviewTitle}>{review.reviewTitle}</Text>
+                            <View style={{ flexDirection: "row", alignItems: "center",}}>
+                                <Icon name="star" size={22} color={"gold"} />
+                                <Text style={{color: "white"}}>{review.rating}</Text>
+                            </View>
+                        </View>
+                        <Text style={styles.reviewUsername}>By <Text style={{ fontWeight: "bold" }}>{review.username}</Text> on {date}</Text>
+                    </View>
+                </View>
+                <Text style={styles.reviewText}>{review.text}</Text>
+            </View>
+        )
+    }
 
     const director = credits.crew.find((person) => person.job === "Director");
     const cast = credits.cast
@@ -343,6 +385,38 @@ export default function MovieDescriptionPage({ route }) {
             fontSize: 12,
             color: "lightgray",
         },
+        reviewsTitle: {
+            fontSize: 24,
+            fontWeight: "bold",
+            color: "white",
+            paddingLeft: 15,
+            paddingTop: 20,
+            paddingBottom: 10
+        },
+        reviewContainer: {
+            paddingHorizontal: 15,
+            paddingVertical: 5
+        }, 
+        reviewAvatar: {
+            width: 40,
+            height: 40,
+            borderRadius: 50,
+        },
+        reviewUsername: {
+            color: "white",
+            paddingLeft: 8
+        }, 
+        reviewText: {
+            color: "white",
+            paddingLeft: 48,
+            marginTop: 5
+        },
+        reviewTitle: {
+            fontSize: 18,
+            fontWeight: "bold",
+            color: "white",
+            paddingLeft: 8
+        }
     });
 
     if (loading) {
@@ -436,6 +510,15 @@ export default function MovieDescriptionPage({ route }) {
                                 </View>
                             ))}
                         </ScrollView>
+
+                        <View>
+                            <Text style={styles.reviewsTitle}>Reviews</Text>
+                            {
+                                movieReviews.length > 0 && movieReviews.map((review, index) => (
+                                    renderReview(review, index)
+                                ))
+                            }
+                        </View>
                     </View>
                 </ScrollView>
             </LinearGradient>
