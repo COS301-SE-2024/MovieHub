@@ -128,6 +128,7 @@ export default function ExplorePage({ route }) {
             );
 
             setSortedContent(enrichedContent);
+            console.log("explore sorted content",sortedContent)
         } catch (error) {
             console.error("Failed to fetch friends content:", error);
         }

@@ -24,7 +24,7 @@ const FollowersPage = ({ route }) => {
                     isFollowing,    // Add the isFollowing property
                 };
             }));
-            
+            console.log("followers", followersWithStatus)
             setFollowers(followersWithStatus); // Set the updated followers list
         } catch (error) {
             console.error("Error fetching followers:", error);

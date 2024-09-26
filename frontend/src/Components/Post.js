@@ -20,6 +20,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const { userInfo, setUserInfo } = useUser();
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // console.log("yoh", otherUserInfo)
+    // console.log("yoh", otherUserInfo)
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };

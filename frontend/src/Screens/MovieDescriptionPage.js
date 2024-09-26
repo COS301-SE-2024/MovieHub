@@ -155,6 +155,10 @@ export default function MovieDescriptionPage({ route }) {
         fetchRecommendedMovies();
     }, [movieId]);
 
+    const handleRecommendationPress = (movie) => {
+        console.log("Movie pressed:", movie);
+    }
+
     useEffect(() => {
         const fetchMovieReviews = async () => {
             try {
@@ -532,11 +536,11 @@ export default function MovieDescriptionPage({ route }) {
                         <Text style={styles.recommendedTitle}>Recommended Movies</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendationContainer}>
                             {recommendedMovies.map((movie, index) => (
-                                <View key={index} style={styles.recommendationCard}>
+                                <TouchableOpacity key={index} style={styles.recommendationCard} onPress={() => handleRecommendationPress(movie)}>
                                     <Image source={{ uri: movie.posterUrl }} style={styles.recommendationImage} />
                                     <Text style={styles.recommendationTitle}>{movie.title}</Text>
                                     <Text style={styles.recommendationScore}>Similarity: {movie.similarity}%</Text>
-                                </View>
+                                </TouchableOpacity>
                             ))}
                         </ScrollView>
 
