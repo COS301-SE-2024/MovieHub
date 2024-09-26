@@ -1,11 +1,13 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "../styles/ThemeContext";
+import { colors, themeStyles } from "../styles/theme";
 
 export default function MovieCard({movieId,imageUrl,title, rating, overview, date}) {
 
     const navigation = useNavigation();
-
+    const [loading, setLoading] = useState(true);
     const handleNewUser = () => {
         navigation.navigate("MovieDescriptionPage", {movieId,imageUrl,title, rating, overview, date});
     };
@@ -13,7 +15,14 @@ export default function MovieCard({movieId,imageUrl,title, rating, overview, dat
     return (
         <TouchableWithoutFeedback onPress={handleNewUser}>
             <View style={styles.container}>
-                <Image source={{ uri: imageUrl }} style={styles.image} />
+            {loading && (
+                <ActivityIndicator
+                    size="small"
+                    color={colors.primary}
+                    style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }} // Adjust position if necessary
+                />
+            )}
+                <Image source={{ uri: imageUrl }} style={styles.image} onLoadEnd={() => setLoading(false)} />
             </View>
         </TouchableWithoutFeedback>
     );
