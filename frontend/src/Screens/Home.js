@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimension
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
-
+import FastImage from 'react-native-fast-image';
 import Svg from "react-native-svg";
 import MovieCard from "../Components/MovieCard"
 import TrendingMovie from "../Components/TrendingMovies"
@@ -22,7 +22,7 @@ import HomeHeader from "../Components/HomeHeader";
 import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
 import NonFollowerPost from "../Components/NonFollowerPost";
-import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
+import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies, fetchCurrentlyPlayingMovies } from '../Services/TMDBApiService';
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 import { getUserWatchlists } from "../Services/UsersApiService";
 
@@ -133,6 +133,7 @@ const Home = ({ route }) => {
     const [isPost, setIsPost] = useState(false);
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     // const [friendsContent, setFriendsContent] = useState([]);
     const [sortedContent, setSortedContent] = useState([]);
@@ -146,54 +147,57 @@ const Home = ({ route }) => {
     const [isAutoScrolling, setIsAutoScrolling] = useState(true);
     const [watchlists, setWatchlists] = useState([]);
 
-
     useEffect(() => {
         const fetchMoviesByGenres = async () => {
-          try {
-            const genreMoviesPromises = Object.entries(genres).map(async ([genreName, genreId]) => {
-              const movies = await getNewMovies(genreId); // Using the imported function here
-              return { genre: genreName, movies };
-            });
-    
-            const fetchedMovies = await Promise.all(genreMoviesPromises);
-    
-            const moviesByGenreData = fetchedMovies.reduce((acc, curr) => {
-              acc[curr.genre] = curr.movies;
-              return acc;
-            }, {});
-    
-            setMoviesByGenre(moviesByGenreData);
-          } catch (error) {
-            console.error('Error fetching movies by genres:', error);
-          }
+           try {
+              const genreMoviesPromises = Object.entries(genres).map(([genreName, genreId]) =>
+                 getNewMovies(genreId)
+              );
+      
+              const fetchedMovies = await Promise.all(genreMoviesPromises);
+      
+              const moviesByGenreData = Object.keys(genres).reduce((acc, genreName, index) => {
+                 acc[genreName] = fetchedMovies[index];
+                 return acc;
+              }, {});
+      
+              setMoviesByGenre(moviesByGenreData);
+           } catch (error) {
+              console.error('Error fetching movies by genres:', error);
+           }
         };
-    
+      
         fetchMoviesByGenres(); 
-      }, []);
+     }, []);
 
-      useEffect(() => {
+
+
+     useEffect(() => {
         const fetchOTHERMovies = async () => {
           try {
-            const fetchedMovies = await getPopularMovies();
+            // Create an array of promises for parallel fetching
+            const moviePromises = [
+              getPopularMovies(),
+              getMoviesByGenre(53), // Thriller
+              getMoviesByGenre(35), // Comedy
+              getMoviesByGenre(28), // Romance
+            ];
+      
+            // Await all promises to resolve in parallel
+            const [fetchedMovies, fetchedThrillerMovies, fetchedComedyMovies, fetchedRomanceMovies] = await Promise.all(moviePromises);
+      
+            // Update the respective states after fetching
             setMovies1(fetchedMovies);
-    
-            const fetchedThrillerMovies = await getMoviesByGenre(53);
             setThrillerMovies(fetchedThrillerMovies);
-    
-            const fetchedComedyMovies = await getMoviesByGenre(35); 
             setComedyMovies(fetchedComedyMovies);
-    
-            const fetchedRomanceMovies = await getMoviesByGenre(28); 
             setRomanceMovies(fetchedRomanceMovies);
-    
+            
           } catch (error) {
             console.error('Error fetching movies:', error);
-          } finally {
-            
           }
         };
-    
-        fetchOTHERMovies(); 
+      
+        fetchOTHERMovies();
       }, []);
 
 
@@ -327,6 +331,13 @@ const Home = ({ route }) => {
             overview={item.overview}
             rating={item.vote_average.toFixed(1)}
             date={new Date(item.release_date).getFullYear()}
+            imageComponent={
+                <FastImage
+                    style={{ width: 100, height: 150 }}
+                    source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+                    resizeMode={FastImage.resizeMode.cover}
+                />
+            }
         />
     );
 
@@ -422,7 +433,7 @@ const Home = ({ route }) => {
 
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {comedyMovies.slice(5, 24).map((movie, index) => (
+            {comedyMovies.slice(5, 16).map((movie, index) => (
 
                             <TrendingMovie
                                 key={index}
@@ -485,7 +496,7 @@ const Home = ({ route }) => {
 
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {romanceMovies.slice(0, 20).map((movie, index) => (
+            {romanceMovies.slice(0, 10).map((movie, index) => (
 
                             <TrendingMovie
                                 key={index}
@@ -542,7 +553,7 @@ const Home = ({ route }) => {
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {moviesByGenre[genreName]?.slice(0, 20).map((movie, index) => (
+            {moviesByGenre[genreName]?.slice(0, 10).map((movie, index) => (
               <TrendingMovie
                 key={index}
                 movieId={movie.id}
