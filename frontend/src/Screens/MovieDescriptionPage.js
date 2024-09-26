@@ -16,8 +16,9 @@ export default function MovieDescriptionPage({route}) {
    // const route = useRoute();
   // console.log("MovieDes route ", route.params.userInfo)
     const { userInfo } = route.params;
+    console.log("Look ", userInfo)
     const {movieId, imageUrl, title, rating, overview, date } = route.params;
-   //console.log("Look ", userInfo)
+//    console.log("Look ", title)
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",

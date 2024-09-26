@@ -434,7 +434,6 @@ export default function CreatePost({ route }) {
             backgroundColor: "#f9c74f",
             padding: 10,
             borderRadius: 5,
-            marginVerticalBottom: 5,
             marginBottom: 15,
         },
         tooltipText: {
@@ -514,8 +513,12 @@ export default function CreatePost({ route }) {
                             <CommIcon style={styles.icon} name="emoticon-happy-outline" color={theme.textColor} size={23} />
                         </TouchableOpacity>
                     </View>
+                    {/* <View style={styles.allowCommentsContainer}>
+                        <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
+                        <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
+                    </View> */}
+
                 </View>
-               
 
             <View style={styles.footer}>
                 <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={isMovieReview ? handleAddReview : handleAddPost}>

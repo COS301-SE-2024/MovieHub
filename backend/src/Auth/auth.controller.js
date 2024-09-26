@@ -61,52 +61,6 @@ exports.logout = async (req, res) => {
     }
 };
 
-exports.googleSignIn = async (req, res) => {
-    try {
-        const result = await authService.signInWithGoogle();
-
-        const { user, customToken, token } = result;
-        res.status(200).json({
-            message: 'Google Sign-In successful',
-            data: { uid: user.uid, username: user.displayName, token, customToken }
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
-
-exports.facebookSignIn = async (req, res) => {
-    try {
-        const result = await authService.signInWithFacebook();
-
-        const { user, customToken, accessToken } = result;
-        res.status(200).json({
-            message: 'Facebook Sign-In successful',
-            data: { uid: user.uid, username: user.displayName, accessToken, customToken }
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
-
-exports.appleSignIn = async (req, res) => {
-    try {
-        const result = await authService.signInWithApple();
-
-        const { user, customToken, token } = result;
-        res.status(200).json({
-            message: 'Apple Sign-In successful',
-            data: { uid: user.uid, username: user.displayName, token, customToken }
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-};
-
-
 exports.verifyEmail = async (req, res) => {
     try {
         const isVerified = await authService.checkEmailVerification();

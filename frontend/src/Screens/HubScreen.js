@@ -116,9 +116,10 @@ const HubScreen = ({ route }) => {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 20,
-            // paddingRight: 50 ,
-            height: 30,
+            paddingVertical: 10 ,
+            // height: 30,
             paddingLeft: 10,
+            backgroundColor: theme.inputBackground,
         },
         headerLeft: {
             flexDirection: "row",
@@ -168,7 +169,7 @@ const HubScreen = ({ route }) => {
         },
         createButton: {
             flexDirection: "row",
-            marginBottom: 10,
+            // marginBottom: 10,
             paddingHorizontal: 10,
             alignItems: "center",
             color: theme.textColor,
@@ -219,6 +220,7 @@ const HubScreen = ({ route }) => {
         emptyText: {
             fontSize: 16,
             color: theme.textColor,
+            textAlign: "center",
         },
     });
 
@@ -241,7 +243,7 @@ const HubScreen = ({ route }) => {
                     {createdRooms.length === 0 && (
                         <View style={styles.emptyContainer}>
                             <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
-                            <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                            <Text style={styles.emptyText}>Why not start the fun by creating a room?</Text>
                         </View>
                     )}
                     {createdRooms.length > 0 && (

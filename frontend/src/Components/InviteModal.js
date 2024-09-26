@@ -94,9 +94,6 @@ const InviteModal = forwardRef((props, ref) => {
 
     const handleInvite = async (item) => {
         try {
-            console.log("AdminId", props.userInfo.userId);
-            console.log("Uid", item.uid);
-            console.log("RoomId", roomId);
             const response = await inviteUserToRoom(props.userInfo.userId, item.uid, roomId);
             Alert.alert("Success", "User invited successfully.");
         } catch (error) {
