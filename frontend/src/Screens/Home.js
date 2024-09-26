@@ -385,7 +385,7 @@ const Home = ({ route }) => {
 
                             return (
                                 <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
-                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails, userInfo })}>
                                         <Animated.View
                                             style={{
                                                 marginHorizontal: SPACING,
