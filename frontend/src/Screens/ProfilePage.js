@@ -152,7 +152,7 @@ export default function ProfilePage({ route }) {
         },
         tabItem: {
             paddingVertical: 10,
-            paddingHorizontal: 20,
+            paddingHorizontal: 35,
         },
         tabText: {
             fontSize: 16,
