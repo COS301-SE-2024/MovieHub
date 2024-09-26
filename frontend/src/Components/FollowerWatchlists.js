@@ -13,8 +13,8 @@ const WatchlistTab = ({ userInfo }) => {
     const [watchlists, setWatchlists] = useState([]);
     const navigation = useNavigation();
 
-    console.log("followers watchlist",userInfo);
-        // Fetch user watchlists
+    console.log("followers watchlist", userInfo);
+    // Fetch user watchlists
     useEffect(() => {
         const fetchUserWatchlists = async () => {
             try {
@@ -154,11 +154,11 @@ const WatchlistTab = ({ userInfo }) => {
             <ScrollView>
                 {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
                             <Text style={styles.watchlistPrivacy}>
-                                        {watchlist.visibility ? 'Private' : 'Public'}
+                                {watchlist.visibility ? 'Private' : 'Public'}
                             </Text>
                             <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>
@@ -176,7 +176,7 @@ const WatchlistTab = ({ userInfo }) => {
                         <TouchableOpacity
                             style={styles.modalOption}
                             onPress={() => {
-                                navigation.navigate('EditWatchlist', {userInfo});
+                                navigation.navigate('EditWatchlist', { userInfo });
                                 closeModal();
                                 console.log(`Edit ${selectedWatchlist.name}`);
                             }}>
