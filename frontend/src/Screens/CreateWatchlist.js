@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
+import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch, FlatList } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "../styles/theme";
 import { useTheme } from "../styles/ThemeContext";
@@ -18,7 +18,16 @@ export default function CreateWatchlist({ route, navigation }) {
     const [visibility, setVisibility] = useState(true);
     const [collaborative, setCollaborative] = useState(false);
     const [ranked, setRanked] = useState(false);
-
+    const [searchQuery, setSearchQuery] = useState("");
+    const [invitedUsers, setInvitedUsers] = useState([]);
+    const [showUserSearch, setShowUserSearch] = useState(false);
+    const allUsers = [
+        { id: 1, name: "John Doe" },
+        { id: 2, name: "Jane Smith" },
+        { id: 3, name: "Alice Johnson" },
+        { id: 4, name: "Bob Williams" },
+        { id: 5, name: "Charlie Brown" },
+    ];
     const chooseCover = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (permissionResult.granted === false) {
@@ -70,11 +79,40 @@ export default function CreateWatchlist({ route, navigation }) {
             visibility,
             collaborative,
             ranked,
+            // invitedUsers: collaborative ? invitedUsers : [],
             // cover,
         };
 
         navigation.navigate("AddMovies", { watchlistData, userInfo });
     };
+
+    const handleCollaborativeToggle = (value) => {
+        setCollaborative(value);
+        if (value) {
+            setShowUserSearch(true);
+        } else {
+            setShowUserSearch(false);
+            setInvitedUsers([]);
+        }
+    };
+
+    const handleUserSearch = (text) => {
+        setSearchQuery(text);
+    };
+
+    const inviteUser = (user) => {
+        if (!invitedUsers.some((invited) => invited.id === user.id)) {
+            setInvitedUsers([...invitedUsers, user]);
+        }
+    };
+
+    const removeInvitedUser = (userId) => {
+        setInvitedUsers(invitedUsers.filter((user) => user.id !== userId));
+    };
+
+    const filteredUsers = allUsers.filter((user) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const styles = StyleSheet.create({
         container: {
@@ -109,7 +147,7 @@ export default function CreateWatchlist({ route, navigation }) {
         sectionValue: {
             fontSize: 16,
             marginTop: 5,
-            color: theme.gray,
+            color: theme.secondaryTextColor,
         },
         line: {
             height: 1,
@@ -147,7 +185,7 @@ export default function CreateWatchlist({ route, navigation }) {
             paddingTop: 10,
         },
         buttonText: {
-            color: "#0f5bd1",
+            color: theme.primaryColor,
             textAlign: "center",
         },
         switchContainer: {
@@ -165,6 +203,30 @@ export default function CreateWatchlist({ route, navigation }) {
             color: "#fff",
             fontSize: 16,
             fontWeight: "bold",
+        },
+        searchBar: {
+            backgroundColor: theme.inputBackground,
+            padding: 10,
+            borderRadius: 5,
+            marginBottom: 10,
+            color: theme.textColor,
+        },
+        userItem: {
+            padding: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+        },
+        invitedUserItem: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 10,
+            backgroundColor: theme.secondaryBackground,
+            borderRadius: 5,
+            marginBottom: 5,
+        },
+        removeButton: {
+            color: theme.dangerColor,
         },
     });
 
@@ -198,11 +260,47 @@ export default function CreateWatchlist({ route, navigation }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Collaborative</Text>
                 <View style={styles.switchContainer}>
-                    <Text style={styles.sectionValue}>{collaborative ? "Yes" : "No"}</Text>
-                    <Switch value={collaborative} onValueChange={setCollaborative} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={collaborative ? "#4A42C0" : "#fff"} />
+                    <Text style={styles.sectionValue}> {collaborative ? "Yes" : "No"} </Text>
+                    <Switch value={collaborative} onValueChange={handleCollaborativeToggle} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={collaborative ? "#4A42C0" : "#fff"} />
                 </View>
             </View>
             <View style={styles.line} />
+
+            {showUserSearch && (
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Invite Users</Text>
+                    <TextInput
+                        style={styles.searchBar}
+                        placeholder="Search users..."
+                        placeholderTextColor={theme.placeholderColor}
+                        value={searchQuery}
+                        onChangeText={handleUserSearch}
+                    />
+                    <FlatList
+                        data={filteredUsers}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={styles.userItem}
+                                onPress={() => inviteUser(item)}
+                            >
+                                <Text style={{ color: theme.textColor }}>{item.name}</Text>
+                            </TouchableOpacity>
+                        )}
+                    />
+                    <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
+                        Invited Users
+                    </Text>
+                    {invitedUsers.map((user) => (
+                        <View key={user.id} style={styles.invitedUserItem}>
+                            <Text style={{ color: theme.textColor }}>{user.name}</Text>
+                            <TouchableOpacity onPress={() => removeInvitedUser(user.id)}>
+                                <Text style={styles.removeButton}>Remove</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </View>
+            )}
 
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Ranked</Text>

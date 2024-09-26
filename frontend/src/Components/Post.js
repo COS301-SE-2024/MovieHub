@@ -162,7 +162,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             height: 400,
             marginTop: 10,
             borderRadius: 10,
-            objectFit: "cover",
+            objectFit: "contain",
         },
         postTitle: {
             fontWeight: "bold",

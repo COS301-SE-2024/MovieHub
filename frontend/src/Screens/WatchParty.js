@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList, KeyboardAvoidingView, Platform, Image, PanResponder } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList, KeyboardAvoidingView, Platform, Image, PanResponder, Keyboard } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -346,7 +346,7 @@ const WatchParty = ({ route }) => {
 
             <View style={styles.roomInfo}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{ color: theme.iconColor }}>Room: {roomName}</Text>
+                    <Text style={{ color: theme.iconColor }}> {roomName}</Text>
                     <View style={styles.roomDetails}>
                         <TouchableOpacity onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
                             <Ionicons name="people" size={16} color={theme.iconColor} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}/>

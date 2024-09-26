@@ -196,12 +196,20 @@ const Home = ({ route }) => {
         fetchOTHERMovies(); 
       }, []);
 
+      const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        }
+        return array;
+    }
 
     useEffect(() => {
         const fetchMovies = async () => {
             try {
-                const moviesData = await getMovies();
-                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
+                let moviesData = await getMovies();
+                moviesData = shuffleArray(moviesData); // Shuffle the movies array
+                setMovies([{ key: "empty-left" }, ...moviesData.slice(0, 9), { key: "empty-right" }]);
             } catch (error) {
                 console.error("Failed to fetch movies:", error);
             }
@@ -209,6 +217,8 @@ const Home = ({ route }) => {
         
         fetchMovies();
     }, []);
+
+
 
     useEffect(() => {
         const fetchUserWatchlists = async () => {
