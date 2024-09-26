@@ -9,6 +9,7 @@ const { width } = Dimensions.get("window");
 
 export default function HomeHeader({ userInfo }) {
     const [unreadNotifications, setUnreadNotifications] = useState([]);
+    const [avatar, setAvatar] = useState();
     const navigation = useNavigation();
     const route = useRoute();
 

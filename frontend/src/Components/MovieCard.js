@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Image, TouchableOpacity, Text } from "react-native";
+import { StyleSheet, View, Image, TouchableOpacity, Text, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import { Dimensions } from 'react-native';
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import { colors, themeStyles } from "../styles/theme";
 export default function MovieCard({ movieId, imageUrl, title, rating, overview, date }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const navigation = useNavigation();
-
+    const [loading, setLoading] = useState(true);
     const handleNewUser = () => {
         navigation.navigate("MovieDescriptionPage", { movieId: movieId, imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date });
     };
@@ -23,7 +24,14 @@ export default function MovieCard({ movieId, imageUrl, title, rating, overview, 
         <View style={styles.container}>
             
         <TouchableOpacity onPress={handleNewUser} activeOpacity={1} style={styles.card}>
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+        {loading && (
+                <ActivityIndicator
+                    size="small"
+                    color={colors.primary}
+                    style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }} // Adjust position if necessary
+                />
+            )}
+            <Image source={{ uri: imageUrl }} style={styles.image} onLoadEnd={() => setLoading(false)} />
             
             {/* <Text style={styles.title}>{title}</Text> */}
                 
