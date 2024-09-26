@@ -12,6 +12,8 @@ router.post('/comment/comment', postController.addCommentToComment);
 router.put('/edit/post', postController.editPost);
 router.put('/edit/review', postController.editReview);
 router.put('/edit/comment', postController.editComment);
+router.put('/update/user-content', postController.updateUserContent);
+
 
 router.delete('/remove/post', postController.removePost);
 router.delete('/remove/review', postController.removeReview);

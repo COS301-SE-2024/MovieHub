@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get('/exist/:movieId', movieController.checkMovieExistence);
 router.post('/add', movieController.createMovie);
+router.get('/suggestions/:uid', movieController.fetchSuggestedMovies);
 router.get('/details/:movieId', movieController.fetchMovieDetails);
 router.get('/by-actor/:actorName', movieController.fetchMoviesByActor);
 router.get('/by-genre/:genre', movieController.fetchMoviesByGenre);

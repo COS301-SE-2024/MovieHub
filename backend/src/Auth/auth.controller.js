@@ -1,5 +1,6 @@
 import authService from './auth.services';
 import responseHandler from '../utils/responseHandler';
+import { error } from 'neo4j-driver';
 
 exports.register = async (req, res) => {
     console.log("In the auth Controller");
@@ -15,7 +16,7 @@ exports.register = async (req, res) => {
         console.log("Register User Result:", result);
 
         const { userRecord, customToken } = result;
-        console.log("User:", userRecord);
+        console.log("User:", userRecord.uid);
         console.log("Custom Token:", customToken);
 
         responseHandler(res, 201, 'User registered successfully', { uid: userRecord.uid, username, token: customToken });
@@ -59,3 +60,130 @@ exports.logout = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
+exports.googleSignIn = async (req, res) => {
+    try {
+        const result = await authService.signInWithGoogle();
+
+        const { user, customToken, token } = result;
+        res.status(200).json({
+            message: 'Google Sign-In successful',
+            data: { uid: user.uid, username: user.displayName, token, customToken }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+exports.facebookSignIn = async (req, res) => {
+    try {
+        const result = await authService.signInWithFacebook();
+
+        const { user, customToken, accessToken } = result;
+        res.status(200).json({
+            message: 'Facebook Sign-In successful',
+            data: { uid: user.uid, username: user.displayName, accessToken, customToken }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+exports.appleSignIn = async (req, res) => {
+    try {
+        const result = await authService.signInWithApple();
+
+        const { user, customToken, token } = result;
+        res.status(200).json({
+            message: 'Apple Sign-In successful',
+            data: { uid: user.uid, username: user.displayName, token, customToken }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+
+exports.verifyEmail = async (req, res) => {
+    try {
+        const isVerified = await authService.checkEmailVerification();
+        if (isVerified) {
+            res.status(200).json({ message: "Email verified" });
+        } else {
+            res.status(400).json({ message: "Email not verified" });
+        }
+    } catch (error) {
+        // console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.isVerified = async (req, res) => {
+    console.log("In the auth Controller");
+    try {
+        const isVerified = await authService.isUserVerified();
+        if (isVerified) {
+            res.status(200).json({ message: "Email verified", isVerified });
+        } else {
+            res.status(400).json({ message: "Email not verified", isVerified });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    const { email } = req.body;
+    console.log("In resetPassword controller", email);
+
+    if (!email) {
+        res.status(400).json({ message: "Missing required fields: email" });
+        return;
+    }
+
+    try {
+        const result = await authService.sendPasswordResetEmail(email);
+
+        if (result.success) {
+            res.status(200).json({ message: 'Password reset email sent successfully' });
+        } else {
+            res.status(400).json({ message: result.error || 'Failed to send password reset email' });
+        }
+    } catch (error) {
+        console.error("reset Password Error", error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+}
+
+exports.updatePassword = async (req, res) => {
+    const { currPassword, newPassword } = req.body;
+
+    if (!currPassword && !newPassword) {
+        return res.status(400).json({ message: "Missing required fields: currentPassword, newPassword", error: "missing-fields" });
+    }
+
+    if (!currPassword) {
+        return res.status(400).json({ message: "Missing required field: currentPassword", error: "missing-curr-password" });
+    }
+
+    if (!newPassword) {
+        return res.status(400).json({ message: "Missing required field: newPassword", error: "missing-new-password" });
+    }
+
+    try {
+        const result = await authService.updatePassword(currPassword, newPassword);
+        // console.log("Result update password!!:", result);
+        if (result.success) {
+            return res.status(200).json({ message: result.message });
+        } else {
+            return res.status(400).json({ message: result.error, error: result });
+        }
+    } catch (error) {
+        console.error("Update Password Error", error);
+        return res.status(500).json({ message: 'Internal server error', error: error.message, });
+    }
+}

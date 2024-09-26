@@ -1,123 +1,335 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
+import { followUser, getUserNotifications, unfollowUser } from "../Services/UsersApiService"; // Import from UsersApiService
+import { markNotificationAsRead, deleteNotification, clearNotifications } from "../Services/NotifyApiService"; // Import from NotifyApiService
+import { joinRoom, declineRoomInvite } from "../Services/RoomApiService"; // Import RoomApiService
 import BottomHeader from "../Components/BottomHeader";
-
-import { themeStyles } from "../styles/theme";
+import moment from "moment"; // Use moment.js for date formatting
 
 const Notifications = ({ route }) => {
+    const { theme } = useTheme();
     const { userInfo } = route.params;
+    const [notifications, setNotifications] = useState([]);
+    const [categorizedNotifications, setCategorizedNotifications] = useState({});
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, text: "New message from John", read: false },
-        { id: 2, text: "You have 3 new followers", read: true },
-        { id: 3, text: "Reminder: Complete your profile", read: false },
-        { id: 4, text: "Your post got 50 likes", read: true },
-        { id: 5, text: "Event reminder: Watch Party at 3!", read: false },
-        { id: 6, text: "New message from Kamo", read: true },
-        { id: 7, text: "New message from Lily", read: true },
-        { id: 8, text: "New message from John", read: true },
-        { id: 9, text: "New message from Barry", read: true },
-        { id: 10, text: "New message from John", read: true },
-    ]);
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const data = await getUserNotifications(userInfo.userId);
+                const flattenedNotifications = [];
+                if (data.success && data.notifications) {
+                    for (const category in data.notifications) {
+                        if (data.notifications.hasOwnProperty(category)) {
+                            const notificationsOfCategory = data.notifications[category];
+                            for (const id in notificationsOfCategory) {
+                                if (notificationsOfCategory.hasOwnProperty(id)) {
+                                    const notification = notificationsOfCategory[id];
+                                    flattenedNotifications.push({
+                                        id,
+                                        ...notification,
+                                        type: category,
+                                        timestamp: moment(notification.timestamp), // Ensure notification has a timestamp
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
+                setNotifications(flattenedNotifications);
+                setCategorizedNotifications(categorizeNotifications(flattenedNotifications));
+            } catch (error) {
+                console.error("Failed to fetch notifications:", error);
+            }
+        };
+    
+        fetchNotifications();
+    }, []);  // Removed notifications from the dependency array
+    
 
-    const markAsRead = (id) => {
-        const updatedNotifications = notifications.map((notification) =>
-            notification.id === id ? { ...notification, read: true } : notification
-        );
-        setNotifications(updatedNotifications);
+    const handleMarkAsRead = async (id, type) => {
+        try {
+            await markNotificationAsRead(userInfo.userId, type, id);
+            setNotifications(notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)));
+            console.log("Notification marked as read:", id, type);
+        } catch (error) {
+            console.error("Failed to mark notification as read:", error);
+        }
     };
 
-    const deleteNotification = (id) => {
-        const updatedNotifications = notifications.filter((notification) => notification.id !== id);
-        setNotifications(updatedNotifications);
+    const handleDeleteNotification = async (id, type) => {
+        try {
+            await deleteNotification(userInfo.userId, type, id);
+            setNotifications(notifications.filter((notification) => notification.id !== id));
+
+        } catch (error) {
+            console.error("Failed to delete notification:", error);
+        }
     };
 
-    const renderItem = ({ item }) => (
-        <View style={styles.notificationItem}>
-            <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]}>
-                {item.text}
-            </Text>
-            <View style={styles.buttonContainer}>
-                {!item.read && (
-                    <TouchableOpacity
-                        style={[styles.button, styles.readButton]}
-                        onPress={() => markAsRead(item.id)}
-                    >
-                        <Text style={styles.buttonText}>Mark as Read</Text>
-                    </TouchableOpacity>
+    const handleClearNotifications = async () => {
+        try {
+            await clearNotifications(userInfo.userId);
+            setNotifications([]);
+        } catch (error) {
+            console.error("Failed to clear notifications:", error);
+        }
+    };
+
+    const handleAcceptInvite = async (shortCode, roomId) => {
+        try {
+            const response = await joinRoom(shortCode, userInfo.userId);
+            if (response.roomId) {
+                handleDeleteNotification(roomId, "room_invitations");
+            } else {
+                console.error("Failed to join room:", response.message);
+            }
+        } catch (error) {
+            console.error("Error joining room:", error);
+        }
+    };
+
+    const handleDeclineInvite = async (roomId) => {
+        try {
+            await declineRoomInvite(userInfo.userId, roomId);
+            handleDeleteNotification(roomId, "room_invitations");
+        } catch (error) {
+            console.error("Error declining room invite:", error);
+        }
+    };
+
+    const handleFollow = async (isFollowing, followerId) => {
+        // TODO:Implement follow functionality here
+        try {
+            if (isFollowing) {
+                await unfollowUser(userInfo.userId, otherUserInfo.uid);
+            } else {
+                await followUser(userInfo.userId, otherUserInfo.uid);
+            }
+        } catch (error) {
+            console.error("Error toggling follow state:", error);
+        }
+    };
+
+    // Function to categorize notifications by date
+    const categorizeNotifications = (notifications) => {
+        const now = moment();
+        const categorized = {
+            today: [],
+            yesterday: [],
+            lastWeek: [],
+            older: [],
+        };
+
+        notifications.forEach((notification) => {
+            const notificationDate = moment(notification.timestamp);
+            if (notificationDate.isSame(now, "day")) {
+                categorized.today.push(notification);
+            } else if (notificationDate.isSame(now.clone().subtract(1, "day"), "day")) {
+                categorized.yesterday.push(notification);
+            } else if (notificationDate.isSameOrAfter(now.clone().subtract(7, "days"), "day")) {
+                categorized.lastWeek.push(notification);
+            } else {
+                categorized.older.push(notification);
+            }
+        });
+
+        return categorized;
+    };
+
+    const renderNotificationItem = ({ item }) => (
+        <View style={[styles.notificationItem, !item.read && styles.unreadBackground, !item.read && { borderLeftWidth: 5, borderLeftColor: "#4a42c0" }]}>
+            {item.avatar && <Image source={{ uri: item.avatar }} style={styles.avatar} />}
+            <View style={styles.notificationContent}>
+                {item.user && item.message.includes(item.user) ? (
+                    <Text style={styles.notificationText} numberOfLines={3}>
+                        <Text style={styles.boldText}>{item.user}</Text>
+                        {item.message.replace(item.user, "")}
+                    </Text>
+                ) : (
+                    <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]} numberOfLines={3}>
+                        {item.message}
+                    </Text>
                 )}
-                <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => deleteNotification(item.id)}>
-                    <Text style={styles.buttonText}>Delete</Text>
-                </TouchableOpacity>
             </View>
-
+            <View style={styles.buttonContainer}>
+                {item.notificationType === "follow" && (
+                    <>
+                        {!item.read && (
+                            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
+                                <Text style={styles.buttonText}>Read</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
+                            <Text style={styles.buttonText}>{item.isFollowing ? "Following" : "Follow"}</Text>
+                        </TouchableOpacity>
+                    </>
+                )}
+                {item.notificationType === "room_invite" && (
+                    <>
+                        {!item.read && (
+                            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
+                                <Text style={styles.buttonText}>Read</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAcceptInvite(item.shortCode, item.id)}>
+                            <Text style={styles.buttonText}>Accept</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.button, styles.declineButton]} onPress={() => handleDeclineInvite(item.roomId)}>
+                            <Text style={styles.buttonText}>Decline</Text>
+                        </TouchableOpacity>
+                    </>
+                )}
+                {item.notificationType !== "room_invite" && (
+                    <>
+                        {!item.read && (
+                            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
+                                <Text style={styles.buttonText}>Read</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id, item.type)}>
+                            <Text style={styles.buttonText}>Delete</Text>
+                        </TouchableOpacity>
+                    </>
+                )}
+            </View>
         </View>
     );
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+            paddingTop: 20,
+        },
+        listContainer: {
+            flexGrow: 1,
+            marginHorizontal:12, // Optional: adjust as needed
+        },
+        avatar: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            marginRight: 12, // Increase margin to separate from text
+        },
+        notificationItem: {
+            flexDirection: "row", // Ensure items are in a row
+            alignItems: "flex-start", // Align items at the start of the container
+            marginBottom: 16,
+            padding: 12,
+            paddingVertical: 20,
+            borderRadius: 8, // Added border radius for rounded corners
+            backgroundColor: "#f0f0f0", // Light gray background for all notifications
+        },
+        notificationContent: {
+            flex: 1, // Take up available space
+        },
+        notificationText: {
+            fontSize: 16,
+            color: "#333",
+            flexWrap: "wrap", // Wrap text if necessary
+        },
+        boldText: {
+            fontWeight: "bold",
+        },
+        readText: {
+            color: "#888",
+        },
+        unreadText: {
+            fontWeight: "bold",
+        },
+        buttonContainer: {
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: 8,
+        },
+        button: {
+            padding: 8,
+            borderRadius: 4,
+            marginLeft: 8,
+        },
+        followButton: {
+            backgroundColor: "#007bff",
+        },
+        acceptButton: {
+            backgroundColor: "#28a745",
+        },
+        declineButton: {
+            backgroundColor: "#dc3545",
+        },
+        deleteButton: {
+            backgroundColor: "#6c757d",
+        },
+        buttonText: {
+            color: "#fff",
+            fontWeight: "bold",
+        },
+        noNotificationsContainer: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        noNotificationsText: {
+            fontSize: 18,
+            color: "#888",
+            paddingBottom: 50,
+        },
+        sectionHeader: {
+            fontSize: 18,
+            fontWeight: "bold",
+            marginVertical: 10,
+            marginLeft: 10,
+            color: theme.textColor
+        },
+        clearButton: {
+            backgroundColor: "#4a42c0",
+            padding: 10,
+            borderRadius: 5,
+            alignItems: "center",
+            marginVertical: 20,
+        },
+        divider: {
+            height: 1,
+            backgroundColor: "#ccc",
+            marginVertical: 8,
+        },
+        unreadBorder: {
+            borderLeftColor: "#4a42c0", // Purple color for unread notifications
+            borderLeftWidth: 5, // Adjust width as needed
+        },
+    });
+
     return (
         <View style={styles.container}>
-            <FlatList
-                data={notifications}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={styles.listContainer}
-            />            
+            <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
+                {notifications.length === 0 ? (
+                    <View style={styles.noNotificationsContainer}>
+                        <Text style={styles.noNotificationsText}>You have no notifications at the moment</Text>
+                    </View>
+                ) : (
+                    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        {Object.keys(categorizedNotifications).map(
+                            (category) =>
+                                categorizedNotifications[category].length > 0 && (
+                                    <View key={category}>
+                                        <Text style={styles.sectionHeader}>{category === "today" ? "Today" : category === "yesterday" ? "Yesterday" : category === "lastWeek" ? "Last Week" : "Older Notifications"}</Text>
+                                        <FlatList data={categorizedNotifications[category]} renderItem={renderNotificationItem} keyExtractor={(item) => item.id.toString()} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} />
+                                    </View>
+                                )
+                        )}
+                        {notifications.length > 0 && (
+                            <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
+                                <Text style={styles.buttonText}>Clear All</Text>
+                            </TouchableOpacity>
+                        )}
+                    </ScrollView>
+                )}
+            </View>
+
             <BottomHeader userInfo={userInfo} />
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        paddingHorizontal: 16,
-        paddingTop: 24,
-    },
-    listContainer: {
-        paddingBottom: 24,
-    },
-    notificationItem: {
-        marginBottom: 16,
-        padding: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        backgroundColor: "#f9f9f9",
-    },
-    notificationText: {
-        fontSize: 16,
-    },
-    readText: {
-        color: "#888",
-    },
-    unreadText: {
-        fontWeight: "bold",
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "flex-end",
-        marginTop: 8,
-    },
-    button: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        marginLeft: 8,
-        borderRadius: 4,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    readButton: {
-        backgroundColor: "#ddd",
-    },
-    deleteButton: {
-        backgroundColor: "#000000",
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 14,
-        fontWeight: "bold",
-    },
-});
 
 export default Notifications;

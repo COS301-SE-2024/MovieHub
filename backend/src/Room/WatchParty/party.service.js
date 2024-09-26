@@ -111,6 +111,10 @@ exports.createWatchParty = async (userId, partyData) => {
         // Sync watch party data with the extension
       //  await syncWithExtension(partyId, { partyName, startTime, createdAt, hyperbeamSession });
 
+        // Send the iframe embed URL dynamically to the room
+        await sendWatchPartyUrlToRoom(roomId, hyperbeamSession.embed_url);
+
+
         return { partyId, ...partyData, createdBy: userId, createdAt, hyperbeamSession };
     } catch (error) {
         console.error("Error creating watch party:", error);
@@ -202,6 +206,19 @@ async function sendToExtension(partyId, data) {
         ws.on('error', (error) => {
             reject(error);
         });
+    });
+}
+
+// Function to send the Hyperbeam embed URL to the room
+//TO DO: Add paramater to attach the movie's playback timestamp
+async function sendWatchPartyUrlToRoom(roomId, hyperbeamUrl) {
+    const message = `A new watch party has been created. Join using this link: ${hyperbeamUrl}`;
+
+    // Push the message (embed URL) to the room members using Firebase or another service
+    await firebase.database().ref(`rooms/${roomId}/WatchParty`).push({
+        text: message,
+        embed_url: hyperbeamUrl,
+        timestamp: Date.now(),
     });
 }
 

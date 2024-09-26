@@ -20,7 +20,7 @@ const driver = neo4j.driver(
 );
 
 const session = driver.session();
-exports.createRoom = async (userId, roomData) => {
+exports.createRoom = async (uid, roomData) => {
     console.log("In room.service");
 
     // Ensure all required parameters are present
@@ -33,7 +33,7 @@ exports.createRoom = async (userId, roomData) => {
     }
 
     const session = driver.session();
-    const { roomName, accessLevel, maxParticipants, roomDescription } = roomData;
+    const { roomName, accessLevel, maxParticipants, roomDescription, coverImage } = roomData;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
     const isActive = true;
@@ -50,7 +50,7 @@ exports.createRoom = async (userId, roomData) => {
 
         if (roomNameCheckResult.records.length > 0) {
             console.error("Room name already exists.");
-            return { success: false, message: "Room name already exists." };
+            return { success: false, message: "A room with the same name already exists. Please choose a different name." };
         }
 
         console.log("Room name is unique. Proceeding with database query.");
@@ -67,6 +67,7 @@ exports.createRoom = async (userId, roomData) => {
                 shortCode: $shortCode, 
                 roomName: $roomName,
                 accessLevel: $accessLevel,
+                coverImage: $coverImage,
                 createdBy: $createdBy,
                 createdAt: $createdAt,
                 updatedAt: $updatedAt,
@@ -74,7 +75,7 @@ exports.createRoom = async (userId, roomData) => {
                 roomDescription: $roomDescription,
                 isActive: $isActive
              })
-             MERGE (u:User {uid: $userId})
+             MERGE (u:User {uid: $uid})
              CREATE (u)-[:CREATED]->(r)
              RETURN r`,
             {
@@ -82,13 +83,14 @@ exports.createRoom = async (userId, roomData) => {
                 shortCode,
                 roomName,
                 accessLevel,
-                createdBy: userId,
+                coverImage,
+                createdBy: uid,
                 createdAt,
                 updatedAt,
                 maxParticipants,
                 roomDescription,
                 isActive,
-                userId
+                uid
             }
         );
 
@@ -102,7 +104,7 @@ exports.createRoom = async (userId, roomData) => {
 
         console.log("Room created successfully.");
 
-        return { success: true, roomId, shortCode, ...roomData, createdBy: userId, createdAt, updatedAt, isActive };
+        return { success: true, roomId, shortCode, ...roomData, createdBy: uid, createdAt, updatedAt, isActive };
     } catch (error) {
         console.error("Error creating room:", error);
         if (tx) await tx.rollback();
@@ -112,17 +114,237 @@ exports.createRoom = async (userId, roomData) => {
     }
 };
 
+exports.getRoomDetails = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room)
+             WHERE r.roomId = $roomId OR r.shortCode = $roomId
+             RETURN r`,
+            { roomId }
+        );
+
+        if (result.records.length > 0) {
+            const room = result.records[0].get('r').properties;
+            return { success: true, room };
+        }
+
+        return { success: false, message: 'Room not found' };
+    } catch (error) {
+        console.error('Error retrieving room details:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+// Get participant count of a room
+exports.getRoomParticipantCount = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(u:User)
+             RETURN COUNT(DISTINCT u) + 1 AS participantCount`,
+            { roomId }
+        );
+
+        if (result.records.length > 0) {
+            const participantCount = result.records[0].get('participantCount').toInt();
+            return { success: true, participantCount };
+        }
+
+        return { success: false, message: 'Room not found or no participants' };
+    } catch (error) {
+        console.error('Error retrieving room participant count:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getRoomParticipants = async (roomId) => {
+    const session = driver.session();
+    try {
+        // Query to get the list of participants in the room and the creator of the room
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(p:User)
+             OPTIONAL MATCH (c:User)-[:CREATED]->(r)
+             RETURN collect(p) AS participants, collect(c) AS creator`,
+            { roomId }
+        );
+
+        // Extract participants and creator from the result
+        const participants = result.records[0].get('participants').map(user => user.properties);
+        const creator = result.records[0].get('creator')[0]?.properties;
+
+        return {
+            success: true,
+            participants,
+            creator
+        };
+    } catch (error) {
+        console.error('Error retrieving room participants:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
 
 
-exports.joinRoom = async (code, userId) => {
+// Get all rooms a user has created
+exports.getUserCreatedRooms = async (uid) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid})-[:CREATED]->(r:Room)
+             RETURN r`,
+            { uid }
+        );
+
+        if (result.records.length > 0) {
+            const createdRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, createdRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, createdRooms: [] }; // Return an empty array if no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving created rooms:', error);
+        return { success: false, message: 'An error occurred while retrieving created rooms' };
+    } finally {
+        await session.close();
+    }
+};
+
+// Get all rooms a user is participating in (but not created)
+exports.getUserParticipatedRooms = async (uid) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid})-[:PARTICIPATES_IN]->(r:Room)
+             WHERE NOT (u)-[:CREATED]->(r)
+             RETURN r`,
+            { uid }
+        );
+
+        if (result.records.length > 0) {
+            const participatedRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, participatedRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, participatedRooms: [] }; // Return an empty array if no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving participated rooms:', error);
+        return { success: false, message: 'An error occurred while retrieving participated rooms' };
+    } finally {
+        await session.close();
+    }
+};
+
+
+exports.getPublicRooms = async (uid) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room) WHERE r.accessLevel = 'Everyone' 
+            AND r.isActive = true 
+            AND NOT EXISTS((:User {uid: $uid})-[:PARTICIPATES_IN]->(r))
+            AND NOT EXISTS((:User {uid: $uid})-[:CREATED]->(r))
+            RETURN r`,
+            { uid }
+        );
+
+        // `MATCH (r:Room)
+        // WHERE r.accessLevel = 'Everyone' 
+        // AND r.isActive = true 
+        // AND NOT EXISTS((:User {uid: "IePcEUZGQlPEQsKwIfbfRR07LwM2"})-[:PARTICIPATES_IN]->(r))
+        // OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(u:User)
+        // WITH r, COUNT(u) AS pCount
+        // WHERE pCount < r.maxParticipants
+        // RETURN r`
+
+        if (result.records.length > 0) {
+            const publicRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, publicRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving public rooms:', error);
+        return { success: false, message: 'An error occurred while retrieving public rooms' };
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getRecentRooms = async (uid) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid})-[:CREATED|PARTICIPATES_IN]->(r:Room)
+            RETURN r
+            ORDER BY r.createdAt DESC
+            LIMIT 5`,
+            { uid }
+        );
+
+        if (result.records.length > 0) {
+            const recentRooms = result.records.map(record => record.get('r').properties);
+            return { success: true, recentRooms };
+        } else if (result.records.length === 0) {
+            return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
+        } else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving recent rooms:', error);
+        return { success: false, message: 'An error occurred while retrieving recent rooms' };
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getIsParticipant = async (uid, roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid}), (r:Room {roomId: $roomId})
+            RETURN EXISTS((u)-[:PARTICIPATES_IN|:CREATED]->(r)) AS p`,
+            { uid, roomId }
+        );
+        console.log("Service", result);
+        if (result.records.length > 0) {
+            const isParticipant = result.records[0].get('p');
+            return { success: true, isParticipant};
+        } else if (result.records.length === 0) {
+            return { success: true, isParticipant: false };
+        }else {
+            return { success: false, message: 'Unexpected result from the query' };
+        }
+    } catch (error) {
+        console.error('Error retrieving whether user is a participant:', error);
+        return { success: false, message: 'An error occurred while retrieving is participant' };
+    } finally {
+        await session.close();
+    }
+};
+
+exports.joinRoom = async (code, uid) => {
     const session = driver.session();
 
     try {
         // Check if the user is already participating in the room
         const userInRoomResult = await session.run(
-            `MATCH (u:User {uid: $userId})-[:PARTICIPATES_IN]->(r:Room {shortCode: $code})
+            `MATCH (u:User {uid: $uid})-[:PARTICIPATES_IN]->(r:Room {shortCode: $code})
              RETURN u`,
-            { code, userId }
+            { code, uid }
         );
 
         if (userInRoomResult.records.length > 0) {
@@ -143,7 +365,7 @@ exports.joinRoom = async (code, userId) => {
 
             // Check if the user can join the room based on the access level
             if (room.accessLevel === 'invite' || room.accessLevel === 'followers') {
-                const hasAccess = await checkUserAccess(userId, room);
+                const hasAccess = await checkUserAccess(uid, room);
                 if (!hasAccess) {
                     return { success: false, message: 'Access denied' };
                 }
@@ -156,8 +378,8 @@ exports.joinRoom = async (code, userId) => {
 
             // Add the user to the room
             await session.run(
-                'MATCH (r:Room {shortCode: $code}), (u:User {uid: $userId}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
-                { code, userId }
+                'MATCH (r:Room {shortCode: $code}), (u:User {uid: $uid}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
+                { code, uid }
             );
             console.log("User has been added to room: ", room.roomName)
             return { success: true, roomId: room.roomId };
@@ -175,7 +397,7 @@ exports.joinRoom = async (code, userId) => {
 
 
 //function to check user access
-async function checkUserAccess(userId, room) {
+async function checkUserAccess(uid, room) {
     const session = driver.session();
     const { roomId, accessLevel, createdBy } = room;
 
@@ -186,18 +408,18 @@ async function checkUserAccess(userId, room) {
         } else if (accessLevel === 'invite') {
             // Check if the user has been invited
             const inviteResult = await session.run(
-                `MATCH (u:User {uid: $userId})-[:INVITED_TO]->(r:Room {roomId: $roomId})
+                `MATCH (u:User {uid: $uid})-[:INVITED_TO]->(r:Room {roomId: $roomId})
                  RETURN u`,
-                { userId, roomId }
+                { uid, roomId }
             );
 
             return inviteResult.records.length > 0;
         } else if (accessLevel === 'friends') {
             // Check if the user is friends with the room admin
             const friendResult = await session.run(
-                `MATCH (u:User {uid: $userId})-[:FRIENDS_WITH]-(a:User {uid: $adminId})
+                `MATCH (u:User {uid: $uid})-[:FRIENDS_WITH]-(a:User {uid: $adminId})
                  RETURN u`,
-                { userId, adminId: createdBy }
+                { uid, adminId: createdBy }
             );
 
             return friendResult.records.length > 0;
@@ -214,13 +436,13 @@ async function checkUserAccess(userId, room) {
 }
 
 // Function to invite a user to a room
-exports.inviteUserToRoom = async (adminId, userId, roomId) => {
+exports.inviteUserToRoom = async (adminId, uid, roomId) => {
     const session = driver.session();
     try {
-        // Check if the room is invite-only and the admin is the creator
+        // Check if the room is invite-only and the admin is the creator, and get the room's shortCode
         const roomCheck = await session.run(
-            `MATCH (r:Room {roomId: $roomId, accessLevel: 'invite', createdBy: $adminId})
-             RETURN r`,
+            `MATCH (r:Room {roomId: $roomId, createdBy: $adminId})
+             RETURN r.shortCode AS shortCode, r.roomName AS roomName`,
             { roomId, adminId }
         );
 
@@ -228,14 +450,33 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
             throw new Error('Room is not invite-only or admin is not authorized.');
         }
 
+        const shortCode = roomCheck.records[0].get('shortCode');
+        const roomName = roomCheck.records[0].get('roomName');
+
         // Create an INVITED_TO relationship
         await session.run(
-            `MATCH (u:User {uid: $userId}), (r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid}), (r:Room {roomId: $roomId})
              MERGE (u)-[:INVITED_TO]->(r)`,
-            { userId, roomId }
+            { uid, roomId }
         );
 
-        console.log(`User ${userId} invited to room ${roomId} by admin ${adminId}.`);
+        // Send notification to the invited user using Firebase Realtime Database
+        const db = getDatabase();
+        const notificationsRef = ref(db, `notifications/${uid}/room_invitations`); // Reference to the user's notifications
+        const newNotificationRef = push(notificationsRef); // Create a new notification entry
+
+        // Set the notification details, including the shortCode
+        await set(newNotificationRef, {
+            message: `You have been invited to join the room: ${roomName}`,
+            roomId: roomId,
+            shortCode: shortCode, // Include the room code
+            invitedBy: adminId,
+            notificationType: 'room_invite',
+            timestamp: new Date().toISOString(),
+            read: false // Mark notification as unread
+        });
+
+        console.log(`User ${uid} invited to room ${roomId} by admin ${adminId}. Notification sent.`);
         return true;
     } catch (error) {
         console.error('Error inviting user to room:', error);
@@ -245,18 +486,20 @@ exports.inviteUserToRoom = async (adminId, userId, roomId) => {
     }
 };
 
+
+
 // Function to decline a room invite
-exports.declineRoomInvite = async (userId, roomId) => {
+exports.declineRoomInvite = async (uid, roomId) => {
     const session = driver.session();
     try {
         // Delete the INVITED_TO relationship
         await session.run(
-            `MATCH (u:User {uid: $userId})-[i:INVITED_TO]->(r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid})-[i:INVITED_TO]->(r:Room {roomId: $roomId})
              DELETE i`,
-            { userId, roomId }
+            { uid, roomId }
         );
 
-        console.log(`User ${userId} declined invite to room ${roomId}.`);
+        console.log(`User ${uid} declined invite to room ${roomId}.`);
     } catch (error) {
         console.error('Error declining room invite:', error);
         throw error;
@@ -266,23 +509,23 @@ exports.declineRoomInvite = async (userId, roomId) => {
 };
 
 // Function to leave a room
-exports.leaveRoom = async (roomId, userId) => {
+exports.leaveRoom = async (roomId, uid) => {
     const session = driver.session();
     try {
         // Check if the user is the creator of the room
         const userIsCreatorResult = await session.run(
-            `MATCH (u:User {uid: $userId})-[:CREATED]->(r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid})-[:CREATED]->(r:Room {roomId: $roomId})
              RETURN u`,
-            { roomId, userId }
+            { roomId, uid }
         );
 
         if (userIsCreatorResult.records.length > 0) {
             // If the user is the creator, find a new admin
             const newAdminResult = await session.run(
                 `MATCH (r:Room {roomId: $roomId})<-[:PARTICIPATES_IN]-(u:User)
-                 WHERE u.uid <> $userId
+                 WHERE u.uid <> $uid
                  RETURN u LIMIT 1`,
-                { roomId, userId }
+                { roomId, uid }
             );
 
             if (newAdminResult.records.length > 0) {
@@ -303,13 +546,12 @@ exports.leaveRoom = async (roomId, userId) => {
         }
 
         // Remove the user from the room
-        await session.run(
-            `MATCH (u:User {uid: $userId})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+        const result = await session.run(
+            `MATCH (u:User {uid: $uid})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
              DELETE p`,
-            { roomId, userId }
+            { roomId, uid }
         );
-
-        console.log(`User ${userId} left the room ${roomId}.`);
+        return { success: true, roomId: roomId };
     } catch (error) {
         console.error('Error leaving room:', error);
         throw error;
@@ -319,7 +561,7 @@ exports.leaveRoom = async (roomId, userId) => {
 };
 
 // Function to kick a user from the room
-exports.kickUserFromRoom = async (roomId, adminId, userId) => {
+exports.kickUserFromRoom = async (roomId, adminId, uid) => {
     const session = driver.session();
     try {
         // Check if the admin has the right to kick users
@@ -336,12 +578,12 @@ exports.kickUserFromRoom = async (roomId, adminId, userId) => {
 
         // Remove the user from the room
         await session.run(
-            `MATCH (u:User {uid: $userId})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
+            `MATCH (u:User {uid: $uid})-[p:PARTICIPATES_IN]->(r:Room {roomId: $roomId})
              DELETE p`,
-            { roomId, userId }
+            { roomId, uid }
         );
 
-        console.log(`User ${userId} was kicked from the room ${roomId} by admin ${adminId}.`);
+        console.log(`User ${uid} was kicked from the room ${roomId} by admin ${adminId}.`);
         return { success: true, message: 'User kicked successfully.' };
     } catch (error) {
         console.error('Error kicking user from room:', error);
@@ -353,18 +595,18 @@ exports.kickUserFromRoom = async (roomId, adminId, userId) => {
 
 
 // Add a message to the chat room
-exports.addMessageToRoom = async (roomId, userId, message) => {
+exports.addMessageToRoom = async (roomId, uid, message) => {
     try {
         const database = getDatabase(); // Get the database instance
         const messageRef = ref(database, `rooms/${roomId}/messages`);
         const newMessageRef = push(messageRef);
         await set(newMessageRef, {
-            userId,
+            uid,
             message,
             timestamp: new Date().toISOString(),
         });
 
-        console.log(`Message added to room ${roomId} by user ${userId}.`);
+        console.log(`Message added to room ${roomId} by user ${uid}.`);
     } catch (error) {
         console.error('Error adding message to room:', error);
         throw error;
@@ -409,9 +651,9 @@ exports.sendNotificationToUsers = async (roomId, message) => {
 
     const tokens = []; // Array to hold user tokens
 
-    for (const userId in users) {
-        if (users[userId].token) {
-            tokens.push(users[userId].token);
+    for (const uid in users) {
+        if (users[uid].token) {
+            tokens.push(users[uid].token);
         }
     }
 
@@ -432,6 +674,89 @@ exports.sendNotificationToUsers = async (roomId, message) => {
         }
     }
 };
+
+exports.deleteRoom = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             DETACH DELETE r
+             RETURN COUNT(r) AS removed`,
+            { roomId }
+        );
+        return result.records[0].get('removed').low > 0;
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.getRoomAdmins = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room {roomId: $roomId})
+             OPTIONAL MATCH (a:User)-[:IS_ADMIN]->(r)
+             OPTIONAL MATCH (c:User)-[:CREATED]->(r)
+             RETURN collect(a) AS admins, collect(c) AS creator`,
+            { roomId }
+        );
+
+        const admins = result.records[0].get('admins').map(user => user.properties);
+        const creator = result.records[0].get('creator')[0]?.properties;
+
+        return {
+            success: true,
+            admins,
+            creator
+        };
+    } catch (error) {
+        console.error('Error retrieving room admins:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+exports.toggleAdmin = async (uid, roomId) => {
+    const session = driver.session();
+    try {
+        //see if user is already an admin
+        const result = await session.run(
+            `MATCH (u:User), (r:Room)
+            WHERE u.uid = $uid AND r.roomId = $roomId
+            MATCH (u)-[a:IS_ADMIN]->(r)
+            RETURN a`,
+            { uid, roomId }
+        );
+        if (result.records.length > 0) {
+            await session.run(
+                `MATCH (u:User), (r:Room)
+                WHERE u.uid = $uid AND r.roomId = $roomId
+                MATCH (u)-[a:IS_ADMIN]->(r)
+                DETACH DELETE a`,
+                { uid, roomId }
+            );
+            return false;
+        } else {
+            await session.run(
+                `MATCH (u:User), (r:Room)
+                WHERE u.uid = $uid AND r.roomId = $roomId
+                MERGE (u)-[:IS_ADMIN]->(r)`,
+                { uid, roomId }
+            );
+            return true;
+        }
+    } catch (error) {
+        console.error('Error toggling admin:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 // Ensure the driver is closed on application exit
 process.on('exit', async () => {
     await driver.close();

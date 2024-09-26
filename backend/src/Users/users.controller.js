@@ -40,6 +40,57 @@ exports.updateUserProfile = async (req, res) => {
     }
 };
 
+exports.changeMode = async (req, res) => {
+    console.log('changeMode called in user.controller');
+    const userId = req.params.id;
+    const { mode } = req.body;
+
+    try {
+        console.log(`Changing mode for user ID: ${userId} to ${mode}`);
+        const result = await userService.changeMode(userId, mode);
+        console.log('Result in controller:', result);
+        res.status(200).json({ message: 'Mode changed successfully', mode: result.mode });
+    } catch (error) {
+        console.error('Error changing mode:', error);
+        res.status(500).json({ message: 'Error changing mode', error: error.message });
+    }
+};
+
+exports.toggleMode = async (req, res) => {
+    console.log('toggleMode called in user.controller');
+    const userId = req.params.id;
+
+    try {
+        console.log(`Toggling mode for user ID: ${userId}`);
+        const newMode = await userService.toggleMode(userId);
+        console.log('New mode:', newMode);
+        res.status(200).json({ message: 'Mode toggled successfully', mode: newMode });
+    } catch (error) {
+        console.error('Error toggling mode:', error);
+        res.status(500).json({ message: 'Error toggling mode', error: error.message });
+    }
+};
+
+
+
+
+exports.getMode = async (req, res) => {
+    console.log('getMode called in user.controller');
+    const userId = req.params.id;
+
+    try {
+        console.log(`Fetching mode for user ID: ${userId}`);
+        const mode = await userService.getMode(userId);
+        console.log('Mode:', mode);
+        res.status(200).json({ mode });
+    } catch (error) {
+        console.error('Error fetching mode:', error);
+        res.status(500).json({ message: 'Error fetching mode', error: error.message });
+    }
+};
+
+
+
 exports.deleteUserProfile = async (req, res) => {
     console.log('DeleteUserProfile called');
     const userId = req.params.id;
@@ -80,6 +131,7 @@ exports.getUserWatchlists = async (req, res) => {
 exports.followUser = async (req, res) => {
     const { followerId, followeeId } = req.body;
     if (!followerId || !followeeId) {
+        console.error('Follower ID and Followee ID are required');
         return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
     }
     try {
@@ -93,6 +145,7 @@ exports.followUser = async (req, res) => {
 
 // Unfollow a user
 exports.unfollowUser = async (req, res) => {
+    console.log('unfollowUser called in user.controller');
     const { followerId, followeeId } = req.body;
     if (!followerId || !followeeId) {
         return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
@@ -143,5 +196,79 @@ exports.getFollowing = async (req, res) => {
     } catch (error) {
         console.error('Error fetching following users:', error);
         res.status(500).json({ message: 'Error fetching following users', error: error.message });
+    }
+};
+
+// return whther a user is following another user
+exports.isFollowing = async (req, res) => {
+    const { id, uid } = req.params;
+
+    if (!id || !uid) {
+        return res.status(400).json({ message: 'User ID and Target User ID are required' });
+    }
+    try {
+        const response = await userService.isFollowing(id, uid);
+        res.status(200).json(response);
+    } catch (error) {
+        console.error('Error checking if user is following:', error);
+        res.status(500).json({ message: 'Error checking if user is following', error: error.message });
+    }
+};
+
+exports.fetchFollowerCount = async (req, res) => {
+    const  userId  = req.params.id;
+
+    try {
+        const followerCount = await userService.getFollowerCount(userId);
+        res.status(200).json({ followerCount });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching follower count controller', error: error.message });
+    }
+};
+
+exports.fetchFollowingCount = async (req, res) => {
+    const  userId  = req.params.id;
+
+    try {
+        const followingCount = await userService.getFollowingCount(userId);
+        res.status(200).json({ followingCount });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching following count', error: error.message });
+    }
+};
+
+exports.searchUser = async (req, res) => {
+    const { searchName } = req.params; 
+
+    try {
+        const users = await userService.searchUser(searchName);
+        res.status(200).json({ users });
+    } catch (error) {
+        res.status(500).json({ message: 'Error searching for users', error: error.message });
+    }
+};
+
+exports.getUserNotifications = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const notifications = await userService.getUserNotifications(userId);
+        return res.status(200).json({ success: true, notifications });
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch notifications' });
+    }
+};
+
+exports.getUnreadNotifications = async (req, res) => {
+    const userId = req.params;
+
+    try {
+        const unreadCount = await userService.getUnreadNotifications(userId); 
+
+        return res.status(200).json({ success: true, unreadCount });
+    } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+        res.status(500).json({ error: "Failed to fetch notifications" });
     }
 };

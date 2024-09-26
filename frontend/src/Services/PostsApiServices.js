@@ -1,10 +1,12 @@
 import * as SecureStore from 'expo-secure-store';
 //const API_URL = process.env.REACT_APP_AUTH_API_URL || 'http://192.168.3.218:3000/post/'; // Update to your Expo URL
-const API_URL = 'http://localhost:3000/post/';
+// const API_URL = 'http://10.0.26.63:3000/post/';
 
 import {uploadImage} from './imageUtils';
+import { getLocalIP } from './getLocalIP';
 
-
+const localIP = getLocalIP();
+const API_URL = `http://${localIP}:3000/post/`;
 
 const getToken = async () => {
     const token = await SecureStore.getItemAsync('userToken');
@@ -39,7 +41,7 @@ export const addPost = async (bodyData) => {
     // bodyData should contain: { uid, text, postTitle, img }
 
     if(bodyData.img === null){
-        bodyData.img = 'empty';
+        bodyData.img = null;
     }else{
     bodyData.img = await uploadImage(bodyData.img, 'posts');
     }
@@ -55,7 +57,7 @@ export const addPost = async (bodyData) => {
     // console.log('types:', imgType, isReviewType, movieIdType, postTitleType, ratingType, textType, uidType);
 
     const stringed = JSON.stringify(bodyData);
-    console.log('stringed:', stringed);
+    // console.log('stringed:', stringed);
 
 
     try {
@@ -63,7 +65,7 @@ export const addPost = async (bodyData) => {
             method: 'POST',
             body: JSON.stringify(bodyData),
         });
-        console.log('response', response);
+        // console.log('response', response);
         return response;
     } catch (error) {
         throw new Error('Failed to add post: ' + error.message);
@@ -89,7 +91,7 @@ export const addReview = async (bodyData) => {
     // bodyData should contain: { uid, movieId, text, img, rating, reviewTitle, movieTitle }
 
     if(bodyData.img === null){
-        bodyData.img = 'empty';
+        bodyData.img = null;
     }else{
     bodyData.img = await uploadImage(bodyData.img, 'reviews');
     }

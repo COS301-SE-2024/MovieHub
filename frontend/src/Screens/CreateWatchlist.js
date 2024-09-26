@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "../styles/theme";
+import { useTheme } from "../styles/ThemeContext";
 
 export default function CreateWatchlist({ route, navigation }) {
     //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
+    const { theme } = useTheme();
 
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
@@ -64,6 +66,7 @@ export default function CreateWatchlist({ route, navigation }) {
             name: modalContent.name.newValue,
             description: modalContent.description.newValue,
             tags: modalContent.tags.newValue,
+            img : cover,
             visibility,
             collaborative,
             ranked,
@@ -76,7 +79,7 @@ export default function CreateWatchlist({ route, navigation }) {
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: "#fff",
+            backgroundColor: theme.backgroundColor,
             paddingHorizontal: 30,
         },
         coverContainer: {
@@ -101,15 +104,16 @@ export default function CreateWatchlist({ route, navigation }) {
         sectionTitle: {
             fontSize: 18,
             fontWeight: "bold",
+            color: theme.textColor,
         },
         sectionValue: {
             fontSize: 16,
             marginTop: 5,
-            color: "#7b7b7b",
+            color: theme.gray,
         },
         line: {
             height: 1,
-            backgroundColor: "lightgray",
+            backgroundColor: theme.borderColor,
             width: "100%",
             marginBottom: 20,
         },
@@ -120,7 +124,7 @@ export default function CreateWatchlist({ route, navigation }) {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
         },
         modalContent: {
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             padding: 20,
             borderRadius: 10,
             width: "80%",
@@ -129,11 +133,12 @@ export default function CreateWatchlist({ route, navigation }) {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 20,
+            color: theme.textColor,
         },
         input: {
             marginBottom: 20,
             borderBottomWidth: 1,
-            borderBottomColor: "#7b7b7b",
+            borderBottomColor: theme.borderColor,
             outlineStyle: "none",
         },
         buttonContainer: {
@@ -151,7 +156,7 @@ export default function CreateWatchlist({ route, navigation }) {
             alignItems: "center",
         },
         nextButton: {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.primaryColor,
             padding: 16,
             borderRadius: 4,
             alignItems: "center",
@@ -162,7 +167,6 @@ export default function CreateWatchlist({ route, navigation }) {
             fontWeight: "bold",
         },
     });
-    
 
     return (
         <ScrollView style={styles.container}>
@@ -224,7 +228,7 @@ export default function CreateWatchlist({ route, navigation }) {
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Add {field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
+                            <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} selectionColor={theme.textColor} color={theme.textColor} />
                             <View style={styles.buttonContainer}>
                                 <Text style={styles.buttonText} onPress={handleCancelChanges}>
                                     Cancel
@@ -246,4 +250,3 @@ export default function CreateWatchlist({ route, navigation }) {
         </ScrollView>
     );
 }
-
