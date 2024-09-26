@@ -31,7 +31,7 @@ export default function MovieCard({ movieId, imageUrl, title, rating, overview, 
                     style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }} // Adjust position if necessary
                 />
             )}
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+            <Image source={{ uri: imageUrl }} style={styles.image} onLoadEnd={() => setLoading(false)} />
             
             {/* <Text style={styles.title}>{title}</Text> */}
                 
