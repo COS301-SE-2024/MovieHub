@@ -50,6 +50,7 @@ const WatchlistTab = ({ userInfo }) => {
     };
 
     const handleEditWatchlist = () => {
+        closeModal(); // Close the modal first
         navigation.navigate('EditWatchlist', { watchlist: selectedWatchlist, userInfo });
     };
 
