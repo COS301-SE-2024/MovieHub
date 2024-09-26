@@ -7,6 +7,8 @@ import { useNavigation } from "@react-navigation/native";
 export default function EditWatchlist({ route }) {
     const { theme } = useTheme();
     const { watchlist } = route.params;
+    const { userInfo } = route.params;
+    
 
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: watchlist.name, tempValue: "" },
@@ -228,7 +230,7 @@ export default function EditWatchlist({ route }) {
                 </Modal>
             ))}
 
-            <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate("ProfilePage")}>
+            <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate("ProfilePage", { userInfo })}>
                 <Text style={styles.nextButtonText}>Update</Text>
             </TouchableOpacity>
         </ScrollView>
