@@ -9,12 +9,8 @@ import InviteModal from "../Components/InviteModal";
 import moment from "moment";
 
 const WatchParty = ({ route }) => {
-    const { userInfo, roomId } = route.params;
+    const { userInfo, roomId, isRoomCreator } = route.params;
     const { theme, isDarkMode } = useTheme();
-
-//     const { userInfo, roomId, isRoomCreator } = route.params;
-//     const { theme } = useTheme();
-
     const navigation = useNavigation();
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
