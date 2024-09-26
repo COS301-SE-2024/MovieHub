@@ -175,14 +175,14 @@ export default function MovieDescriptionPage({ route }) {
 
         return (
             <View key={index} style={styles.reviewContainer}>
-                <View style={{ flexDirection: "row", alignItems: "center",  }}>
+                <View style={styles.reviewHeader}>
                     <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
-                    <View style={{ flexDirection: "column"}}>
-                        <View style={{ flexDirection: "row", justifyContent: "space-between"}}>
+                    <View style={styles.reviewInfo}>
+                        <View style={styles.reviewTitleRow}>
                             <Text style={styles.reviewTitle}>{review.reviewTitle}</Text>
-                            <View style={{ flexDirection: "row", alignItems: "center",}}>
-                                <Icon name="star" size={22} color={"gold"} />
-                                <Text style={{color: "white"}}>{review.rating}</Text>
+                            <View style={styles.ratingContainer}>
+                                <Icon name="star" size={22} color="gold" />
+                                <Text style={styles.ratingText}>{review.rating}</Text>
                             </View>
                         </View>
                         <Text style={styles.reviewUsername}>By <Text style={{ fontWeight: "bold" }}>{review.username}</Text> on {date}</Text>
@@ -395,28 +395,50 @@ export default function MovieDescriptionPage({ route }) {
         },
         reviewContainer: {
             paddingHorizontal: 15,
-            paddingVertical: 5
-        }, 
+            paddingVertical: 10,
+        },
+        reviewHeader: {
+            flexDirection: "row",
+            alignItems: "center",
+        },
         reviewAvatar: {
             width: 40,
             height: 40,
-            borderRadius: 50,
+            borderRadius: 20,
+            marginRight: 10,
         },
-        reviewUsername: {
-            color: "white",
-            paddingLeft: 8
-        }, 
-        reviewText: {
-            color: "white",
-            paddingLeft: 48,
-            marginTop: 5
+        reviewInfo: {
+            flex: 1,
+        },
+        reviewTitleRow: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 5,
         },
         reviewTitle: {
             fontSize: 18,
             fontWeight: "bold",
             color: "white",
-            paddingLeft: 8
-        }
+            flex: 1,
+        },
+        ratingContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginLeft: 10,
+        },
+        ratingText: {
+            color: "white",
+            marginLeft: 5,
+        },
+        reviewUsername: {
+            color: "white",
+            fontSize: 14,
+        },
+        reviewText: {
+            color: "white",
+            marginTop: 10,
+        },
     });
 
     if (loading) {
