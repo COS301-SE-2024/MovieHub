@@ -42,7 +42,8 @@ exports.searchMoviesFuzzy = async (query) => {
               'title^2',
               'tagline',
               'keywords^1.5',
-              'overview'
+              'overview',
+              'credits'
             ],
             fuzziness: 'AUTO',
           }
@@ -57,7 +58,7 @@ exports.searchMoviesFuzzy = async (query) => {
       const adjustedScore = hit._score * (1 + (popularity / 100));
       return { ...hit, adjustedScore }; // Add adjustedScore to each hit
     }).sort((a, b) => b.adjustedScore - a.adjustedScore);
-
+    console.log(sortedMovies);
     // Extract and return the relevant data
     return sortedMovies;
   } catch (error) {
