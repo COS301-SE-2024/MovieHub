@@ -204,7 +204,7 @@ export default function MovieDescriptionPage({route}) {
                             </Text>
                         </View>
                         <Text style={styles.moviecast}> Cast</Text>
-                        <ScrollView horizontal contentContainerStyle={styles.castContainer}>
+                        <ScrollView horizontal contentContainerStyle={styles.castContainer} showsHorizontalScrollIndicator={false}>
                             {credits.cast.slice(0, 5).map((member, index) => (
                                 <Cast key={index} imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`} name={member.name} />
                             ))}

@@ -14,7 +14,7 @@ const WatchlistDetails = ({ route }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigation = useNavigation();
-
+    const { userInfo } = route.params;
     const { watchlist } = route.params;
     console.log('Here is the watchlist passed: ', JSON.stringify(watchlist));
 
@@ -65,6 +65,7 @@ const WatchlistDetails = ({ route }) => {
     const handleMoviePress = (movie) => {
         console.log("Movie pressed:", JSON.stringify(movie, null, 2));
         navigation.navigate("MovieDescriptionPage", {
+            userInfo,
             movieId: movie.id,
             imageUrl: movie.poster_path ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : null,
             title: movie.title,
