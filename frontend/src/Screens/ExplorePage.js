@@ -304,7 +304,7 @@ export default function ExplorePage({ route }) {
     });    
     return (
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
-            <ScrollView>
+            <ScrollView scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
             <SearchBar onChangeText={handleSearch} />
 
             {searchResults.length > 0 ? (
