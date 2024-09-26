@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
         paddingTop: 10,
 
     },line: {
-        borderBottomColor: '#D3D3D3',  
+        borderBottomColor: 'transparent', 
         borderBottomWidth: 1,        
         marginVertical: 10,    
         paddingTop: 10,       

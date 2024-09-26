@@ -148,7 +148,7 @@ export default function ProfilePage({ route }) {
             shadowOpacity: 0,
             marginTop: 20,
             borderBottomWidth: 1,
-            borderBottomColor: "#ddd",
+            borderBottomColor: 'transparent',
         },
         tabItem: {
             paddingVertical: 10,
@@ -194,10 +194,7 @@ export default function ProfilePage({ route }) {
 
     return (
         <View style={styles.container}>
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
-            >
+            <ScrollView contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false} >
                 <View style={styles.accountInfo}>
                     <Image
                         source={{ uri: userProfile.avatar }}
