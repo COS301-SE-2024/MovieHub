@@ -281,9 +281,14 @@ const ViewRoom = ({ route }) => {
                     )}
 
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                        {isParticipant && (
+                            <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, isRoomCreator, roomId: route.params.roomId })}>
+                                <Text style={styles.enterText}>Enter</Text>
+                            </TouchableOpacity>
+                        )}
                         {!isRoomCreator  && (<>    
                             {isParticipant
-                                ?(<TouchableOpacity style={styles.enterButton} onPress={handleLeavePress}>
+                                ?(<TouchableOpacity style={[styles.enterButton, { width: 120 }]} onPress={handleLeavePress}>
                                     <Text style={styles.enterText}>Leave Room</Text>
                                 </TouchableOpacity>)
                                 :(<TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
@@ -291,11 +296,6 @@ const ViewRoom = ({ route }) => {
                                 </TouchableOpacity>)
                             }
                         </>)}
-                        {isParticipant && (
-                            <TouchableOpacity style={styles.enterButton} onPress={() => navigation.navigate("WatchParty", { userInfo, isRoomCreator, roomId: route.params.roomId })}>
-                                <Text style={styles.enterText}>Enter</Text>
-                            </TouchableOpacity>
-                        )}
                         <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
                             <FAIcon name="users" size={16} color={theme.textColor} />
                             <Text style={styles.participantsText}>{participantCount}</Text>

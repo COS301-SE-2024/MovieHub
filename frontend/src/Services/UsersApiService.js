@@ -257,7 +257,8 @@ export const getReviewsOfUser = async (userId) => {
 };
 
 //User Peer Interaction:
-export const followUser = async (userId, targetUserId) => {
+export const followUser = async (req) => {
+    const { followerId, followeeId } = req;
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/follow`, {
         method: 'POST',
@@ -266,20 +267,20 @@ export const followUser = async (userId, targetUserId) => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            followerId: userId,
-            followeeId: targetUserId,
+            followerId,
+            followeeId,
         }),
     });
 
-    if (!response.ok) {
-        throw new Error('Failed to follow user');
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+        throw new Error('Failed to follow user', data.message);
+    }
     return data;
 };
 
-export const unfollowUser = async (userId, targetUserId) => {
+export const unfollowUser = async (req) => {
+    const { followerId, followeeId } = req;
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/unfollow`, {
         method: 'POST',
@@ -288,8 +289,8 @@ export const unfollowUser = async (userId, targetUserId) => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            followerId: userId,
-            followeeId: targetUserId,
+            followerId,
+            followeeId,
         }),
     });
 

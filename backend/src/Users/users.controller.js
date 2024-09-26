@@ -131,7 +131,7 @@ exports.getUserWatchlists = async (req, res) => {
 exports.followUser = async (req, res) => {
     const { followerId, followeeId } = req.body;
     if (!followerId || !followeeId) {
-        console.error('Follower ID and Followee ID are required');
+        console.error('Follow user: Follower ID and Followee ID are required');
         return res.status(400).json({ message: 'Follower ID and Followee ID are required' });
     }
     try {
