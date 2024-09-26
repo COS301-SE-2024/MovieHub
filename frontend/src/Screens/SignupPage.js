@@ -27,11 +27,14 @@ const SignupPage = () => {
         if (error) {
             const timer = setTimeout(() => {
                 setError("");
-            }, 2000);
+            }, 5000);
             return () => clearTimeout(timer);
         }
-        getRandomName();
     }, [error]);
+
+    useEffect(() => {
+        getRandomName();
+    }, [])
 
     // get username from random name generator api
 

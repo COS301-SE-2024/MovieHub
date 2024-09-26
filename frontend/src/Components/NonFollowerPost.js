@@ -90,10 +90,15 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
 
     const toggleFollow = async () => {
         try {
+            const postBody = {
+                followerId: userInfo.userId,
+                followeeId: otherUserInfo.uid,
+            };
+
             if (isFollowing) {
-                await unfollowUser(userInfo.userId, otherUserInfo.uid);
+                await unfollowUser(postBody);
             } else {
-                await followUser(userInfo.userId, otherUserInfo.uid);
+                await followUser(postBody);
             }
             setIsFollowing(!isFollowing);
         } catch (error) {

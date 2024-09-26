@@ -64,41 +64,6 @@ const WatchParty = ({ route }) => {
         bottomSheetRef.current?.present();
     };
 
-    const handleClosePress = () => {
-        bottomSheetRef.current?.close();
-    };
-
-    const handleBackPress = (e) => {
-        Alert.alert(
-            "Leaving?",
-            "Are you sure you want to leave the party?",
-            [
-                {
-                    text: "No",
-                    style: "cancel",
-                },
-                {
-                    text: "Yes",
-                    onPress: () => navigation.dispatch(e.data.action),
-                },
-            ],
-            { cancelable: true }
-        );
-    };
-
-    useFocusEffect(
-        useCallback(() => {
-            const onBeforeRemove = (e) => {
-                e.preventDefault();
-                handleBackPress(e);
-            };
-
-            navigation.addListener("beforeRemove", onBeforeRemove);
-
-            return () => navigation.removeListener("beforeRemove", onBeforeRemove);
-        }, [navigation])
-    );
-
     // useLayoutEffect(() => {
     //     if (loading) {
     //       navigation.setOptions({

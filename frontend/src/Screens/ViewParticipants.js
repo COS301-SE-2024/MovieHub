@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTheme } from "../styles/ThemeContext";
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, Modal, Alert } from "react-native";
 import { getRoomParticipants, kickUserFromRoom, toggleAdmin } from "../Services/RoomApiService";
+import { followUser, unfollowUser, isFollowed } from "../Services/UsersApiService";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import RoomModal from "../Components/RoomModal";
 import { useNavigation } from "@react-navigation/native";
@@ -20,20 +21,40 @@ const participantsData = [
 const ViewParticipants = ({ route }) => {
     const { theme, isDarkMode } = useTheme();
     const { roomId, isRoomCreator, roomName, admin, userInfo } = route.params;
-    console.log("Route",route);
+    console.log("Route", route);
     console.log("RoomId", roomId);
     console.log("Is room creator ", isRoomCreator);
     const [participants, setParticipants] = useState([]);
 
-//     const navigation = useNavigation();
-//     const [participants, setParticipants] = useState(participantsData);
+    //     const navigation = useNavigation();
+    //     const [participants, setParticipants] = useState(participantsData);
 
-    const handleFollowPress = (id) => {
-        setParticipants((prevParticipants) =>
-            prevParticipants.map((participant) =>
-                participant.id === id ? { ...participant, followed: !participant.followed } : participant
-            )
-        );
+    const handleFollowPress = async (uid) => {
+        console.log("UID: ", uid);
+        if (!participants.find((participant) => participant.uid === uid).followed) {
+            try {
+                const postBody = {
+                    followerId: userInfo.userId,
+                    followeeId: uid,
+                }
+                await followUser(postBody);
+                setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.uid === uid ? { ...participant, followed: !participant.followed } : participant)));
+            } catch (error) {
+                console.error("Failed to follow user:", error);
+            }
+        } else {
+            try {
+                const postBody = {
+                    followerId: userInfo.userId,
+                    followeeId: uid,
+                }
+                await unfollowUser(postBody);
+                setParticipants((prevParticipants) => prevParticipants.map((participant) => (participant.uid === uid ? { ...participant, followed: !participant.followed } : participant)));
+
+            } catch (error) {
+                console.error("Failed to unfollow user:", error);
+            }
+        }
     };
 
     const handleOpenKickModal = (participant) => {
@@ -44,14 +65,13 @@ const ViewParticipants = ({ route }) => {
     const handleKick = async (selectedParticipant) => {
         const response = await kickUserFromRoom(roomId, userInfo.userId, selectedParticipant.uid);
         // setIsKickModalVisible(false);  TODO: add a confirmation before kick?
-        Alert.alert('Success', 'User successfully kicked from room!');
+        Alert.alert("Success", "User successfully kicked from room!");
     };
 
     const handleOpenAdminModal = (participant) => {
         setSelectedParticipant(participant);
         setIsAdminModalVisible(true);
     };
-
     const handleMakeAdmin = async () => {
         const response = await toggleAdmin(roomId, selectedParticipant.uid);
         console.log(response);
@@ -67,9 +87,18 @@ const ViewParticipants = ({ route }) => {
             try {
                 console.log("The rooms ID in ViewRoom: ", roomId);
                 const response = await getRoomParticipants(roomId);
-                console.log("Room participants: ", response);
-                const allParticipants = [{...response.creator, id: "creator"}, ...response.participants];
-                setParticipants(allParticipants);
+                // console.log("Room participants: ", response);
+                const allParticipants = [{ ...response.creator, id: "creator" }, ...response.participants];
+                // Check if the current user follows each participant
+                const updatedParticipants = await Promise.all(
+                    allParticipants.map(async (participant) => {
+                        const followed = await isFollowed(userInfo.userId, participant.uid); // assuming the API checks if the current user follows the participant
+                        return { ...participant, followed };
+                    })
+                );
+
+                // console.log("Updated participants: ", updatedParticipants);
+                setParticipants(updatedParticipants);
             } catch (error) {
                 console.error("Failed to fetch room participants:", error);
             } finally {
@@ -79,28 +108,31 @@ const ViewParticipants = ({ route }) => {
         fetchRoomParticipants();
     }, [route.params.roomId]);
 
-    const renderItem = ({ item }) => (
-        <View style={styles.participantItem}>
-            <Image
-                source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for profile picture
-                style={styles.profilePicture}
-            />
-            <View style={styles.infoContainer}>
-                <Text style={styles.nameText}>{item.name}</Text>
-                <Text style={styles.usernameText}>{item.username}</Text>
+    const renderItem = ({ item }) => {
+        return (
+            <View style={styles.participantItem}>
+                <Image
+                    source={{ uri: item.avatar }} // Placeholder for profile picture
+                    style={styles.profilePicture}
+                />
+                <View style={styles.infoContainer}>
+                    <Text style={styles.nameText}>{item.name}</Text>
+                    <Text style={styles.usernameText}>{item.username}</Text>
+                </View>
+                <View style={{ display: "flex", flexDirection: "row" }}>
+                    <TouchableOpacity style={[styles.followButton, item.followed && styles.followingButton]} onPress={() => handleFollowPress(item.uid)}>
+                        <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{item.followed ? "Following" : "Follow"}</Text>
+                    </TouchableOpacity>
+                    {isRoomCreator && item.id != "creator" && (
+                        <TouchableOpacity style={[styles.removeButton]} onPress={() => handleKick(item)}>
+                            <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Remove"}</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
-            <View style={{display: "flex", flexDirection: "row"}}>
-                <TouchableOpacity style={[styles.followButton, item.followed && styles.followingButton]} onPress={() => handleFollowPress(item.id)}>
-                    <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{item.followed ? "Following" : "Follow"}</Text>
-                </TouchableOpacity>
-                {isRoomCreator && item.id != "creator" &&
-                    <TouchableOpacity style={[styles.removeButton]} onPress={() => handleKick(item)}>
-                    <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Remove"}</Text>
-                </TouchableOpacity>}
-            </View>
-        </View>
         );
-    
+    };
+
     const styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -162,11 +194,9 @@ const ViewParticipants = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.id} />
+            <FlatList data={participants} renderItem={renderItem} keyExtractor={(item) => item.iud} />
         </View>
     );
 };
-
-
 
 export default ViewParticipants;

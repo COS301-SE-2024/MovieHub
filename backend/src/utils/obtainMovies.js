@@ -18,7 +18,8 @@ const containsUnwantedWords = (text) => {
     || lowerCaseText.includes('titty') || lowerCaseText.includes('orgy')
     || lowerCaseText.includes('masterbation') || lowerCaseText.includes('penis')
     || lowerCaseText.includes('cum') || lowerCaseText.includes('sex')
-    || lowerCaseText.includes('fuck') || lowerCaseText.includes('Wicked Pictures');
+    || lowerCaseText.includes('fuck') || lowerCaseText.includes('Wicked Pictures')
+    || lowerCaseText.includes('intercourse')|| lowerCaseText.includes('gloryhole');
 };
 
 // Process the CSV file

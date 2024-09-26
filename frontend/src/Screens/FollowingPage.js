@@ -7,6 +7,7 @@ import { useTheme } from "../styles/ThemeContext";
 
 const FollowingPage = ({ route }) => {
     const { userInfo } = route.params;
+    console.log("Infooo",userInfo)
     const [followers, setFollowing] = useState([]);
     const [loading, setLoading] = useState(true); 
     const navigation = useNavigation();
@@ -23,7 +24,7 @@ const FollowingPage = ({ route }) => {
                     isFollowing,       // Add the isFollowing property
                 };
             }));
-    
+     
             setFollowing(followingWithStatus); // Set the updated following list
         } catch (error) {
             console.error("Error fetching following:", error);
@@ -80,7 +81,7 @@ const FollowingPage = ({ route }) => {
         <View style={styles.container}>
             {loading ? (
                 // Show loading indicator while fetching followers
-                <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+                <ActivityIndicator size="large" color={theme.primaryColor} style={styles.loader} />
             ) : followers.length > 0 ? (
                 <FlatList 
                     data={followers}

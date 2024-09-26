@@ -16,7 +16,6 @@ import { getUserProfile, followUser, unfollowUser, getFollowingCount, getFollowe
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function FollowersProfilePage({ route }) {
-    console.log("FollowerPostTab - Other User Info:", otherUserInfo);
     const { theme } = useTheme();
     const layout = useWindowDimensions();
     const navigation = useNavigation();
@@ -31,10 +30,9 @@ export default function FollowersProfilePage({ route }) {
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
     const [isPost, setIsPost] = useState(false);
 
-    const [followerCount, setFollowerCount] = useState(0);
-    const [followingCount, setFollowingCount] = useState(0);
     const [routes] = useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
@@ -44,16 +42,14 @@ export default function FollowersProfilePage({ route }) {
     // const { userInfo } = route.params;
 
     const { userInfo, otherUserInfo } = route.params;
-    // console.log("hai User Info:", otherUserInfo);
+    // console.log("hai User Info:", userInfo.userId);
     const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
-
-    // console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
-    // console.log("FollowerPostTab() - Other User Info:", userInfo);
 
     const handlePressFollowers = async () => {
         try {
             const followers = await getFollowers(otherUserInfo.uid);
             navigation.navigate("FollowersPage", { 
+                userInfo,
                 followers,
                 username: userProfile.name,
                 userHandle: userProfile.username,
@@ -136,22 +132,31 @@ export default function FollowersProfilePage({ route }) {
     };
 
     const handlePress = async () => {
+        setFollowLoading(true); // Start the loading indicator
         try {
+            const postBody = {
+                followerId: userInfo.userId,
+                followeeId: otherUserInfo.uid,
+            };
+    
             if (isFollowing) {
-                await unfollowUser(otherUserInfo.userId, userProfile.uid);
+                await unfollowUser(postBody);
                 setIsFollowing(false);
-                if (followers <= 0) {return}
-                    
-                setFollowers((prev) => prev - 1);
+                if (followers > 0) {
+                    setFollowers((prev) => prev - 1);
+                }
             } else {
-                await followUser(userInfo.userId, userProfile.uid);
+                await followUser(postBody);
                 setIsFollowing(true);
                 setFollowers((prev) => prev + 1);
             }
         } catch (error) {
             console.error("Error updating follow status:", error);
+        } finally {
+            setFollowLoading(false); // Stop the loading indicator
         }
     };
+    
 
     const styles = StyleSheet.create({
         container: {
@@ -278,18 +283,22 @@ export default function FollowersProfilePage({ route }) {
                     <Text style={styles.userHandle}>@{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                    <Text onPress={() => navigation.navigate("FollowersPage", { otherUserInfo, userProfile, followers })}>
+                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, otherUserInfo, userProfile, followers })}>
                         <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
-                    <Text onPress={() => navigation.navigate("FollowingPage", { otherUserInfo, userProfile, following })}>
+                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, otherUserInfo, userProfile, following })}>
                         <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={isFollowing ? styles.followingButton : styles.followButton} onPress={handlePress}>
-                        <Text style={styles.buttonText}>{isFollowing ? "Following" : "Follow"}</Text>
+                    <Pressable style={isFollowing ? styles.followingButton : styles.followButton} onPress={handlePress} disabled={followLoading}>
+                        {followLoading ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>{isFollowing ? "Following" : "Follow"}</Text>
+                        )}
                     </Pressable>
                 </View>
                 <View style={styles.about}>
