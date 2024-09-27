@@ -361,6 +361,7 @@ const Home = ({ route }) => {
                     resizeMode={FastImage.resizeMode.cover}
                 />
             }
+            userInfo={userInfo}
         />
     );
 
@@ -466,6 +467,7 @@ const Home = ({ route }) => {
                                 overview={movie.overview}
                                 rating={movie.vote_average.toFixed(1)}
                                 date={new Date(movie.release_date).getFullYear()}
+                                userInfo={userInfo}
                             />
                         ))}
 
@@ -538,6 +540,7 @@ const Home = ({ route }) => {
                                 overview={movie.overview}
                                 rating={movie.vote_average.toFixed(1)}
                                 date={new Date(movie.release_date).getFullYear()}
+                                userInfo={userInfo}
                             />
                         ))}
             </ScrollView>
@@ -594,6 +597,7 @@ const Home = ({ route }) => {
                 overview={movie.overview}
                 rating={movie.vote_average.toFixed(1)}
                 date={new Date(movie.release_date).getFullYear()}
+                userInfo={userInfo}
               />
             ))}
           </ScrollView>
