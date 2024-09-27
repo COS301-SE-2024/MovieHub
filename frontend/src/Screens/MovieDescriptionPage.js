@@ -231,7 +231,7 @@ export default function MovieDescriptionPage({ route }) {
         },
         content: {
             flex: 1,
-            paddingTop: 50,
+            paddingTop: 65,
             width: "100%",
         },
         scrollContent: {
