@@ -147,7 +147,7 @@ export default function CreateWatchlist({ route, navigation }) {
         sectionValue: {
             fontSize: 16,
             marginTop: 5,
-            color: theme.secondaryTextColor,
+            color: theme.gray,
         },
         line: {
             height: 1,

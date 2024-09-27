@@ -136,10 +136,15 @@ const ViewRoom = ({ route }) => {
         },
         noUpcomingParties: {
             paddingHorizontal: 16,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 40,
+            color: theme.textColor,
         },
         noUpcomingPartiesText: {
             fontSize: 16,
             color: theme.textColor,
+            paddingBottom: 4
         },
         createWatchPartyText: {
             color: theme.primaryColor,
@@ -305,7 +310,7 @@ const ViewRoom = ({ route }) => {
                             <View style={styles.noUpcomingParties}>
                                 <Text style={styles.noUpcomingPartiesText}>No upcoming watch parties here</Text>
                                 {isRoomCreator && (
-                                    <TouchableOpacity onPress={() => navigation.navigate("CreateWatchParty", { userInfo, isRoomCreator })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate("CreateWatchParty", { userInfo, isRoomCreator, roomShortCode })}>
                                         <Text style={styles.createWatchPartyText}>Create a new watch party</Text>
                                     </TouchableOpacity>
                                 )}

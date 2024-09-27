@@ -168,7 +168,7 @@ const WatchlistDetails = ({ route }) => {
     
     return (
         <View style={styles.container}>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
                 {iniWatchlist.movieList && iniWatchlist.movieList.map((movie) => (
                     <TouchableOpacity key={movie.id} onPress={() => handleMoviePress(movie)}>
                         <View style={styles.movieItem}>

@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
-import Octicons from "react-native-vector-icons/Octicons";
-import SimpLine from "react-native-vector-icons/SimpleLineIcons";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import NetflixLogo from "../../../assets/netflix-logo.svg";
-import ShowmaxLogo from "../../../assets/showmax-logo.svg";
-import AppleTVLogo from "../../../assets/apple-tv.svg";
 
 const CreateWatchParty = ({ route }) => {
     const { theme } = useTheme();
@@ -18,23 +12,21 @@ const CreateWatchParty = ({ route }) => {
     const isButtonDisabled = partyTitle === "" || selectedPlatform === "" || selectedDate === "";
     const { roomShortCode } = route.params || {};
 
-    const handleCreateParty = () => {
-        console.log("Let's get this party started!: ", partyTitle, selectedDate, selectedPlatform);
-    };
-
-    const toggleTooltip = () => {
-        setTooltipVisibility(!isTooltipVisible);
-    };
-
     const styles = StyleSheet.create({
         container: {
             flex: 1,
             padding: 20,
+            paddingBottom: 40,
             backgroundColor: theme.backgroundColor,
         },
         title: {
             fontSize: 24,
             fontWeight: "bold",
+            marginBottom: 20,
+            color: theme.textColor,
+        },
+        welcomeMessage: {
+            fontSize: 16,
             marginBottom: 20,
             color: theme.textColor,
         },
@@ -64,7 +56,7 @@ const CreateWatchParty = ({ route }) => {
             fontWeight: "bold",
         },
         shortCodeContainer: {
-            backgroundColor: "#EDEDED",
+            backgroundColor: theme.gray,
             borderRadius: 5,
             padding: 10,
             paddingVertical: 15

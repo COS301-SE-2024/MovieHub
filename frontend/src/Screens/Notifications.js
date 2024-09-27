@@ -287,7 +287,7 @@ const Notifications = ({ route }) => {
             backgroundColor: "#dc3545",
         },
         deleteButton: {
-            backgroundColor: "#6c757d",
+            backgroundColor: "#ed4337",
         },
         buttonText: {
             color: "#fff",

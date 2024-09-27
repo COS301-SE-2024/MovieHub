@@ -109,6 +109,28 @@ const ViewParticipants = ({ route }) => {
     }, [route.params.roomId]);
 
     const renderItem = ({ item }) => {
+        console.log("item: ", item);
+
+        if (item.id === 'creator') {
+            return (
+                <View style={styles.participantItem}>
+                    <Image
+                        source={{ uri: item.avatar }} // Placeholder for profile picture
+                        style={styles.profilePicture}
+                    />
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.nameText}>{item.name}</Text>
+                        <Text style={styles.usernameText}>{item.username}</Text>
+                    </View>
+                    <Text style={styles.adminText}>Admin</Text>
+                </View>
+            );
+        }
+
+        if(item.uid == userInfo.userId ) {
+            return;
+        }
+
         return (
             <View style={styles.participantItem}>
                 <Image
@@ -125,7 +147,7 @@ const ViewParticipants = ({ route }) => {
                     </TouchableOpacity>
                     {isRoomCreator && item.id != "creator" && (
                         <TouchableOpacity style={[styles.removeButton]} onPress={() => handleKick(item)}>
-                            <Text style={[styles.followButtonText, item.followed && styles.followingButtonText]}>{"Remove"}</Text>
+                            <Text style={[styles.removeButtonText]}>{"Remove"}</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -167,6 +189,12 @@ const ViewParticipants = ({ route }) => {
             fontSize: 14,
             color: "#888",
         },
+        adminText: {
+            fontSize: 14,
+            color: theme.gray,
+            marginRight: 10,
+            fontWeight: "bold"
+        },
         followButton: {
             marginRight: 10,
             paddingVertical: 5,
@@ -189,6 +217,10 @@ const ViewParticipants = ({ route }) => {
             paddingHorizontal: 15,
             borderRadius: 20,
             backgroundColor: "#d10000",
+        },
+        removeButtonText: {
+            color: "#fff",
+            fontWeight: "bold",
         },
     });
 
