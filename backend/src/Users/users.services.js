@@ -305,10 +305,10 @@ exports.followUser = async (followerId, followeeId) => {
             );
         }
 
-        // Fetch follower's name
+        // Fetch follower's details
         const followerResult = await session.run(
             `MATCH (follower:User {uid: $followerId})
-             RETURN follower.name AS followerName`,
+             RETURN follower.name AS followerName, follower.avatar AS followerAvatar, follower.username AS followerUsername`,
             { followerId }
         );
 
@@ -321,11 +321,13 @@ exports.followUser = async (followerId, followeeId) => {
         }
 
         const followerName = validFollowerRecord.get("followerName");
+        const followerAvatar = validFollowerRecord.get("followerAvatar");
+        const followerUsername = validFollowerRecord.get("followerUsername");
         console.log("User services: follower name", followerName);
 
         // Send notification to the followee
         const db = getDatabase();
-        const notificationRef = ref(db, `notifications/${followeeId}/follows/${followerId}`);
+        const notificationRef = ref(db, `notifications/${followeeId}/follows`);
         const newNotificationRef = push(notificationRef);
 
         await set(newNotificationRef, {
@@ -333,8 +335,10 @@ exports.followUser = async (followerId, followeeId) => {
             notificationType: "follow",
             read: false,
             followerId: followerId,
+            avatar: followerAvatar,  // Add follower's avatar
+            user: followerUsername,  // Add follower's username
             timestamp: new Date().toISOString(),
-            isFollowing: isMutualFollowing,
+            isFollowing: isMutualFollowing,  // If the follow is mutual
         });
 
         // Clean up any duplicate follow relationships
@@ -594,6 +598,13 @@ exports.getUnreadNotifications = async (userId) => {
             }
         }
 
+        if (notifications.follows) {
+            for (const key in notifications.follows) {
+                if (notifications.follows[key].read === false) {
+                    unreadCount++;
+                }
+            }
+        }
 
         console.log("Unread notifications count:", unreadCount);
 

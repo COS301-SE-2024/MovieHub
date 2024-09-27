@@ -2,7 +2,7 @@
 export const getLocalIP = () => {
     // Replace this with the actual URL you get from Expo CLI
 
-    const expoURL = 'exp://192.168.11.197:8081';
+    const expoURL = 'exp://192.168.0.113:8081';
 
 
     // Extract the IP address from the URL
