@@ -317,7 +317,7 @@ export default function ExplorePage({ route }) {
             <ScrollView style={{ backgroundColor: theme.backgroundColor }}
              refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-            }>
+            } scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
             <SearchBar onChangeText={handleSearch} />
 
             {searchResults.length > 0 ? (
