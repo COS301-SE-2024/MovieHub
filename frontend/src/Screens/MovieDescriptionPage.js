@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button, FlatList } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { getMovieCredits, getMovieRuntime } from "../Services/TMDBApiService";
+import { getMovieCredits, getMovieRuntime, getMovieDetails } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -18,9 +18,7 @@ export default function MovieDescriptionPage({ route }) {
     const localIP = getLocalIP();
     const { theme } = useTheme();
     const { userInfo } = route.params;
-    console.log("Look ", userInfo);
     const { movieId, imageUrl, title, rating, overview, date } = route.params;
-    //    console.log("Look ", title)
     const [colors, setColors] = useState([
         "rgba(0, 0, 0, 0.7)", // Fallback to white if colors not loaded
         "rgba(0, 0, 0, 0.7)",
@@ -39,6 +37,7 @@ export default function MovieDescriptionPage({ route }) {
     const [watchlists, setWatchlists] = useState([]);
     const [movieReviews, setMovieReviews] = useState([]);
     const navigation = useNavigation();
+    const [movieData,setMovieData]= useState();
 
     useEffect(() => {
         const fetchUserWatchlists = async () => {
@@ -155,7 +154,29 @@ export default function MovieDescriptionPage({ route }) {
         fetchRecommendedMovies();
     }, [movieId]);
 
+    const fetchMovie = async (movieId) => {
+        setLoading(true);  
+        try {
+            const movieData = await getMovieDetails(movieId);  
+            setLoading(false);  
+            navigation.navigate("MovieDescriptionPage", {
+                movieId: movieData.id,
+                imageUrl: `https://image.tmdb.org/t/p/w500/${movieData.poster_path}`,
+                title: movieData.title,
+                overview: movieData.overview,
+                rating: movieData.vote_average.toFixed(1),
+                date: new Date(movieData.release_date).getFullYear(),
+                userInfo
+            });
+        } catch (error) {
+            console.error("Error fetching movie details:", error);
+            setLoading(false);  // Stop loading if an error occurs
+        }
+    };
+
     const handleRecommendationPress = (movie) => {
+        const movieid = movie.id
+        fetchMovie(movieid);
         console.log("Movie pressed:", movie);
     }
 
@@ -366,10 +387,11 @@ export default function MovieDescriptionPage({ route }) {
             color: "white",
             paddingLeft: 15,
             paddingTop: 20,
+            paddingBottom: 15,
         },
         recommendationContainer: {
             paddingLeft: 15,
-            paddingBottom: 30,
+            paddingBottom: 20,
         },
         recommendationCard: {
             width: 120,
@@ -384,6 +406,7 @@ export default function MovieDescriptionPage({ route }) {
             fontSize: 14,
             color: "white",
             marginTop: 5,
+            paddingTop: 10,
         },
         recommendationScore: {
             fontSize: 12,
@@ -413,6 +436,7 @@ export default function MovieDescriptionPage({ route }) {
         },
         reviewInfo: {
             flex: 1,
+            paddingTop: 5,
         },
         reviewTitleRow: {
             flexDirection: "row",
