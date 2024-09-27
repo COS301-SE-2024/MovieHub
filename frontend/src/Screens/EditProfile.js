@@ -253,7 +253,7 @@ export default function EditProfile({ route }) {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: theme.backgroundColor,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
         },
         modalContent: {
             backgroundColor: theme.backgroundColor,
