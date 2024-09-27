@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, FlatList, TextInput } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, FlatList, TextInput , RefreshControl} from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from "react-native";
@@ -22,6 +22,7 @@ import Post from "../Components/Post";  // To render posts
 import Review from "../Components/Review";  // To render reviews
 import moment from "moment";
 import { useTheme } from '../styles/ThemeContext';
+import { colors, themeStyles } from "../styles/theme";
 import SearchBar from '../Components/SearchBar';
 
 
@@ -41,10 +42,10 @@ export default function ExplorePage({ route }) {
     const [recentRooms, setRecentRooms] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [sortedContent, setSortedContent] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
-    useEffect(() => {
         const fetchContent = async () => {
             try {
                 const friendsContent = await getFriendsOfFriendsContent(userInfo);
@@ -86,9 +87,10 @@ export default function ExplorePage({ route }) {
                 console.error('Error fetching content:', error);
             }
         };
-    
-        fetchContent();
-    }, [userInfo]);
+
+        useEffect(() => {
+            fetchContent();
+        }, [userInfo]);
 
     useFocusEffect(
         useCallback(() => {
@@ -133,14 +135,19 @@ export default function ExplorePage({ route }) {
             console.error("Failed to fetch friends content:", error);
         }
     }, [userInfo]);
+    
+    useEffect(() => {
+        if (userInfo) {
+            fetchFriendsContent();
+        }
+    }, [userInfo, fetchFriendsContent]);
 
-    useFocusEffect(
-        useCallback(() => {
-            if (userInfo) {
-                fetchFriendsContent();
-            }
-        }, [userInfo, fetchFriendsContent])
-    );
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([fetchContent(), fetchFriendsContent()]);
+        setRefreshing(false);
+    }, []);
+
 
     const handleOpenHub = () => {
         navigation.navigate("HubScreen", { userInfo });
@@ -305,7 +312,10 @@ export default function ExplorePage({ route }) {
     });    
     return (
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
-            <ScrollView>
+            <ScrollView style={{ backgroundColor: theme.backgroundColor }}
+             refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+            }>
             <SearchBar onChangeText={handleSearch} />
 
             {searchResults.length > 0 ? (
