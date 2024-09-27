@@ -12,7 +12,7 @@ export const createWatchlist = async (userId, watchlistData) => {
     // collabUserIds is the array that contaions all the user IDs that collabarate
 
     if(watchlistData.img === null){
-        watchlistData.img = null;
+        watchlistData.img = 'https://picsum.photos/seed/picsum/20/300';
     }else{
     watchlistData.img = await uploadImage(watchlistData.img, 'lists');
     }
