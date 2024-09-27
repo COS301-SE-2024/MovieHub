@@ -19,7 +19,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress, re
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    const formatTimeAgoFromDB = (dateString) => {
+    const formatTimeAgoFromDB = (date) => {
         return moment(date).fromNow(); // Using moment.js to format the date as 'X time ago'
     };
 
