@@ -1,9 +1,11 @@
 {
     "name": "My Watch Party Extension",
     "version": "1.0",
-    "description": "Watch party chat for streaming.",
+    "description": "MovieHub's Watch party chat for streaming.",
     "manifest_version": 3,
-    "permissions": ["activeTab", "storage"],
+    "permissions": ["activeTab", "storage",
+      "tabCapture"
+      ],
     "background": {
       "service_worker": "js/background.js"
     },

@@ -3,14 +3,89 @@ let peerConnections = {};
 const signalingSocket = new WebSocket('ws://localhost:3000');
 
 let isMuted = false;
+let isVideoMuted = false;
+
+// Max number of users in the watch party
+const MAX_USERS = 5;
+let userCount = 0;
+
 
 // Get user's audio stream
 async function startAudioStream() {
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStream = await navigator.mediaDevices.getUserMedia(
+      { audio: true,
+        video: true  // Add this to request video
+       });
     localStream.getAudioTracks().forEach(track => track.enabled = !isMuted); // Initially, set the track to be enabled
+
+    // You can now handle video tracks
+    localStream.getVideoTracks().forEach(track => {
+      // You can control video track's mute state similarly, if needed
+      track.enabled = !isMuted
+      console.log('Video track initialized');
+    });
+
   } catch (error) {
     console.error('Error accessing microphone:', error);
+  }
+}
+
+// Add the local video element to the DOM
+function addLocalVideoElement() {
+  const localVideo = document.createElement('video');
+  localVideo.id = 'localVideo';
+  localVideo.autoplay = true;
+  localVideo.muted = true; // Mute local video
+  localVideo.playsInline = true;
+
+  // Set the source of the video element to the local stream
+  localVideo.srcObject = localStream;
+
+  // Style the video element to position it at the top of the screen
+  Object.assign(localVideo.style, {
+    position: 'fixed',
+    top: '10px',
+    left: '10px',
+    width: '200px', // Adjust width as necessary
+    height: '150px', // Adjust height as necessary
+    borderRadius: '8px', // Rounded corners
+    border: '2px solid #7e57c2', // Border color
+    zIndex: '1000' // Ensure it's above other elements
+  });
+
+  document.body.appendChild(localVideo);
+}
+
+function addRemoteVideoElement(socketId, stream) {
+  const remoteVideo = document.createElement('video');
+  remoteVideo.id = `remoteVideo_${socketId}`;
+  remoteVideo.srcObject = stream;
+  remoteVideo.autoplay = true;
+  remoteVideo.playsInline = true;
+
+  // Style the remote video element
+  Object.assign(remoteVideo.style, {
+    position: 'fixed',
+    top: '10px',
+    right: `${userCount * 210}px`, // Space them out horizontally
+    width: '200px',
+    height: '150px',
+    borderRadius: '8px',
+    border: '2px solid #7e57c2',
+    zIndex: '999',
+  });
+
+  document.body.appendChild(remoteVideo);
+  userCount++;
+}
+
+// Remove remote video element for a user
+function removeRemoteVideoElement(socketId) {
+  const remoteVideo = document.getElementById(`remoteVideo_${socketId}`);
+  if (remoteVideo) {
+    remoteVideo.remove();
+    userCount--;
   }
 }
 
@@ -18,7 +93,7 @@ async function startAudioStream() {
 function createPeerConnection(partyCode, targetSocketId) {
   const peerConnection = new RTCPeerConnection();
 
-  // Add the local audio track to the connection
+  // Add both audio and video tracks to the connection
   localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
   // Handle ICE candidates
@@ -33,15 +108,28 @@ function createPeerConnection(partyCode, targetSocketId) {
     }
   };
 
-  // Handle remote audio streams
+  // Handle remote media streams (audio and video)
+  // Handle remote media streams (audio and video)
   peerConnection.ontrack = event => {
+    const remoteStream = event.streams[0];
+    addRemoteVideoElement(targetSocketId, remoteStream);
+
+    // Audio handling
     const remoteAudio = new Audio();
-    remoteAudio.srcObject = event.streams[0];
+    remoteAudio.srcObject = remoteStream;
     remoteAudio.play();
+
+    // Video handling
+    const remoteVideo = document.createElement('video');
+    remoteVideo.srcObject = remoteStream;
+    remoteVideo.autoplay = true;
+    remoteVideo.playsInline = true;
+    document.body.appendChild(remoteVideo); // Add the video element to the DOM
   };
 
   return peerConnection;
 }
+
 
 // Handle incoming WebRTC signaling messages
 signalingSocket.onmessage = async (event) => {
@@ -69,7 +157,10 @@ signalingSocket.onmessage = async (event) => {
     if (peerConnection) {
       await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
     }
+  }else if (data.type === 'user-disconnected') {
+    removeRemoteVideoElement(data.socketId);
   }
+
 };
 
 // Mic Button to toggle mute/unmute
@@ -99,6 +190,29 @@ micButton.addEventListener('click', () => {
     });
   }
 });
+
+// Video Button to toggle video mute/unmute
+const videoButton = document.createElement('button');
+videoButton.textContent = '📹 Stop Video';
+videoButton.style.position = 'fixed';
+videoButton.style.bottom = '20px';
+videoButton.style.right = '220px';
+videoButton.style.zIndex = '10000';
+videoButton.style.backgroundColor = '#7e57c2';
+videoButton.style.color = 'white';
+videoButton.style.padding = '10px';
+videoButton.style.border = 'none';
+videoButton.style.borderRadius = '5px';
+videoButton.style.cursor = 'pointer';
+
+document.body.appendChild(videoButton);
+
+videoButton.addEventListener('click', () => {
+  isVideoMuted = !isVideoMuted;
+  localStream.getVideoTracks().forEach(track => track.enabled = !isVideoMuted);
+  videoButton.textContent = isVideoMuted ? '📹 Start Video' : '📹 Stop Video';
+});
+
 
 // Inject chat interface into the streaming platform
 const chatBox = document.createElement('div');
@@ -313,6 +427,9 @@ function createSendButton(chatInput, userDetails) {
 async function startWatchParty() {
 const userDetails = getUserDetails();
   await startAudioStream();
+  addLocalVideoElement(); // Add the local video element
+  console.log('Local Stream Tracks:', localStream.getTracks());
+
 
   signalingSocket.onopen = () => {
     signalingSocket.send(JSON.stringify({
