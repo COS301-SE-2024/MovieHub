@@ -59,7 +59,7 @@ exports.getWatchPartyChatMessages = async (req, res) => {
         res.status(200).json(messages);
     } catch (error) {
         console.error('Error fetching chat messages:', error);
-        res.status(500).json({ error: 'Failed to fetch chat messages' });
+        res.status(500).json({ error: error.message ? error.message : 'Failed to fetch chat messages' });
     }
 };
 

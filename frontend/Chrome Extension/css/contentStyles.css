@@ -1,0 +1,75 @@
+/* styles.css */
+
+body {
+    background-color: red;
+}
+
+
+#localVideo, .remoteVideo {
+    position: fixed;
+    top: 10px;
+    width: 200px;
+    height: 150px;
+    border-radius: 8px;
+    border: 2px solid #7e57c2;
+    z-index: 1000;
+}
+
+.remoteVideo {
+    right: 10px; /* Adjust for each remote video dynamically in JS */
+    z-index: 999;
+}
+
+.micButton, .videoButton {
+    position: fixed;
+    bottom: 20px;
+    z-index: 10000;
+    background-color: #7e57c2;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.micButton {
+    right: 320px;
+}
+
+.videoButton {
+    right: 220px;
+}
+
+#watchPartyChat {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #f3f4f6;
+    color: black;
+    overflow-y: auto;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    z-index: 9999;
+    border-left: 4px solid #7e57c2;
+}
+
+h1 {
+    text-align: center;
+    color: #7e57c2;
+    margin-bottom: 10px;
+}
+
+p.chat-message {
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #e1bee7;
+    color: black;
+    transition: background-color 0.3s;
+}
+
+p.chat-message:hover {
+    background-color: #9575cd;
+}
