@@ -36,7 +36,9 @@ const port = process.env.PORT;
 
 app.use(
     cors({
-        origin: ["http://localhost:8081", "exp://192.168.225.19:8081"], // all ports used in frontend web and exp
+        origin: ["http://localhost:8081", "exp://192.168.225.19:8081", 
+            "https://expo.dev/preview/update?message=EAS%20Update%20Config&updateRuntimeVersion=1.0.0&createdAt=2024-09-27T07%3A56%3A47.263Z&slug=exp&projectId=6ef1762e-e060-4f5f-98dc-2073a1f4dd47&group=03b3af8b-3700-4b92-a708-ab4b453ed87c"
+        ], // all ports used in frontend web and exp
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })
