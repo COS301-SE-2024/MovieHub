@@ -79,3 +79,4 @@ yarn-error.*
 *.tsbuildinfo
 
 # @end expo-cli
+frontend/src/Services/getLocalIP.js
