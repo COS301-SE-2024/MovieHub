@@ -17,6 +17,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function FollowersProfilePage({ route }) {
     const { theme } = useTheme();
+    const [activeTab, setActiveTab] = useState('posts');
     const layout = useWindowDimensions();
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
@@ -160,7 +161,11 @@ export default function FollowersProfilePage({ route }) {
 
     const styles = StyleSheet.create({
         container: {
+            flex: 1,
             backgroundColor: "#fff",
+        },
+        scrollContent: {
+            flexGrow: 1,
         },
         avatar: {
             width: 80,
@@ -229,11 +234,27 @@ export default function FollowersProfilePage({ route }) {
             height: layout.height,
         },
         tabBar: {
+            flexDirection: 'row',
+            justifyContent: 'space-around',
             backgroundColor: theme.backgroundColor,
             elevation: 0,
             shadowOpacity: 0,
+            marginTop: 20,
             borderBottomWidth: 1,
-            borderBottomColor: theme.borderColor,
+            borderBottomColor: 'transparent',
+        },
+        tabItem: {
+            paddingVertical: 10,
+            paddingHorizontal: 35,
+        },
+        tabText: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: theme.textColor,
+        },
+        activeTab: {
+            borderBottomWidth: 2,
+            borderBottomColor: colors.primary,
         },
         indicator: {
             backgroundColor: colors.primary,
@@ -247,15 +268,14 @@ export default function FollowersProfilePage({ route }) {
         },
     });
 
-    const renderScene = ({ route }) => {
-        switch (route.key) {
-            case "posts":
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'posts':
                 return <PostsTab userInfo={otherUserInfo} otherinfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
-            case "likes":
+            case 'likes':
                 return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} orginalUserinfo={userInfo} />;
-            case "watchlist":
+            case 'watchlist':
                 return <WatchlistTab userInfo={otherUserInfo} userProfile={userProfile} />;
-
             default:
                 return null;
         }
@@ -270,24 +290,27 @@ export default function FollowersProfilePage({ route }) {
     }
 
     return (
-        <View style={{ flex: 1 }}>
-            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
+        <View style={styles.container}>
+            <ScrollView 
+                contentContainerStyle={styles.scrollContent} 
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+                scrollbarThumbColor="rgba(0, 0, 0, 0)"
+                showsVerticalScrollIndicator={false}
+            >
                 <View style={styles.accountInfo}>
                     <Image
-                        source={{
-                            uri: userProfile.avatar,
-                        }}
+                        source={{ uri: userProfile.avatar }}
                         style={styles.avatar}
                     />
                     <Text style={styles.username}>{userProfile.name || "Itumeleng Moshokoa"}</Text>
                     <Text style={styles.userHandle}>@{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, otherUserInfo, userProfile, followers })}>
+                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, otherUserInfo, userProfile, followers: followers })}>
                         <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
-                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, otherUserInfo, userProfile, following })}>
+                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, otherUserInfo, userProfile, following: following })}>
                         <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
@@ -309,14 +332,33 @@ export default function FollowersProfilePage({ route }) {
                         {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text> : <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>}
                     </Text>
                 </View>
-                <View style={styles.tabContainer}>
-                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
+                <View style={styles.tabBar}>
+                    {['posts', 'likes', 'watchlist'].map((tab) => (
+                        <Pressable
+                            key={tab}
+                            style={[styles.tabItem, activeTab === tab && styles.activeTab]}
+                            onPress={() => setActiveTab(tab)}
+                        >
+                            <Text style={styles.tabText}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
+                        </Pressable>
+                    ))}
                 </View>
+                {renderTabContent()}
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
 
-            <CommentsModal ref={bottomSheetRef} postId={selectedPostId} userId={otherUserInfo.userId} username={otherUserInfo.username} currentUserAvatar={userProfile.avatar} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
+            <CommentsModal
+                ref={bottomSheetRef}
+                isPost={isPost}
+                postId={selectedPostId}
+                userId={otherUserInfo.uid}
+                username={otherUserInfo.username}
+                currentUserAvatar={userProfile.avatar}
+                comments={comments}
+                loadingComments={loadingComments}
+                onFetchComments={fetchComments}
+            />
         </View>
     );
 }
