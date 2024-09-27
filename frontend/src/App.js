@@ -248,10 +248,10 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 title: "movieHub.",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
-                headerTintColor: "white",
                 headerTintColor: theme.textColor,
+                headerTransparent: true,
                 headerStyle: {
-                    backgroundColor: theme.backgroundColor,
+                    backgroundColor: "transparent",
                 },
             })}
         />

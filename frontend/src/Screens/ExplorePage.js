@@ -147,7 +147,6 @@ export default function ExplorePage({ route }) {
         }
     }, [userInfo]);
     
-    
     useEffect(() => {
         if (userInfo) {
             fetchFriendsContent();

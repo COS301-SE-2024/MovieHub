@@ -14,12 +14,6 @@ export default function MovieCard({ movieId, imageUrl, title, rating, overview, 
         navigation.navigate("MovieDescriptionPage", { movieId: movieId, imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date, userInfo: userInfo });
     };
 
-    
-
-    const handleLikePress = () => {
-        setLiked(!liked);
-    };
-
     return (
         <View style={styles.container}>
             

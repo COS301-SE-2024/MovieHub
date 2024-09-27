@@ -40,14 +40,16 @@ const FollowingPage = ({ route }) => {
 
 
     const renderFollower = ({ item }) => (
-        <FollowList 
-            route={route}
-            uid={item.uid}
-            username={item.username}
-            userHandle={item.name}
-            userAvatar={item.avatar}
-            isFollowing={item.isFollowing}
-        />
+        <TouchableOpacity onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo: item })}>
+            <FollowList 
+                route={route}
+                uid={item.uid}
+                username={item.username}
+                userHandle={item.name}
+                userAvatar={item.avatar}
+                isFollowing={item.isFollowing}
+            />
+        </TouchableOpacity>
     );
 
     const styles = StyleSheet.create({
