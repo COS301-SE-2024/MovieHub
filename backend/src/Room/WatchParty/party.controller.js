@@ -13,7 +13,7 @@ exports.startWatchParty = async (req, res) => {
         const result = await partyService.startWatchParty(username, partyCode, roomShortCode);
         console.log("Result => ", result);
         if (result.success) {
-            return res.status(200).json({ success: true, partyCode: result.partyCode });
+            return res.status(200).json({ success: true, partyCode: result.partyCode, roomId: result.roomId });
         } else {
             return res.status(500).json({ success: false, message: result.error });
         }

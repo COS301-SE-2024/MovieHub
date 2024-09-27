@@ -38,10 +38,10 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         chrome.storage.sync.set({ username, partyCode }, () => {
             console.log("Stored username and partyCode in chrome.storage.sync:", { username, partyCode });
         });
-
+        
         // Initialize WebSocket connection with the roomId from the response
-        ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
-
+        ws = new WebSocket(`wss://moviehub-watchparty-extension.glitch.me?roomId=${data.roomId}`); //Remote Host for WebSocket
+        console.log("ws?? ", ws);
         ws.onopen = () => {
             console.log('WebSocket connection established');
         };

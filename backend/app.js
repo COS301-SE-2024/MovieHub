@@ -118,6 +118,7 @@ function broadcast(roomId, message, sender) {
 // Set up the WebSocket server to handle new connections
 wss.on('connection', (ws, req) => {
     // Extract the roomId from the query parameter (e.g., ?roomId=xxx)
+    console.log("WebSocket connecting")
     const params = new URLSearchParams(req.url.split('?')[1]);
     const roomId = params.get('roomId');
 
