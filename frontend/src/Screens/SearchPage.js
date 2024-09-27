@@ -179,14 +179,11 @@ const SearchPage = ({ route }) => {
         return (
             <TouchableOpacity key={genreId} style={styles.genreBox} onPress={() => handleGenrePress(genre)}>
                 <ImageBackground source={{ uri: genrePosters[genre] }} style={styles.genreImage} resizeMode="cover">
-                    <View style={styles.genreOverlay}>
-                        <Text style={styles.genreText}>{genre}</Text>
-                    </View>
+                    <Text style={styles.genreText}>{genre}</Text>
                 </ImageBackground>
             </TouchableOpacity>
         );
     };
-
 
     const styles = StyleSheet.create({
         container: {
@@ -217,30 +214,29 @@ const SearchPage = ({ route }) => {
         },
         genreBox: {
             width: "48%",
-            aspectRatio: 0.75, // Adjust this value to get the desired height
+            backgroundColor: "#e0e0e0",
+            height: 100,
+            justifyContent: "center",
+            alignItems: "center",
             marginBottom: 15,
             marginHorizontal: "1%",
-            borderRadius: 10,
-            overflow: 'hidden',
         },
         genreImage: {
             width: "100%",
             height: "100%",
-            justifyContent: 'center',
-            alignItems: 'center',
         },
-        genreOverlay: {
-            ...StyleSheet.absoluteFillObject,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
+        genreImage: {
+            width: "100%",
+            height: "100%",
         },
         genreText: {
             fontSize: 18,
             color: "white",
             fontWeight: "bold",
             textAlign: "center",
-            padding: 10,
+            backgroundColor: "#00000080",
+            flex: 1,
+            textAlignVertical: "center",
         },
 
         grid: {

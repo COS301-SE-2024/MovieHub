@@ -484,7 +484,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="ViewParticipants"
             component={ViewParticipants}
             options={({ navigation }) => ({
-                title: "Room Participants",
+                title: "Participants",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: "black",
@@ -492,7 +492,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 headerStyle: {
                     backgroundColor: theme.backgroundColor,
                 },
-
+                headerLeft: () => null,
             })}
         />
         <Nav.Screen
