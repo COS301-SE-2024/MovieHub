@@ -182,11 +182,11 @@ const WatchlistTab = ({ userInfo }) => {
             
                 {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} />
+                        <Image source={{  uri: watchlist.img ? watchlist.img : 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
                             <Text style={styles.watchlistPrivacy}>
-                                        {watchlist.visibility ? 'Private' : 'Public'}
+                                        {watchlist.visibility ? 'Public' : 'Private'}
                             </Text>
                             <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>

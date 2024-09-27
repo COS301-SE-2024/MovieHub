@@ -198,6 +198,23 @@ export const getUserWatchlists = async (userId) => {
     return data;
 };
 
+export const getUserPublicWatchlists = async (userId) => {
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/${userId}/watchlists/public`, {
+
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch user watchlists');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
 // funtion get get user's posts
 export const getUserPosts = async (userId) => {
     const token = await getToken();

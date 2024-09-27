@@ -223,9 +223,9 @@ const Home = ({ route }) => {
 
 
                 // Remove duplicates based on watchlist IDs
-                userWatchlists = userWatchlists.filter((watchlist, index, self) => 
-                    index === self.findIndex((w) => w.id === watchlist.id)
-                );
+                // userWatchlists = userWatchlists.filter((watchlist, index, self) => 
+                //     index === self.findIndex((w) => w.id === watchlist.id)
+                // );
 
                 setWatchlists(userWatchlists);
             } catch (error) {
@@ -460,7 +460,7 @@ const Home = ({ route }) => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+                        <Image source={{  uri: watchlist.img ? watchlist.img : 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={{
                 fontSize: 12, // Ensure only one fontSize is set

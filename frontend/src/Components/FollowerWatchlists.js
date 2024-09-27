@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
-import { getUserWatchlists } from "../Services/UsersApiService";
+import { getUserPublicWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 import { useTheme } from "../styles/ThemeContext";
 
@@ -21,7 +21,7 @@ const WatchlistTab = ({ userInfo }) => {
                 console.log("This is the user Info being passed in Watchlist.js : " + JSON.stringify(userInfo));
                 const userId = userInfo.uid; // Replace with actual user ID fetching logic
 
-                const userWatchlists = await getUserWatchlists(userId);
+                const userWatchlists = await getUserPublicWatchlists(userId);
                 const watchlistId = userWatchlists.id;
                 console.log(userWatchlists);
                 setWatchlists(userWatchlists);
@@ -154,7 +154,7 @@ const WatchlistTab = ({ userInfo }) => {
             <ScrollView>
                 {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} />
+                        <Image source={{ uri: watchlist.img ? watchlist.img : 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
                             <Text style={styles.watchlistPrivacy}>
