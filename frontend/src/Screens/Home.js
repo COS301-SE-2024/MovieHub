@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView,ScrollView , TouchableOpacity,} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
-import FastImage from 'react-native-fast-image';
 import Svg from "react-native-svg";
 import MovieCard from "../Components/MovieCard"
 import TrendingMovie from "../Components/TrendingMovies"
@@ -12,17 +11,13 @@ import { getMovies } from "../api";
 import { getFriendsContent } from "../Services/ExploreApiService";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
 import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
-import { getFollowedUsersWatchlists } from "../Services/ListApiService"
+import {getFollowedUsersWatchlists} from "../Services/ListApiService"
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
-import Post from "../Components/Post";
-import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
-import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
-import NonFollowerPost from "../Components/NonFollowerPost";
-import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies, fetchCurrentlyPlayingMovies } from '../Services/TMDBApiService';
+import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 import { getUserWatchlists } from "../Services/UsersApiService";
 
@@ -67,10 +62,6 @@ const Backdrop = ({ movies, scrollX }) => {
         <View style={{ height: BACKDROP_HEIGHT, width, position: "absolute" }}>
             <FlatList
                 data={movies}
-                showsHorizontalScrollIndicator={false}
-                horizontal
-                scrollbarThumbColor="rgba(0, 0, 0, 0)"
-                showsVerticalScrollIndicator={false}
                 keyExtractor={(item) => item.key + "-backdrop"}
                 removeClippedSubviews={false}
                 contentContainerStyle={{ width, height: BACKDROP_HEIGHT }}
@@ -112,9 +103,7 @@ const Backdrop = ({ movies, scrollX }) => {
 };
 
 const VirtualizedList = ({ children }) => {
-    return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} showsHorizontalScrollIndicator={false}
-    scrollbarThumbColor="rgba(0, 0, 0, 0)"
-    showsVerticalScrollIndicator={false}/>;
+    return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} />;
 };
 
 // Helper function to format the post date
@@ -139,7 +128,6 @@ const Home = ({ route }) => {
     const [isPost, setIsPost] = useState(false);
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     // const [friendsContent, setFriendsContent] = useState([]);
     const [sortedContent, setSortedContent] = useState([]);
@@ -154,37 +142,56 @@ const Home = ({ route }) => {
     const [watchlists, setWatchlists] = useState([]);
 
 
-
     useEffect(() => {
-        const fetchOTHERMovies = async () => {
-            try {
-                // Create an array of promises for parallel fetching
-                const moviePromises = [
-                    getPopularMovies(),
-                    getMoviesByGenre(53), // Thriller
-                    getMoviesByGenre(35), // Comedy
-                    getMoviesByGenre(28), // Romance
-                ];
+        const fetchMoviesByGenres = async () => {
+          try {
+            const genreMoviesPromises = Object.entries(genres).map(async ([genreName, genreId]) => {
+              const movies = await getNewMovies(genreId); // Using the imported function here
+              return { genre: genreName, movies };
+            });
 
-                // Await all promises to resolve in parallel
-                const [fetchedMovies, fetchedThrillerMovies, fetchedComedyMovies, fetchedRomanceMovies] = await Promise.all(moviePromises);
+            const fetchedMovies = await Promise.all(genreMoviesPromises);
 
-                // Update the respective states after fetching
-                setMovies1(fetchedMovies);
-                setThrillerMovies(fetchedThrillerMovies);
-                setComedyMovies(fetchedComedyMovies);
-                setRomanceMovies(fetchedRomanceMovies);
+            const moviesByGenreData = fetchedMovies.reduce((acc, curr) => {
+              acc[curr.genre] = curr.movies;
+              return acc;
+            }, {});
 
-            } catch (error) {
-                console.error('Error fetching movies:', error);
-            }
+            setMoviesByGenre(moviesByGenreData);
+          } catch (error) {
+            console.error('Error fetching movies by genres:', error);
+          }
         };
 
-        fetchOTHERMovies();
-    }, []);
+        fetchMoviesByGenres(); 
+      }, []);
 
+      useEffect(() => {
+        const fetchOTHERMovies = async () => {
+          try {
+            const fetchedMovies = await getPopularMovies();
+            setMovies1(fetchedMovies);
 
-    const shuffleArray = (array) => {
+            const fetchedThrillerMovies = await getMoviesByGenre(53);
+            setThrillerMovies(fetchedThrillerMovies);
+
+            const fetchedComedyMovies = await getMoviesByGenre(35); 
+            setComedyMovies(fetchedComedyMovies);
+
+            const fetchedRomanceMovies = await getMoviesByGenre(28); 
+            setRomanceMovies(fetchedRomanceMovies);
+
+          } catch (error) {
+            console.error('Error fetching movies:', error);
+          } finally {
+
+          }
+        };
+
+        fetchOTHERMovies(); 
+      }, []);
+
+      const shuffleArray = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]]; // Swap elements
@@ -197,7 +204,7 @@ const Home = ({ route }) => {
             try {
                 let moviesData = await getMovies();
                 moviesData = shuffleArray(moviesData); // Shuffle the movies array
-                setMovies([{ key: "empty-left" }, ...moviesData.slice(0, 9), { key: "empty-right" }]);
+                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
             } catch (error) {
                 console.error("Failed to fetch movies:", error);
             }
@@ -206,15 +213,19 @@ const Home = ({ route }) => {
         fetchMovies();
     }, []);
 
-
-
     useEffect(() => {
-
         const fetchUserWatchlists = async () => {
             try {
                 const userId = userInfo.userId;
-                let userWatchlists = await getFollowedUsersWatchlists(userId);
+                let userWatchlists = await getUserWatchlists(userId);
 
+                //let userWatchlists = await getFollowedUsersWatchlists(userId);
+
+
+                // Remove duplicates based on watchlist IDs
+                userWatchlists = userWatchlists.filter((watchlist, index, self) => 
+                    index === self.findIndex((w) => w.id === watchlist.id)
+                );
 
                 setWatchlists(userWatchlists);
             } catch (error) {
@@ -224,44 +235,6 @@ const Home = ({ route }) => {
         };
 
         fetchUserWatchlists();
-    }, []);
-
-    useEffect(() => {
-        const fetchMoviesByGenres = async () => {
-            try {
-                const genreMoviesPromises = Object.entries(genres).map(([genreName, genreId]) =>
-                    getNewMovies(genreId)
-                );
-
-                const fetchedMovies = await Promise.all(genreMoviesPromises);
-
-                const moviesByGenreData = Object.keys(genres).reduce((acc, genreName, index) => {
-                    acc[genreName] = fetchedMovies[index];
-                    return acc;
-                }, {});
-
-                setMoviesByGenre(moviesByGenreData);
-            } catch (error) {
-                console.error('Error fetching movies by genres:', error);
-            }
-        };
-
-        fetchMoviesByGenres();
-    }, []);
-
-
-
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const moviesData = await getMovies();
-                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
-            } catch (error) {
-                console.error("Failed to fetch movies:", error);
-            }
-        };
-
-        fetchMovies();
     }, []);
 
 
@@ -293,10 +266,10 @@ const Home = ({ route }) => {
     //     return () => clearInterval(interval);
     // }, [isAutoScrolling, activeIndex, movies1]);
     // const getItemLayout = (data, index) => ({
-    // 	length: screenWidth,
-    // 	offset: screenWidth * index, // for first image - 300 * 0 = 0pixels, 300 * 1 = 300, 300*2 = 600
-    // 	index: index,
-    // });
+	// 	length: screenWidth,
+	// 	offset: screenWidth * index, // for first image - 300 * 0 = 0pixels, 300 * 1 = 300, 300*2 = 600
+	// 	index: index,
+	// });
 
     // const handleScrollBeginDrag = () => {
     //     setIsAutoScrolling(false);
@@ -307,18 +280,18 @@ const Home = ({ route }) => {
             setIsAutoScrolling(true);
             setActiveIndex(0); // Reset the active index to 0
             flatlistRef.current?.scrollToIndex({
-                index: 0,
-                animated: true,
-            });
-        }, 3000);
+            index: 0,
+            animated: true,
+        });
+        }, 3000); 
     };
 
     // auto scroll
     const handleScroll = (event) => {
-        const scrollPosition = event.nativeEvent.contentOffset.x;
-        const index = scrollPosition / screenWidth;
-        setActiveIndex(index);
-    };
+		const scrollPosition = event.nativeEvent.contentOffset.x;
+		const index = scrollPosition / screenWidth;
+		setActiveIndex(index);
+	};
 
     const handleScrollToIndexFailed = (info) => {
         console.log('Scroll to index failed:', info);
@@ -328,7 +301,7 @@ const Home = ({ route }) => {
     };
 
 
-    if (movies.length === 0) {
+    if (movies.length === 0 ) {
         return <Loading />;
     }
 
@@ -360,28 +333,19 @@ const Home = ({ route }) => {
             overview={item.overview}
             rating={item.vote_average.toFixed(1)}
             date={new Date(item.release_date).getFullYear()}
-            imageComponent={
-                <FastImage
-                    style={{ width: 100, height: 150 }}
-                    source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-                    resizeMode={FastImage.resizeMode.cover}
-                />
-            }
         />
     );
 
 
     return (
         <View style={homeStyles.container}>
-            <VirtualizedList style={{ flex: 1 }} showsVerticalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)">
+            <VirtualizedList style={{ flex: 1 }}>
                 <View style={homeStyles.container}>
                     <HomeHeader userInfo={userInfo} />
                     <Backdrop movies={movies} scrollX={scrollX} />
                     <StatusBar hidden />
                     <Animated.FlatList
                         showsHorizontalScrollIndicator={false}
-                        scrollbarThumbColor="rgba(0, 0, 0, 0)" 
-                        showsVerticalScrollIndicator={false}
                         data={movies}
                         keyExtractor={(item) => item.key}
                         horizontal
@@ -417,7 +381,7 @@ const Home = ({ route }) => {
 
                             return (
                                 <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
-                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails, userInfo })}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
                                         <Animated.View
                                             style={{
                                                 marginHorizontal: SPACING,
@@ -436,7 +400,7 @@ const Home = ({ route }) => {
                                             <Text style={{ fontSize: 12, color: theme.textColor }} numberOfLines={3}>
                                                 {item.description}
                                             </Text>
-                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
+                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
                                                 <Text style={{ fontSize: 12, fontWeight: "500", color: theme.primaryColor, marginTop: 10 }}>Read more</Text>
                                             </Pressable>
                                         </Animated.View>
@@ -447,96 +411,24 @@ const Home = ({ route }) => {
                     />
 
 
-                    <View style={styles.line}></View>
+            <View style={styles.line}></View>
 
 
-                    <View style={styles.viewall}>
-                        <Text style={{
-                            fontSize: 23,
-                            color: theme.textColor,
-                            paddingLeft: 16,
-                            fontFamily: 'Roboto',
-                            fontWeight: 'bold',
-                            paddingTop: 10,
-                        }}>Comedy</Text>
-                        {/* <Text style={styles.viewalltext}>View all</Text> */}
-                    </View>
+            <View style={styles.viewall}>
+             <Text  style={{
+                fontSize: 23, 
+                color: theme.textColor,
+                paddingLeft: 16,
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+            }}>Comedy</Text>
+             {/* <Text style={styles.viewalltext}>View all</Text> */}
+            </View>
 
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
-                        {comedyMovies.slice(5, 16).map((movie, index) => (
-
-                            <TrendingMovie
-                                key={index}
-                                movieId={movie.id}
-                                imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                                title={movie.title}
-                                overview={movie.overview}
-                                rating={movie.vote_average.toFixed(1)}
-                                date={new Date(movie.release_date).getFullYear()}
-                            />
-                        ))}
-
-                    </ScrollView>
-
-                    <View style={styles.viewall}>
-                        <Text style={{
-                            fontSize: 23, // Ensure only one fontSize is set
-                            color: theme.textColor,
-                            paddingLeft: 16, // Padding should work
-                            fontFamily: 'Roboto',
-                            fontWeight: 'bold',
-                            paddingTop: 10,
-                            paddingBottom: 10,
-                            textAlign: "center",
-                        }}>Watchlists</Text>
-                        {/* <Text style={styles.viewalltext}>View all</Text> */}
-                    </View>
-
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
-                        {watchlists.map((watchlist, index) => (
-                            <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                                {loading && (
-                                    <ActivityIndicator
-                                        size="small"
-                                        color={colors.primary}
-                                        style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }} // Adjust position if necessary
-                                    />
-                                )}
-                                <Image source={{ uri: watchlist.img ? watchlist.img : 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} onLoadEnd={() => setLoading(false)} />
-                                <View style={styles.watchlistInfo}>
-                                    <Text style={{
-                                        fontSize: 12,
-                                        color: theme.textColor,
-                                        fontFamily: 'Roboto',
-                                        fontWeight: 'bold',
-                                        paddingTop: 10,
-                                        paddingBottom: 10,
-                                        textAlign: "center",
-                                    }} numberOfLines={1} // Limits the text to 1 line
-                                        ellipsizeMode="tail"
-                                    >{watchlist.name}</Text>
-                                </View>
-
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-
-                    <View style={styles.viewall}>
-                        <Text style={{
-                            fontSize: 23, // Ensure only one fontSize is set
-                            color: theme.textColor,
-                            paddingLeft: 16, // Padding should work
-                            fontFamily: 'Roboto',
-                            fontWeight: 'bold',
-                            paddingTop: 10,
-                        }}>Action</Text>
-                        {/* <Text style={styles.viewalltext}>View all</Text> */}
-                    </View>
-
-
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
-                        {romanceMovies.slice(0, 10).map((movie, index) => (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {comedyMovies.slice(5, 24).map((movie, index) => (
 
                             <TrendingMovie
                                 key={index}
@@ -548,68 +440,139 @@ const Home = ({ route }) => {
                                 date={new Date(movie.release_date).getFullYear()}
                             />
                         ))}
-                    </ScrollView>
 
-                    <Text style={{
-                        fontSize: 23, // Ensure only one fontSize is set
-                        color: theme.textColor,
-                        paddingLeft: 16, // Padding should work
-                        fontFamily: 'Roboto',
-                        fontWeight: 'bold',
-                        paddingTop: 10,
-                    }}>Just for you </Text>
+            </ScrollView>
 
-                    <View style={styles.container1}>
+            <View style={styles.viewall}>
+             <Text  style={{
+                fontSize: 23, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+                paddingBottom: 10,
+                textAlign: "center",
+            }}>Watchlists</Text>
+             {/* <Text style={styles.viewalltext}>View all</Text> */}
+            </View>
 
-                        <FlatList
-                            data={movies1.slice(0, 10)}
-                            ref={flatlistRef}
-                            keyExtractor={(item) => item.id.toString()} // Use movie ID as key
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            scrollbarThumbColor="rgba(0, 0, 0, 0)"
-                            showsVerticalScrollIndicator={false}
-                            renderItem={renderItem}
-                            contentContainerStyle={{ paddingHorizontal: 0 }} // Optional: Adjust spacing
-                            onScroll={handleScroll}
-                        // onScrollBeginDrag={handleScrollBeginDrag}
-                        // onScrollEndDrag={handleScrollEndDrag}
-                        // getItemLayout={getItemLayout}
-                        // onScrollToIndexFailed={handleScrollToIndexFailed}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {watchlists.map((watchlist) => (
+                    <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+                        <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+                        <View style={styles.watchlistInfo}>
+                            <Text style={{
+                fontSize: 12, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
 
-                        />
-                    </View>
+//             {watchlists.map((watchlist, index) => (
+//                     <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+//                         <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+//                         <View style={styles.watchlistInfo}>
+//                             <Text style={{
+//                 fontSize: 12,
+//                 color: theme.textColor, 
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
-                        {Object.keys(genres).map((genreName, index) => (
-                            <View key={index}>
-                                <View style={styles.viewall}>
-                                    <Text style={{
-                                        fontSize: 23, // Ensure only one fontSize is set
-                                        color: theme.textColor,
-                                        paddingLeft: 16, // Padding should work
-                                        fontFamily: 'Roboto',
-                                        fontWeight: 'bold',
-                                        paddingTop: 10,
-                                    }}>{genreName}</Text>
-                                </View>
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+                paddingBottom: 10,
+                textAlign: "center",
+            }}>{watchlist.name}</Text>
+                        </View>
 
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
-                                    {moviesByGenre[genreName]?.slice(0, 10).map((movie, index) => (
-                                        <TrendingMovie
-                                            key={index}
-                                            movieId={movie.id}
-                                            imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                                            title={movie.title}
-                                            overview={movie.overview}
-                                            rating={movie.vote_average.toFixed(1)}
-                                            date={new Date(movie.release_date).getFullYear()}
-                                        />
-                                    ))}
-                                </ScrollView>
-                            </View>
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+
+            <View style={styles.viewall}>
+                        <Text  style={{
+                fontSize: 23, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+            }}>Action</Text>
+             {/* <Text style={styles.viewalltext}>View all</Text> */}
+            </View>
+
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {romanceMovies.slice(0, 20).map((movie, index) => (
+
+                            <TrendingMovie
+                                key={index}
+                                movieId={movie.id}
+                                imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                                title={movie.title}
+                                overview={movie.overview}
+                                rating={movie.vote_average.toFixed(1)}
+                                date={new Date(movie.release_date).getFullYear()}
+                            />
                         ))}
-                    </ScrollView>
+            </ScrollView>
+
+            <Text  style={{
+                fontSize: 23, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+            }}>Just for you </Text>
+
+            <View style={styles.container1}>
+
+            <FlatList
+            data={movies1.slice(0, 10)}
+            ref={flatlistRef}
+            keyExtractor={(item) => item.id.toString()} // Use movie ID as key
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={renderItem}
+            contentContainerStyle={{ paddingHorizontal: 0 }} // Optional: Adjust spacing
+            onScroll={handleScroll}
+            // onScrollBeginDrag={handleScrollBeginDrag}
+            // onScrollEndDrag={handleScrollEndDrag}
+            // getItemLayout={getItemLayout}
+            // onScrollToIndexFailed={handleScrollToIndexFailed}
+
+        />
+            </View>   
+
+            <ScrollView>
+      {Object.keys(genres).map((genreName, index) => (
+        <View key={index}>
+          <View style={styles.viewall}>
+            <Text style={{
+                fontSize: 23, // Ensure only one fontSize is set
+                color: theme.textColor,
+                paddingLeft: 16, // Padding should work
+                fontFamily: 'Roboto',
+                fontWeight: 'bold',
+                paddingTop: 10,
+            }}>{genreName}</Text>
+          </View>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {moviesByGenre[genreName]?.slice(0, 20).map((movie, index) => (
+              <TrendingMovie
+                key={index}
+                movieId={movie.id}
+                imageUrl={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                title={movie.title}
+                overview={movie.overview}
+                rating={movie.vote_average.toFixed(1)}
+                date={new Date(movie.release_date).getFullYear()}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      ))}
+    </ScrollView>
 
                 </View>
             </VirtualizedList>
@@ -642,21 +605,19 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         margin: 0,
         marginBottom: 10,
-    },
+    }, 
     watchlistName: {
         fontSize: 12,
         fontWeight: "bold",
         textAlign: "center",
         paddingTop: 10,
 
-
-    }, line: {
-        borderBottomColor: 'transparent',
-        borderBottomWidth: 1,
-        marginVertical: 10,
-        paddingTop: 10,
-    }, watchlistImage: {
-
+    },line: {
+        borderBottomColor: '#D3D3D3',  
+        borderBottomWidth: 1,        
+        marginVertical: 10,    
+        paddingTop: 10,       
+      },watchlistImage: {
         width: 182,
         height: 180,
         borderRadius: 8,
@@ -681,8 +642,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         textAlign: "center",
     },
-    trending: {
-        paddingLeft: 16,
+    trending :{
+        paddingLeft:16,
         paddingTop: 2,
         fontFamily: 'Roboto',
         color: useTheme.textColor,
