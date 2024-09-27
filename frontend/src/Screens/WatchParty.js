@@ -37,11 +37,11 @@ const WatchParty = ({ route }) => {
                 // Fetch messages
                 const fetchedMessages = await getMessagesFromRoom(roomId);
                 const formattedMessages = Object.entries(fetchedMessages).map(([key, value]) => {
-                    const senderInfo = fetchedParticipants.find((participant) => participant.uid === value.userId) || fetchedCreator;
+                    const senderInfo = fetchedParticipants.find((participant) => participant.uid === value.uid) || fetchedCreator;
                     return {
                         id: key,
-                        sender: value.userId === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
-                        avatar: value.userId === userInfo.userId ? null : senderInfo.avatar || "https://i.pravatar.cc/300", // Placeholder avatar for others
+                        sender: value.uid === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
+                        avatar: value.uid === userInfo.userId ? null : senderInfo.avatar || "https://i.pravatar.cc/300", // Placeholder avatar for others
                         text: value.message,
                         timestamp: moment(value.timestamp).format("YYYY-MM-DD HH:mm:ss"),
                     };
