@@ -26,13 +26,13 @@ const fetchMoviesFromEndpoint = async (endpoint, totalPages = 1) => {
 
 // Function to fetch popular, top-rated, and upcoming movies
 const fetchMovies = async () => {
-    const popularMovies = await fetchMoviesFromEndpoint('popular', 20); // Specify how many pages to fetch
+    const popularMovies = await fetchMoviesFromEndpoint('popular', 10); // Specify how many pages to fetch
     const topRatedMovies = await fetchMoviesFromEndpoint('top_rated', 10);
     const upcomingMovies = await fetchMoviesFromEndpoint('upcoming', 1);
     const trendingMoviesResponse = await axios.get(`${TMDB_BASE_URL}/trending/movie/week`, {
         params: { api_key: TMDB_API_KEY },
     });
-    const nowPlayingMovies = await fetchMoviesFromEndpoint('now_playing', 3);
+    const nowPlayingMovies = await fetchMoviesFromEndpoint('now_playing', 10);
 
     // Combine all movie lists and remove duplicates by movie ID
     const allMovies = [
