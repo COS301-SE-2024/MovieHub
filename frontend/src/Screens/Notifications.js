@@ -14,44 +14,44 @@ const Notifications = ({ route }) => {
     const [categorizedNotifications, setCategorizedNotifications] = useState({});
 
     useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const data = await getUserNotifications(userInfo.userId);
-                const flattenedNotifications = [];
-                if (data.success && data.notifications) {
-                    for (const category in data.notifications) {
-                        if (data.notifications.hasOwnProperty(category)) {
-                            const notificationsOfCategory = data.notifications[category];
-                            for (const id in notificationsOfCategory) {
-                                if (notificationsOfCategory.hasOwnProperty(id)) {
-                                    const notification = notificationsOfCategory[id];
-                                    flattenedNotifications.push({
-                                        id,
-                                        ...notification,
-                                        type: category,
-                                        timestamp: moment(notification.timestamp), // Ensure notification has a timestamp
-                                    });
-                                }
+        fetchNotifications();
+    }, []);
+
+    const fetchNotifications = async () => {
+        try {
+            const data = await getUserNotifications(userInfo.userId);
+            const flattenedNotifications = [];
+            if (data.success && data.notifications) {
+                for (const category in data.notifications) {
+                    if (data.notifications.hasOwnProperty(category)) {
+                        const notificationsOfCategory = data.notifications[category];
+                        for (const id in notificationsOfCategory) {
+                            if (notificationsOfCategory.hasOwnProperty(id)) {
+                                const notification = notificationsOfCategory[id];
+                                flattenedNotifications.push({
+                                    id,
+                                    ...notification,
+                                    type: category,
+                                    timestamp: moment(notification.timestamp),
+                                });
                             }
                         }
                     }
                 }
-                flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
-                setNotifications(flattenedNotifications);
-                setCategorizedNotifications(categorizeNotifications(flattenedNotifications));
-            } catch (error) {
-                console.error("Failed to fetch notifications:", error);
             }
-        };
-    
-        fetchNotifications();
-    }, []);  // Removed notifications from the dependency array
+            flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
+            setNotifications(flattenedNotifications);
+            setCategorizedNotifications(categorizeNotifications(flattenedNotifications));
+        } catch (error) {
+            console.error("Failed to fetch notifications:", error);
+        }
+    };
     
 
     const handleMarkAsRead = async (id, type) => {
         try {
             await markNotificationAsRead(userInfo.userId, type, id);
-            setNotifications(notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)));
+            updateNotificationState(id, { read: true });
             console.log("Notification marked as read:", id, type);
         } catch (error) {
             console.error("Failed to mark notification as read:", error);
@@ -61,8 +61,7 @@ const Notifications = ({ route }) => {
     const handleDeleteNotification = async (id, type) => {
         try {
             await deleteNotification(userInfo.userId, type, id);
-            setNotifications(notifications.filter((notification) => notification.id !== id));
-
+            removeNotificationFromState(id);
         } catch (error) {
             console.error("Failed to delete notification:", error);
         }
@@ -72,6 +71,7 @@ const Notifications = ({ route }) => {
         try {
             await clearNotifications(userInfo.userId);
             setNotifications([]);
+            setCategorizedNotifications({});
         } catch (error) {
             console.error("Failed to clear notifications:", error);
         }
@@ -110,6 +110,36 @@ const Notifications = ({ route }) => {
         } catch (error) {
             console.error("Error toggling follow state:", error);
         }
+    };
+
+    const updateNotificationState = (id, updates) => {
+        setNotifications(prevNotifications => 
+            prevNotifications.map(notification => 
+                notification.id === id ? { ...notification, ...updates } : notification
+            )
+        );
+        setCategorizedNotifications(prevCategorized => {
+            const updated = { ...prevCategorized };
+            Object.keys(updated).forEach(category => {
+                updated[category] = updated[category].map(notification => 
+                    notification.id === id ? { ...notification, ...updates } : notification
+                );
+            });
+            return updated;
+        });
+    };
+
+    const removeNotificationFromState = (id) => {
+        setNotifications(prevNotifications => 
+            prevNotifications.filter(notification => notification.id !== id)
+        );
+        setCategorizedNotifications(prevCategorized => {
+            const updated = { ...prevCategorized };
+            Object.keys(updated).forEach(category => {
+                updated[category] = updated[category].filter(notification => notification.id !== id);
+            });
+            return updated;
+        });
     };
 
     // Function to categorize notifications by date
@@ -314,8 +344,18 @@ const Notifications = ({ route }) => {
                             (category) =>
                                 categorizedNotifications[category].length > 0 && (
                                     <View key={category}>
-                                        <Text style={styles.sectionHeader}>{category === "today" ? "Today" : category === "yesterday" ? "Yesterday" : category === "lastWeek" ? "Last Week" : "Older Notifications"}</Text>
-                                        <FlatList data={categorizedNotifications[category]} renderItem={renderNotificationItem} keyExtractor={(item) => item.id.toString()} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} />
+                                        <Text style={styles.sectionHeader}>
+                                            {category === "today" ? "Today" : 
+                                             category === "yesterday" ? "Yesterday" : 
+                                             category === "lastWeek" ? "Last Week" : "Older Notifications"}
+                                        </Text>
+                                        <FlatList 
+                                            data={categorizedNotifications[category]} 
+                                            renderItem={renderNotificationItem} 
+                                            keyExtractor={(item) => item.id.toString()} 
+                                            contentContainerStyle={styles.listContainer} 
+                                            showsVerticalScrollIndicator={false} 
+                                        />
                                     </View>
                                 )
                         )}
@@ -327,7 +367,6 @@ const Notifications = ({ route }) => {
                     </ScrollView>
                 )}
             </View>
-
             <BottomHeader userInfo={userInfo} />
         </View>
     );
