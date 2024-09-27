@@ -20,7 +20,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
     const { userInfo, setUserInfo } = useUser();
     const [isDeleting, setIsDeleting] = useState(false);
 
-
+    console.log("opppp")
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };

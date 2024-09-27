@@ -81,6 +81,8 @@ export default function ExplorePage({ route }) {
                         return content;
                     })
                 );
+                // sort by date 
+                enrichedRandomContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
                 setRandomUsersContent(enrichedRandomContent);
             } catch (error) {
                 console.error('Error fetching content:', error);
@@ -395,7 +397,7 @@ export default function ExplorePage({ route }) {
                                     image={item.post ? item.post.img : null}
                                     postTitle={item.post ? item.post.postTitle : 'No Title'}
                                     preview={item.post ? item.post.text : 'No Preview'}
-                                    datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
+                                    datePosted={item.post.createdAt ? formatDate(item.post.createdAt) : 'Unknown Date'}
                                     isUserPost={item.uid === userInfo.userId}
                                     handleCommentPress={handleCommentPress}
                                 />
@@ -421,7 +423,7 @@ export default function ExplorePage({ route }) {
                                         image={item.post ? item.post.img : null}
                                         postTitle={item.post ? item.post.postTitle : 'No Title'}
                                         preview={item.post ? item.post.text : 'No Preview'}
-                                        datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
+                                        datePosted={item.post.createdAt ? formatDate(item.post.createdAt) : 'Unknown Date'}
                                         isUserPost={item.uid === userInfo.userId}
                                         handleCommentPress={handleCommentPress}
                                     />
