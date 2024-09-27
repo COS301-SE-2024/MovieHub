@@ -69,7 +69,7 @@ const InviteList = ({ route, uid, username, userHandle, userAvatar }) => {
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View>
                     <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>@{userHandle}</Text>
+                    <Text style={styles.userHandle}>{userHandle}</Text>
                 </View>
             </View>
             <TouchableOpacity style={[styles.followButton]}>

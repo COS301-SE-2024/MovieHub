@@ -586,6 +586,15 @@ exports.getUnreadNotifications = async (userId) => {
             }
         }
 
+        if (notifications.room_invitations) {
+            for (const key in notifications.room_invitations) {
+                if (notifications.room_invitations[key].read === false) {
+                    unreadCount++;
+                }
+            }
+        }
+
+
         console.log("Unread notifications count:", unreadCount);
 
         return { unreadCount };

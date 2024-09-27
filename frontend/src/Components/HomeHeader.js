@@ -34,7 +34,6 @@ export default function HomeHeader({ userInfo }) {
             try {
                 const data = await getUnreadNotifications(userInfo.userId);
                 setUnreadNotifications(data.unreadCount.unreadCount);
-                console.log("Unread notifications length:", unreadNotifications);
                 console.log("Unread notifications:", data.unreadCount.unreadCount);
             } catch (error) {
                 console.error("Failed to fetch unread notifications", error);

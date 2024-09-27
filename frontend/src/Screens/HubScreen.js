@@ -33,7 +33,6 @@ const HubScreen = ({ route }) => {
                     };
                 })
             );
-            console.log("createdRoomsWithCounts", createdRoomsWithCounts);
             setCreatedRooms(createdRoomsWithCounts);
         } catch (error) {
             console.error("Failed to fetch created rooms:", error);

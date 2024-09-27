@@ -224,6 +224,7 @@ const Notifications = ({ route }) => {
         },
         notificationContent: {
             flex: 1, // Take up available space
+            width:"100%"
         },
         notificationText: {
             fontSize: 16,
