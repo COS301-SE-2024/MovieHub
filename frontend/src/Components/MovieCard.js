@@ -5,13 +5,13 @@ import { useTheme } from "../styles/ThemeContext";
 import { Dimensions } from 'react-native';
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { colors, themeStyles } from "../styles/theme";
-export default function MovieCard({ movieId, imageUrl, title, rating, overview, date }) {
+export default function MovieCard({ movieId, imageUrl, title, rating, overview, date, userInfo }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
     const handleNewUser = () => {
-        navigation.navigate("MovieDescriptionPage", { movieId: movieId, imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date });
+        navigation.navigate("MovieDescriptionPage", { movieId: movieId, imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date, userInfo: userInfo });
     };
 
     
