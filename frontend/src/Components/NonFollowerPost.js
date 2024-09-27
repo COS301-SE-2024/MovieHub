@@ -180,8 +180,8 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             width: "100%",
             height: 300,
             marginTop: 10,
-            borderRadius: 10,
-            objectFit: "cover",
+            borderRadius: 20,
+            objectFit: "contain",
         },
         postTitle: {
             fontWeight: "bold",
@@ -275,7 +275,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                             {userHandle}
                         </Text>
                         <Text style={styles.userHandle}>
-                            {username} &bull; {timeDifference()}
+                            {username} &bull; {datePosted} 
                         </Text>
                     </View>
                 </TouchableOpacity>

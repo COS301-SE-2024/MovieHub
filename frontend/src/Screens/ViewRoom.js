@@ -20,7 +20,7 @@ const platformLogos = {
 const ViewRoom = ({ route }) => {
     const navigation = useNavigation();
     const { theme } = useTheme();
-    const { userInfo, roomId } = route.params;
+    const { userInfo, roomId, roomShortCode } = route.params;
     const [isRoomCreator, setIsRoomCreator] = useState(false);
     const [roomDetails, setRoomDetails] = useState(null); // State to hold room details
     const [participantCount, setParticipantCount] = useState(0); // State to hold participant count
@@ -323,7 +323,7 @@ const ViewRoom = ({ route }) => {
                     </View>
                 </View>
             </ScrollView>
-            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} route={route} isRoomCreator={isRoomCreator} userInfo={userInfo} />
+            <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} roomShortCode={roomShortCode} route={route} isRoomCreator={isRoomCreator} userInfo={userInfo} />
         </View>
     );
 };

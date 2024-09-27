@@ -68,7 +68,8 @@ const CreateRoomScreen = ({ route }) => {
             }
 
             if (watchParty) {
-                navigation.navigate("CreateWatchParty", { userInfo, roomId: newRoom.roomId });
+
+                navigation.navigate("CreateWatchParty", { userInfo, roomId: newRoom.roomId, roomShortCode: newRoom.shortCode });
             } else {
                 // Navigate to the HubScreen with the new room data
                 navigation.navigate("HubScreen", { userInfo, newRoom }); // Should we rather navigate to ViewRooms?
@@ -225,7 +226,7 @@ const CreateRoomScreen = ({ route }) => {
 
                 <View style={styles.switchContainer}>
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <Text style={styles.label}>Watch Party</Text>
+                        <Text style={styles.label}>Start Watch Party</Text>
                         <TouchableOpacity onPress={toggleTooltip} style={styles.infoIcon}>
                             <Octicons name="question" size={15} color={theme.iconColor} />
                         </TouchableOpacity>
@@ -240,6 +241,9 @@ const CreateRoomScreen = ({ route }) => {
 
                 <TouchableOpacity style={[styles.createButton, isButtonDisabled ? styles.disabledButton : null]} onPress={handleCreateRoom} disabled={isButtonDisabled}>
                     <Text style={styles.createButtonText}>Create</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.createButton, isButtonDisabled ? styles.disabledButton : null]} onPress={()=>{navigation.navigate("CreateWatchParty", {route, userInfo})}} >
+                    <Text style={styles.createButtonText}>Next</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>

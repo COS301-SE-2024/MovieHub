@@ -33,6 +33,7 @@ const HubScreen = ({ route }) => {
                     };
                 })
             );
+            console.log("createdRoomsWithCounts", createdRoomsWithCounts);
             setCreatedRooms(createdRoomsWithCounts);
         } catch (error) {
             console.error("Failed to fetch created rooms:", error);
@@ -94,16 +95,17 @@ const HubScreen = ({ route }) => {
         return keywords[Math.floor(Math.random() * keywords.length)];
     };
 
-    const renderRoomCard = ({ item }) => (
-        <UserRoomCard
+    const renderRoomCard = ({ item }) => {
+        console.log(item);
+        return (<UserRoomCard
             roomName={item.roomName}
             users={item.participantsCount}
             live={item.roomType !== "Chat-only"}
             keyword={getRandomKeyword()}
-            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId })}
+            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId, roomShortCode: item.shortCode })}
             coverImage={item.coverImage}
-        />
-    );
+        />)
+    };
 
     const styles = StyleSheet.create({
         container: {
@@ -237,7 +239,7 @@ const HubScreen = ({ route }) => {
 
                 <Text style={styles.sectionTitle}>Rooms You Created</Text>
                 {loadingCreated ? (
-                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                    <ActivityIndicator size="large" color={theme.primaryColor} style={styles.loadingIndicator} />
                 ) : (
                     <>
                     {createdRooms.length === 0 && (
@@ -264,7 +266,7 @@ const HubScreen = ({ route }) => {
 
                 <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
                 {loadingParticipate ? (
-                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                    <ActivityIndicator size="large" color={theme.primaryColor} style={styles.loadingIndicator} />
                 ) : (
                     <>
                     {participatingRooms.length === 0 && (
@@ -290,7 +292,7 @@ const HubScreen = ({ route }) => {
 
                 <Text style={styles.sectionTitle}>Public Rooms Available</Text>
                 {loadingPublic ? (
-                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                    <ActivityIndicator size="large" color={theme.primaryColor} style={styles.loadingIndicator} />
                 ) : (
                     <>
                     {publicRooms.length === 0 && (
