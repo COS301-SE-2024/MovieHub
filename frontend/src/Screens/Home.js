@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView,ScrollView , TouchableOpacity, ActivityIndicator} from "react-native";
+import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
@@ -11,17 +11,13 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getMovies } from "../api";
 import { getFriendsContent } from "../Services/ExploreApiService";
 import { getLikesOfReview, getLikesOfPost } from "../Services/LikesApiService";
-import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices"; // Import comment count functions
-import {getFollowedUsersWatchlists} from "../Services/ListApiService"
+import { getCommentsOfPost, getCommentsOfReview, getCountCommentsOfPost, getCountCommentsOfReview } from "../Services/PostsApiServices";
+import { getFollowedUsersWatchlists } from "../Services/ListApiService"
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
-import Post from "../Components/Post";
-import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
-import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
-import NonFollowerPost from "../Components/NonFollowerPost";
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies, fetchCurrentlyPlayingMovies } from '../Services/TMDBApiService';
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 import { getUserWatchlists } from "../Services/UsersApiService";
@@ -52,7 +48,6 @@ const genres = {
     Thriller: 53
 };
 
-
 const Loading = () => (
     <View style={[styles.loadingContainer]}>
         <Text style={styles.paragraph}>Loading...</Text>
@@ -61,7 +56,6 @@ const Loading = () => (
 
 const Backdrop = ({ movies, scrollX }) => {
     const { theme } = useTheme();
-    const { isDarkMode } = useTheme();
 
     return (
         <View style={{ height: BACKDROP_HEIGHT, width, position: "absolute" }}>
@@ -107,19 +101,21 @@ const Backdrop = ({ movies, scrollX }) => {
     );
 };
 
-const VirtualizedList = ({ children }) => {
-    return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} />;
+const VirtualizedList = ({ children, refreshControl }) => {
+    return <FlatList
+        data={[]}
+        keyExtractor={() => "key"}
+        renderItem={null}
+        ListHeaderComponent={<>{children}</>}
+        refreshControl={refreshControl}
+    />;
 };
 
-// Helper function to format the post date
 const formatDate = (date) => {
-    return moment(date).fromNow(); // Using moment.js to format the date as 'X time ago'
+    return moment(date).fromNow();
 };
-
-
 
 const Home = ({ route }) => {
-
     const flatlistRef = useRef(null);
     const screenWidth = Dimensions.get("window").width;
     const [activeIndex, setActiveIndex] = useState(0);
@@ -127,206 +123,109 @@ const Home = ({ route }) => {
     const { theme } = useTheme();
     const { avatar } = route.params;
     const navigation = useNavigation();
-    const bottomSheetRef = useRef(null);
     const [userProfile, setUserProfile] = useState(null);
     const [movies, setMovies] = useState([]);
-    const [isPost, setIsPost] = useState(false);
-    const [comments, setComments] = useState([]);
-    const [loadingComments, setLoadingComments] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
-    // const [friendsContent, setFriendsContent] = useState([]);
-    const [sortedContent, setSortedContent] = useState([]);
     const scrollX = useRef(new Animated.Value(0)).current;
-    let [movies1, setMovies1] = useState([]);
-    let [thrillerMovies, setThrillerMovies] = useState([]);
-    let [comedyMovies, setComedyMovies] = useState([]);
-    let [romanceMovies, setRomanceMovies] = useState([]);
-    let [refreshing, setRefreshing] = useState(false);
+    const [movies1, setMovies1] = useState([]);
+    const [thrillerMovies, setThrillerMovies] = useState([]);
+    const [comedyMovies, setComedyMovies] = useState([]);
+    const [romanceMovies, setRomanceMovies] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
     const [moviesByGenre, setMoviesByGenre] = useState({});
     const [isAutoScrolling, setIsAutoScrolling] = useState(true);
     const [watchlists, setWatchlists] = useState([]);
 
-
-    
-    useEffect(() => {
-        const fetchOTHERMovies = async () => {
-          try {
-            // Create an array of promises for parallel fetching
-            const moviePromises = [
-              getPopularMovies(),
-              getMoviesByGenre(53), // Thriller
-              getMoviesByGenre(35), // Comedy
-              getMoviesByGenre(28), // Romance
-            ];
-      
-            // Await all promises to resolve in parallel
-            const [fetchedMovies, fetchedThrillerMovies, fetchedComedyMovies, fetchedRomanceMovies] = await Promise.all(moviePromises);
-      
-            // Update the respective states after fetching
-            setMovies1(fetchedMovies);
-            setThrillerMovies(fetchedThrillerMovies);
-            setComedyMovies(fetchedComedyMovies);
-            setRomanceMovies(fetchedRomanceMovies);
-            
-          } catch (error) {
-            console.error('Error fetching movies:', error);
-          }
-        };
-      
-        fetchOTHERMovies();
-      }, []);
-
-
-      const shuffleArray = (array) => {
+    const shuffleArray = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
     }
 
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                let moviesData = await getMovies();
-                moviesData = shuffleArray(moviesData); // Shuffle the movies array
-                setMovies([{ key: "empty-left" }, ...moviesData.slice(0, 9), { key: "empty-right" }]);
-            } catch (error) {
-                console.error("Failed to fetch movies:", error);
-            }
-        };
-        
-        fetchMovies();
-    }, []);
+    const fetchAllMovieData = useCallback(async () => {
+        try {
+            const [
+                popularMovies,
+                thrillerMoviesData,
+                comedyMoviesData,
+                actionMoviesData,
+                watchlistsData,
+                newMoviesData,
+            ] = await Promise.all([
+                getPopularMovies(),
+                getMoviesByGenre(53), // Thriller
+                getMoviesByGenre(35), // Comedy
+                getMoviesByGenre(28), // Action
+                getFollowedUsersWatchlists(userInfo.userId),
+                getMovies(),
+            ]);
 
+            setMovies1(popularMovies);
+            setThrillerMovies(thrillerMoviesData);
+            setComedyMovies(comedyMoviesData);
+            setRomanceMovies(actionMoviesData);
+            setWatchlists(watchlistsData);
+            
+            const shuffledMovies = shuffleArray(newMoviesData);
+            setMovies([{ key: "empty-left" }, ...shuffledMovies.slice(0, 9), { key: "empty-right" }]);
 
+            const genreMoviesPromises = Object.entries(genres).map(([genreName, genreId]) =>
+                getNewMovies(genreId)
+            );
+            const fetchedGenreMovies = await Promise.all(genreMoviesPromises);
+            const moviesByGenreData = Object.keys(genres).reduce((acc, genreName, index) => {
+                acc[genreName] = fetchedGenreMovies[index];
+                return acc;
+            }, {});
+            setMoviesByGenre(moviesByGenreData);
 
-    useEffect(() => {
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching movie data:', error);
+            setLoading(false);
+        }
+    }, [userInfo.userId]);
 
-        const fetchUserWatchlists = async () => {
-            try {
-                const userId = userInfo.userId;
-                let userWatchlists = await getFollowedUsersWatchlists(userId);
-    
-        
-                setWatchlists(userWatchlists);
-            } catch (error) {
-                console.error('Error fetching user watchlists:', error);
-                setWatchlists([]);
-            }
-        };
+    useFocusEffect(
+        useCallback(() => {
+            fetchAllMovieData();
+            
+            const intervalId = setInterval(() => {
+                fetchAllMovieData();
+            }, 300000);
 
-        fetchUserWatchlists();
-    }, []);
+            return () => clearInterval(intervalId);
+        }, [fetchAllMovieData])
+    );
 
-    useEffect(() => {
-        const fetchMoviesByGenres = async () => {
-           try {
-              const genreMoviesPromises = Object.entries(genres).map(([genreName, genreId]) =>
-                 getNewMovies(genreId)
-              );
-      
-              const fetchedMovies = await Promise.all(genreMoviesPromises);
-      
-              const moviesByGenreData = Object.keys(genres).reduce((acc, genreName, index) => {
-                 acc[genreName] = fetchedMovies[index];
-                 return acc;
-              }, {});
-      
-              setMoviesByGenre(moviesByGenreData);
-           } catch (error) {
-              console.error('Error fetching movies by genres:', error);
-           }
-        };
-      
-        fetchMoviesByGenres(); 
-     }, []);
-
-
-
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const moviesData = await getMovies();
-                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
-            } catch (error) {
-                console.error("Failed to fetch movies:", error);
-            }
-        };
-        
-        fetchMovies();
-    }, []);
-
-
-    // useEffect(() => {
-    //     let interval;
-    
-    //     if (isAutoScrolling) {
-    //         interval = setInterval(() => {
-    //             if (activeIndex === 9) {
-    //                 if (movies1.length > 0) {
-    //                 flatlistRef.current?.scrollToIndex({
-    //                     index: 0,
-    //                     animated: true,
-    //                 });
-    //             }
-    //                 setActiveIndex(0);
-    //             } else {
-    //                 if (movies1.length > 0) {
-    //                 flatlistRef.current?.scrollToIndex({
-    //                     index: activeIndex + 1,
-    //                     animated: true,
-    //                 });
-    //             }
-    //                 setActiveIndex(activeIndex + 1);
-    //             }
-    //         }, 2000); // Adjust the interval as needed
-    //     }
-    
-    //     return () => clearInterval(interval);
-    // }, [isAutoScrolling, activeIndex, movies1]);
-    // const getItemLayout = (data, index) => ({
-	// 	length: screenWidth,
-	// 	offset: screenWidth * index, // for first image - 300 * 0 = 0pixels, 300 * 1 = 300, 300*2 = 600
-	// 	index: index,
-	// });
-
-    // const handleScrollBeginDrag = () => {
-    //     setIsAutoScrolling(false);
-    // };
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await fetchAllMovieData();
+        setRefreshing(false);
+    }, [fetchAllMovieData]);
 
     const handleScrollEndDrag = () => {
         setTimeout(() => {
             setIsAutoScrolling(true);
-            setActiveIndex(0); // Reset the active index to 0
+            setActiveIndex(0);
             flatlistRef.current?.scrollToIndex({
-            index: 0,
-            animated: true,
-        });
+                index: 0,
+                animated: true,
+            });
         }, 3000); 
     };
 
-    // auto scroll
     const handleScroll = (event) => {
-		const scrollPosition = event.nativeEvent.contentOffset.x;
-		const index = scrollPosition / screenWidth;
-		setActiveIndex(index);
-	};
-
-    const handleScrollToIndexFailed = (info) => {
-        console.log('Scroll to index failed:', info);
-        // Optional: Implement a fallback behavior
-        // For example, scroll to the first item if the scroll fails
-        flatlistRef.current.scrollToIndex({ index: 0, animated: true });
+        const scrollPosition = event.nativeEvent.contentOffset.x;
+        const index = scrollPosition / screenWidth;
+        setActiveIndex(index);
     };
 
-
-    if (movies.length === 0 ) {
+    if (loading) {
         return <Loading />;
     }
-
-    
 
     const homeStyles = StyleSheet.create({
         container: {
@@ -365,10 +264,17 @@ const Home = ({ route }) => {
         />
     );
 
-
     return (
         <View style={homeStyles.container}>
-            <VirtualizedList style={{ flex: 1 }}>
+            <VirtualizedList
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={[theme.primaryColor]}
+                    />
+                }
+            >
                 <View style={homeStyles.container}>
                     <HomeHeader userInfo={userInfo} />
                     <Backdrop movies={movies} scrollX={scrollX} />
@@ -439,22 +345,18 @@ const Home = ({ route }) => {
                         }}
                     />
 
+                    <View style={styles.line}></View>
 
-            <View style={styles.line}></View>
-
-
-            <View style={styles.viewall}>
-             <Text  style={{
-                fontSize: 23, 
-                color: theme.textColor,
-                paddingLeft: 16,
-                fontFamily: 'Roboto',
-                fontWeight: 'bold',
-                paddingTop: 10,
-            }}>Comedy</Text>
-             {/* <Text style={styles.viewalltext}>View all</Text> */}
-            </View>
-
+                    <View style={styles.viewall}>
+                        <Text style={{
+                            fontSize: 23, 
+                            color: theme.textColor,
+                            paddingLeft: 16,
+                            fontFamily: 'Roboto',
+                            fontWeight: 'bold',
+                            paddingTop: 10,
+                        }}>Comedy</Text>
+                    </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {comedyMovies.slice(5, 16).map((movie, index) => (
