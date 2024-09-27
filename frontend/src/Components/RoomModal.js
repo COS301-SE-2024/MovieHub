@@ -122,6 +122,7 @@ const RoomModal = forwardRef((props, ref) => {
                 onInvite={handleInviteUser}
                 userInfo={userInfo}
                 roomId={roomId}
+                route={props.route}
             />
         </>
     );

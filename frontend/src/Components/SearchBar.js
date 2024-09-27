@@ -16,10 +16,10 @@ const SearchBar = ({ onChangeText }) => {
             flexDirection: "row",
             alignItems: "center",
             borderRadius: 25,
-            borderWidth: 0.5,
+            borderWidth: 1,
             paddingHorizontal: 12,
             height: 40,
-            borderColor: theme.textColor,
+            borderColor: theme.borderColor,
         },
         searchIcon: {
             marginRight: 8,
@@ -35,7 +35,7 @@ const SearchBar = ({ onChangeText }) => {
         <View style={styles.searchBarContainer}>
             <View style={[styles.searchBar, { backgroundColor: theme.secondaryBackgroundColor, borderColor: theme.borderColor }]}>
                 <Ionicons name="search" size={20} color={theme.textColor} style={styles.searchIcon} />
-                <TextInput style={[styles.input, { color: theme.textColor }]} placeholder="Search by username or name" placeholderTextColor={theme.textColor} onChangeText={onChangeText} />
+                <TextInput style={[styles.input, { color: theme.textColor }]} placeholder="Search by username or name" placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} onChangeText={onChangeText} />
             </View>
         </View>
     );
