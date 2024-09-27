@@ -108,36 +108,45 @@ export default function ExplorePage({ route }) {
         try {
             const friendsData = await getFriendsContent(userInfo);
             const { posts, reviews } = friendsData;
-
-            console.log("freinds content", posts);
-
-            const combinedContent = [...posts.map((post) => ({ ...post, type: "post" })), ...reviews.map((review) => ({ ...review, type: "review" }))];
-
-            const sortedContent = combinedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
-
+    
+            // Combine posts and reviews with a type field
+            const combinedContent = [
+                ...posts.map((post) => ({ ...post, type: "post" })),
+                ...reviews.map((review) => ({ ...review, type: "review" }))
+            ];
+    
+            // Enrich the content with likeCount and commentCount
             const enrichedContent = await Promise.all(
-                sortedContent.map(async (content) => {
+                combinedContent.map(async (content) => {
                     if (content.type === "post") {
-                        const likes = await getLikesOfPost(content.post.postId);
-                        const comments = await getCountCommentsOfPost(content.post.postId);
-                        return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
+                        const likes = await getLikesOfPost(content.postId);
+                        const comments = await getCountCommentsOfPost(content.postId);
+                        return { ...content, likeCount: likes.data, commentCount: comments.data };
                     }
                     if (content.type === "review") {
-                        const likes = await getLikesOfReview(content.review.reviewId);
-                        const comments = await getCountCommentsOfReview(content.review.reviewId);
-                        return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
+                        const likes = await getLikesOfReview(content.reviewId);
+                        const comments = await getCountCommentsOfReview(content.reviewId);
+                        return { ...content, likeCount: likes.data, commentCount: comments.data };
                     }
                     return content;
                 })
             );
-            // sort enrichedContent
-            enrichedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
-            setSortedContent(enrichedContent);
-            console.log("explore sorted content",sortedContent)
+    
+            // Sort enriched content by createdAt date
+            const sortedContent = enrichedContent.sort((a, b) => {
+                const dateA = new Date(a.createdAt || a.post?.createdAt || a.review?.createdAt);
+                const dateB = new Date(b.createdAt || b.post?.createdAt || b.review?.createdAt);
+                return dateB - dateA;
+            });
+    
+            // Set the sorted content
+            setSortedContent(sortedContent);
+            console.log("explore sorted content", sortedContent);
         } catch (error) {
             console.error("Failed to fetch friends content:", error);
         }
     }, [userInfo]);
+    
     
     useEffect(() => {
         if (userInfo) {

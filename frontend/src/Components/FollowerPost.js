@@ -262,7 +262,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable onPress={() => {handleCommentPress(postId, false)}}>
-                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                        <CommIcon name="comment-outline" size={20} style={styles.icon} color={theme.iconColor} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button, FlatList } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button, FlatList, Pressable } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { getMovieCredits, getMovieRuntime, getMovieDetails } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
@@ -37,7 +37,7 @@ export default function MovieDescriptionPage({ route }) {
     const [watchlists, setWatchlists] = useState([]);
     const [movieReviews, setMovieReviews] = useState([]);
     const navigation = useNavigation();
-    const [movieData,setMovieData]= useState();
+    const [movieData, setMovieData] = useState();
 
     useEffect(() => {
         const fetchUserWatchlists = async () => {
@@ -155,10 +155,10 @@ export default function MovieDescriptionPage({ route }) {
     }, [movieId]);
 
     const fetchMovie = async (movieId) => {
-        setLoading(true);  
+        setLoading(true);
         try {
-            const movieData = await getMovieDetails(movieId);  
-            setLoading(false);  
+            const movieData = await getMovieDetails(movieId);
+            setLoading(false);
             navigation.navigate("MovieDescriptionPage", {
                 movieId: movieData.id,
                 imageUrl: `https://image.tmdb.org/t/p/w500/${movieData.poster_path}`,
@@ -166,37 +166,36 @@ export default function MovieDescriptionPage({ route }) {
                 overview: movieData.overview,
                 rating: movieData.vote_average.toFixed(1),
                 date: new Date(movieData.release_date).getFullYear(),
-                userInfo
+                userInfo,
             });
         } catch (error) {
             console.error("Error fetching movie details:", error);
-            setLoading(false);  // Stop loading if an error occurs
+            setLoading(false); // Stop loading if an error occurs
         }
     };
 
     const handleRecommendationPress = (movie) => {
-        const movieid = movie.id
+        const movieid = movie.id;
         fetchMovie(movieid);
         console.log("Movie pressed:", movie);
-    }
+    };
 
     useEffect(() => {
         const fetchMovieReviews = async () => {
             try {
                 const reviews = await getReviewsOfMovie(movieId);
                 setMovieReviews(reviews.data);
-                console.log("reviews",reviews);
+                console.log("reviews", reviews);
             } catch (error) {
                 console.error("Error fetching movie reviews:", error);
             }
-        }
+        };
         fetchMovieReviews();
-    }, [])
+    }, []);
 
     const renderReview = (review, index) => {
         // convert date to mmm//yyyy using moment
         const date = moment(review.createdAt).format("LL");
-        console.log(date)
 
         return (
             <View key={index} style={styles.reviewContainer}>
@@ -210,13 +209,15 @@ export default function MovieDescriptionPage({ route }) {
                                 <Text style={styles.ratingText}>{review.rating}</Text>
                             </View>
                         </View>
-                        <Text style={styles.reviewUsername}>By <Text style={{ fontWeight: "bold" }}>{review.username}</Text> on {date}</Text>
+                        <Text style={styles.reviewUsername}>
+                            By <Text style={{ fontWeight: "bold" }}>{review.username}</Text> on {date}
+                        </Text>
                     </View>
                 </View>
                 <Text style={styles.reviewText}>{review.text}</Text>
             </View>
-        )
-    }
+        );
+    };
 
     const director = credits.crew.find((person) => person.job === "Director");
     const cast = credits.cast
@@ -391,7 +392,7 @@ export default function MovieDescriptionPage({ route }) {
         },
         recommendationContainer: {
             paddingLeft: 15,
-            paddingBottom: 20,
+            paddingBottom: 25,
         },
         recommendationCard: {
             width: 120,
@@ -418,11 +419,11 @@ export default function MovieDescriptionPage({ route }) {
             color: "white",
             paddingLeft: 15,
             paddingTop: 20,
-            paddingBottom: 10
+            paddingBottom: 10,
         },
         reviewContainer: {
             paddingHorizontal: 15,
-            paddingVertical: 10,
+            paddingVertical: 7,
         },
         reviewHeader: {
             flexDirection: "row",
@@ -474,6 +475,10 @@ export default function MovieDescriptionPage({ route }) {
             marginBottom: 50,
             fontStyle: "italic",
         },
+        writeReviewText: {
+            fontWeight: 'bold',
+            fontStyle: 'italic',
+        }
     });
 
     if (loading) {
@@ -557,26 +562,33 @@ export default function MovieDescriptionPage({ route }) {
                             ))}
                         </ScrollView>
                         {/* Recommended Movies Section */}
-                        <Text style={styles.recommendedTitle}>Recommended Movies</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendationContainer}>
-                            {recommendedMovies.map((movie, index) => (
-                                <TouchableOpacity key={index} style={styles.recommendationCard} onPress={() => handleRecommendationPress(movie)}>
-                                    <Image source={{ uri: movie.posterUrl }} style={styles.recommendationImage} />
-                                    <Text style={styles.recommendationTitle}>{movie.title}</Text>
-                                    <Text style={styles.recommendationScore}>Similarity: {movie.similarity}%</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
+                        {recommendedMovies.length > 0 && (
+                            <>
+                                <Text style={styles.recommendedTitle}>Recommended Movies</Text>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendationContainer}>
+                                    {recommendedMovies.map((movie, index) => (
+                                        <TouchableOpacity key={index} style={styles.recommendationCard} onPress={() => handleRecommendationPress(movie)}>
+                                            <Image source={{ uri: movie.posterUrl }} style={styles.recommendationImage} />
+                                            <Text style={styles.recommendationTitle}>{movie.title}</Text>
+                                            <Text style={styles.recommendationScore}>Similarity: {movie.similarity}%</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </>
+                        )}
 
                         <View>
                             <Text style={styles.reviewsTitle}>Reviews</Text>
-                            {movieReviews.length > 0 ? (
-                                movieReviews.map((review, index) => (
-                                    renderReview(review, index)
-                                ))
-                            ) : (
-                                <Text style={styles.noReviewsText}>No reviews yet. Be the first one to write a review about this movie!</Text>
-                            )}
+                            {movieReviews.length > 0 ? 
+                                movieReviews.map((review, index) => renderReview(review, index)) : 
+                                <Text style={styles.noReviewsText}>
+                                    No reviews yet. Be the first one to{' '}
+                                    <Text onPress={() => navigation.navigate('CreatePost', { userInfo })} style={styles.writeReviewText}>
+                                        write a review
+                                    </Text>
+                                    {' '}about this movie!
+                                </Text>
+                            }
                         </View>
                     </View>
                 </ScrollView>

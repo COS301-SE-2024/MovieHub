@@ -4,7 +4,7 @@ import { useTheme } from '../styles/ThemeContext';
 import RatingStars from '../Components/RatingStars';
 
 const LogEntriesScreen = ({ route }) => {
-    const { theme } = useTheme();
+    const { theme, isDarkMode } = useTheme();
     const { logEntries } = route.params;
 
     const styles = StyleSheet.create({
@@ -23,7 +23,7 @@ const LogEntriesScreen = ({ route }) => {
         logEntry: {
             marginVertical: 10,
             padding: 15,
-            backgroundColor: '#f9f9f9',
+            backgroundColor: isDarkMode? theme.backgroundColor :'#f9f9f9',
             borderRadius: 10,
         },
         logText: {
@@ -41,9 +41,9 @@ const LogEntriesScreen = ({ route }) => {
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.logEntry}>
-                        <Text style={styles.logText}>Title: {item.movieTitle}</Text>
+                        <Text style={styles.logText}>Movie Title: {item.movieTitle}</Text>
                         <View style={styles.logText}>
-                            <Text style={{ color: theme.textColor }}>Rating: </Text>
+                            <Text style={styles.logText}>Rating: </Text>
                             <RatingStars rating={item.movieRating} />
                         </View>
                         <Text style={styles.logText}>Review: {item.review}</Text>

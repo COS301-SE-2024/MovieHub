@@ -10,13 +10,14 @@ import { useUser } from "../Services/UseridContext";
 function CustomDrawer({ route }) {
     // const { userInfo } = route.params;
     const { userInfo } = useUser();
-    const { isDarkMode, toggleTheme, theme } = useTheme();
+    const { isDarkMode, setMode, theme } = useTheme();
     const navigation = useNavigation();
     const handleToggleSwitch = async () => {
-        toggleTheme();
         try {
-            await toggleMode(userInfo.userId);
-            console.log("Theme toggled");
+            const res = await toggleMode(userInfo.userId);
+            console.log("Theme toggled", res.mode);
+            setMode(res.mode);
+            console.log(isDarkMode);
         } catch (error) {
             console.log(error);
         }

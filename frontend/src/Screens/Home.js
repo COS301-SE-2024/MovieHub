@@ -242,7 +242,7 @@ const Home = ({ route }) => {
     });
 
     const goToWatchlistDetails = (watchlist) => {
-        navigation.navigate('WatchlistDetails', { watchlist });
+        navigation.navigate('WatchlistDetails', { userInfo, watchlist });
     };
 
     const renderItem = ({ item }) => (
@@ -359,7 +359,7 @@ const Home = ({ route }) => {
                     </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {comedyMovies.slice(5, 16).map((movie, index) => (
+            {comedyMovies.length > 0 && comedyMovies.slice(5, 16).map((movie, index) => (
 
                             <TrendingMovie
                                 key={index}

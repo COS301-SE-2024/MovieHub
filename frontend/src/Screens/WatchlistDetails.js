@@ -5,6 +5,8 @@ import { getMovieDetails } from '../Services/TMDBApiService'; // Assume this fun
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
 import { useNavigation } from '@react-navigation/native';
+import Icon from "react-native-vector-icons/MaterialIcons";
+import moment from "moment";
 
 const WatchlistDetails = ({ route }) => {
     const { theme } = useTheme();
@@ -77,6 +79,12 @@ const WatchlistDetails = ({ route }) => {
             genre: Array.isArray(movie.genres) ? movie.genres.map(g => g.name).join(', ') : movie.genre
         });
     };
+
+    const getMovieYear = (release_date) => {
+        if (release_date) {
+            return moment(release_date).format("YYYY");
+        }
+    }
 
     const styles = StyleSheet.create({
         container: {
@@ -179,11 +187,12 @@ const WatchlistDetails = ({ route }) => {
                                         ? movie.genres.map(g => g.name).join(', ')
                                         : movie.genre || 'Genre not available'}
                                 </Text>
-                                <Text style={styles.movieRating}>
-                                    Rating: {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
-                                </Text>
+                                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                    <Icon name="star" size={20} color={"gold"} style={{marginBottom: 5}} />
+                                    <Text style={styles.movieRating}> Rating: {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}</Text>
+                                </View>
                                 <Text style={styles.movieDate}>
-                                    Released: {movie.release_date || 'Date not available'}
+                                    Released: {getMovieYear(movie.release_date) || 'Date not available'}
                                 </Text>
                             </View>
                         </View>

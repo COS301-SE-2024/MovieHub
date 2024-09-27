@@ -27,7 +27,7 @@ const LogBookScreen = () => {
         navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity onPress={viewLogEntries} style={styles.headerButton}>
-                    <Ionicons name="book-outline" size={24} color="black" />
+                    <Ionicons name="book-outline" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
             ),
         });
@@ -89,6 +89,9 @@ const LogBookScreen = () => {
             flex: 1,
             padding: 20,
             backgroundColor: theme.backgroundColor,
+        },
+        headerButton: {
+            marginRight: 10,
         },
         textArea: {
             height: 100,
@@ -183,6 +186,7 @@ const LogBookScreen = () => {
         dateText: {
             marginLeft: 10,
             fontSize: 16,
+            color: theme.textColor,
         },
     });
 
@@ -193,7 +197,7 @@ const LogBookScreen = () => {
             <Text style={styles.movieTitle}>{title}</Text>
 
             <TouchableOpacity onPress={showDatePicker} style={styles.datePickerButton}>
-                <Ionicons name="calendar-outline" size={24} color="black" />
+                <Ionicons name="calendar-outline" size={24} color={theme.iconColor} />
                 <Text style={styles.dateText}>{dateWatched ? dateWatched.toDateString() : "Select Date Watched"}</Text>
             </TouchableOpacity>
 
@@ -203,7 +207,7 @@ const LogBookScreen = () => {
             <RatingStars rating={rating} setRating={setRating} />
 
             <Text style={styles.subtitle}>Write a review</Text>
-            <TextInput style={[styles.input, styles.textArea]} selectionColor={theme.textColor} placeholderTextColor={theme.gray} value={review} onChangeText={setReview} placeholder="Add your thoughts" />
+            <TextInput style={[styles.input, styles.textArea]} selectionColor={theme.textColor} color={theme.textColor} placeholderTextColor={theme.gray} value={review} onChangeText={setReview} placeholder="Add your thoughts" />
 
             <TouchableOpacity style={styles.entryButton} onPress={addLogEntry}>
                 <Text style={styles.entryButtonText}>Log Entry</Text>

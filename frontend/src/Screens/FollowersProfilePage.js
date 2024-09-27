@@ -162,7 +162,7 @@ export default function FollowersProfilePage({ route }) {
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: "#fff",
+            backgroundColor: theme.backgroundColor,
         },
         scrollContent: {
             flexGrow: 1,
@@ -173,7 +173,7 @@ export default function FollowersProfilePage({ route }) {
             borderRadius: 50,
         },
         followButton: {
-            backgroundColor: "#4a42c0",
+            backgroundColor: theme.primaryColor,
             padding: 10,
             paddingHorizontal: 12,
             borderRadius: 5,

@@ -74,7 +74,7 @@ const LoginPage = () => {
                 try {
                     const mode = await getMode(userInfo.userId);
                     console.log("Mode:", mode);
-                    setMode(mode);
+                    setMode(mode.mode);
                 } catch (error) {
                     console.log("Error fetching mode:", error);
                 }
