@@ -3,13 +3,14 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, TouchableWithoutFeedba
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
+import {useUser} from "../Services/UseridContext";
 
-export default function MovieCard({movieId,imageUrl,title, rating, overview, date}) {
+export default function MovieCard({movieId,imageUrl,title, rating, overview, date, userInfo}) {
 
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
     const handleNewUser = () => {
-        navigation.navigate("MovieDescriptionPage", {movieId,imageUrl,title, rating, overview, date});
+        navigation.navigate("MovieDescriptionPage", {movieId,imageUrl,title, rating, overview, date,userInfo});
     };
 
     return (
