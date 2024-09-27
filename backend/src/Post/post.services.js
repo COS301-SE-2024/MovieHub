@@ -462,6 +462,29 @@ exports.getReviewsOfMovie = async (movieId) => {
     }
 };
 
+exports.isReviewed = async (uid, movieId) => {
+    console.log("In Services: getReviewsOfMovie");
+    const session = driver.session();
+    movieId = Number(movieId);
+    try {
+       
+        const result = await session.run(
+            `MATCH (m:Movie {movieId: $movieId})<-[:REVIEWED_ON]-(r:Review)<-[:REVIEWED]-(u:User {uid: $uid})
+             RETURN r`,
+            { movieId, uid }
+        );
+        if (result.records.length === 0) {
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error("Error getting reviews of movie: ", error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 exports.getCommentsOfPost = async (postId) => {
     console.log("In Services: getCommentsOfPost");

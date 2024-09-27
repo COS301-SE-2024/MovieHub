@@ -273,6 +273,21 @@ export const getReviewsOfMovie = async (movieId) => {
     return data;
 };
 
+export const isReviewed = async (uid,movieId) => {
+    // movieId should be a string
+    try {
+        const response = await fetchWithAuth(`${API_URL}movie/${uid}/${movieId}/reviews`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to fetch reviews of movie: ' + error.message);
+    }
+    const data = await response.json();
+    return data;
+};
+
+
 export const getCommentsOfPost = async (postId) => {
     // postId should be a string
     try {
