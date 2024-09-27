@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { getUserLikedPosts, getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
@@ -8,7 +8,7 @@ import Post from "./Post";
 import Review from "./Review";
 
 
-export default function LikesTab({ userInfo, userProfile, handleCommentPress, refreshing }) {
+export default function LikesTab({ userInfo, userProfile, handleCommentPress, refreshing, onRefresh }) {
     const [likedPosts, setLikedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
     const { theme } = useTheme();
@@ -88,10 +88,11 @@ export default function LikesTab({ userInfo, userProfile, handleCommentPress, re
 
     useEffect(() => {
         fetchLikedPosts();
-    }, []);
+    }, [refreshing]);  
     
     const handleRefresh = () => {
         if (refreshing) {
+            console.log("refreshing");
             fetchLikedPosts();
         }
     };

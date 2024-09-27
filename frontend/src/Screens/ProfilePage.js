@@ -63,6 +63,7 @@ export default function ProfilePage({ route }) {
 
     const handleRefresh = () => {
         setRefreshing(true);
+        renderTabContent();
         fetchData().finally(() => setRefreshing(false));
     };
 
@@ -176,11 +177,11 @@ export default function ProfilePage({ route }) {
     const renderTabContent = () => {
         switch (activeTab) {
             case 'posts':
-                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+                return <PostsTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} refreshing={refreshing} handleRefresh={handleRefresh} />;
             case 'likes':
-                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
+                return <LikesTab userInfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress}  refreshing={refreshing} handleRefresh={handleRefresh} />;
             case 'watchlist':
-                return <WatchlistTab userInfo={userInfo} userProfile={userProfile} />;
+                return <WatchlistTab userInfo={userInfo} userProfile={userProfile}  refreshing={refreshing} handleRefresh={handleRefresh} />;
             default:
                 return null;
         }
@@ -196,7 +197,7 @@ export default function ProfilePage({ route }) {
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false} >
+            <ScrollView contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false} >
                 <View style={styles.accountInfo}>
                     <Image
                         source={{ uri: userProfile.avatar }}
