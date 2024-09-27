@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image,
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from "../Services/TMDBApiService";
 import { searchMoviesFuzzy, getMovieByQuote } from "../Services/esSearchApiServices";
 import { useTheme } from "../styles/ThemeContext";
@@ -66,23 +67,39 @@ const SearchPage = ({ route }) => {
     useEffect(() => {
         const fetchPosters = async () => {
             const posters = {};
-            const usedPosters = new Set(); // set of posters that have been used
+            const usedPosters = new Set();
+            const cachedPosters = await AsyncStorage.getItem('cachedPosters');
+            const parsedCachedPosters = cachedPosters ? JSON.parse(cachedPosters) : {};
+    
             for (const [genreId, genreName] of sortedGenres) {
+                if (parsedCachedPosters[genreName]) {
+                    posters[genreName] = parsedCachedPosters[genreName];
+                    continue;
+                }
+    
                 const movies = await getMoviesByGenre(genreId);
                 if (movies.length > 0) {
                     let posterPath = `https://image.tmdb.org/t/p/w500${movies[0].poster_path}`;
                     let index = 0;
-                    // Ensure the poster is unique
                     while (usedPosters.has(posterPath) && index < movies.length) {
                         index++;
-                        posterPath = `https://image.tmdb.org/t/p/w500${movies[index].poster_path}`;
+                        if (index < movies.length) {
+                            posterPath = `https://image.tmdb.org/t/p/w500${movies[index].poster_path}`;
+                        } else {
+                            break;
+                        }
                     }
                     usedPosters.add(posterPath);
                     posters[genreName] = posterPath;
+
+                    parsedCachedPosters[genreName] = posterPath;
                 }
             }
+            
+            await AsyncStorage.setItem('cachedPosters', JSON.stringify(parsedCachedPosters));
             setGenrePosters(posters);
         };
+    
         fetchPosters();
     }, []);
 
@@ -237,6 +254,7 @@ const SearchPage = ({ route }) => {
             backgroundColor: "#00000080",
             flex: 1,
             textAlignVertical: "center",
+            justifyContent: "center",
         },
 
         grid: {
