@@ -67,10 +67,6 @@ const Backdrop = ({ movies, scrollX }) => {
         <View style={{ height: BACKDROP_HEIGHT, width, position: "absolute" }}>
             <FlatList
                 data={movies}
-                showsHorizontalScrollIndicator={false}
-                horizontal
-                scrollbarThumbColor="rgba(0, 0, 0, 0)"
-                showsVerticalScrollIndicator={false}
                 keyExtractor={(item) => item.key + "-backdrop"}
                 removeClippedSubviews={false}
                 contentContainerStyle={{ width, height: BACKDROP_HEIGHT }}
@@ -112,9 +108,7 @@ const Backdrop = ({ movies, scrollX }) => {
 };
 
 const VirtualizedList = ({ children }) => {
-    return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} showsHorizontalScrollIndicator={false}
-    scrollbarThumbColor="rgba(0, 0, 0, 0)"
-    showsVerticalScrollIndicator={false}/>;
+    return <FlatList data={[]} keyExtractor={() => "key"} renderItem={null} ListHeaderComponent={<>{children}</>} />;
 };
 
 // Helper function to format the post date
@@ -373,15 +367,13 @@ const Home = ({ route }) => {
 
     return (
         <View style={homeStyles.container}>
-            <VirtualizedList style={{ flex: 1 }} showsVerticalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)">
+            <VirtualizedList style={{ flex: 1 }}>
                 <View style={homeStyles.container}>
                     <HomeHeader userInfo={userInfo} />
                     <Backdrop movies={movies} scrollX={scrollX} />
                     <StatusBar hidden />
                     <Animated.FlatList
                         showsHorizontalScrollIndicator={false}
-                        scrollbarThumbColor="rgba(0, 0, 0, 0)" 
-                        showsVerticalScrollIndicator={false}
                         data={movies}
                         keyExtractor={(item) => item.key}
                         horizontal
@@ -463,7 +455,7 @@ const Home = ({ route }) => {
                     </View>
 
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         {comedyMovies.slice(5, 16).map((movie, index) => (
 
                             <TrendingMovie
@@ -493,7 +485,7 @@ const Home = ({ route }) => {
                         {/* <Text style={styles.viewalltext}>View all</Text> */}
                     </View>
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         {watchlists.map((watchlist, index) => (
                             <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
                                 {loading && (
@@ -535,7 +527,7 @@ const Home = ({ route }) => {
                     </View>
 
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         {romanceMovies.slice(0, 10).map((movie, index) => (
 
                             <TrendingMovie
@@ -567,8 +559,6 @@ const Home = ({ route }) => {
                             keyExtractor={(item) => item.id.toString()} // Use movie ID as key
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            scrollbarThumbColor="rgba(0, 0, 0, 0)"
-                            showsVerticalScrollIndicator={false}
                             renderItem={renderItem}
                             contentContainerStyle={{ paddingHorizontal: 0 }} // Optional: Adjust spacing
                             onScroll={handleScroll}
@@ -580,7 +570,7 @@ const Home = ({ route }) => {
                         />
                     </View>
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
+                    <ScrollView>
                         {Object.keys(genres).map((genreName, index) => (
                             <View key={index}>
                                 <View style={styles.viewall}>
@@ -594,7 +584,7 @@ const Home = ({ route }) => {
                                     }}>{genreName}</Text>
                                 </View>
 
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                     {moviesByGenre[genreName]?.slice(0, 10).map((movie, index) => (
                                         <TrendingMovie
                                             key={index}
