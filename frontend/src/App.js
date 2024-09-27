@@ -98,7 +98,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="MovieDescriptionPage"
             component={MovieDescriptionPage}
             options={({ navigation }) => ({
-                title: "movieHub.",
+                title: "",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: "white",
