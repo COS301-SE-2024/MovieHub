@@ -220,7 +220,7 @@ export default function Review({
           <Text style={styles.reviewButtonText}>Review</Text>
         </TouchableOpacity>
         <Pressable onPress={toggleModal} style={{ marginLeft: 10 }}>
-          <Icon name="more-vert" size={20} />
+          <Icon name="more-vert" size={20} color={theme.iconColor} />
         </Pressable>
       </View>
 
@@ -232,7 +232,7 @@ export default function Review({
           <Text style={styles.star}>
             <Icon name="star" size={22} color={"gold"} />
           </Text>
-          <Text>{rating}</Text>
+          <Text style={{ color: theme.textColor }}>{rating}</Text>
         </View>
       </View>
 
@@ -244,7 +244,7 @@ export default function Review({
           <Icon
             name={hasLiked ? 'favorite' : 'favorite-border'}
             size={20}
-            color={hasLiked ? 'red' : 'black'}
+            color={hasLiked ? 'red' : theme.iconColor}
             style={{ marginRight: 5 }}
           />
           <Text style={styles.statsNumber}>{likeCount}</Text>
@@ -254,7 +254,7 @@ export default function Review({
             onPress={() => {
               handleCommentPress(reviewId, true);
             }}>
-            <CommIcon name="comment-outline" size={20} style={styles.icon} />
+            <CommIcon name="comment-outline" size={20} style={styles.icon} color={theme.iconColor} />
           </Pressable>
           <Text style={styles.statsNumber}>{comments}</Text>
         </View>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert, RefreshControl } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 import { useTheme } from "../styles/ThemeContext";
 
-const WatchlistTab = ({ userInfo }) => {
+const WatchlistTab = ({ userInfo , refreshing, onRefresh}) => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
@@ -14,7 +14,7 @@ const WatchlistTab = ({ userInfo }) => {
     const navigation = useNavigation();
     const {theme} = useTheme();
         // Fetch user watchlists
-    useEffect(() => {
+    
         const fetchUserWatchlists = async () => {
             try {
                 const userId = userInfo.userId;
@@ -32,8 +32,18 @@ const WatchlistTab = ({ userInfo }) => {
             }
         };
 
+
+        useEffect(() => {
+            fetchUserWatchlists();
+        }, [refreshing]);  
+
+
+
+    if (refreshing) {
+        console.log("refreshing");
         fetchUserWatchlists();
-    }, []);
+    }
+
 
     const openOptionsMenu = (watchlist) => {
         setSelectedWatchlist(watchlist);

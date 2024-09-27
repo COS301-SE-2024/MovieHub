@@ -89,7 +89,9 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress, re
 
     useEffect(() => {
         fetchPostsAndReviews();
-    }, []);
+    }, [refreshing]);  
+
+
 
     if (refreshing) {
         console.log("refreshing");

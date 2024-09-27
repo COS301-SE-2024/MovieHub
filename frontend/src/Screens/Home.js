@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView,ScrollView , TouchableOpacity,} from "react-native";
+import { StyleSheet, Text, View, StatusBar, Animated, Platform, Image, Dimensions, FlatList, Pressable, LogBox, SafeAreaView,ScrollView , TouchableOpacity, ActivityIndicator} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import { colors, themeStyles } from "../styles/theme";
+import FastImage from 'react-native-fast-image';
 import Svg from "react-native-svg";
 import MovieCard from "../Components/MovieCard"
 import TrendingMovie from "../Components/TrendingMovies"
@@ -15,9 +16,13 @@ import {getFollowedUsersWatchlists} from "../Services/ListApiService"
 import BottomHeader from "../Components/BottomHeader";
 import Genres from "../Components/Genres";
 import Rating from "../Components/Rating";
+import Post from "../Components/Post";
+import Review from "../Components/Review";
 import HomeHeader from "../Components/HomeHeader";
+import CommentsModal from "../Components/CommentsModal";
 import moment from "moment";
-import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from '../Services/TMDBApiService';
+import NonFollowerPost from "../Components/NonFollowerPost";
+import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies, fetchCurrentlyPlayingMovies } from '../Services/TMDBApiService';
 import { getUserProfile, getFollowingCount, getFollowersCount } from "../Services/UsersApiService";
 import { getUserWatchlists } from "../Services/UsersApiService";
 
@@ -128,6 +133,7 @@ const Home = ({ route }) => {
     const [isPost, setIsPost] = useState(false);
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     // const [friendsContent, setFriendsContent] = useState([]);
     const [sortedContent, setSortedContent] = useState([]);
@@ -142,54 +148,35 @@ const Home = ({ route }) => {
     const [watchlists, setWatchlists] = useState([]);
 
 
+    
     useEffect(() => {
-        const fetchMoviesByGenres = async () => {
-          try {
-            const genreMoviesPromises = Object.entries(genres).map(async ([genreName, genreId]) => {
-              const movies = await getNewMovies(genreId); // Using the imported function here
-              return { genre: genreName, movies };
-            });
-
-            const fetchedMovies = await Promise.all(genreMoviesPromises);
-
-            const moviesByGenreData = fetchedMovies.reduce((acc, curr) => {
-              acc[curr.genre] = curr.movies;
-              return acc;
-            }, {});
-
-            setMoviesByGenre(moviesByGenreData);
-          } catch (error) {
-            console.error('Error fetching movies by genres:', error);
-          }
-        };
-
-        fetchMoviesByGenres(); 
-      }, []);
-
-      useEffect(() => {
         const fetchOTHERMovies = async () => {
           try {
-            const fetchedMovies = await getPopularMovies();
+            // Create an array of promises for parallel fetching
+            const moviePromises = [
+              getPopularMovies(),
+              getMoviesByGenre(53), // Thriller
+              getMoviesByGenre(35), // Comedy
+              getMoviesByGenre(28), // Romance
+            ];
+      
+            // Await all promises to resolve in parallel
+            const [fetchedMovies, fetchedThrillerMovies, fetchedComedyMovies, fetchedRomanceMovies] = await Promise.all(moviePromises);
+      
+            // Update the respective states after fetching
             setMovies1(fetchedMovies);
-
-            const fetchedThrillerMovies = await getMoviesByGenre(53);
             setThrillerMovies(fetchedThrillerMovies);
-
-            const fetchedComedyMovies = await getMoviesByGenre(35); 
             setComedyMovies(fetchedComedyMovies);
-
-            const fetchedRomanceMovies = await getMoviesByGenre(28); 
             setRomanceMovies(fetchedRomanceMovies);
-
+            
           } catch (error) {
             console.error('Error fetching movies:', error);
-          } finally {
-
           }
         };
-
-        fetchOTHERMovies(); 
+      
+        fetchOTHERMovies();
       }, []);
+
 
       const shuffleArray = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -204,29 +191,25 @@ const Home = ({ route }) => {
             try {
                 let moviesData = await getMovies();
                 moviesData = shuffleArray(moviesData); // Shuffle the movies array
-                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
+                setMovies([{ key: "empty-left" }, ...moviesData.slice(0, 9), { key: "empty-right" }]);
             } catch (error) {
                 console.error("Failed to fetch movies:", error);
             }
         };
-
+        
         fetchMovies();
     }, []);
 
+
+
     useEffect(() => {
+
         const fetchUserWatchlists = async () => {
             try {
                 const userId = userInfo.userId;
-                let userWatchlists = await getUserWatchlists(userId);
-
-                //let userWatchlists = await getFollowedUsersWatchlists(userId);
-
-
-                // Remove duplicates based on watchlist IDs
-                // userWatchlists = userWatchlists.filter((watchlist, index, self) => 
-                //     index === self.findIndex((w) => w.id === watchlist.id)
-                // );
-
+                let userWatchlists = await getFollowedUsersWatchlists(userId);
+    
+        
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error('Error fetching user watchlists:', error);
@@ -237,10 +220,48 @@ const Home = ({ route }) => {
         fetchUserWatchlists();
     }, []);
 
+    useEffect(() => {
+        const fetchMoviesByGenres = async () => {
+           try {
+              const genreMoviesPromises = Object.entries(genres).map(([genreName, genreId]) =>
+                 getNewMovies(genreId)
+              );
+      
+              const fetchedMovies = await Promise.all(genreMoviesPromises);
+      
+              const moviesByGenreData = Object.keys(genres).reduce((acc, genreName, index) => {
+                 acc[genreName] = fetchedMovies[index];
+                 return acc;
+              }, {});
+      
+              setMoviesByGenre(moviesByGenreData);
+           } catch (error) {
+              console.error('Error fetching movies by genres:', error);
+           }
+        };
+      
+        fetchMoviesByGenres(); 
+     }, []);
+
+
+
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const moviesData = await getMovies();
+                setMovies([{ key: "empty-left" }, ...moviesData, { key: "empty-right" }]);
+            } catch (error) {
+                console.error("Failed to fetch movies:", error);
+            }
+        };
+        
+        fetchMovies();
+    }, []);
+
 
     // useEffect(() => {
     //     let interval;
-
+    
     //     if (isAutoScrolling) {
     //         interval = setInterval(() => {
     //             if (activeIndex === 9) {
@@ -262,7 +283,7 @@ const Home = ({ route }) => {
     //             }
     //         }, 2000); // Adjust the interval as needed
     //     }
-
+    
     //     return () => clearInterval(interval);
     // }, [isAutoScrolling, activeIndex, movies1]);
     // const getItemLayout = (data, index) => ({
@@ -305,7 +326,7 @@ const Home = ({ route }) => {
         return <Loading />;
     }
 
-
+    
 
     const homeStyles = StyleSheet.create({
         container: {
@@ -333,6 +354,13 @@ const Home = ({ route }) => {
             overview={item.overview}
             rating={item.vote_average.toFixed(1)}
             date={new Date(item.release_date).getFullYear()}
+            imageComponent={
+                <FastImage
+                    style={{ width: 100, height: 150 }}
+                    source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+                    resizeMode={FastImage.resizeMode.cover}
+                />
+            }
         />
     );
 
@@ -381,7 +409,7 @@ const Home = ({ route }) => {
 
                             return (
                                 <View style={{ width: ITEM_SIZE, paddingBottom: 0 }}>
-                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
+                                    <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails, userInfo })}>
                                         <Animated.View
                                             style={{
                                                 marginHorizontal: SPACING,
@@ -400,7 +428,7 @@ const Home = ({ route }) => {
                                             <Text style={{ fontSize: 12, color: theme.textColor }} numberOfLines={3}>
                                                 {item.description}
                                             </Text>
-                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { userInfo: userInfo, ...movieDetails })}>
+                                            <Pressable onPress={() => navigation.navigate("MovieDescriptionPage", { ...movieDetails })}>
                                                 <Text style={{ fontSize: 12, fontWeight: "500", color: theme.primaryColor, marginTop: 10 }}>Read more</Text>
                                             </Pressable>
                                         </Animated.View>
@@ -428,7 +456,7 @@ const Home = ({ route }) => {
 
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {comedyMovies.slice(5, 24).map((movie, index) => (
+            {comedyMovies.slice(5, 16).map((movie, index) => (
 
                             <TrendingMovie
                                 key={index}
@@ -458,31 +486,30 @@ const Home = ({ route }) => {
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {watchlists.map((watchlist) => (
-                    <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{  uri: watchlist.img ? watchlist.img : 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
+            {watchlists.map((watchlist, index) => (
+                    <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
+                        {loading && (
+                <ActivityIndicator
+                    size="small"
+                    color={colors.primary}
+                    style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }} // Adjust position if necessary
+                />
+                        )}
+                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} onLoadEnd={() => setLoading(false)}/>
                         <View style={styles.watchlistInfo}>
                             <Text style={{
-                fontSize: 12, // Ensure only one fontSize is set
-                color: theme.textColor,
-                paddingLeft: 16, // Padding should work
-
-//             {watchlists.map((watchlist, index) => (
-//                     <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-//                         <Image source={{ uri: 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
-//                         <View style={styles.watchlistInfo}>
-//                             <Text style={{
-//                 fontSize: 12,
-//                 color: theme.textColor, 
-
+                fontSize: 12,
+                color: theme.textColor, 
                 fontFamily: 'Roboto',
                 fontWeight: 'bold',
                 paddingTop: 10,
                 paddingBottom: 10,
                 textAlign: "center",
-            }}>{watchlist.name}</Text>
+            }} numberOfLines={1} // Limits the text to 1 line
+            ellipsizeMode="tail" 
+            >{watchlist.name}</Text>
                         </View>
-
+                       
                     </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -501,7 +528,7 @@ const Home = ({ route }) => {
 
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {romanceMovies.slice(0, 20).map((movie, index) => (
+            {romanceMovies.slice(0, 10).map((movie, index) => (
 
                             <TrendingMovie
                                 key={index}
@@ -558,7 +585,7 @@ const Home = ({ route }) => {
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {moviesByGenre[genreName]?.slice(0, 20).map((movie, index) => (
+            {moviesByGenre[genreName]?.slice(0, 10).map((movie, index) => (
               <TrendingMovie
                 key={index}
                 movieId={movie.id}
@@ -613,7 +640,7 @@ const styles = StyleSheet.create({
         paddingTop: 10,
 
     },line: {
-        borderBottomColor: '#D3D3D3',  
+        borderBottomColor: 'transparent', 
         borderBottomWidth: 1,        
         marginVertical: 10,    
         paddingTop: 10,       
