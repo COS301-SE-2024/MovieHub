@@ -127,6 +127,27 @@ exports.getUserWatchlists = async (req, res) => {
     }
 };
 
+exports.getUserPublicWatchlists = async (req, res) => {
+    console.log('getUserPublicWatchlists called in user.controller');
+    const userId = req.params.id;
+
+    try {
+        console.log(`Fetching public watchlists for user ID: ${userId}`);
+        const watchlists = await userService.getUserWatchlists(userId);
+        if (watchlists) {
+            console.log('Watchlists: ' + watchlists.name);
+            res.status(200).json(watchlists);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching public watchlists:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+
+
 // Follow a user
 exports.followUser = async (req, res) => {
     const { followerId, followeeId } = req.body;

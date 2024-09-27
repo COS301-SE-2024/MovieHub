@@ -181,6 +181,37 @@ exports.getUserWatchlists = async (userId) => {
     }
 };
 
+exports.getUserPublicWatchlists = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const pub = true;
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:HAS_WATCHLIST]->(w:Watchlist{visibility: $pub})
+             RETURN w `,
+            { userId, pub }
+        );
+
+        // Log the query result
+        console.log("Query result:", result);
+
+        if (result.records.length === 0) {
+            console.warn(`No watchlists found for userId: ${userId}`);
+            return [];
+        }
+
+        const watchlists = result.records.map((record) => {
+            console.log("Record:", record);
+            return record.get("w").properties;
+        });
+
+        console.log("Watchlists:", watchlists);
+        return watchlists;
+    } finally {
+        await session.close();
+    }
+};
+
 exports.createUserNode = async (uid, username) => {
     const session = driver.session();
     try {
