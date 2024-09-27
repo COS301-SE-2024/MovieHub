@@ -130,7 +130,8 @@ export default function ExplorePage({ route }) {
                     return content;
                 })
             );
-
+            // sort enrichedContent
+            enrichedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
             setSortedContent(enrichedContent);
             console.log("explore sorted content",sortedContent)
         } catch (error) {
@@ -185,10 +186,8 @@ export default function ExplorePage({ route }) {
             const response = await searchUser(name); 
             console.log(response);
             if (response.users) {
-                console.log("we finna get crunk");
                 setSearchResults(response.users);
             } else {
-                console.loh("no we not")
                 setSearchResults([]); 
             }
         } catch (error) {
@@ -326,6 +325,12 @@ export default function ExplorePage({ route }) {
                     // keyExtractor={(item) => item.uid}
                     renderItem={renderFollower}
                     showsVerticalScrollIndicator={false}
+                    // style={{maxHeight: 300, }}
+                    // set max height
+                    maxToRenderPerBatch={5}
+                    // set initial number of items
+                    initialNumToRender={5}
+                    ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 10 }}>No results found.</Text>}
                 />
             ) : null}
 

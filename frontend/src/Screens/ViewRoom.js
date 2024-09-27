@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef , useLayoutEffect} from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getRoomDetails, getRoomParticipantCount, joinRoom, leaveRoom, getIsParticipant } from "../Services/RoomApiService";
@@ -10,6 +10,7 @@ import RoomModal from "../Components/RoomModal";
 import NetflixLogo from "../../../assets/netflix-logo.svg";
 import ShowmaxLogo from "../../../assets/showmax-logo.svg";
 import AppleTVLogo from "../../../assets/apple-tv.svg";
+import CreateWatchParty from "./CreateWatchParty";
 
 const platformLogos = {
     Netflix: NetflixLogo,
@@ -27,33 +28,8 @@ const ViewRoom = ({ route }) => {
     const [loading, setLoading] = useState(true); // State to manage loading status
     const [watchPartyStarted, setWatchPartyStarted] = useState(false);
     const [isParticipant, setIsParticipant] = useState(false);
-    const [upcomingParties, setUpcomingParties] = useState([
-        {
-            id: 1,
-            partyName: "Upcoming Party 1",
-            date: "2023-05-01",
-            startTime: "10:00 AM",
-            platform: "Netflix",
-            movieTitle: "The Matrix",
-        },
-        {
-            id: 2,
-            partyName: "Minions Unite!",
-            date: "2023-05-02",
-            startTime: "11:00 AM",
-            platform: "Showmax",
-            movieTitle: "Despicable Me 2",
-        },
-        {
-            id: 3,
-            partyName: "Upcoming Party 3",
-            date: "2023-05-03",
-            startTime: "12:00 PM",
-            platform: "Apple TV",
-            movieTitle: "The Godfather",
-        },
-    ]);
-    
+    const [upcomingParties, setUpcomingParties] = useState([]);
+
     const styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -158,6 +134,16 @@ const ViewRoom = ({ route }) => {
             marginVertical: 10,
             marginHorizontal: 16,
         },
+        noUpcomingParties: {
+            paddingHorizontal: 16,
+        },
+        noUpcomingPartiesText: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        createWatchPartyText: {
+            color: theme.primaryColor,
+        }
     });
 
     const bottomSheetRef = useRef(null);
@@ -181,7 +167,7 @@ const ViewRoom = ({ route }) => {
                 //fetch isParticipant
                 const isParticipantResponse = await getIsParticipant(userInfo.userId, roomId);
                 setIsParticipant(isParticipantResponse);
-                
+
                 // Fetch participant count
                 const participantResponse = await getRoomParticipantCount(roomId);
                 if (participantResponse.success) {
@@ -201,20 +187,20 @@ const ViewRoom = ({ route }) => {
 
     useEffect(() => {
         if (route.params?.openBottomSheet) {
-          handleOpenBottomSheet();
-          // Reset the param after opening the bottom sheet
-          navigation.setParams({ openBottomSheet: false });
+            handleOpenBottomSheet();
+            // Reset the param after opening the bottom sheet
+            navigation.setParams({ openBottomSheet: false });
         }
-      }, [route.params?.openBottomSheet]);
+    }, [route.params?.openBottomSheet]);
 
     useLayoutEffect(() => {
         if (loading) {
             navigation.setOptions({
-            title: "Loading..."
+                title: "Loading...",
             });
         } else if (roomDetails) {
             navigation.setOptions({
-                title: roomDetails.roomName
+                title: roomDetails.roomName,
             });
         }
     }, [navigation, loading, roomDetails]);
@@ -222,7 +208,7 @@ const ViewRoom = ({ route }) => {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <Text style={{color: theme.textColor}}>Loading...</Text>
+                <Text style={{ color: theme.textColor }}>Loading...</Text>
             </View>
         );
     }
@@ -242,8 +228,8 @@ const ViewRoom = ({ route }) => {
         try {
             const response = await joinRoom(shortCode, userInfo.userId);
             setIsParticipant(true);
-            setParticipantCount(participantCount+1);
-            Alert.alert('Success', 'You have joined this room!');
+            setParticipantCount(participantCount + 1);
+            Alert.alert("Success", "You have joined this room!");
         } catch (error) {
             console.error("Failed to join room:", error);
         }
@@ -253,8 +239,8 @@ const ViewRoom = ({ route }) => {
         try {
             const response = await leaveRoom(roomId, userInfo.userId);
             setIsParticipant(false);
-            setParticipantCount(participantCount-1);
-            Alert.alert('Success', 'You have left this room!');
+            setParticipantCount(participantCount - 1);
+            Alert.alert("Success", "You have left this room!");
         } catch (error) {
             console.error("Failed to leave room:", error);
         }
@@ -286,17 +272,20 @@ const ViewRoom = ({ route }) => {
                                 <Text style={styles.enterText}>Enter</Text>
                             </TouchableOpacity>
                         )}
-                        {!isRoomCreator  && (<>    
-                            {isParticipant
-                                ?(<TouchableOpacity style={[styles.enterButton, { width: 120 }]} onPress={handleLeavePress}>
-                                    <Text style={styles.enterText}>Leave Room</Text>
-                                </TouchableOpacity>)
-                                :(<TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
-                                    <Text style={styles.enterText}>Join Room</Text>
-                                </TouchableOpacity>)
-                            }
-                        </>)}
-                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
+                        {!isRoomCreator && (
+                            <>
+                                {isParticipant ? (
+                                    <TouchableOpacity style={[styles.enterButton, { width: 120 }]} onPress={handleLeavePress}>
+                                        <Text style={styles.enterText}>Leave Room</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <TouchableOpacity style={styles.enterButton} onPress={handleJoinPress}>
+                                        <Text style={styles.enterText}>Join Room</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </>
+                        )}
+                        <Pressable style={styles.participants} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId })}>
                             <FAIcon name="users" size={16} color={theme.textColor} />
                             <Text style={styles.participantsText}>{participantCount}</Text>
                         </Pressable>
@@ -312,14 +301,16 @@ const ViewRoom = ({ route }) => {
                         {upcomingParties.map((party, index) => (
                             <PartySchedule key={index} {...party} />
                         ))}
-                        {
-                            upcomingParties.length === 0 && (
-                                <View>
-                                    <Text>No upcoming watch parties</Text>
-                                    <Text></Text>
-                                </View>
-                            )
-                        }
+                        {upcomingParties.length === 0 && (
+                            <View style={styles.noUpcomingParties}>
+                                <Text style={styles.noUpcomingPartiesText}>No upcoming watch parties here</Text>
+                                {isRoomCreator && (
+                                    <TouchableOpacity onPress={() => navigation.navigate("CreateWatchParty", { userInfo, isRoomCreator })}>
+                                        <Text style={styles.createWatchPartyText}>Create a new watch party</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        )}
                     </View>
                 </View>
             </ScrollView>
@@ -351,7 +342,7 @@ const PartySchedule = ({ movieTitle, partyName, startTime, platform }) => {
         },
         partyDetails: {
             flex: 1,
-            color: theme.gray
+            color: theme.gray,
         },
         partyName: {
             fontSize: 16,
@@ -397,7 +388,5 @@ const PartySchedule = ({ movieTitle, partyName, startTime, platform }) => {
         </View>
     );
 };
-
-
 
 export default ViewRoom;

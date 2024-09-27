@@ -242,9 +242,6 @@ const CreateRoomScreen = ({ route }) => {
                 <TouchableOpacity style={[styles.createButton, isButtonDisabled ? styles.disabledButton : null]} onPress={handleCreateRoom} disabled={isButtonDisabled}>
                     <Text style={styles.createButtonText}>Create</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.createButton, isButtonDisabled ? styles.disabledButton : null]} onPress={()=>{navigation.navigate("CreateWatchParty", {route, userInfo})}} >
-                    <Text style={styles.createButtonText}>Next</Text>
-                </TouchableOpacity>
             </ScrollView>
         </View>
     );

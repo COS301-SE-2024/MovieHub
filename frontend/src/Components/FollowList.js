@@ -65,7 +65,7 @@ const FollowList = ({ route, uid, username, userHandle, userAvatar, isFollowing:
         followButton: {
             backgroundColor: theme.primaryColor,
             padding: 8,
-            borderRadius: 5,
+            borderRadius: 50,
             paddingHorizontal: 16,
         },
         followingButton: {
@@ -79,7 +79,7 @@ const FollowList = ({ route, uid, username, userHandle, userAvatar, isFollowing:
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
                 <View>
                     <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.userHandle}>@{userHandle}</Text>
+                    <Text style={styles.userHandle}>{userHandle}</Text>
                 </View>
             </View>
             <TouchableOpacity onPress={toggleFollow} style={[styles.followButton, isFollowing && styles.followingButton]}>
