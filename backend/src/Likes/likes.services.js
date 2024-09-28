@@ -50,7 +50,7 @@ exports.getLikesOfComment = async(commentId) => {
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(c:Comment)
-            WHERE c.commentId = $commentId
+            WHERE c.comId = $commentId
             RETURN count(u) AS likeCount`,
             { commentId }
         );
@@ -199,7 +199,7 @@ exports.toggleLikeComment = async(uid, commentId) => { //Doesnt work
     try {
         const result = await session.run(
             `MATCH (u:User), (c:Comment)
-            WHERE u.uid = $uid AND c.commentId = $commentId
+            WHERE u.uid = $uid AND c.comId = $commentId
             MATCH (u)-[like:LIKES]->(c)
             RETURN like`,
             { uid, commentId }
@@ -208,7 +208,7 @@ exports.toggleLikeComment = async(uid, commentId) => { //Doesnt work
         if (result.records.length > 0) {
             await session.run(
                 `MATCH (u:User), (c:Comment)
-                WHERE u.uid = $uid AND c.commentId = $commentId
+                WHERE u.uid = $uid AND c.comId = $commentId
                 MATCH (u)-[like:LIKES]->(c)
                 DETACH DELETE like`,
                 { uid, commentId }
@@ -217,7 +217,7 @@ exports.toggleLikeComment = async(uid, commentId) => { //Doesnt work
         } else {
             await session.run(
                 `MATCH (u:User), (c:Comment)
-                WHERE u.uid = $uid AND c.commentId = $commentId
+                WHERE u.uid = $uid AND c.comId = $commentId
                 MERGE (u)-[:LIKES]->(c)`,
                 { uid, commentId }
             );
