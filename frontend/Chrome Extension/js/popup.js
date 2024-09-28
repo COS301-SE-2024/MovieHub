@@ -1,6 +1,51 @@
+let ws; // Global WebSocket variable
+function generateUniqueId() {
+    return Math.random().toString(36).substr(2, 9); // Example ID generation
+}
+// Function to establish WebSocket connection
+function connectWebSocket(roomId, user, party) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log('WebSocket already connected.');
+        return ws; // Return existing connection if already open
+    }
+
+    ws = new WebSocket(`wss://moviehub-watchparty-extension.glitch.me?roomId=${roomId}`);
+
+    ws.onopen = () => {
+        console.log('WebSocket connection established', w.id);
+        ws.send(JSON.stringify({
+            type: 'join-party',
+            partyCode: party,
+            username: user,
+            roomId : roomId
+        }));
+    };
+
+    ws.onmessage = (event) => {
+        console.log('Received:', event.data);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket connection closed');
+        // Try to reconnect if disconnected
+        setTimeout(() => connectWebSocket(roomId, user, party), 5000); // Reconnect after 5 seconds
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        alert('WebSocket connection error occurred.');
+    };
+
+    // Store WebSocket connection and roomId in chrome.storage.sync
+    chrome.storage.sync.set({ roomId: roomId }, () => {
+        console.log('Stored roomId:', roomId);
+    });
+
+    return ws;
+}
+
 document.getElementById("startPartyBtn").addEventListener("click", async () => {
     // Generate a unique party code
-    let ws;
     const partyCode = Math.random().toString(36).substr(2, 6).toUpperCase();
     const roomShortCode = document.getElementById("roomShortCode").value;
     const username = document.getElementById("username").value;
@@ -34,36 +79,20 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
     if (response.ok) {
         alert("Watch party started!");
 
-        // Store username and partyCode in chrome.storage.sync
-        chrome.storage.sync.set({ username, partyCode }, () => {
-            console.log("Stored username and partyCode in chrome.storage.sync:", { username, partyCode });
+        // Store username, partyCode, and roomId in chrome.storage.sync
+        chrome.storage.sync.set({ username, partyCode, roomId: data.roomId }, () => {
+            console.log("Stored username, partyCode, and roomId in chrome.storage.sync:", { username, partyCode, roomId: data.roomId });
         });
-        
-        // Initialize WebSocket connection with the roomId from the response
-        ws = new WebSocket(`wss://moviehub-watchparty-extension.glitch.me?roomId=${data.roomId}`); //Remote Host for WebSocket
-        console.log("ws?? ", ws);
-        ws.onopen = () => {
-            console.log('WebSocket connection established');
-        };
 
-        ws.onmessage = (event) => {
-            console.log('Received:', event.data);
-        };
-
-        ws.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
-
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+        // Connect WebSocket with roomId
+        connectWebSocket(data.roomId, username, partyCode);
     } else {
         alert("Error starting the watch party.");
     }
 });
 
 document.getElementById("joinPartyBtn").addEventListener("click", async () => {
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username2").value;
     const joinCode = document.getElementById("joinCode").value;
 
     // Ensure both fields are filled
@@ -88,7 +117,7 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username: username, // Include username instead of userId
+                username: username,
                 partyCode: joinCode
             })
         });
@@ -98,29 +127,14 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
         if (response.ok) {
             alert("Joined watch party!");
 
-            // Store username and partyCode in chrome.storage.sync
-            chrome.storage.sync.set({ username, partyCode: joinCode }, () => {
-                console.log("Stored username and partyCode in chrome.storage.sync:", { username, partyCode: joinCode });
+            // Store username, partyCode, and roomId in chrome.storage.sync
+            chrome.storage.sync.set({ username, partyCode: joinCode, roomId: data.roomId }, () => {
+                console.log("Stored username, partyCode, and roomId in chrome.storage.sync:", { username, partyCode: joinCode, roomId: data.roomId });
             });
 
-            // Initialize WebSocket connection with the roomId from the response
-            ws = new WebSocket(`ws://localhost:3000?roomId=${data.roomId}`);
+            // Connect WebSocket with roomId
+            connectWebSocket(data.roomId, username, joinCode);
 
-            ws.onopen = () => {
-                console.log('WebSocket connection established');
-            };
-
-            ws.onmessage = (event) => {
-                console.log('Received:', event.data);
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket connection closed');
-            };
-
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-            };
         } else {
             alert(`Failed to join party: ${data.message}`);
         }
@@ -130,6 +144,7 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
     }
 });
 
+// Handle audio stream for WebRTC
 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     // Use this stream in your WebRTC connection
     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));

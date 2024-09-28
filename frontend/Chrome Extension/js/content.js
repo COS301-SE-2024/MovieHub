@@ -1,22 +1,22 @@
-let localStream;
-let peerConnections = {};
-const signalingSocket = new WebSocket('ws://localhost:3000');
 
-let isMuted = false;
-let isVideoMuted = false;
-
-// Max number of users in the watch party
-const MAX_USERS = 5;
-let userCount = 0;
-
-
+const updateAudioStatus = (isTransmitting) => {
+  const audioStatusElement = document.getElementById('audioStatus');
+  if (isTransmitting) {
+    audioStatusElement.textContent = 'Audio is being transmitted.';
+    audioStatusElement.style.color = 'green';
+  } else {
+    audioStatusElement.textContent = 'No audio transmission!';
+    audioStatusElement.style.color = 'red';
+  }
+};
 // Get user's audio stream
 async function startAudioStream() {
   try {
     localStream = await navigator.mediaDevices.getUserMedia(
-      { audio: true,
+      {
+        audio: true,
         video: true  // Add this to request video
-       });
+      });
     localStream.getAudioTracks().forEach(track => track.enabled = !isMuted); // Initially, set the track to be enabled
 
     // You can now handle video tracks
@@ -24,12 +24,209 @@ async function startAudioStream() {
       // You can control video track's mute state similarly, if needed
       track.enabled = !isMuted
       console.log('Video track initialized');
+
+      const audioTracks = localStream.getAudioTracks();
+      const videoTracks = localStream.getVideoTracks();
+
+      if (audioTracks.length > 0 && audioTracks[0].enabled) {
+        console.log('Audio is being transmitted.');
+      } else {
+        console.warn('Audio is muted or not transmitted.');
+      }
+
+      if (videoTracks.length > 0 && videoTracks[0].enabled) {
+        console.log('Video is being transmitted.');
+      } else {
+        console.warn('Video is muted or not transmitted.');
+      }
     });
 
   } catch (error) {
     console.error('Error accessing microphone:', error);
   }
 }
+
+
+function addRemoteVideoElement(roomId, stream) {
+  const remoteVideo = document.createElement('video');
+  remoteVideo.id = `remoteVideo_${roomId}`;
+  remoteVideo.srcObject = stream;
+  remoteVideo.autoplay = true;
+  remoteVideo.playsInline = true;
+
+  // Style the remote video element
+  Object.assign(remoteVideo.style, {
+    position: 'fixed',
+    top: '10px',
+    right: `${userCount * 210}px`, // Space them out horizontally
+    width: '200px',
+    height: '150px',
+    borderRadius: '8px',
+    border: '2px solid #7e57c2',
+    zIndex: '999',
+  });
+
+  document.body.appendChild(remoteVideo);
+  userCount++;
+}
+
+// Remove remote video element for a user
+function removeRemoteVideoElement(roomId) {
+  const remoteVideo = document.getElementById(`remoteVideo_${roomId}`);
+  if (remoteVideo) {
+    remoteVideo.remove();
+    userCount--;
+  }
+}
+
+// Function to initialize WebRTC peer connection
+function createPeerConnection(partyCode, targetroomId) {
+  const peerConnection = new RTCPeerConnection();
+
+  // Add local stream tracks to the peer connection
+  if (localStream) {
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+  } else {
+    console.error("Local stream is not available.");
+  }
+
+  // Handle ICE Candidate event
+  peerConnection.onicecandidate = function (event) {
+    if (event.candidate) {
+      if (ws.readyState === WebSocket.OPEN) {
+        // If WebSocket is open, send the ICE candidate immediately
+        ws.send(JSON.stringify({
+          type: 'webrtc-ice-candidate',
+          candidate: event.candidate
+        }));
+      } else {
+        // If WebSocket is not open yet, queue the ICE candidate
+        console.log('WebSocket is not open yet. Queuing ICE candidate.');
+        iceCandidateQueue.push(event.candidate);
+      }
+    }
+  };
+
+  peerConnection.onconnectionstatechange = () => {
+    console.log('Connection state:', peerConnection.connectionState);
+    if (peerConnection.connectionState === 'connected') {
+      console.log('Connected to peer!');
+    } else if (peerConnection.connectionState === 'disconnected') {
+      console.error('Disconnected from peer.');
+    }
+  };
+
+  peerConnection.oniceconnectionstatechange = () => {
+    console.log('ICE connection state:', peerConnection.iceConnectionState);
+    if (peerConnection.iceConnectionState === 'failed') {
+      console.error('ICE connection failed.');
+    }
+  };
+
+
+  // Handle remote media streams
+  peerConnection.ontrack = (event) => {
+    const remoteStream = event.streams[0];
+    addRemoteVideoElement(targetroomId, remoteStream);
+    console.log('Received remote stream:', remoteStream);
+  };
+
+  setInterval(async () => {
+    if (peerConnection) {
+      const stats = await peerConnection.getStats();
+      stats.forEach(report => {
+        // Check for inbound RTP reports
+        if (report.type === 'inbound-rtp' && report.kind === 'audio') {
+          if (report.packetsReceived > 0) {
+            console.log('Audio is being transmitted.');
+            // Optionally, update UI to indicate successful transmission
+            updateAudioStatus(report.packetsReceived > 0);
+          } else {
+            console.warn('No audio packets received!');
+            // Optionally, update UI to indicate issues
+            updateAudioStatus(report.packetsReceived > 0);
+          }
+        }
+      });
+    }
+  }, 1000); // Adjust the interval as necessary
+
+
+  return peerConnection;
+}
+
+// Add this function to create and send the WebRTC offer
+async function createAndSendOffer(partyCode, targetroomId) {
+  const peerConnection = createPeerConnection(partyCode, targetroomId);
+
+  try {
+    // Create an offer
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    // Only attempt to send once WebSocket is open
+    if (ws.readyState === WebSocket.OPEN) {
+    // Send the offer to the server
+    ws.send(JSON.stringify({
+      type: 'webrtc-offer',
+      offer: offer,
+      targetroomId: targetroomId,
+      partyCode: partyCode
+    }));
+  }
+
+    console.log('Offer sent to the server:', offer);
+  } catch (error) {
+    console.error('Error creating and sending offer:', error);
+  }
+}
+
+let localStream;
+let ws;
+let peerConnections = {};
+let isMuted = false;
+let isVideoMuted = false;
+let userCount = 0; // Initialize the user count
+const MAX_USERS = 5;
+let iceCandidateQueue = []; // Queue to store ICE candidates before WebSocket is open
+
+// Fetch roomId and WebSocket connection from storage
+chrome.storage.sync.get(['roomId', 'websocket'], (result) => {
+  const roomId = result.roomId;
+  ws = result.websocket;
+
+  if (!roomId) {
+    console.error('No roomId found. WebSocket connection cannot be established.');
+    return;
+  }
+
+  // Check if ws exists and is in the ready state
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    console.log('No WebSocket connection found or not open. Initializing new connection.');
+    ws = new WebSocket(`wss://moviehub-watchparty-extension.glitch.me?roomId=${roomId}`);
+
+    // Store the newly created WebSocket connection for future use
+    chrome.storage.sync.set({ websocket: ws });
+  } else {
+    console.log('Using existing WebSocket connection');
+  }
+
+  // Ensure WebSocket is defined before setting event handlers
+  if (ws && ws.readyState === WebSocket.OPEN) {
+  
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+      chrome.storage.sync.remove('websocket');
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+  }
+});
+
+
 
 // Add the local video element to the DOM
 function addLocalVideoElement() {
@@ -57,111 +254,6 @@ function addLocalVideoElement() {
   document.body.appendChild(localVideo);
 }
 
-function addRemoteVideoElement(socketId, stream) {
-  const remoteVideo = document.createElement('video');
-  remoteVideo.id = `remoteVideo_${socketId}`;
-  remoteVideo.srcObject = stream;
-  remoteVideo.autoplay = true;
-  remoteVideo.playsInline = true;
-
-  // Style the remote video element
-  Object.assign(remoteVideo.style, {
-    position: 'fixed',
-    top: '10px',
-    right: `${userCount * 210}px`, // Space them out horizontally
-    width: '200px',
-    height: '150px',
-    borderRadius: '8px',
-    border: '2px solid #7e57c2',
-    zIndex: '999',
-  });
-
-  document.body.appendChild(remoteVideo);
-  userCount++;
-}
-
-// Remove remote video element for a user
-function removeRemoteVideoElement(socketId) {
-  const remoteVideo = document.getElementById(`remoteVideo_${socketId}`);
-  if (remoteVideo) {
-    remoteVideo.remove();
-    userCount--;
-  }
-}
-
-// Initialize WebRTC peer connection
-function createPeerConnection(partyCode, targetSocketId) {
-  const peerConnection = new RTCPeerConnection();
-
-  // Add both audio and video tracks to the connection
-  localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-  // Handle ICE candidates
-  peerConnection.onicecandidate = event => {
-    if (event.candidate) {
-      signalingSocket.send(JSON.stringify({
-        type: 'webrtc-ice-candidate',
-        candidate: event.candidate,
-        targetSocketId: targetSocketId,
-        partyCode
-      }));
-    }
-  };
-
-  // Handle remote media streams (audio and video)
-  // Handle remote media streams (audio and video)
-  peerConnection.ontrack = event => {
-    const remoteStream = event.streams[0];
-    addRemoteVideoElement(targetSocketId, remoteStream);
-
-    // Audio handling
-    const remoteAudio = new Audio();
-    remoteAudio.srcObject = remoteStream;
-    remoteAudio.play();
-
-    // Video handling
-    const remoteVideo = document.createElement('video');
-    remoteVideo.srcObject = remoteStream;
-    remoteVideo.autoplay = true;
-    remoteVideo.playsInline = true;
-    document.body.appendChild(remoteVideo); // Add the video element to the DOM
-  };
-
-  return peerConnection;
-}
-
-
-// Handle incoming WebRTC signaling messages
-signalingSocket.onmessage = async (event) => {
-  const data = JSON.parse(event.data);
-
-  if (data.type === 'webrtc-offer') {
-    const peerConnection = createPeerConnection(data.partyCode, data.socketId);
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-
-    signalingSocket.send(JSON.stringify({
-      type: 'webrtc-answer',
-      answer: answer,
-      targetSocketId: data.socketId,
-      partyCode: data.partyCode
-    }));
-
-    peerConnections[data.socketId] = peerConnection;
-  } else if (data.type === 'webrtc-answer') {
-    const peerConnection = peerConnections[data.socketId];
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-  } else if (data.type === 'webrtc-ice-candidate') {
-    const peerConnection = peerConnections[data.socketId];
-    if (peerConnection) {
-      await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-    }
-  }else if (data.type === 'user-disconnected') {
-    removeRemoteVideoElement(data.socketId);
-  }
-
-};
 
 // Mic Button to toggle mute/unmute
 const micButton = document.createElement('button');
@@ -252,11 +344,11 @@ function createHeading(text, fontSize, marginBottom) {
   return heading;
 }
 
-// Function to dynamically retrieve username and party code
+// Function to dynamically retrieve username, party code, and room ID
 function getUserDetails() {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(['username', 'partyCode'], (data) => {
-      let { username = null, partyCode = null } = data;
+    chrome.storage.sync.get(['username', 'partyCode', 'roomId'], (data) => {
+      let { username = null, partyCode = null, roomId = null } = data;
 
       // Prompt for username if missing
       if (!username) {
@@ -274,16 +366,25 @@ function getUserDetails() {
         }
       }
 
-      // Check for valid details
-      if (!username || !partyCode || !partyCode.trim()) {
-        alert("Error: Both username and a valid party code are required!");
-        return reject("Missing username or party code");
+      // Prompt for room ID if missing
+      if (!roomId) {
+        roomId = prompt("Enter your room ID:");
+        if (roomId) {
+          chrome.storage.sync.set({ roomId });
+        }
       }
 
-      resolve({ username, partyCode });
+      // Check for valid details
+      if (!username || !partyCode || !partyCode.trim() || !roomId) {
+        alert("Error: Username, valid party code, and room ID are required!");
+        return reject("Missing username, party code, or room ID");
+      }
+
+      resolve({ username, partyCode, roomId });
     });
   });
 }
+
 
 // Function to fetch watch party chat messages
 async function fetchChatMessages(username, partyCode) {
@@ -314,7 +415,7 @@ function updateChatMessages(messages) {
   if (messages && messages.length > 0) {
     messages.forEach(msg => addChatMessage(msg.username, msg.text));
   } else {
-    addChatMessage("System", "No Messages Yet", true); // Centered message
+    addChatMessage("System", "No Messages Yet", true); // Centered messag
   }
 
   console.log("End of Update");
@@ -425,19 +526,113 @@ function createSendButton(chatInput, userDetails) {
 
 // Start WebRTC audio when party starts
 async function startWatchParty() {
-const userDetails = getUserDetails();
+const userDetails = await getUserDetails();
   await startAudioStream();
   addLocalVideoElement(); // Add the local video element
   console.log('Local Stream Tracks:', localStream.getTracks());
 
-
-  signalingSocket.onopen = () => {
-    signalingSocket.send(JSON.stringify({
+console.log("Code??? ",userDetails.partyCode);
+  // Check if WebSocket is already open
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
       type: 'join-party',
       partyCode: `${userDetails.partyCode}`,
       username: `${userDetails.username}`
     }));
-  };
+
+    console.log('WebSocket Been connected');
+    //  startAudioStream(); // Start audio stream when WebSocket opens
+
+    createAndSendOffer(userDetails.partyCode, userDetails.roomId);
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Look the data ", data);
+      if (data.type === 'webrtc-offer') {
+        const peerConnection = createPeerConnection(data.partyCode, data.roomId);
+        console.log("Create a peer connection");
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        ws.send(JSON.stringify({
+          type: 'webrtc-answer',
+          answer: answer,
+          targetroomId: data.roomId,
+          partyCode: data.partyCode
+        }));
+
+        peerConnections[data.roomId] = peerConnection;
+      } else if (data.type === 'webrtc-answer') {
+        const peerConnection = peerConnections[data.roomId];
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+      } else if (data.type === 'webrtc-ice-candidate') {
+        const peerConnection = peerConnections[data.roomId];
+        if (peerConnection) {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        }
+      } else if (data.type === 'user-disconnected') {
+        removeRemoteVideoElement(data.roomId);
+      }
+    };
+  } else {
+    // If WebSocket is not open, wait for it to open
+    ws.onopen = () => {
+      // Send any queued ICE candidates
+      iceCandidateQueue.forEach(candidate => {
+        ws.send(JSON.stringify({
+          type: 'webrtc-ice-candidate',
+          candidate: candidate
+        }));
+      });
+
+    
+
+      ws.send(JSON.stringify({
+        type: 'join-party',
+        partyCode: `${userDetails.partyCode}`,
+        username: `${userDetails.username}`,
+        roomId: `${userDetails.roomId}`
+      }));
+      // Clear the queue after sending
+      iceCandidateQueue = [];
+    };
+
+    console.log('WebSocket Been connected');
+    //  startAudioStream(); // Start audio stream when WebSocket opens
+    createAndSendOffer(userDetails.partyCode, userDetails.roomId);
+
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+     // console.log("Look the data +> \n", data);
+      if (data.type === 'webrtc-offer') {
+        console.log("Look the data offer +> \n", data);
+        const peerConnection = createPeerConnection(data.partyCode, data.roomId);
+        console.log("Create a peer connection");
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        ws.send(JSON.stringify({
+          type: 'webrtc-answer',
+          answer: answer,
+          targetroomId: data.roomId,
+          partyCode: data.partyCode
+        }));
+
+        peerConnections[data.roomId] = peerConnection;
+      } else if (data.type === 'webrtc-answer') {
+        console.log("Look the data answer +> \n", data);
+        const peerConnection = peerConnections[data.roomId];
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+      } else if (data.type === 'webrtc-ice-candidate') {
+        console.log("Look the data candidate +> \n", data);
+        const peerConnection = peerConnections[data.roomId];
+        if (peerConnection) {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        }
+      } else if (data.type === 'user-disconnected') {
+        removeRemoteVideoElement(data.roomId);
+      }
+    };
+  }
 }
 
 // Main function to initialize the chat
