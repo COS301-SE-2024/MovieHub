@@ -56,7 +56,7 @@ const WatchlistTab = ({ userInfo , refreshing, onRefresh}) => {
     };
 
     const goToWatchlistDetails = (watchlist) => {
-        navigation.navigate('WatchlistDetails', { watchlist });
+        navigation.navigate('WatchlistDetails', { watchlist, userInfo });
     };
 
     const handleEditWatchlist = () => {

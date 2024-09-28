@@ -10,6 +10,7 @@ import { getLocalIP } from "../Services/getLocalIP";
 import { getRecommendedMovies } from "../Services/RecApiService"; // Importing the recommendation service
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { getReviewsOfMovie } from "../Services/PostsApiServices";
+import { getWatchlistDetails } from "../Services/ListApiService";
 import Cast from "../Components/Cast";
 import moment from "moment";
 import axios from "axios";
@@ -47,7 +48,7 @@ export default function MovieDescriptionPage({ route }) {
 
                 // Remove duplicates based on watchlist IDs
                 userWatchlists = userWatchlists.filter((watchlist, index, self) => index === self.findIndex((w) => w.id === watchlist.id));
-
+                console.log("User watchlists:", userWatchlists);
                 setWatchlists(userWatchlists);
             } catch (error) {
                 console.error("Error fetching user watchlists:", error);
@@ -88,8 +89,15 @@ export default function MovieDescriptionPage({ route }) {
         navigation.navigate("WatchParty", { userInfo });
     };
 
-    const handleSelectWatchlist = (watchlist) => {
-        navigation.navigate("EditWatchlist", { watchlist, userInfo });
+    const handleSelectWatchlist = async (watchlist) => {
+        console.log(watchlist);
+        try {
+            const data = await getWatchlistDetails(watchlist.id);
+            console.log(data.movieList);
+            navigation.navigate("AddMovies", { route,  userInfo, addedMovies: data.movieList });
+        } catch (error) {
+            console.error("Error fetching watchlist details:", error);
+        }
     };
 
     useEffect(() => {
@@ -625,6 +633,9 @@ export default function MovieDescriptionPage({ route }) {
                                 </TouchableOpacity>
                             )}
                         />
+                        {
+                            watchlists.length === 0 && <Text>You have no watchlists</Text>
+                        }
                         <TouchableOpacity style={{ position: "absolute", top: 10, right: 10 }} onPress={() => setWatchlistModalVisible(false)}>
                             <Text>Close</Text>
                         </TouchableOpacity>

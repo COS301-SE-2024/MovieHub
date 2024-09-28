@@ -5,11 +5,10 @@ import { searchMovies } from "../Services/TMDBApiService";
 import { useTheme } from "../styles/ThemeContext";
 
 export default function AddMovies({ route, navigation }) {
-    const { watchlistData, userInfo } = route.params;
+    const { watchlistData, userInfo, addedMovies } = route.params;
     const { theme } = useTheme();
-
     const [movies, setMovies] = useState([]);
-    const [selectedMovies, setSelectedMovies] = useState([]);
+    const [selectedMovies, setSelectedMovies] = useState(addedMovies? addedMovies : []);
     const [query, setQuery] = useState("");
     const [searching, setSearching] = useState(false);
 
@@ -124,7 +123,7 @@ export default function AddMovies({ route, navigation }) {
         },
         grid: {
             flexGrow: 1,
-            justifyContent: "center",
+            // justifyContent: "center",
             paddingHorizontal: 16,
         },
         selectedMoviesContainer: {
