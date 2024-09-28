@@ -7,8 +7,6 @@ const postRouter = require("./src/Post/post.router");
 const likesRouter = require("./src/Likes/likes.router");
 const authRouter = require("./src/Auth/auth.router"); // Import Firebase authentication middleware
 const movieRouter = require('./src/movieHandeling/movie.router');
-const actorRouter = require('./src/actorHandeling/actor.router');
-const genreRouter = require('./src/genreHandeling/genre.router');
 const recommendRouter = require('./src/Recommender/recommender.router.js');
 const searchMovieRouter = require('./src/searching/searching.router');
 
@@ -50,8 +48,6 @@ app.use('/list', watchlistRouter);
 app.use('/post', postRouter);
 app.use('/like', likesRouter);
 app.use('/movie', movieRouter);
-app.use('/actor', actorRouter);
-app.use('/genre', genreRouter);
 
 app.use('/searchMovie', searchMovieRouter);
 
