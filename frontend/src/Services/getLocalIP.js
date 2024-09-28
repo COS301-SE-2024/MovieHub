@@ -10,7 +10,7 @@ export const getLocalIP = () => {
     // if (urlMatch && urlMatch[1]) {
     //     return urlMatch[1];
     // }
-    return '169.0.2.79'; // Fallback value
+    return 'driesd5.ip.afrihost.co.za' || '169.0.2.79'; // Fallback value
 };
   
 
