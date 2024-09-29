@@ -114,21 +114,21 @@ export default function ExplorePage({ route }) {
                 ...posts.map((post) => ({ ...post, type: "post" })),
                 ...reviews.map((review) => ({ ...review, type: "review" }))
             ];
-    
+
             // Enrich the content with likeCount and commentCount
             const enrichedContent = await Promise.all(
                 combinedContent.map(async (content) => {
-                    if (content.type === "post") {
-                        const likes = await getLikesOfPost(content.postId);
-                        const comments = await getCountCommentsOfPost(content.postId);
-                        return { ...content, likeCount: likes.data, commentCount: comments.data };
-                    }
-                    if (content.type === "review") {
-                        const likes = await getLikesOfReview(content.reviewId);
-                        const comments = await getCountCommentsOfReview(content.reviewId);
-                        return { ...content, likeCount: likes.data, commentCount: comments.data };
-                    }
-                    return content;
+                    if (content.post) {
+                            const likes = await getLikesOfPost(content.post.postId);
+                            const comments = await getCountCommentsOfPost(content.post.postId);
+                            return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
+                        }
+                        if (content.review) {
+                            const likes = await getLikesOfReview(content.review.reviewId);
+                            const comments = await getCountCommentsOfReview(content.review.reviewId);
+                            return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
+                        }
+                        return content;
                 })
             );
     

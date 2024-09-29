@@ -196,6 +196,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress, re
                             handleCommentPress={handleCommentPress}
                             datePosted={formatTimeAgoFromDB(item.createdAt)}
                             onDelete={handleDeletePost} // Pass handleDeletePost function
+                            userInfo={userInfo}
                         />
                     ) : (
                         <Review
@@ -217,6 +218,7 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress, re
                             movieName={item.movieTitle}
                             rating={item.rating}
                             onDelete={handleDeleteReview}
+                            userInfo={userInfo}
                         />
                     )
                 )

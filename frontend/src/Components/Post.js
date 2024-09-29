@@ -9,7 +9,7 @@ import { useUser } from "../Services/UseridContext";
 import { removePost } from "../Services/PostsApiServices";
 import { toggleLikePost, checkUserLike } from "../Services/LikesApiService";
 
-export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete, otherUserInfo }) {
+export default function Post({ postId, uid, username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, isReview, isUserPost, handleCommentPress, onDelete, userInfo, otherUserInfo }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [hasLiked, setHasLiked] = useState(false);
@@ -17,7 +17,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const [modalVisible, setModalVisible] = useState(false);
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
-    const { userInfo, setUserInfo } = useUser();
+    // const { userInfo, setUserInfo } = useUser();
     const [isDeleting, setIsDeleting] = useState(false);
 
     // console.log("yoh", otherUserInfo)
@@ -76,7 +76,8 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
         const fetchLikeStatus = async () => {
             try {
                 const data = await checkUserLike(userInfo.userId, postId, "Post");
-                setHasLiked(data.hasLiked); // Adjust based on your backend response
+                console.log("posts", userInfo);
+                setHasLiked(data.hasLiked);
             } catch (error) {
                 console.error("Error fetching like status:", error);
             }
