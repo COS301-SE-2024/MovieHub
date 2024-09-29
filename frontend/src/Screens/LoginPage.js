@@ -190,6 +190,7 @@ const LoginPage = () => {
         },
         forgot: {
             marginTop: 10,
+            marginBottom: 20,
         },
         forgotText: {
             color: theme.textColor,
@@ -283,13 +284,13 @@ const LoginPage = () => {
                             <Text style={styles.forgotText}>Forgot password?</Text>
                         </TouchableOpacity>
 
-                        <View style={styles.orContainer}>
+                        {/* {<View style={styles.orContainer}>
                             <View style={styles.line} />
                             <Text style={styles.orText}>Or</Text>
                             <View style={styles.line} />
-                        </View>
+                        </View>} */}
 
-                        <View style={styles.socialContainer}>
+                        {/* <View style={styles.socialContainer}>
                             <TouchableOpacity>
                                 <Image style={styles.socialLink} source={google} />
                             </TouchableOpacity>
@@ -299,7 +300,7 @@ const LoginPage = () => {
                             <TouchableOpacity>
                                 <Image style={styles.socialLink} source={twitter} />
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
 
                         <View style={styles.signupLink}>
                             <Text style={styles.signupText}>Don't have an account? </Text>

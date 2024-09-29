@@ -196,9 +196,9 @@ const Notifications = ({ route }) => {
                         <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id, item.type)}>
                             <Text style={styles.buttonText}>Delete</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
+                        {/* <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
                             <Text style={styles.buttonText}>{item.isFollowing ? "Following" : "Follow"}</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </>
                 )}
                 {item.notificationType === "room_invite" && (
