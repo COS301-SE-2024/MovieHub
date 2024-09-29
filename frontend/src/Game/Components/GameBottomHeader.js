@@ -104,7 +104,7 @@ export default function GameBottomHeader({  }) {
                     {isActive("Quiz") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Leaderboard", { userInfo })} style={styles.iconContainer}>
-                    <Icon name="leaderboard" size={32} style={[styles.icon, isActive("Quiz") && styles.activeIcon]} />
+                    <Icon name="leaderboard" size={32} style={[styles.icon, isActive("Leaderboard") && styles.activeIcon]} />
                     {isActive("Leaderboard") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
             </View>

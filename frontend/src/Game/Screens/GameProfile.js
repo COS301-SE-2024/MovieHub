@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import GameBottomHeader from "../Components/GameBottomHeader";
-import { getUserProfile } from "../../Services/UsersApiService";
+import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../../Services/UseridContext";
 import { useTheme } from "../../styles/ThemeContext";
+import { getUserProfile } from "../../Services/UsersApiService";
+import { quizData } from "../Components/quizData";
 
 const GameProfile = ({ route }) => {
     const theme = useTheme();
-
+    const navigation = useNavigation();
     const { userInfo } = useUser();
-    const [loading, setLoading] = useState(true); // Add this line
+    const [loading, setLoading] = useState(true);
     const [avatar, setAvatar] = useState(null);
     const [username, setUsername] = useState("");
     const [genres, setGenres] = useState([]);
@@ -18,20 +20,40 @@ const GameProfile = ({ route }) => {
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
-            console.log(response.favouriteGenres);
-            setAvatar(response.avatar);
-            setGenres(response.favouriteGenres);
-            setUsername(response.username);
+            if (response) {
+                setAvatar(response.avatar || null); // Handle potential undefined avatar
+                setGenres(response.favouriteGenres || []); // Handle potential undefined genres
+                setUsername(response.username || "User"); // Default username if not provided
+            } else {
+                console.error("User profile is empty or undefined");
+            }
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
-            setLoading(false); // Set loading to false after data is fetched
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    const startQuiz = (className) => {
+        // Check if quiz data for the selected className exists
+        if (quizData[className]) {
+            navigation.navigate('Quiz', { className, questions: quizData[className] });
+        } else {
+            console.error(`No quiz data found for class: ${className}`);
+        }
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Loading...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -42,7 +64,11 @@ const GameProfile = ({ route }) => {
                         <Text style={styles.greeting}>👋 Hi {username}</Text>
                         <Text style={styles.subGreeting}>Great to see you again!</Text>
                     </View>
-                    <Image source={{ uri: avatar }} style={styles.avatar} />
+                    {avatar ? (
+                        <Image source={{ uri: avatar }} style={styles.avatar} />
+                    ) : (
+                        <View style={styles.placeholderAvatar} />
+                    )}
                 </View>
 
                 {/* Stats */}
@@ -66,12 +92,12 @@ const GameProfile = ({ route }) => {
 
                 {/* Continue Studying */}
                 <View style={styles.studyingSection}>
-                    <Text style={styles.sectionTitle}>Quizes For You</Text>
+                    <Text style={styles.sectionTitle}>Quizzes For You</Text>
                     {
                         genres.map((genre) => (
-                            <TouchableOpacity key={genre} style={styles.classCard}>
+                            <TouchableOpacity key={genre} style={styles.classCard} onPress={() => startQuiz(genre)}>
                                 <Text style={styles.className}>{genre}</Text>
-                                <Text style={styles.classDetails}>12 questions left</Text>
+                                <Text style={styles.classDetails}>{quizData[genre] ? quizData[genre].length + " questions" : "No questions available"}</Text>
                             </TouchableOpacity>
                         ))
                     }
@@ -85,8 +111,17 @@ const GameProfile = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // padding: 20,
         backgroundColor: "#FF6B47",
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#FF6B47",
+    },
+    loadingText: {
+        color: "#fff",
+        fontSize: 18,
     },
     header: {
         marginBottom: 20,
@@ -96,6 +131,12 @@ const styles = StyleSheet.create({
         height: 90,
         borderRadius: 50,
         marginBottom: 2,
+    },
+    placeholderAvatar: {
+        width: 90,
+        height: 90,
+        borderRadius: 50,
+        backgroundColor: "#ccc", // Placeholder color if avatar is not available
     },
     greeting: {
         fontSize: 24,

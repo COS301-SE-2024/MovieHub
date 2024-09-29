@@ -78,7 +78,7 @@ const Leaderboard = ({ route }) => {
         },
         name: {
             fontSize: 16,
-            fontWeight: "600",
+            fontWeight: "bold",
             color: "white",
         },
         points: {
@@ -129,7 +129,11 @@ const Leaderboard = ({ route }) => {
             marginLeft: 10,
         },
         label: {
-            fontWeight: 600,
+            fontWeight: "bold",
+            color: "white"
+        },
+        statistic: {
+            padding: 5,
         }
     });
 

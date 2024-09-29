@@ -675,9 +675,9 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 title: "",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
-                headerTintColor: theme.textColor,
+                headerTintColor: "#fff",
                 headerStyle: {
-                    backgroundColor: theme.backgroundColor,
+                    backgroundColor: theme.gameOrange,
                 },
             })}
         />
@@ -689,9 +689,9 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 title: "",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
-                headerTintColor: theme.textColor,
+                headerTintColor: "#fff",
                 headerStyle: {
-                    backgroundColor: theme.backgroundColor,
+                    backgroundColor: theme.gameOrange,
                 },
             })}
         />
@@ -703,10 +703,20 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 title: "",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
-                headerTintColor: theme.textColor,
+                headerTintColor: "#fff",
                 headerStyle: {
-                    backgroundColor: theme.backgroundColor,
+                    backgroundColor: theme.gameOrange,
                 },
+                headerLeft: ()=> (
+                    <TouchableOpacity style={{ marginLeft: 15 }}>
+                        <Icon
+                            name="close"
+                            size={24}
+                            color={theme.textColor}
+                            onPress={() => navigation.goBack()}
+                        />
+                    </TouchableOpacity>
+                )
             })}
         />
 
@@ -717,9 +727,9 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 title: "",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
-                headerTintColor: theme.textColor,
+                headerTintColor: "#fff",
                 headerStyle: {
-                    backgroundColor: theme.backgroundColor,
+                    backgroundColor: theme.gameOrange,
                 },
             })}
         />
@@ -731,9 +741,9 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 title: "",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
-                headerTintColor: theme.textColor,
+                headerTintColor: "#fff",
                 headerStyle: {
-                    backgroundColor: theme.backgroundColor,
+                    backgroundColor: theme.gameOrange,
                 },
             })}
         />
