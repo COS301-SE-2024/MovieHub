@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,Button,Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import BottomHeader from "../Components/BottomHeader";
 import { updateUserProfile } from "../Services/UsersApiService";
 import { colors, themeStyles } from '../styles/theme';
 import { useNavigation } from '@react-navigation/native';
@@ -29,7 +28,6 @@ export default function EditProfile({ route }) {
     const [modalContent, setModalContent] = useState({
         username: { isVisible: false, newValue: defaultUserProfile.username, tempValue: "" },
         name: { isVisible: false, newValue: defaultUserProfile.name, tempValue: "" },
-        currentlyWatching: { isVisible: false, newValue: "", tempValue: "" },
         bio: { isVisible: false, newValue: defaultUserProfile.bio, tempValue: "" },
         pronouns: { isVisible: false, newValue: defaultUserProfile.pronouns, tempValue: "", options: ["He/Him", "She/Her", "They/Them", "Prefer not to say"] },
         favouriteGenres: { isVisible: false, newValue: defaultUserProfile.favouriteGenres, tempValue: [], options: ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"] },
@@ -253,7 +251,7 @@ export default function EditProfile({ route }) {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: theme.backgroundColor,
+            backgroundColor: 'rgba(0,0,0, 0.5)',
         },
         modalContent: {
             backgroundColor: theme.backgroundColor,
@@ -265,6 +263,7 @@ export default function EditProfile({ route }) {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 20,
+            color: theme.textColor,
         },
         input: {
             marginBottom: 20,
@@ -363,7 +362,7 @@ export default function EditProfile({ route }) {
                                 </ScrollView>
                             ) : (
                                 <View>
-                                    <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
+                                    <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor}  />
                                     <View style={styles.buttonContainer}>
                                         <Text style={styles.buttonText} onPress={handleCancelChanges}>
                                             Cancel
