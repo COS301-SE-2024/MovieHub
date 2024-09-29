@@ -9,14 +9,13 @@ import { removeReview } from "../Services/PostsApiServices";
 import { toggleLikeReview, checkUserLike } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
-export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete, Otheruid }) {
+export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete, Otheruid, userInfo }) {
     const { theme } = useTheme();
     const [hasLiked, setHasLiked] = useState(false);
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
-    const { userInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -44,6 +43,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         const fetchLikeStatus = async () => {
             try {
                 const data = await checkUserLike(userInfo.userId, reviewId, "Review");
+                console.log("reviews", userInfo);
                 setHasLiked(data.hasLiked); // Adjust based on your backend response
             } catch (error) {
                 console.error("Error fetching like status:", error);
