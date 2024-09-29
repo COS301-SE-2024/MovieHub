@@ -62,6 +62,11 @@ import Rooms from "./Screens/Rooms";
 import CreateWatchParty from "./Screens/CreateWatchParty";
 import VerificationPage from "./Screens/VerificationPage";
 import ForgotPasswordPage from "./Screens/ForgotPassword";
+import GameProfile from "./Game/Screens/GameProfile";
+import Quiz from "./Game/Screens/Quiz";
+import Instructions from "./Game/Screens/Instructions";
+import Result from "./Game/Screens/Result";
+import Leaderboard from "./Game/Screens/Leaderboard";
 import withTheme from "./Components/ThemeProviderHOC";
 
 const Nav = createStackNavigator();
@@ -662,6 +667,77 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 },
             })}
         />
+
+        <Nav.Screen
+            name="GameProfile"
+            component={GameProfile}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+            })}
+        />
+
+        <Nav.Screen
+            name="Quiz"
+            component={Quiz}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+            })}
+        />
+
+        <Nav.Screen
+            name="Result"
+            component={Result}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+            })}
+        />
+
+        <Nav.Screen
+            name="Instructions"
+            component={Instructions}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+            })}
+        />
+
+        <Nav.Screen
+            name="Leaderboard"
+            component={Leaderboard}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: theme.textColor,
+                headerStyle: {
+                    backgroundColor: theme.backgroundColor,
+                },
+            })}
+        />
+            
     </Nav.Navigator>
 ));
 
