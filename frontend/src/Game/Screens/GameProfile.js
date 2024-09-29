@@ -6,6 +6,8 @@ import { useUser } from "../../Services/UseridContext";
 import { useTheme } from "../../styles/ThemeContext";
 import { getUserProfile } from "../../Services/UsersApiService";
 import { quizData } from "../Components/quizData";
+import trophyIcon from "../../../../assets/trophy_icon.png"
+import trophyStar from "../../../../assets/trophy_icon.png"
 
 const GameProfile = ({ route }) => {
     const theme = useTheme();
@@ -74,12 +76,14 @@ const GameProfile = ({ route }) => {
                 {/* Stats */}
                 <View style={styles.stats}>
                     <View style={styles.statBox}>
+                        <Image source={trophyIcon} style={styles.trophyIcon} />
                         <Text style={styles.statValue}>2300</Text>
                         <Text style={styles.statLabel}>Exp. Points</Text>
                     </View>
                     <View style={styles.statBox}>
+                        <Image source={trophyStar} style={styles.trophyIcon} />
                         <Text style={styles.statValue}>32</Text>
-                        <Text style={styles.statLabel}>Ranking</Text>
+                        <Text style={styles.statLabel}>Ranking</Text>  
                     </View>
                 </View>
 
@@ -167,6 +171,12 @@ const styles = StyleSheet.create({
     statLabel: {
         fontSize: 14,
         color: "#fff",
+    },
+    trophyIcon: {
+        width: 30,
+        height: 30,
+        marginBottom: 5,
+        padding: 5,
     },
     dailyQuiz: {
         backgroundColor: "#FF8C66",
