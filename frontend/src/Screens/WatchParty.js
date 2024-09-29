@@ -270,13 +270,13 @@ const WatchParty = ({ route }) => {
         });
 
         return (
-            <View {...panResponder.panHandlers}>
+            <View >
                 {showDateDivider && (
                     <View style={styles.dateDivider}>
                         <Text style={styles.dateDividerText}>{formatDateDivider(item.timestamp)}</Text>
                     </View>
                 )}
-                <View style={[styles.messageContainer, isUserMessage ? styles.userMessageContainer : styles.otherMessageContainer]}>
+                <View {...panResponder.panHandlers} style={[styles.messageContainer, isUserMessage ? styles.userMessageContainer : styles.otherMessageContainer]}>
                     {showName && !isUserMessage && <Text style={styles.messageSender}>{item.sender}</Text>}
                     <View style={styles.messageRow}>
                         {showAvatar && <Image source={{ uri: item.avatar }} style={styles.avatar} />}
