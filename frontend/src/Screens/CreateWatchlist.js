@@ -251,7 +251,7 @@ export default function CreateWatchlist({ route, navigation }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Visibility</Text>
                 <View style={styles.switchContainer}>
-                    <Text style={styles.sectionValue}>{visibility ? "Private" : "Public"}</Text>
+                    <Text style={styles.sectionValue}>{visibility ? "Public" : "Private"}</Text>
                     <Switch value={visibility} onValueChange={setVisibility} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={visibility ? "#4A42C0" : "#fff"} />
                 </View>
             </View>
