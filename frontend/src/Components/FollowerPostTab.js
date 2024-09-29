@@ -49,7 +49,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
                         const commentsResponse = await getCountCommentsOfPost(post.postId);
                         const likesResponse = await getLikesOfPost(post.postId);
                         const likesCount = likesResponse.data;
-                        const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
+                        const commentsCount = commentsResponse.data; 
                         return { ...post, commentsCount, likesCount, type: "post" };
                     })
                 );
@@ -63,7 +63,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
                         const commentsResponse = await getCountCommentsOfReview(review.reviewId);
                         const likesResponse = await getLikesOfReview(review.reviewId);
                         const likesCount = likesResponse.data;
-                        const commentsCount = commentsResponse.data.reviewCommentCount; // Adjust according to the actual structure
+                        const commentsCount = commentsResponse.data;
                         return { ...review, commentsCount, likesCount, type: "review" };
                     })
                 );

@@ -20,8 +20,6 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
     const { userInfo, setUserInfo } = useUser();
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // console.log("yoh", otherUserInfo)
-    // console.log("yoh", otherUserInfo)
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
@@ -33,7 +31,7 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
 
         const body = {
             postId: postId,
-            uid: uid,
+            uid: userInfo.userId,
         };
 
         try {
@@ -42,9 +40,9 @@ export default function Post({ postId, uid, username, userHandle, userAvatar, li
             setLikeCount((prevCount) => (hasLiked ? prevCount - 1 : prevCount + 1)); // Update like count
         } catch (error) {
             console.error("Error toggling like:", error);
-        } finally {
-            setLiked(false); // Reset liked state after backend call completes
-        }
+        } 
+
+        setLiked(!liked);
     };
 
     const handleShare = async () => {
