@@ -352,9 +352,9 @@ export default function FollowersProfilePage({ route }) {
                 ref={bottomSheetRef}
                 isPost={isPost}
                 postId={selectedPostId}
-                userId={otherUserInfo.uid}
-                username={otherUserInfo.username}
-                currentUserAvatar={userProfile.avatar}
+                userId={userInfo.userId}
+                username={userInfo.username}
+                currentUserAvatar={userInfo.avatar}
                 comments={comments}
                 loadingComments={loadingComments}
                 onFetchComments={fetchComments}
