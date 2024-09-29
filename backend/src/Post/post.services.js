@@ -134,7 +134,7 @@ exports.addCommentToReview = async (uid, reviewId, text) => {
 
         // Create the comment and fetch the review owner details
         const result = await session.run(
-            `MATCH (u:User {uid: $uid}), (r:Review {reviewId: $reviewId})<-[:WROTE]-(owner:User)
+            `MATCH (u:User {uid: $uid}), (r:Review {reviewId: $reviewId})<-[:REVIEWED]-(owner:User)
              CREATE (c:Comment {comId: $comId, text: $text, movieId: r.movieId, createdAt: $createdAt, updatedAt: $updatedAt, uid: $uid, reviewId: $reviewId, postId: $postId, comOnId: $comOnId, username: u.username, avatar: u.avatar, name: u.name})
              CREATE (u)-[:COMMENTED]->(c)-[:COMMENTED_ON]->(r)
              RETURN c, owner.uid AS ownerUid, owner.username AS ownerUsername`,
