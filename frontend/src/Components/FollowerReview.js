@@ -240,10 +240,6 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
-                <View style={styles.stats}>
-                    <Icon name="bookmark-border" size={20} style={styles.icon} color={theme.iconColor} />
-                    <Text style={styles.statsNumber}>{saves}</Text>
-                </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
                     <CommIcon name="share-outline" size={20} style={styles.icon} color={theme.iconColor} />
