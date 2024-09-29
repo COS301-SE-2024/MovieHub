@@ -32,21 +32,6 @@ export default function BottomHeader({ userInfo }) {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        // Fetch unread notifications count when the component mounts
-        const fetchUnreadNotifications = async () => {
-            try {
-                const data = await getUnreadNotifications(userInfo.userId);
-    
-                setUnreadNotifications(data.unreadCount.unreadCount); // Adjust according to your API response
-            } catch (error) {
-                console.error("Failed to fetch unread notifications", error);
-            }
-        };
-
-        fetchUnreadNotifications();
-    }, [userInfo.userId]);
-
 
     const styles = StyleSheet.create({
         header: {
