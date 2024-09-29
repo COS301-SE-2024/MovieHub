@@ -1,9 +1,7 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TouchableOpacity } from "react-native";
-import {useUser} from "../Services/UseridContext";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { followUser, unfollowUser } from "../Services/UsersApiService";
@@ -13,12 +11,10 @@ import { toggleLikePost, checkUserLike } from "../Services/LikesApiService";
 export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid, isUserPost, handleCommentPress, postId }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
-    const [saved, setSaved] = useState(false);
     const [hasLiked,setHasLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
-    const { oguserInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
