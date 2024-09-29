@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Image, TouchableOpacity, Text } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import IonIcon from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTheme } from "../../styles/ThemeContext";
 import { getUserProfile } from "../../Services/UsersApiService";
@@ -101,7 +102,7 @@ export default function GameBottomHeader({ userInfo }) {
                     {isActive("GameProfile") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Quiz", { userInfo })} style={styles.iconContainer}>
-                    <Icon name="personal-video" size={32} style={[styles.icon, isActive("Quiz") && styles.activeIcon]} />
+                    <IonIcon name="game-controller" size={32} style={[styles.icon, isActive("Quiz") && styles.activeIcon]} />
                     {isActive("Quiz") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Quiz", { userInfo })} style={styles.iconContainer}>
