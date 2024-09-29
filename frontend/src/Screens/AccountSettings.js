@@ -136,10 +136,6 @@ export default function AccountSettings({ route }) {
                 <Text style={styles.settingName}>Account Privacy</Text>
                 <Icon name="keyboard-arrow-right" size={24} color={theme.textColor}  />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.setting} onPress={() => navigation.navigate("GameProfile")}>
-                <Text style={styles.settingName}>Movie Quote Game</Text>
-                <Icon name="keyboard-arrow-right" size={24} color={theme.textColor}  />
-            </TouchableOpacity>
             <TouchableOpacity style={styles.setting} onPress={confirmDeleteAccount}>
                 <Text style={styles.deleteButtonText}>Delete Account</Text>
             </TouchableOpacity>

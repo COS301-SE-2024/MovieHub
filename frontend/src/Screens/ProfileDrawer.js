@@ -35,6 +35,15 @@ function CustomDrawer({ route }) {
             </TouchableOpacity>
             <View style={styles.line} />
 
+            <Text style={[styles.label, { color: theme.gray }]}>Game</Text>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("GameProfile")}>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon name="account-circle" style={[styles.icon, { color: theme.iconColor }]} size={24} />
+                    <Text style={[styles.drawerItem, { color: theme.textColor }]}>Movie Quote Challenge</Text>
+                </View>
+            </TouchableOpacity>
+            <View style={styles.line} />
+
             {/* <Text style={[styles.label, { color: theme.gray }]}>Activity</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
