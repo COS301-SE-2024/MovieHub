@@ -400,7 +400,6 @@ export default function MovieDescriptionPage({ route }) {
         },
         recommendationContainer: {
             paddingLeft: 15,
-            paddingBottom: 25,
         },
         recommendationCard: {
             width: 120,
