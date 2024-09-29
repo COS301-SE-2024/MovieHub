@@ -56,6 +56,7 @@ fs.createReadStream(inputCSVFile)
         releaseDate: row['release_date'],
         popularity: row['popularity'],
         spokenLanguages: row['spoken_languages'],
+        poster_path:row['poster_path'],
         genres: row['genres']
       };
 
