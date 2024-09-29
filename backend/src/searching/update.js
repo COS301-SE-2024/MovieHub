@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 // Load the JSON data
-fs.readFile('merged_output.json', 'utf8', (err, data) => {
+fs.readFile('filtered_merged_output.json', 'utf8', (err, data) => {
   if (err) {
     console.error('Error reading file:', err);
     return;

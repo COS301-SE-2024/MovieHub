@@ -5,7 +5,7 @@ const fs = require('fs');
 const client = new Client({ node: 'http://localhost:9200' });
 
 // Read the bulk data from the file
-const data = fs.readFileSync('filtered_merged_output.json', 'utf-8');
+const data = fs.readFileSync('updated_merged_output.json', 'utf-8');
 const bulkData = data.split('\n').filter(line => line.trim() !== '');
 
 // Function to process bulk operations in batches of 2000

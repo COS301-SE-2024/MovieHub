@@ -24,12 +24,12 @@ fs.readFile('merged_output.json', 'utf8', (err, data) => {
     const indexData = JSON.parse(lines[i]);
     const movieData = JSON.parse(lines[i + 1]);
 
-    // Extract the movie's popularity and release year
-    const popularity = parseFloat(movieData.popularity);
+    // Convert popularity to a number
+    const popularity = Number(movieData.popularity); // Convert popularity to a number
     const releaseYear = new Date(movieData.releaseDate).getFullYear();
 
     // Check if the movie's popularity is greater than 1.5, release year is 1960 or later, and does not contain the word "spanking"
-    if (popularity > 1.5 && releaseYear >= 1965 && !containsSpanking(movieData)) {
+    if (popularity > 1.5 && releaseYear >= 1960 && !containsSpanking(movieData)) {
       // Keep the movie and its index in the filtered data
       filteredData.push(JSON.stringify(indexData));
       filteredData.push(JSON.stringify(movieData));
