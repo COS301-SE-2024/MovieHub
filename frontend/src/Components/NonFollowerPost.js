@@ -181,7 +181,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             height: 300,
             marginTop: 10,
             borderRadius: 20,
-            objectFit: "contain",
+            objectFit: "cover",
         },
         postTitle: {
             fontWeight: "bold",
