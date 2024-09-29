@@ -11,6 +11,8 @@ import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
 import { getUserProfile, getMode } from "../Services/UsersApiService";
 import logo2 from "../../../assets/logo.png";
+import { useUser } from "../Services/UseridContext";
+
 
 const LoginPage = () => {
     const { theme, setMode } = useTheme();
@@ -18,6 +20,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [error, setError] = useState("");
+    const { setUserInfo } = useUser();
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
@@ -54,6 +57,9 @@ const LoginPage = () => {
 
             const userData = await getUserProfile(userInfo.userId);
             console.log("Login page", userData)
+
+            const userId = userInfo.userId;
+            setUserInfo({ userId });
 
             const verified = await isUserVerified();
             // console.log("User Verified:", verified);

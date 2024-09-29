@@ -49,11 +49,11 @@ export default function FollowerLikesTab({ userInfo, userProfile, handleCommentP
                         let commentsCount;
                         let likesCount;
                         if (item.labels[0] === "Post") {
-                            commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data.postCommentCount;
+                            commentsCount = (await getCountCommentsOfPost(item.properties.postId)).data;
                             likesCount = (await getLikesOfPost(item.properties.postId)).data;
                         } else if (item.labels[0] === "Review") {
                             console.log("item",item);
-                            commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data.reviewCommentCount;
+                            commentsCount = (await getCountCommentsOfReview(item.properties.reviewId)).data;
                             likesCount = (await getLikesOfReview(item.properties.reviewId)).data;
                         }
 

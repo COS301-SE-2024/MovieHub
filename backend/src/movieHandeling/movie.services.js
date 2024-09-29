@@ -65,7 +65,7 @@ const movieExistsLocal = async (movieId) => {
 exports.movieExists = async (movieId) => {
     const session = driver.session();
     console.log("movieExists", movieId);
-
+    movieId = parseFloat(movieId);
     try {
         const result = await session.run(
             `MATCH (m:Movie {movieId: $movieId}) RETURN m`,
