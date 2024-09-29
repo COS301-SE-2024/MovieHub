@@ -44,8 +44,8 @@ const closeNeo4jConnection = async () => {
 };
 
 const checkAndSetupIndex = async () => {
-    await setupIndex();
-    await indexMovies(); // Ensure movies are indexed after setup
+    //await setupIndex();
+    //await indexMovies(); // Ensure movies are indexed after setup
 };
 
 
