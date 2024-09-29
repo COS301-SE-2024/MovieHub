@@ -375,6 +375,7 @@ const Home = ({ route }) => {
 
             </ScrollView>
 
+            {watchlists && watchlists.length > 0 ? (
             <View style={styles.viewall}>
              <Text  style={{
                 fontSize: 23, // Ensure only one fontSize is set
@@ -388,7 +389,8 @@ const Home = ({ route }) => {
             }}>Watchlists</Text>
              {/* <Text style={styles.viewalltext}>View all</Text> */}
             </View>
-
+            ) : null}
+            
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {watchlists.map((watchlist, index) => (
                     <TouchableOpacity key={`${watchlist.id}-${index}`} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
@@ -417,6 +419,7 @@ const Home = ({ route }) => {
                     </TouchableOpacity>
                 ))}
             </ScrollView>
+            
 
             <View style={styles.viewall}>
                         <Text  style={{
