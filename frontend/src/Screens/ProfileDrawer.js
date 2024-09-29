@@ -10,6 +10,7 @@ import { useUser } from "../Services/UseridContext";
 function CustomDrawer({ route }) {
     // const { userInfo } = route.params;
     const { userInfo } = useUser();
+    console.log(userInfo);
     const { isDarkMode, setMode, theme } = useTheme();
     const navigation = useNavigation();
     const handleToggleSwitch = async () => {
@@ -27,7 +28,7 @@ function CustomDrawer({ route }) {
         <View style={{flex: 1}}>
         <ScrollView style={[styles.drawer, { backgroundColor: theme.backgroundColor }]}>
             <Text style={[styles.label, { color: theme.gray }]}>Your Account</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("AccountSettings")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("AccountSettings", userInfo)}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="account-circle" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Account Settings</Text>
@@ -36,7 +37,7 @@ function CustomDrawer({ route }) {
             <View style={styles.line} />
 
             <Text style={[styles.label, { color: theme.gray }]}>Game</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("GameProfile")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("GameProfile", userInfo)}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="account-circle" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Movie Quote Challenge</Text>
@@ -77,23 +78,14 @@ function CustomDrawer({ route }) {
             </TouchableOpacity>
 
             <View style={styles.line} />
-            <Text style={[styles.label, { color: theme.gray }]}>Notifications</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
-                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                    <Icon name="notifications" style={[styles.icon, { color: theme.iconColor }]} size={24} />
-                    <Text style={[styles.drawerItem, { color: theme.textColor }]}>Configure Notifications</Text>
-                </View>
-            </TouchableOpacity>
-
-            <View style={styles.line} />
             <Text style={[styles.label, { color: theme.gray }]}>About</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("PrivacyPolicy")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("PrivacyPolicy", userInfo)}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="policy" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Privacy Policy</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("TermsOfUse")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("TermsOfUse", userInfo)}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="description" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Terms of Use</Text>
@@ -102,13 +94,13 @@ function CustomDrawer({ route }) {
             
             <View style={styles.line} />
             <Text style={[styles.label, { color: theme.gray }]}>Info and Support</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("HelpCentre")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("HelpCentre", userInfo)}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="help" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Help Centre</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("FAQs")}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("FAQs", userInfo)}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Icon name="info" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>FAQs</Text>

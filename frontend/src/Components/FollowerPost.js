@@ -18,6 +18,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
     const { userInfo, setUserInfo } = useUser();
+    console.log(userInfo)
     const [isDeleting, setIsDeleting] = useState(false);
 
     const toggleModal = () => {
@@ -33,7 +34,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
     
         const body = {
             postId: postId,
-            uid: uid.userId,
+            uid: userInfo.userId,
         };
 
         console.log("why toggle post not working man", body);

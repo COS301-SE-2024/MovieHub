@@ -5,20 +5,21 @@ import IonIcon from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTheme } from "../../styles/ThemeContext";
 import { getUserProfile } from "../../Services/UsersApiService";
+import { useUser } from "../../Services/UseridContext";
 
-export default function GameBottomHeader({ userInfo }) {
+export default function GameBottomHeader({  }) {
     const { theme } = useTheme();
     const navigation = useNavigation();
+    const { userInfo } = useUser();
     const route = useRoute();
     const [loading, setLoading] = useState(true); // Add this line
-    const [avatar, setAvatar] = useState(null)
+    const [avatar, setAvatar] = useState(null);
     const isActive = (screen) => route.name === screen;
     const fetchData = async () => {
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
-            setAvatar(response.avatar)
-
+            setAvatar(response.avatar);
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
@@ -73,10 +74,10 @@ export default function GameBottomHeader({ userInfo }) {
             marginTop: 4,
         },
         notificationIconContainer: {
-            position: 'relative',
+            position: "relative",
         },
         notificationBadge: {
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             right: 0,
             backgroundColor: "#ff0000", // Red color
@@ -87,7 +88,7 @@ export default function GameBottomHeader({ userInfo }) {
         notificationBadgeText: {
             color: theme.textColor,
             fontSize: 12,
-            fontWeight: 'bold',
+            fontWeight: "bold",
         },
     });
 
@@ -95,23 +96,18 @@ export default function GameBottomHeader({ userInfo }) {
         <View style={styles.header}>
             <View style={styles.iconRow}>
                 <TouchableOpacity onPress={() => navigation.navigate("GameProfile", { userInfo })} style={styles.iconContainer}>
-                    <Image 
-                        source={{ uri: avatar }} 
-                        style={[styles.image, isActive("GameProfile") && styles.activeImage]} 
-                    />
+                    <Icon name="home" size={30} style={[styles.icon, isActive("GameProfile") && styles.activeIcon]} />
                     {isActive("GameProfile") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Quiz", { userInfo })} style={styles.iconContainer}>
                     <IonIcon name="game-controller" size={32} style={[styles.icon, isActive("Quiz") && styles.activeIcon]} />
                     {isActive("Quiz") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("Quiz", { userInfo })} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate("Leaderboard", { userInfo })} style={styles.iconContainer}>
                     <Icon name="leaderboard" size={32} style={[styles.icon, isActive("Quiz") && styles.activeIcon]} />
-                    {isActive("Quiz") && <View style={styles.activeIndicator} />}
+                    {isActive("Leaderboard") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
             </View>
         </View>
     );
 }
-
-

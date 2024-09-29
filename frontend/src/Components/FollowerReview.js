@@ -16,7 +16,7 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
     const navigation = useNavigation();
 
     // console.log("user likes:",uid);
-    // console.log("user likes:",ogUserinfo);
+    console.log("user likes:",ogUserinfo);
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -25,7 +25,7 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
     const toggleLike = async () => {
         const body = {
             reviewId: reviewId,
-            userId: ogUserinfo.userId,
+            uid: ogUserinfo.userId,
         };
 
         try {
