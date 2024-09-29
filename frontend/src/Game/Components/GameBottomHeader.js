@@ -84,7 +84,7 @@ export default function GameBottomHeader({ userInfo }) {
             height: 8,
         },
         notificationBadgeText: {
-            color: colors.white,
+            color: theme.textColor,
             fontSize: 12,
             fontWeight: 'bold',
         },
