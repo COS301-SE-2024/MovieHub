@@ -12,7 +12,7 @@ export const getLocalIP = () => {
     }
     
 
-return 'localhost'; // Fallback value
-//return '13.244.236.79'; // Fallback value
+// return 'localhost'; // Fallback value
+return '13.244.236.79'; // Fallback value
 };
   

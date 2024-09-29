@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Image, TouchableOpacity, Text } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useTheme } from "../styles/ThemeContext";
-import { getUserProfile } from "../Services/UsersApiService";
+import { useTheme } from "../../styles/ThemeContext";
+import { getUserProfile } from "../../Services/UsersApiService";
 
 export default function GameBottomHeader({ userInfo }) {
     const { theme } = useTheme();
