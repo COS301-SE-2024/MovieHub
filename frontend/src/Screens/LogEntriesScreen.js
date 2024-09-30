@@ -37,6 +37,8 @@ const LogEntriesScreen = ({ route }) => {
         <View style={styles.container}>
             <Text style={styles.title}>My Entries</Text>
             <FlatList
+                scrollbarThumbColor="rgba(0, 0, 0, 0)" 
+                showsVerticalScrollIndicator={false}
                 data={logEntries}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
