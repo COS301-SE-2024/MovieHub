@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button, FlatList, Pressable } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getMovieCredits, getMovieRuntime, getMovieDetails,getMovieDetailsByName } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
@@ -61,8 +61,17 @@ export default function MovieDescriptionPage({ route }) {
     }, []);
 
     const handleReviewPress = () => {
+        navigation.navigate("CreatePost", { 
+            userInfo,
+            isReview: true,
+            movieId: movieId,
+            movieTitle: title,
+            imageUrl: imageUrl,
+            rating: rating,
+            date: date,
+            overview: overview
+        });
         setIsReviewed(true);
-        navigation.navigate("CreatePost", { userInfo });
     };
 
     const handleAddPress = () => {
@@ -80,11 +89,6 @@ export default function MovieDescriptionPage({ route }) {
         setIsModalVisible(false);
     };
 
-    const handleAddToExistingWatchlist = () => {
-        setIsModalVisible(false);
-        setWatchlistModalVisible(true);
-        // navigation.navigate("EditWatchlist", { userInfo });
-    };
 
     const handleWatchPartyPress = () => {
         navigation.navigate("WatchParty", { userInfo });
@@ -189,18 +193,47 @@ export default function MovieDescriptionPage({ route }) {
         console.log("Movie pressed:", movie);
     };
 
+    const fetchMovieReviews = useCallback(async () => {
+        try {
+            const reviews = await getReviewsOfMovie(movieId);
+            setMovieReviews(reviews.data);
+            console.log("Fetched reviews:", reviews);
+        } catch (error) {
+            console.error("Error fetching movie reviews:", error);
+        }
+    }, [movieId]);
+
+    useFocusEffect(
+        useCallback(() => {
+            const unsubscribe = navigation.addListener('focus', () => {
+                // Check if we're coming back from adding a new review
+                if (route.params?.newReviewAdded) {
+                    fetchMovieReviews();
+                    // Reset the flag
+                    navigation.setParams({ newReviewAdded: false });
+                }
+            });
+
+            return unsubscribe;
+        }, [navigation, route.params, fetchMovieReviews])
+    );
+
     useEffect(() => {
-        const fetchMovieReviews = async () => {
-            try {
-                const reviews = await getReviewsOfMovie(movieId);
-                setMovieReviews(reviews.data);
-                console.log("reviews", reviews);
-            } catch (error) {
-                console.error("Error fetching movie reviews:", error);
-            }
-        };
         fetchMovieReviews();
-    }, []);
+    }, [fetchMovieReviews]);
+
+    // useEffect(() => {
+    //     const fetchMovieReviews = async () => {
+    //         try {
+    //             const reviews = await getReviewsOfMovie(movieId);
+    //             setMovieReviews(reviews.data);
+    //             console.log("reviews", reviews);
+    //         } catch (error) {
+    //             console.error("Error fetching movie reviews:", error);
+    //         }
+    //     };
+    //     fetchMovieReviews();
+    // }, []);
 
     const renderReview = (review, index) => {
         // convert date to mmm//yyyy using moment
@@ -614,9 +647,7 @@ export default function MovieDescriptionPage({ route }) {
                         <TouchableOpacity style={styles.modalButton} onPress={handleCreateNewWatchlist} color="#000">
                             <Text style={{ color: theme.textColor }}>Create a new watchlist</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.modalButton} onPress={handleAddToExistingWatchlist} color="#000">
-                            <Text style={{ color: theme.textColor }}>Add to existing watchlist</Text>
-                        </TouchableOpacity>
+                        
                         <TouchableOpacity style={styles.modalButton} onPress={() => setIsModalVisible(false)} color="#f44336">
                             <Text style={{ color: "red" }}>Cancel</Text>
                         </TouchableOpacity>
