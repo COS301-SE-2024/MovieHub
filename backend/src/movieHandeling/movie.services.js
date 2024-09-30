@@ -65,7 +65,7 @@ const movieExistsLocal = async (movieId) => {
 exports.movieExists = async (movieId) => {
     const session = driver.session();
     console.log("movieExists", movieId);
-
+    movieId = parseFloat(movieId);
     try {
         const result = await session.run(
             `MATCH (m:Movie {movieId: $movieId}) RETURN m`,
@@ -172,31 +172,7 @@ exports.getSuggestedMoviesForUser = async (uid) => {
 };
 
 
-exports.getMovieByActor = async (actorName) => {
-    const session = driver.session();
-    console.log("getMovieByActor", actorName);
 
-
-
-};
-
-exports.getMoviesByGenre = async (genre) => {
-    const session = driver.session();
-    console.log("getMoviesByGenre", genre);
-
-};
-
-exports.getSimilarMovies = async (movieId) => {
-
-};
-
-exports.addRating = async (userId, movieId, rating) => {
-
-};
-
-exports.getRatings = async (userId) => {
-
-};
 
 
 

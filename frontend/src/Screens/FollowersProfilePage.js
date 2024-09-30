@@ -16,8 +16,8 @@ import { getUserProfile, followUser, unfollowUser, getFollowingCount, getFollowe
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function FollowersProfilePage({ route }) {
-    console.log("FollowerPostTab - Other User Info:", otherUserInfo);
     const { theme } = useTheme();
+    const [activeTab, setActiveTab] = useState('posts');
     const layout = useWindowDimensions();
     const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
@@ -31,10 +31,9 @@ export default function FollowersProfilePage({ route }) {
     const [selectedPostId, setSelectedPostId] = useState(null); // Add this line
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
     const [isPost, setIsPost] = useState(false);
 
-    const [followerCount, setFollowerCount] = useState(0);
-    const [followingCount, setFollowingCount] = useState(0);
     const [routes] = useState([
         { key: "posts", title: "Posts" },
         { key: "likes", title: "Likes" },
@@ -44,16 +43,14 @@ export default function FollowersProfilePage({ route }) {
     // const { userInfo } = route.params;
 
     const { userInfo, otherUserInfo } = route.params;
-    // console.log("hai User Info:", otherUserInfo);
+    // console.log("hai User Info:", userInfo.userId);
     const { username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted, uid } = otherUserInfo;
-
-    // console.log("FollowerProfilepage -- Other User Info:", otherUserInfo);
-    // console.log("FollowerPostTab() - Other User Info:", userInfo);
 
     const handlePressFollowers = async () => {
         try {
             const followers = await getFollowers(otherUserInfo.uid);
             navigation.navigate("FollowersPage", { 
+                userInfo,
                 followers,
                 username: userProfile.name,
                 userHandle: userProfile.username,
@@ -136,26 +133,39 @@ export default function FollowersProfilePage({ route }) {
     };
 
     const handlePress = async () => {
+        setFollowLoading(true); // Start the loading indicator
         try {
+            const postBody = {
+                followerId: userInfo.userId,
+                followeeId: otherUserInfo.uid,
+            };
+    
             if (isFollowing) {
-                await unfollowUser(otherUserInfo.userId, userProfile.uid);
+                await unfollowUser(postBody);
                 setIsFollowing(false);
-                if (followers <= 0) {return}
-                    
-                setFollowers((prev) => prev - 1);
+                if (followers > 0) {
+                    setFollowers((prev) => prev - 1);
+                }
             } else {
-                await followUser(userInfo.userId, userProfile.uid);
+                await followUser(postBody);
                 setIsFollowing(true);
                 setFollowers((prev) => prev + 1);
             }
         } catch (error) {
             console.error("Error updating follow status:", error);
+        } finally {
+            setFollowLoading(false); // Stop the loading indicator
         }
     };
+    
 
     const styles = StyleSheet.create({
         container: {
-            backgroundColor: "#fff",
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
+        },
+        scrollContent: {
+            flexGrow: 1,
         },
         avatar: {
             width: 80,
@@ -163,7 +173,7 @@ export default function FollowersProfilePage({ route }) {
             borderRadius: 50,
         },
         followButton: {
-            backgroundColor: "#4a42c0",
+            backgroundColor: theme.primaryColor,
             padding: 10,
             paddingHorizontal: 12,
             borderRadius: 5,
@@ -224,11 +234,27 @@ export default function FollowersProfilePage({ route }) {
             height: layout.height,
         },
         tabBar: {
+            flexDirection: 'row',
+            justifyContent: 'space-around',
             backgroundColor: theme.backgroundColor,
             elevation: 0,
             shadowOpacity: 0,
+            marginTop: 20,
             borderBottomWidth: 1,
-            borderBottomColor: theme.borderColor,
+            borderBottomColor: 'transparent',
+        },
+        tabItem: {
+            paddingVertical: 10,
+            paddingHorizontal: 35,
+        },
+        tabText: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: theme.textColor,
+        },
+        activeTab: {
+            borderBottomWidth: 2,
+            borderBottomColor: colors.primary,
         },
         indicator: {
             backgroundColor: colors.primary,
@@ -242,15 +268,14 @@ export default function FollowersProfilePage({ route }) {
         },
     });
 
-    const renderScene = ({ route }) => {
-        switch (route.key) {
-            case "posts":
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'posts':
                 return <PostsTab userInfo={otherUserInfo} otherinfo={userInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} />;
-            case "likes":
+            case 'likes':
                 return <LikesTab userInfo={otherUserInfo} userProfile={userProfile} handleCommentPress={handleCommentPress} orginalUserinfo={userInfo} />;
-            case "watchlist":
+            case 'watchlist':
                 return <WatchlistTab userInfo={otherUserInfo} userProfile={userProfile} />;
-
             default:
                 return null;
         }
@@ -265,31 +290,38 @@ export default function FollowersProfilePage({ route }) {
     }
 
     return (
-        <View style={{ flex: 1 }}>
-            <ScrollView style={[styles.container, { backgroundColor: theme.backgroundColor }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
+        <View style={styles.container}>
+            <ScrollView 
+                contentContainerStyle={styles.scrollContent} 
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+                scrollbarThumbColor="rgba(0, 0, 0, 0)"
+                showsVerticalScrollIndicator={false}
+            >
                 <View style={styles.accountInfo}>
                     <Image
-                        source={{
-                            uri: userProfile.avatar,
-                        }}
+                        source={{ uri: userProfile.avatar }}
                         style={styles.avatar}
                     />
                     <Text style={styles.username}>{userProfile.name || "Itumeleng Moshokoa"}</Text>
                     <Text style={styles.userHandle}>@{userProfile.username}</Text>
                 </View>
                 <View style={styles.followInfo}>
-                    <Text onPress={() => navigation.navigate("FollowersPage", { otherUserInfo, userProfile, followers })}>
+                    <Text onPress={() => navigation.navigate("FollowersPage", { userInfo, otherUserInfo, userProfile, followers: followers })}>
                         <Text style={styles.number}>{followers} </Text>
                         <Text style={styles.label}>Followers</Text>
                     </Text>
-                    <Text onPress={() => navigation.navigate("FollowingPage", { otherUserInfo, userProfile, following })}>
+                    <Text onPress={() => navigation.navigate("FollowingPage", { userInfo, otherUserInfo, userProfile, following: following })}>
                         <Text style={styles.number}>{following} </Text>
                         <Text style={styles.label}>Following</Text>
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={isFollowing ? styles.followingButton : styles.followButton} onPress={handlePress}>
-                        <Text style={styles.buttonText}>{isFollowing ? "Following" : "Follow"}</Text>
+                    <Pressable style={isFollowing ? styles.followingButton : styles.followButton} onPress={handlePress} disabled={followLoading}>
+                        {followLoading ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>{isFollowing ? "Following" : "Follow"}</Text>
+                        )}
                     </Pressable>
                 </View>
                 <View style={styles.about}>
@@ -300,14 +332,33 @@ export default function FollowersProfilePage({ route }) {
                         {userProfile.favouriteGenres && userProfile.favouriteGenres.length > 0 ? <Text style={{ color: theme.textColor }}>{userProfile.favouriteGenres.slice(0, 3).join(", ")}</Text> : <Text style={{ color: theme.textColor }}>Animation, True Crime</Text>}
                     </Text>
                 </View>
-                <View style={styles.tabContainer}>
-                    <TabView navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: layout.width }} renderTabBar={(props) => <TabBar {...props} indicatorStyle={styles.indicator} labelStyle={styles.label} style={styles.tabBar} />} />
+                <View style={styles.tabBar}>
+                    {['posts', 'likes', 'watchlist'].map((tab) => (
+                        <Pressable
+                            key={tab}
+                            style={[styles.tabItem, activeTab === tab && styles.activeTab]}
+                            onPress={() => setActiveTab(tab)}
+                        >
+                            <Text style={styles.tabText}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
+                        </Pressable>
+                    ))}
                 </View>
+                {renderTabContent()}
             </ScrollView>
 
             <BottomHeader userInfo={userInfo} />
 
-            <CommentsModal ref={bottomSheetRef} postId={selectedPostId} userId={otherUserInfo.userId} username={otherUserInfo.username} currentUserAvatar={userProfile.avatar} comments={comments} loadingComments={loadingComments} onFetchComments={fetchComments} />
+            <CommentsModal
+                ref={bottomSheetRef}
+                isPost={isPost}
+                postId={selectedPostId}
+                userId={userInfo.userId}
+                username={userInfo.username}
+                currentUserAvatar={userInfo.avatar}
+                comments={comments}
+                loadingComments={loadingComments}
+                onFetchComments={fetchComments}
+            />
         </View>
     );
 }

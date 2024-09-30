@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, Alert, RefreshControl } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { deleteWatchlist } from "../Services/ListApiService"; // Import the deleteWatchlist function
 import { useTheme } from "../styles/ThemeContext";
 
-const WatchlistTab = ({ userInfo }) => {
+const WatchlistTab = ({ userInfo , refreshing, onRefresh}) => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedWatchlist, setSelectedWatchlist] = useState(null);
@@ -14,7 +14,7 @@ const WatchlistTab = ({ userInfo }) => {
     const navigation = useNavigation();
     const {theme} = useTheme();
         // Fetch user watchlists
-    useEffect(() => {
+    
         const fetchUserWatchlists = async () => {
             try {
                 const userId = userInfo.userId;
@@ -32,8 +32,18 @@ const WatchlistTab = ({ userInfo }) => {
             }
         };
 
+
+        useEffect(() => {
+            fetchUserWatchlists();
+        }, [refreshing]);  
+
+
+
+    if (refreshing) {
+        console.log("refreshing");
         fetchUserWatchlists();
-    }, []);
+    }
+
 
     const openOptionsMenu = (watchlist) => {
         setSelectedWatchlist(watchlist);
@@ -46,7 +56,12 @@ const WatchlistTab = ({ userInfo }) => {
     };
 
     const goToWatchlistDetails = (watchlist) => {
-        navigation.navigate('WatchlistDetails', { watchlist });
+        navigation.navigate('WatchlistDetails', { watchlist, userInfo });
+    };
+
+    const handleEditWatchlist = () => {
+        closeModal(); // Close the modal first
+        navigation.navigate('EditWatchlist', { watchlist: selectedWatchlist, userInfo });
     };
 
     const handleDeleteWatchlist = async () => {
@@ -66,6 +81,7 @@ const WatchlistTab = ({ userInfo }) => {
             flex: 1,
             padding: 12,
             backgroundColor: theme.useBackgroundColor,
+            paddingHorizontal: 4
         },
         createButton: {
             flexDirection: "row",
@@ -113,6 +129,7 @@ const WatchlistTab = ({ userInfo }) => {
         },
         moreButton: {
             margin: 5,
+            color: theme.iconColor,
         },
         emptyContainer: {
             backgroundColor: theme.backgroundColor,
@@ -127,7 +144,7 @@ const WatchlistTab = ({ userInfo }) => {
         },
         modalOverlay: {
             flex: 1,
-            backgroundColor: theme.backgroundColor,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             justifyContent: "center",
             alignItems: "center",
         },
@@ -145,7 +162,7 @@ const WatchlistTab = ({ userInfo }) => {
         modalOptionText: {
             fontSize: 18,
             marginLeft: 8,
-            color: theme.backgroundColor
+            color: theme.textColor
         },
         title: {
             fontSize: 18,
@@ -175,16 +192,16 @@ const WatchlistTab = ({ userInfo }) => {
             
                 {watchlists.map((watchlist) => (
                     <TouchableOpacity key={watchlist.id} style={styles.watchlistItem} onPress={() => goToWatchlistDetails(watchlist)}>
-                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} />
+                        <Image source={{  uri: watchlist.img ? watchlist.img : 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} />
                         <View style={styles.watchlistInfo}>
                             <Text style={styles.watchlistName}>{watchlist.name}</Text>
                             <Text style={styles.watchlistPrivacy}>
-                                        {watchlist.visibility ? 'Private' : 'Public'}
+                                        {watchlist.visibility ? 'Public' : 'Private'}
                             </Text>
                             <Text style={styles.watchlistMovies}>{watchlist.description}</Text>
                         </View>
                         <TouchableOpacity style={styles.moreButton} onPress={() => openOptionsMenu(watchlist)}>
-                            <MaterialIcons name="more-vert" size={24} color="black" />
+                            <MaterialIcons name="more-vert" size={24} color={theme.iconColor} />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 ))}
@@ -200,12 +217,9 @@ const WatchlistTab = ({ userInfo }) => {
                     <View style={styles.modalContainer}>
                         <TouchableOpacity
                             style={styles.modalOption}
-                            onPress={() => {
-                                navigation.navigate('EditWatchlist', {userInfo});
-                                closeModal();
-                                console.log(`Edit ${selectedWatchlist.name}`);
-                            }}>
-                            <MaterialIcons name="edit" size={24} color="black" />
+                            onPress={() => {handleEditWatchlist()}}
+                        >
+                            <MaterialIcons name="edit" size={24} color={theme.iconColor} />
                             <Text style={styles.modalOptionText}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -213,7 +227,7 @@ const WatchlistTab = ({ userInfo }) => {
                             onPress={() => {
                                 handleDeleteWatchlist();
                             }}>
-                            <MaterialIcons name="delete" size={24} color="black" />
+                            <MaterialIcons name="delete" size={24} color={theme.iconColor} />
                             <Text style={styles.modalOptionText}>Delete</Text>
                         </TouchableOpacity>
                     </View>

@@ -5,8 +5,8 @@ import { useTheme } from "../styles/ThemeContext";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
-import Post from "./FollowerPost";
-import Review from "./FollowerReview";
+import FollowerPost from "./FollowerPost";
+import FollowerReview from "./FollowerReview";
 
 export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, handleCommentPress }) {
     const { theme } = useTheme();
@@ -49,11 +49,11 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
                         const commentsResponse = await getCountCommentsOfPost(post.postId);
                         const likesResponse = await getLikesOfPost(post.postId);
                         const likesCount = likesResponse.data;
-                        const commentsCount = commentsResponse.data.postCommentCount; // Adjust according to the actual structure
+                        const commentsCount = commentsResponse.data; 
                         return { ...post, commentsCount, likesCount, type: "post" };
                     })
                 );
-                // console.log("Loook ", postsWithComments);
+                console.log("Loook ", postsWithComments);
             }
 
             let reviewsWithComments = [];
@@ -63,7 +63,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
                         const commentsResponse = await getCountCommentsOfReview(review.reviewId);
                         const likesResponse = await getLikesOfReview(review.reviewId);
                         const likesCount = likesResponse.data;
-                        const commentsCount = commentsResponse.data.reviewCommentCount; // Adjust according to the actual structure
+                        const commentsCount = commentsResponse.data;
                         return { ...review, commentsCount, likesCount, type: "review" };
                     })
                 );
@@ -155,10 +155,11 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
             ) : (
                 posts.map((item, index) =>
                     item.type === "post" ? (
-                        <Post
+                        <FollowerPost
                             key={index} // for uniqueness
                             postId={item.postId}
                             uid={item.uid}
+                            userInfo={userInfo}
                             username={item.name}
                             userHandle={item.username}
                             userAvatar={item.avatar}
@@ -175,10 +176,11 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
                             ogUserinfo={otherinfo}
                         />
                     ) : (
-                        <Review
+                        <FollowerReview
                             key={index} // for uniqueness
                             reviewId={item.reviewId}
                             uid={item.uid}
+                            userInfo={userInfo}
                             username={item.name}
                             userHandle={item.username}
                             userAvatar={item.avatar}

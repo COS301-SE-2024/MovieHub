@@ -6,6 +6,7 @@ import { useTheme } from "../styles/ThemeContext";
 import { getPostsOfUser, getReviewsOfUser, getCountCommentsOfPost, getCountCommentsOfReview, removePost, removeReview } from "../Services/PostsApiServices";
 import { getLikesOfPost, getLikesOfReview } from "../Services/LikesApiService";
 import { FacebookLoader, InstagramLoader } from "react-native-easy-content-loader";
+import moment from "moment";
 import Post from "./Post";
 import Review from "./Review";
 
@@ -18,22 +19,8 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress, re
 
     const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    const formatTimeAgoFromDB = (dateString) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const seconds = Math.floor((now - date) / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-        const months = Math.floor(days / 30);
-        const years = Math.floor(days / 365);
-
-        if (seconds < 60) return `${seconds}s ago`;
-        if (minutes < 60) return `${minutes}m ago`;
-        if (hours < 24) return `${hours}h ago`;
-        if (days < 30) return `${days}d ago`;
-        if (months < 12) return `${months}mo ago`;
-        return `${years}y ago`;
+    const formatTimeAgoFromDB = (date) => {
+        return moment(date).fromNow(); // Using moment.js to format the date as 'X time ago'
     };
 
     const fetchPostsAndReviews = async () => {
@@ -102,7 +89,9 @@ export default function PostsTab({ userInfo, userProfile, handleCommentPress, re
 
     useEffect(() => {
         fetchPostsAndReviews();
-    }, []);
+    }, [refreshing]);  
+
+
 
     if (refreshing) {
         console.log("refreshing");

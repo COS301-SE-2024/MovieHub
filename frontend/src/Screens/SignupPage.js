@@ -27,11 +27,14 @@ const SignupPage = () => {
         if (error) {
             const timer = setTimeout(() => {
                 setError("");
-            }, 2000);
+            }, 5000);
             return () => clearTimeout(timer);
         }
-        getRandomName();
     }, [error]);
+
+    useEffect(() => {
+        getRandomName();
+    }, [])
 
     // get username from random name generator api
 
@@ -308,16 +311,16 @@ const SignupPage = () => {
                         </TouchableOpacity>
                         {error ? <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text> : null}
                     </View>
-                    <View style={styles.or}>
+                    {/* <View style={styles.or}>
                         <View style={styles.line} />
                         <Text style={{ fontSize: 15, color: theme.gray }}>Or</Text>
                         <View style={styles.line} />
-                    </View>
-                    <View style={styles.socialContainer}>
+                    </View> */}
+                    {/* <View style={styles.socialContainer}>
                         <Image style={styles.socialLink} source={google} />
                         <Image style={styles.socialLink} source={facebook} />
                         <Image style={styles.socialLink} source={twitter} />
-                    </View>
+                    </View> */}
                     <View style={styles.signupLink}>
                         <Text style={styles.loginText}>Already have an account? </Text>
                         <TouchableOpacity onPress={handleExistingUser}>

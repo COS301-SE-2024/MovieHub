@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList, KeyboardAvoidingView, Platform, Image, PanResponder } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList, KeyboardAvoidingView, Platform, Image, PanResponder, Keyboard } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import MatIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -9,12 +9,8 @@ import InviteModal from "../Components/InviteModal";
 import moment from "moment";
 
 const WatchParty = ({ route }) => {
-    const { userInfo, roomId } = route.params;
+    const { userInfo, roomId, isRoomCreator } = route.params;
     const { theme, isDarkMode } = useTheme();
-
-//     const { userInfo, roomId, isRoomCreator } = route.params;
-//     const { theme } = useTheme();
-
     const navigation = useNavigation();
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
@@ -41,11 +37,11 @@ const WatchParty = ({ route }) => {
                 // Fetch messages
                 const fetchedMessages = await getMessagesFromRoom(roomId);
                 const formattedMessages = Object.entries(fetchedMessages).map(([key, value]) => {
-                    const senderInfo = fetchedParticipants.find((participant) => participant.uid === value.userId) || fetchedCreator;
+                    const senderInfo = fetchedParticipants.find((participant) => participant.uid === value.uid) || fetchedCreator;
                     return {
                         id: key,
-                        sender: value.userId === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
-                        avatar: value.userId === userInfo.userId ? null : senderInfo.avatar || "https://i.pravatar.cc/300", // Placeholder avatar for others
+                        sender: value.uid === userInfo.userId ? userInfo.username : senderInfo.username || "Unknown User",
+                        avatar: value.uid === userInfo.userId ? null : senderInfo.avatar || "https://i.pravatar.cc/300", // Placeholder avatar for others
                         text: value.message,
                         timestamp: moment(value.timestamp).format("YYYY-MM-DD HH:mm:ss"),
                     };
@@ -67,41 +63,6 @@ const WatchParty = ({ route }) => {
     const handleInvitePress = () => {
         bottomSheetRef.current?.present();
     };
-
-    const handleClosePress = () => {
-        bottomSheetRef.current?.close();
-    };
-
-    const handleBackPress = (e) => {
-        Alert.alert(
-            "Leaving?",
-            "Are you sure you want to leave the party?",
-            [
-                {
-                    text: "No",
-                    style: "cancel",
-                },
-                {
-                    text: "Yes",
-                    onPress: () => navigation.dispatch(e.data.action),
-                },
-            ],
-            { cancelable: true }
-        );
-    };
-
-    useFocusEffect(
-        useCallback(() => {
-            const onBeforeRemove = (e) => {
-                e.preventDefault();
-                handleBackPress(e);
-            };
-
-            navigation.addListener("beforeRemove", onBeforeRemove);
-
-            return () => navigation.removeListener("beforeRemove", onBeforeRemove);
-        }, [navigation])
-    );
 
     // useLayoutEffect(() => {
     //     if (loading) {
@@ -309,13 +270,13 @@ const WatchParty = ({ route }) => {
         });
 
         return (
-            <View {...panResponder.panHandlers}>
+            <View >
                 {showDateDivider && (
                     <View style={styles.dateDivider}>
                         <Text style={styles.dateDividerText}>{formatDateDivider(item.timestamp)}</Text>
                     </View>
                 )}
-                <View style={[styles.messageContainer, isUserMessage ? styles.userMessageContainer : styles.otherMessageContainer]}>
+                <View {...panResponder.panHandlers} style={[styles.messageContainer, isUserMessage ? styles.userMessageContainer : styles.otherMessageContainer]}>
                     {showName && !isUserMessage && <Text style={styles.messageSender}>{item.sender}</Text>}
                     <View style={styles.messageRow}>
                         {showAvatar && <Image source={{ uri: item.avatar }} style={styles.avatar} />}
@@ -350,7 +311,7 @@ const WatchParty = ({ route }) => {
 
             <View style={styles.roomInfo}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{ color: theme.iconColor }}>Room: {roomName}</Text>
+                    <Text style={{ color: theme.iconColor }}> {roomName}</Text>
                     <View style={styles.roomDetails}>
                         <TouchableOpacity onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}>
                             <Ionicons name="people" size={16} color={theme.iconColor} onPress={() => navigation.navigate("ViewParticipants", { userInfo, isRoomCreator, roomId: route.params.roomId})}/>

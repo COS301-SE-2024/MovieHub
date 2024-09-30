@@ -181,6 +181,37 @@ exports.getUserWatchlists = async (userId) => {
     }
 };
 
+exports.getUserPublicWatchlists = async (userId) => {
+    const session = driver.session();
+
+    try {
+        const pub = true;
+        const result = await session.run(
+            `MATCH (u:User {uid: $userId})-[:HAS_WATCHLIST]->(w:Watchlist{visibility: $pub})
+             RETURN w `,
+            { userId, pub }
+        );
+
+        // Log the query result
+        console.log("Query result:", result);
+
+        if (result.records.length === 0) {
+            console.warn(`No watchlists found for userId: ${userId}`);
+            return [];
+        }
+
+        const watchlists = result.records.map((record) => {
+            console.log("Record:", record);
+            return record.get("w").properties;
+        });
+
+        console.log("Watchlists:", watchlists);
+        return watchlists;
+    } finally {
+        await session.close();
+    }
+};
+
 exports.createUserNode = async (uid, username) => {
     const session = driver.session();
     try {
@@ -274,10 +305,10 @@ exports.followUser = async (followerId, followeeId) => {
             );
         }
 
-        // Fetch follower's name
+        // Fetch follower's details
         const followerResult = await session.run(
             `MATCH (follower:User {uid: $followerId})
-             RETURN follower.name AS followerName`,
+             RETURN follower.name AS followerName, follower.avatar AS followerAvatar, follower.username AS followerUsername`,
             { followerId }
         );
 
@@ -290,11 +321,13 @@ exports.followUser = async (followerId, followeeId) => {
         }
 
         const followerName = validFollowerRecord.get("followerName");
+        const followerAvatar = validFollowerRecord.get("followerAvatar");
+        const followerUsername = validFollowerRecord.get("followerUsername");
         console.log("User services: follower name", followerName);
 
         // Send notification to the followee
         const db = getDatabase();
-        const notificationRef = ref(db, `notifications/${followeeId}/follows/${followerId}`);
+        const notificationRef = ref(db, `notifications/${followeeId}/follows`);
         const newNotificationRef = push(notificationRef);
 
         await set(newNotificationRef, {
@@ -302,8 +335,10 @@ exports.followUser = async (followerId, followeeId) => {
             notificationType: "follow",
             read: false,
             followerId: followerId,
+            avatar: followerAvatar,  // Add follower's avatar
+            user: followerUsername,  // Add follower's username
             timestamp: new Date().toISOString(),
-            isFollowing: isMutualFollowing,
+            isFollowing: isMutualFollowing,  // If the follow is mutual
         });
 
         // Clean up any duplicate follow relationships
@@ -550,6 +585,22 @@ exports.getUnreadNotifications = async (userId) => {
         if (notifications.likes) {
             for (const key in notifications.likes) {
                 if (notifications.likes[key].read === false) {
+                    unreadCount++;
+                }
+            }
+        }
+
+        if (notifications.room_invitations) {
+            for (const key in notifications.room_invitations) {
+                if (notifications.room_invitations[key].read === false) {
+                    unreadCount++;
+                }
+            }
+        }
+
+        if (notifications.follows) {
+            for (const key in notifications.follows) {
+                if (notifications.follows[key].read === false) {
                     unreadCount++;
                 }
             }

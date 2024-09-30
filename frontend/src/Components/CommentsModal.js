@@ -1,13 +1,17 @@
 import React, { useCallback, useMemo, forwardRef, useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHighlight, Alert } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../styles/ThemeContext";
 import { addCommentToPost, addCommentToReview, removeComment, addCommentToComment, getCommentsOfComment } from "../Services/PostsApiServices";
+import { useUser } from "../Services/UseridContext";
 
 const CommentsModal = forwardRef((props, ref) => {
     const { isPost, postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
     const { theme, isDarkMode } = useTheme();
+    const { userInfo } = useUser();
+    const navigation = useNavigation();
     // console.log(isPost);
     const [message, setMessage] = useState("");
     const [replyTo, setReplyTo] = useState(null);
@@ -82,8 +86,8 @@ const CommentsModal = forwardRef((props, ref) => {
     };
 
     const toggleDeleteModal = (index) => {
-        // check if it's my own comment
-        if (comments[index].username !== username) {
+        // check if it's my own comment]
+        if (comments[index].uid !== userId) {
             return;
         }
         setDeleteModalState((prev) => {
@@ -148,6 +152,10 @@ const CommentsModal = forwardRef((props, ref) => {
             }
         });
     }, [comments]);
+
+    const goToProfile = (comment) => {
+        navigation.navigate("Profile", { userInfo, otherUserInfo: comment });
+    }
 
     const styles = StyleSheet.create({
         bottomSheetContainer: {
@@ -319,7 +327,7 @@ const CommentsModal = forwardRef((props, ref) => {
                             <View style={styles.commentsSection}>
                                 {comments.map((comment, index) => (
                                     <View key={index}>
-                                        <TouchableHighlight onLongPress={() => toggleDeleteModal(index)} underlayColor={"#f5f5f5"}>
+                                        <TouchableHighlight onLongPress={() => toggleDeleteModal(index)} onPress={() => goToProfile(comment)} underlayColor={theme.borderColor}>
                                             <View style={styles.commentContainer}>
                                                 <Image source={{ uri: comment.avatar }} style={styles.avatar} />
                                                 <View style={styles.commentContent}>

@@ -94,16 +94,17 @@ const HubScreen = ({ route }) => {
         return keywords[Math.floor(Math.random() * keywords.length)];
     };
 
-    const renderRoomCard = ({ item }) => (
-        <UserRoomCard
+    const renderRoomCard = ({ item }) => {
+        console.log(item);
+        return (<UserRoomCard
             roomName={item.roomName}
             users={item.participantsCount}
             live={item.roomType !== "Chat-only"}
             keyword={getRandomKeyword()}
-            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId })}
+            handlePress={() => navigation.navigate("ViewRoom", { userInfo, isUserRoom: item.isUserRoom, roomId: item.roomId, roomShortCode: item.shortCode })}
             coverImage={item.coverImage}
-        />
-    );
+        />)
+    };
 
     const styles = StyleSheet.create({
         container: {
@@ -116,9 +117,10 @@ const HubScreen = ({ route }) => {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 20,
-            // paddingRight: 50 ,
-            height: 30,
+            paddingVertical: 10 ,
+            // height: 30,
             paddingLeft: 10,
+            backgroundColor: theme.inputBackground,
         },
         headerLeft: {
             flexDirection: "row",
@@ -168,7 +170,7 @@ const HubScreen = ({ route }) => {
         },
         createButton: {
             flexDirection: "row",
-            marginBottom: 10,
+            // marginBottom: 10,
             paddingHorizontal: 10,
             alignItems: "center",
             color: theme.textColor,
@@ -219,6 +221,7 @@ const HubScreen = ({ route }) => {
         emptyText: {
             fontSize: 16,
             color: theme.textColor,
+            textAlign: "center",
         },
     });
 
@@ -235,13 +238,13 @@ const HubScreen = ({ route }) => {
 
                 <Text style={styles.sectionTitle}>Rooms You Created</Text>
                 {loadingCreated ? (
-                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                    <ActivityIndicator size="large" color={theme.primaryColor} style={styles.loadingIndicator} />
                 ) : (
                     <>
                     {createdRooms.length === 0 && (
                         <View style={styles.emptyContainer}>
                             <Text style={styles.emptyText}>It's a bit quiet in here!</Text>
-                            <Text style={styles.emptyText}>Why not start the fun by creating your first room?</Text>
+                            <Text style={styles.emptyText}>Why not start the fun by creating a room?</Text>
                         </View>
                     )}
                     {createdRooms.length > 0 && (
@@ -262,7 +265,7 @@ const HubScreen = ({ route }) => {
 
                 <Text style={styles.sectionTitle}>Rooms You're Participating In</Text>
                 {loadingParticipate ? (
-                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                    <ActivityIndicator size="large" color={theme.primaryColor} style={styles.loadingIndicator} />
                 ) : (
                     <>
                     {participatingRooms.length === 0 && (
@@ -288,7 +291,7 @@ const HubScreen = ({ route }) => {
 
                 <Text style={styles.sectionTitle}>Public Rooms Available</Text>
                 {loadingPublic ? (
-                    <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
+                    <ActivityIndicator size="large" color={theme.primaryColor} style={styles.loadingIndicator} />
                 ) : (
                     <>
                     {publicRooms.length === 0 && (

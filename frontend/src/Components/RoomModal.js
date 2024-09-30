@@ -13,7 +13,7 @@ const RoomModal = forwardRef((props, ref) => {
     const { theme } = useTheme();
     const navigation = useNavigation();
     const snapPoints = useMemo(() => ["42%"], []);
-    const { isRoomCreator, userInfo, roomId, onSharePress } = props;
+    const { isRoomCreator, userInfo, roomId, onSharePress, roomShortCode } = props;
     const bottomSheetRef = useRef(null);
     const renderBackdrop = useCallback((props) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
 
@@ -47,7 +47,8 @@ const RoomModal = forwardRef((props, ref) => {
     };
 
     const handleStartWatchParty = () => {
-        navigation.navigate("CreateWatchParty", { route: props.route, roomId: props.roomId });
+        navigation.navigate("CreateWatchParty", { userInfo:userInfo, route: props.route, roomId: props.roomId });
+
         console.log("Start Watch Party");
     };
 
@@ -122,6 +123,7 @@ const RoomModal = forwardRef((props, ref) => {
                 onInvite={handleInviteUser}
                 userInfo={userInfo}
                 roomId={roomId}
+                route={props.route}
             />
         </>
     );

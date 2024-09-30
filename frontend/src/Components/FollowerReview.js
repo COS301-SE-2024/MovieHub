@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import { toggleLikeReview } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
-export default function FollowerReview({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete,ogUserinfo }) {
+export default function FollowerReview({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete, ogUserinfo }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
     const [likedCount, setLikedCount] = useState(likes);
@@ -16,7 +16,7 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
     const navigation = useNavigation();
 
     // console.log("user likes:",uid);
-    // console.log("user likes:",ogUserinfo);
+    console.log("user likes:",ogUserinfo);
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -25,13 +25,13 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
     const toggleLike = async () => {
         const body = {
             reviewId: reviewId,
-            userId: ogUserinfo.userId,
+            uid: ogUserinfo.userId,
         };
-    
+
         try {
             await toggleLikeReview(body);
             setLiked((prevLiked) => {
-                setLikedCount((prevCount) => prevLiked ? prevCount - 1 : prevCount + 1);
+                setLikedCount((prevCount) => (prevLiked ? prevCount - 1 : prevCount + 1));
                 return !prevLiked; // Toggle liked state
             });
             console.log("Toggle like successful");
@@ -109,6 +109,7 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            marginBottom: 8
         },
         reviewButtonText: {
             color: "white",
@@ -164,7 +165,7 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
             position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -182,7 +183,7 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         star: {
@@ -197,18 +198,18 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
+                <View style={{ flex: 1 }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>
                         {userHandle} &bull; {dateReviewed}
                     </Text>
                 </View>
+                <View style={styles.reviewButton}>
+                    <Text style={styles.reviewButtonText}>Review</Text>
+                </View>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                    <Icon name="more-vert" size={20} />
+                    <Icon name="more-vert" size={20} color={theme.iconColor} />
                 </Pressable>
-            </View>
-            <View style={styles.reviewButton}>
-                <Text style={styles.reviewButtonText}>Review</Text>
             </View>
 
             {image ? <Image source={{ uri: image }} style={styles.reviewImage} /> : null}
@@ -219,33 +220,29 @@ export default function FollowerReview({ reviewId, uid, username, userHandle, us
                     <Text style={styles.star}>
                         <Icon name="star" size={22} color={"gold"} />
                     </Text>
-                    <Text>{rating}</Text>
+                    <Text style={{ color: theme.textColor }}>{rating}</Text>
                 </View>
             </View>
 
             <Text style={styles.reviewTitle}>{reviewTitle}</Text>
             <Text style={styles.reviewPreview}>{preview}</Text>
             <View style={styles.statsContainer}>
-            <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
-                <Text style={styles.statsNumber}>{liked ? likes + 1 : likes}</Text>
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.stats} onPress={toggleLike}>
+                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : theme.iconColor} style={{ marginRight: 5 }} />
+                    <Text style={styles.statsNumber}>{liked ? likes + 1 : likes}</Text>
+                </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable
                         onPress={() => {
                             handleCommentPress(reviewId, true);
                         }}>
-                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                        <CommIcon name="comment-outline" size={20} style={styles.icon} color={theme.iconColor} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
-                <View style={styles.stats}>
-                    <Icon name="bookmark-border" size={20} style={styles.icon} />
-                    <Text style={styles.statsNumber}>{saves}</Text>
-                </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
-                    <CommIcon name="share-outline" size={20} style={styles.icon} />
+                    <CommIcon name="share-outline" size={20} style={styles.icon} color={theme.iconColor} />
                 </Pressable>
             </View>
             {modalVisible && (

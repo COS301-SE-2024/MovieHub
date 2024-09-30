@@ -56,7 +56,7 @@ exports.getCollaborators = async (req, res) => {
     const { watchlistId } = req.params;
 
     try {
-        const collaborators = await watchlistService.getCollaborators(watchlistId); // Assuming watchlistService contains the function
+        const collaborators = await WatchlistService.getCollaborators(watchlistId); // Assuming watchlistService contains the function
         res.status(200).json({ collaborators });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching collaborators', error: error.message });

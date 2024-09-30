@@ -11,6 +11,8 @@ import * as SecureStore from "expo-secure-store";
 import { colors } from "../styles/theme";
 import { getUserProfile, getMode } from "../Services/UsersApiService";
 import logo2 from "../../../assets/logo.png";
+import { useUser } from "../Services/UseridContext";
+
 
 const LoginPage = () => {
     const { theme, setMode } = useTheme();
@@ -18,6 +20,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [error, setError] = useState("");
+    const { setUserInfo } = useUser();
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
@@ -55,6 +58,9 @@ const LoginPage = () => {
             const userData = await getUserProfile(userInfo.userId);
             console.log("Login page", userData)
 
+            const userId = userInfo.userId;
+            setUserInfo({ userId });
+
             const verified = await isUserVerified();
             // console.log("User Verified:", verified);
 
@@ -74,7 +80,7 @@ const LoginPage = () => {
                 try {
                     const mode = await getMode(userInfo.userId);
                     console.log("Mode:", mode);
-                    setMode(mode);
+                    setMode(mode.mode);
                 } catch (error) {
                     console.log("Error fetching mode:", error);
                 }
@@ -190,6 +196,7 @@ const LoginPage = () => {
         },
         forgot: {
             marginTop: 10,
+            marginBottom: 20,
         },
         forgotText: {
             color: theme.textColor,
@@ -283,13 +290,13 @@ const LoginPage = () => {
                             <Text style={styles.forgotText}>Forgot password?</Text>
                         </TouchableOpacity>
 
-                        <View style={styles.orContainer}>
+                        {/* {<View style={styles.orContainer}>
                             <View style={styles.line} />
                             <Text style={styles.orText}>Or</Text>
                             <View style={styles.line} />
-                        </View>
+                        </View>} */}
 
-                        <View style={styles.socialContainer}>
+                        {/* <View style={styles.socialContainer}>
                             <TouchableOpacity>
                                 <Image style={styles.socialLink} source={google} />
                             </TouchableOpacity>
@@ -299,7 +306,7 @@ const LoginPage = () => {
                             <TouchableOpacity>
                                 <Image style={styles.socialLink} source={twitter} />
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
 
                         <View style={styles.signupLink}>
                             <Text style={styles.signupText}>Don't have an account? </Text>

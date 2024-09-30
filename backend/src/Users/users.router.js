@@ -14,6 +14,7 @@ router.get('/:id/mode', userController.getMode); // Route to get the current mod
 router.patch('/:id/mode/toggle', userController.toggleMode);
 
 router.get('/:id/watchlists', userController.getUserWatchlists);
+router.get('/:id/watchlists/public', userController.getUserPublicWatchlists);
 
 router.post('/follow', userController.followUser);
 router.post('/unfollow', userController.unfollowUser);

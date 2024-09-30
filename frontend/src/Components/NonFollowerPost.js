@@ -1,9 +1,7 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TouchableOpacity } from "react-native";
-import {useUser} from "../Services/UseridContext";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { followUser, unfollowUser } from "../Services/UsersApiService";
@@ -13,12 +11,10 @@ import { toggleLikePost, checkUserLike } from "../Services/LikesApiService";
 export default function NonFollowerPost({ username, userHandle, userAvatar, likes, comments, saves, image, postTitle, preview, datePosted, userInfo, otherUserInfo, uid, isUserPost, handleCommentPress, postId }) {
     const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
-    const [saved, setSaved] = useState(false);
     const [hasLiked,setHasLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
-    const { oguserInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -90,10 +86,15 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
 
     const toggleFollow = async () => {
         try {
+            const postBody = {
+                followerId: userInfo.userId,
+                followeeId: otherUserInfo.uid,
+            };
+
             if (isFollowing) {
-                await unfollowUser(userInfo.userId, otherUserInfo.uid);
+                await unfollowUser(postBody);
             } else {
-                await followUser(userInfo.userId, otherUserInfo.uid);
+                await followUser(postBody);
             }
             setIsFollowing(!isFollowing);
         } catch (error) {
@@ -175,7 +176,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
             width: "100%",
             height: 300,
             marginTop: 10,
-            borderRadius: 10,
+            borderRadius: 20,
             objectFit: "cover",
         },
         postTitle: {
@@ -270,7 +271,7 @@ export default function NonFollowerPost({ username, userHandle, userAvatar, like
                             {userHandle}
                         </Text>
                         <Text style={styles.userHandle}>
-                            {username} &bull; {timeDifference()}
+                            {username} &bull; {datePosted} 
                         </Text>
                     </View>
                 </TouchableOpacity>

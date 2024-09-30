@@ -3,10 +3,9 @@ import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Switch, Fla
 import Icon from "react-native-vector-icons/Ionicons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
-import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
-import useTheme from "@react-navigation/native";
-import { addPost, editPost } from "../Services/PostsApiServices";
+import { useTheme } from "../styles/ThemeContext";
+import { editPost } from "../Services/PostsApiServices";
 
 export default function EditPost({route}) {
     const { username, uid, titleParam, thoughtsParam, imageUriParam, postId } = route.params;
@@ -113,7 +112,7 @@ export default function EditPost({route}) {
                             setRating(0);
                             setMovieSearch("");
                             
-                            navigation.navigate("Home", { userInfo });
+                            navigation.navigate("ProfilePage", { userInfo });
                         },
                     },
                 ],
@@ -291,10 +290,6 @@ export default function EditPost({route}) {
 
     return (
         <ScrollView style={styles.container}>
-            <View style={styles.toggleContainer}>
-                <Text style={styles.label}>Is this a movie review?</Text>
-                <Switch value={isMovieReview} onValueChange={setIsMovieReview} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={isMovieReview ? "#4A42C0" : "#fff"} />
-            </View>
 
             {imageUri && (
                 <View style={styles.imagePreviewContainer}>
@@ -309,7 +304,7 @@ export default function EditPost({route}) {
             )}
 
             <Text style={styles.label}>Title</Text>
-            <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
+            <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
 
             {isMovieReview && (
                 <View>
@@ -326,20 +321,16 @@ export default function EditPost({route}) {
 
             <View style={styles.actionsContainer}>
                 <View style={styles.iconsContainer}>
-                    <TouchableOpacity onPress={handleAddLink}>
-                        <CommIcon style={styles.icon} name="link-variant" size={23} />
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={handleAddImage}>
-                        <CommIcon style={styles.icon} name="image-size-select-actual" size={23} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleAddEmoji}>
-                        <CommIcon style={styles.icon} name="emoticon-happy-outline" size={23} />
+                        <CommIcon style={styles.icon} name="image-size-select-actual" size={23} color={theme.iconColor} />
                     </TouchableOpacity>
                 </View>
-                <View style={styles.allowCommentsContainer}>
-                    <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
-                    <Switch value={allowComments} onValueChange={setAllowComments} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={allowComments ? "#4A42C0" : "#fff"} />
-                </View>
+            </View>
+
+            <View style={styles.footer}>
+                <TouchableOpacity style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]} disabled={isPostButtonDisabled} onPress={handleEditPost}>
+                    <Text style={styles.postButtonText}>Save</Text>
+                </TouchableOpacity>
             </View>
 
             {feedbackVisible && (

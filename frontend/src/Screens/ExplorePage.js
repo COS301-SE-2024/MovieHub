@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, FlatList, TextInput } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, FlatList, TextInput , RefreshControl} from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from "react-native";
@@ -22,6 +22,7 @@ import Post from "../Components/Post";  // To render posts
 import Review from "../Components/Review";  // To render reviews
 import moment from "moment";
 import { useTheme } from '../styles/ThemeContext';
+import { colors, themeStyles } from "../styles/theme";
 import SearchBar from '../Components/SearchBar';
 
 
@@ -41,10 +42,10 @@ export default function ExplorePage({ route }) {
     const [recentRooms, setRecentRooms] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [sortedContent, setSortedContent] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
     const keywords = ["art", "city", "neon", "space", "movie", "night", "stars", "sky", "sunset", "sunrise"];
 
-    useEffect(() => {
         const fetchContent = async () => {
             try {
                 const friendsContent = await getFriendsOfFriendsContent(userInfo);
@@ -81,14 +82,17 @@ export default function ExplorePage({ route }) {
                         return content;
                     })
                 );
+                // sort by date 
+                enrichedRandomContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
                 setRandomUsersContent(enrichedRandomContent);
             } catch (error) {
                 console.error('Error fetching content:', error);
             }
         };
-    
-        fetchContent();
-    }, [userInfo]);
+
+        useEffect(() => {
+            fetchContent();
+        }, [userInfo]);
 
     useFocusEffect(
         useCallback(() => {
@@ -104,21 +108,22 @@ export default function ExplorePage({ route }) {
         try {
             const friendsData = await getFriendsContent(userInfo);
             const { posts, reviews } = friendsData;
-
-            console.log("freinds content", posts);
-
-            const combinedContent = [...posts.map((post) => ({ ...post, type: "post" })), ...reviews.map((review) => ({ ...review, type: "review" }))];
-
-            const sortedContent = combinedContent.sort((a, b) => new Date(b.post?.createdAt || b.review?.createdAt) - new Date(a.post?.createdAt || a.review?.createdAt));
-
+    
+            // Combine posts and reviews with a type field
+            const combinedContent = [
+                ...posts.map((post) => ({ ...post, type: "post" })),
+                ...reviews.map((review) => ({ ...review, type: "review" }))
+            ];
+    
+            // Enrich the content with likeCount and commentCount
             const enrichedContent = await Promise.all(
-                sortedContent.map(async (content) => {
-                    if (content.type === "post") {
+                combinedContent.map(async (content) => {
+                    if (content.post) {
                         const likes = await getLikesOfPost(content.post.postId);
                         const comments = await getCountCommentsOfPost(content.post.postId);
                         return { ...content, post: { ...content.post, likeCount: likes.data, commentCount: comments.data } };
                     }
-                    if (content.type === "review") {
+                    if (content.review) {
                         const likes = await getLikesOfReview(content.review.reviewId);
                         const comments = await getCountCommentsOfReview(content.review.reviewId);
                         return { ...content, review: { ...content.review, likeCount: likes.data, commentCount: comments.data } };
@@ -126,20 +131,34 @@ export default function ExplorePage({ route }) {
                     return content;
                 })
             );
-
-            setSortedContent(enrichedContent);
+    
+            // Sort enriched content by createdAt date
+            const sortedContent = enrichedContent.sort((a, b) => {
+                const dateA = new Date(a.createdAt || a.post?.createdAt || a.review?.createdAt);
+                const dateB = new Date(b.createdAt || b.post?.createdAt || b.review?.createdAt);
+                return dateB - dateA;
+            });
+    
+            // Set the sorted content
+            setSortedContent(sortedContent);
+            console.log("explore sorted content", sortedContent);
         } catch (error) {
             console.error("Failed to fetch friends content:", error);
         }
     }, [userInfo]);
+    
+    useEffect(() => {
+        if (userInfo) {
+            fetchFriendsContent();
+        }
+    }, [userInfo, fetchFriendsContent]);
 
-    useFocusEffect(
-        useCallback(() => {
-            if (userInfo) {
-                fetchFriendsContent();
-            }
-        }, [userInfo, fetchFriendsContent])
-    );
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([fetchContent(), fetchFriendsContent()]);
+        setRefreshing(false);
+    }, []);
+
 
     const handleOpenHub = () => {
         navigation.navigate("HubScreen", { userInfo });
@@ -172,16 +191,17 @@ export default function ExplorePage({ route }) {
             return;
         }
         try {
-        const response = await searchUser(name); 
-        if (response.users) {
-            setSearchResults(response.users);
-        } else {
+            const response = await searchUser(name); 
+            console.log(response);
+            if (response.users) {
+                setSearchResults(response.users);
+            } else {
+                setSearchResults([]); 
+            }
+        } catch (error) {
+            console.error("Error during search:", error.message);
             setSearchResults([]); 
         }
-    } catch (error) {
-        console.error("Error during search:", error.message);
-        setSearchResults([]); 
-    }
     };
 
     const renderUser = ({ item }) => (
@@ -250,14 +270,16 @@ export default function ExplorePage({ route }) {
 
     const renderFollower = ({ item }) => (
         <TouchableOpacity
-        onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo : item })} 
-      >
-        <FollowList 
-            username={item.username}
-            userHandle={item.name}
-            userAvatar={item.avatar}
-        />
-         </TouchableOpacity>
+            onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo : item })} 
+        >
+            <FollowList 
+                route={route}
+                uid={item.uid}
+                username={item.username}
+                userHandle={item.name}
+                userAvatar={item.avatar}
+            />
+        </TouchableOpacity>
     );
 
     
@@ -293,25 +315,39 @@ export default function ExplorePage({ route }) {
             backgroundColor: "#ccc",
             marginVertical: 16,
         },
+        friendsContent: {
+            backgroundColor: theme.backgroundColor,
+        }
     });    
     return (
         <View style={{ flex: 1, backgroundColor: useTheme.backgroundColor }}>
-            <ScrollView>
+            <ScrollView style={{ backgroundColor: theme.backgroundColor }}
+             refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+            } scrollbarThumbColor="rgba(0, 0, 0, 0)" showsVerticalScrollIndicator={false}>
             <SearchBar onChangeText={handleSearch} />
-                {searchResults.length > 0 && (
+
+            {searchResults.length > 0 ? (
                 <FlatList
                     data={searchResults}
-                    keyExtractor={(item) => item.uid}
+                    // keyExtractor={(item) => item.uid}
                     renderItem={renderFollower}
                     showsVerticalScrollIndicator={false}
+                    // style={{maxHeight: 300, }}
+                    // set max height
+                    maxToRenderPerBatch={5}
+                    // set initial number of items
+                    initialNumToRender={5}
+                    ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 10 }}>No results found.</Text>}
                 />
-            )}
+            ) : null}
 
                 <View style={styles.postsContainer}>
                     <HubTabView>
                         <View>
                             {/* Friends' Content */}
-                            <InstagramLoader active loading={randomUsersContent.length === 0} />
+                            <InstagramLoader active loading={sortedContent.length === 0} />
+                            <InstagramLoader active loading={sortedContent.length === 0} />
                             {sortedContent.length > 0 && (
                                 <View style={styles.friendsContent}>
                                     {sortedContent.map((content, index) =>
@@ -384,7 +420,7 @@ export default function ExplorePage({ route }) {
                                     image={item.post ? item.post.img : null}
                                     postTitle={item.post ? item.post.postTitle : 'No Title'}
                                     preview={item.post ? item.post.text : 'No Preview'}
-                                    datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
+                                    datePosted={item.post.createdAt ? formatDate(item.post.createdAt) : 'Unknown Date'}
                                     isUserPost={item.uid === userInfo.userId}
                                     handleCommentPress={handleCommentPress}
                                 />
@@ -410,7 +446,7 @@ export default function ExplorePage({ route }) {
                                         image={item.post ? item.post.img : null}
                                         postTitle={item.post ? item.post.postTitle : 'No Title'}
                                         preview={item.post ? item.post.text : 'No Preview'}
-                                        datePosted={item.post ? item.post.createdAt : 'Unknown Date'}
+                                        datePosted={item.post.createdAt ? formatDate(item.post.createdAt) : 'Unknown Date'}
                                         isUserPost={item.uid === userInfo.userId}
                                         handleCommentPress={handleCommentPress}
                                     />

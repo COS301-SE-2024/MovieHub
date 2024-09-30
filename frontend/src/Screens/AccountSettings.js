@@ -62,7 +62,7 @@ export default function AccountSettings({ route }) {
             backgroundColor: theme.backgroundColor,
         },
         deleteButtonText: {
-            color: "#ff0000",
+            color: "#ed4337",
             textAlign: "center",
             fontWeight: "bold",
             flexDirection: "row",

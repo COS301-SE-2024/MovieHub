@@ -18,8 +18,8 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
     const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
     const navigation = useNavigation();
     const { userInfo, setUserInfo } = useUser();
+    console.log(userInfo)
     const [isDeleting, setIsDeleting] = useState(false);
-
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -34,7 +34,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
     
         const body = {
             postId: postId,
-            uid: uid.userId,
+            uid: userInfo.userId,
         };
 
         console.log("why toggle post not working man", body);
@@ -262,7 +262,7 @@ export default function FollowerPost({ postId, uid, username, userHandle, userAv
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable onPress={() => {handleCommentPress(postId, false)}}>
-                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                        <CommIcon name="comment-outline" size={20} style={styles.icon} color={theme.iconColor} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments > 0 ? comments : 0}</Text>
                 </View>

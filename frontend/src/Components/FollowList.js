@@ -1,21 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { followUser, unfollowUser } from "../Services/UsersApiService";
 
-const FollowList = ({ route, uid, username, userHandle, userAvatar, avatar, isFollowing }) => {
+const FollowList = ({ route, uid, username, userHandle, userAvatar, isFollowing: initialFollowState }) => {
     const { theme } = useTheme();
     const { userInfo } = route.params;
-
-    console.log("isFollowing", isFollowing);
+    const [isFollowing, setIsFollowing] = useState(initialFollowState);
 
     const toggleFollow = async () => {
         try {
+            const postBody = {
+                followerId: userInfo.userId,
+                followeeId: uid,
+            };
+
             if (isFollowing) {
-                await unfollowUser(userInfo.userId, uid);
+                await unfollowUser(postBody);
             } else {
-                await followUser(userInfo.userId, uid);
+                await followUser(postBody);
             }
+
+            // triggers a re-render
+            setIsFollowing((prev) => !prev);
         } catch (error) {
             console.error("Error toggling follow state:", error);
         }
@@ -40,33 +47,26 @@ const FollowList = ({ route, uid, username, userHandle, userAvatar, avatar, isFo
             width: 50,
             height: 50,
             borderRadius: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             marginRight: 10,
             backgroundColor: "black",
-            paddingLeft: 10,
         },
         username: {
             fontSize: 18,
             fontWeight: "bold",
             color: theme.textColor,
-            paddingLeft: 15,
         },
         userHandle: {
             color: theme.gray,
-            paddingLeft: 15,
         },
         profileInfo: {
-            alignItems: "center",
-            display: "flex",
             flexDirection: "row",
+            alignItems: "center",
         },
         followButton: {
             backgroundColor: theme.primaryColor,
             padding: 8,
-            borderRadius: 5,
-            paddingHorizontal: 16
+            borderRadius: 50,
+            paddingHorizontal: 16,
         },
         followingButton: {
             backgroundColor: theme.gray,
@@ -77,12 +77,11 @@ const FollowList = ({ route, uid, username, userHandle, userAvatar, avatar, isFo
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
-                    <Text style={styles.username}>{userHandle}</Text>
-                    <Text style={styles.userHandle}>{username}</Text>
+                <View>
+                    <Text style={styles.username}>{username}</Text>
+                    <Text style={styles.userHandle}>{userHandle}</Text>
                 </View>
             </View>
-            {/* {avatar && <Image source={{ uri: avatar }} style={styles.postImage} />} */}
             <TouchableOpacity onPress={toggleFollow} style={[styles.followButton, isFollowing && styles.followingButton]}>
                 <Text style={{ color: "white" }}>{isFollowing ? "Following" : "Follow"}</Text>
             </TouchableOpacity>

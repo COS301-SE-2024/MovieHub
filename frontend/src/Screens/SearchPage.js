@@ -3,9 +3,11 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image,
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from "../Services/TMDBApiService";
 import { searchMoviesFuzzy, getMovieByQuote } from "../Services/esSearchApiServices";
 import { useTheme } from "../styles/ThemeContext";
+import { getMovieDetailsByName } from "../Services/TMDBApiService";
 
 const genreMap = {
     12: "Adventure",
@@ -66,23 +68,39 @@ const SearchPage = ({ route }) => {
     useEffect(() => {
         const fetchPosters = async () => {
             const posters = {};
-            const usedPosters = new Set(); // set of posters that have been used
+            const usedPosters = new Set();
+            const cachedPosters = await AsyncStorage.getItem('cachedPosters');
+            const parsedCachedPosters = cachedPosters ? JSON.parse(cachedPosters) : {};
+    
             for (const [genreId, genreName] of sortedGenres) {
+                if (parsedCachedPosters[genreName]) {
+                    posters[genreName] = parsedCachedPosters[genreName];
+                    continue;
+                }
+    
                 const movies = await getMoviesByGenre(genreId);
                 if (movies.length > 0) {
                     let posterPath = `https://image.tmdb.org/t/p/w500${movies[0].poster_path}`;
                     let index = 0;
-                    // Ensure the poster is unique
                     while (usedPosters.has(posterPath) && index < movies.length) {
                         index++;
-                        posterPath = `https://image.tmdb.org/t/p/w500${movies[index].poster_path}`;
+                        if (index < movies.length) {
+                            posterPath = `https://image.tmdb.org/t/p/w500${movies[index].poster_path}`;
+                        } else {
+                            break;
+                        }
                     }
                     usedPosters.add(posterPath);
                     posters[genreName] = posterPath;
+
+                    parsedCachedPosters[genreName] = posterPath;
                 }
             }
+            
+            await AsyncStorage.setItem('cachedPosters', JSON.stringify(parsedCachedPosters));
             setGenrePosters(posters);
         };
+    
         fetchPosters();
     }, []);
 
@@ -168,6 +186,31 @@ const SearchPage = ({ route }) => {
         navigation.navigate("GenrePage", { genreName: genre, genreData: genreData[genre] });
     };
 
+    const handleMoviePress = async (movie) => {
+        try {
+            console.log("who",movie);
+            const movieDetails = await getMovieDetails(movie._id);
+                console.log("hmmm",movieDetails);
+            if (movieDetails) {
+                navigation.navigate("MovieDescriptionPage", {
+                    movieId: movieDetails.id, 
+                    genre: movieDetails.genre_ids, 
+                    imageUrl: `https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`, 
+                    title: movieDetails.title, 
+                    overview: movieDetails.overview, 
+                    rating: movieDetails.vote_average.toFixed(1),
+                    date: new Date(movieDetails.release_date).getFullYear(),
+                    userInfo: userInfo
+
+                });
+            } else {
+                console.error("Movie not found");
+            }
+        } catch (error) {
+            console.error("Error fetching movie details:", error);
+        }
+    };
+
     const renderMovieItem = ({ item }) => (
         <TouchableOpacity style={styles.movieItem} onPress={() => handleMoviePress(item)}>
             {item.poster_path !== "null" && <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }} style={styles.movieImage} resizeMode="cover" />}
@@ -237,6 +280,7 @@ const SearchPage = ({ route }) => {
             backgroundColor: "#00000080",
             flex: 1,
             textAlignVertical: "center",
+            justifyContent: "center",
         },
 
         grid: {

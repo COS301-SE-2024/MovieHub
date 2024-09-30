@@ -62,6 +62,11 @@ import Rooms from "./Screens/Rooms";
 import CreateWatchParty from "./Screens/CreateWatchParty";
 import VerificationPage from "./Screens/VerificationPage";
 import ForgotPasswordPage from "./Screens/ForgotPassword";
+import GameProfile from "./Game/Screens/GameProfile";
+import Quiz from "./Game/Screens/Quiz";
+import Instructions from "./Game/Screens/Instructions";
+import Result from "./Game/Screens/Result";
+import Leaderboard from "./Game/Screens/Leaderboard";
 import withTheme from "./Components/ThemeProviderHOC";
 
 const Nav = createStackNavigator();
@@ -97,7 +102,16 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
         <Nav.Screen
             name="MovieDescriptionPage"
             component={MovieDescriptionPage}
-            options={{ headerShown: false }}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "white",
+                headerTransparent: true, // Make the header transparent
+                headerStyle: {
+                    backgroundColor: "transparent",
+                },
+            })}
         />
 
         <Nav.Screen
@@ -239,10 +253,10 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 title: "movieHub.",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
-                headerTintColor: "white",
                 headerTintColor: theme.textColor,
+                headerTransparent: true,
                 headerStyle: {
-                    backgroundColor: theme.backgroundColor,
+                    backgroundColor: "transparent",
                 },
             })}
         />
@@ -576,7 +590,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="LogBookScreen"
             component={LogBookScreen}
             options={({ navigation }) => ({
-                title: "",
+                title: "Log your Movie",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: theme.textColor,
@@ -589,7 +603,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="LogEntriesScreen"
             component={LogEntriesScreen}
             options={({ navigation }) => ({
-                title: "",
+                title: "My Entries",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: theme.textColor,
@@ -653,6 +667,87 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                 },
             })}
         />
+
+        <Nav.Screen
+            name="GameProfile"
+            component={GameProfile}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "#fff",
+                headerStyle: {
+                    backgroundColor: theme.gameOrange,
+                },
+            })}
+        />
+
+        <Nav.Screen
+            name="Quiz"
+            component={Quiz}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "#fff",
+                headerStyle: {
+                    backgroundColor: theme.gameOrange,
+                },
+            })}
+        />
+
+        <Nav.Screen
+            name="Result"
+            component={Result}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "#fff",
+                headerStyle: {
+                    backgroundColor: theme.gameOrange,
+                },
+                headerLeft: ()=> (
+                    <TouchableOpacity style={{ marginLeft: 15 }}>
+                        <Icon
+                            name="close"
+                            size={24}
+                            color={theme.textColor}
+                            onPress={() => navigation.navigate("GameProfile")}
+                        />
+                    </TouchableOpacity>
+                )
+            })}
+        />
+
+        <Nav.Screen
+            name="Instructions"
+            component={Instructions}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "#fff",
+                headerStyle: {
+                    backgroundColor: theme.gameOrange,
+                },
+            })}
+        />
+
+        <Nav.Screen
+            name="Leaderboard"
+            component={Leaderboard}
+            options={({ navigation }) => ({
+                title: "",
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
+                headerTintColor: "#fff",
+                headerStyle: {
+                    backgroundColor: theme.gameOrange,
+                },
+            })}
+        />
+            
     </Nav.Navigator>
 ));
 

@@ -149,7 +149,7 @@ export default function ExploreHub({ userInfo, roomData }) {
             <TouchableOpacity style={styles.card}>
                 {live && (
                     <Text style={styles.liveText}>
-                        ● Live - <Text>{movieTitle}</Text>
+                        &bull; Live - <Text>{movieTitle}</Text>
                     </Text>
                 )}
                 <View style={styles.cardBody}>

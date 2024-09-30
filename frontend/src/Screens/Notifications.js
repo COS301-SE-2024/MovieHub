@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView, RefreshControl } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
+import { useNavigation } from "@react-navigation/native";
 import { followUser, getUserNotifications, unfollowUser } from "../Services/UsersApiService"; // Import from UsersApiService
 import { markNotificationAsRead, deleteNotification, clearNotifications } from "../Services/NotifyApiService"; // Import from NotifyApiService
 import { joinRoom, declineRoomInvite } from "../Services/RoomApiService"; // Import RoomApiService
@@ -10,48 +11,55 @@ import moment from "moment"; // Use moment.js for date formatting
 const Notifications = ({ route }) => {
     const { theme } = useTheme();
     const { userInfo } = route.params;
+    const navigation = useNavigation();
     const [notifications, setNotifications] = useState([]);
     const [categorizedNotifications, setCategorizedNotifications] = useState({});
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const data = await getUserNotifications(userInfo.userId);
-                const flattenedNotifications = [];
-                if (data.success && data.notifications) {
-                    for (const category in data.notifications) {
-                        if (data.notifications.hasOwnProperty(category)) {
-                            const notificationsOfCategory = data.notifications[category];
-                            for (const id in notificationsOfCategory) {
-                                if (notificationsOfCategory.hasOwnProperty(id)) {
-                                    const notification = notificationsOfCategory[id];
-                                    flattenedNotifications.push({
-                                        id,
-                                        ...notification,
-                                        type: category,
-                                        timestamp: moment(notification.timestamp), // Ensure notification has a timestamp
-                                    });
-                                }
+        fetchNotifications();
+    }, []);
+
+    const fetchNotifications = async () => {
+        try {
+            const data = await getUserNotifications(userInfo.userId);
+            const flattenedNotifications = [];
+            if (data.success && data.notifications) {
+                for (const category in data.notifications) {
+                    if (data.notifications.hasOwnProperty(category)) {
+                        const notificationsOfCategory = data.notifications[category];
+                        for (const id in notificationsOfCategory) {
+                            if (notificationsOfCategory.hasOwnProperty(id)) {
+                                const notification = notificationsOfCategory[id];
+                                flattenedNotifications.push({
+                                    id,
+                                    ...notification,
+                                    type: category,
+                                    timestamp: moment(notification.timestamp),
+                                });
                             }
                         }
                     }
                 }
-                flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
-                setNotifications(flattenedNotifications);
-                setCategorizedNotifications(categorizeNotifications(flattenedNotifications));
-            } catch (error) {
-                console.error("Failed to fetch notifications:", error);
             }
-        };
-    
+            flattenedNotifications.sort((a, b) => b.timestamp - a.timestamp);
+            setNotifications(flattenedNotifications);
+            setCategorizedNotifications(categorizeNotifications(flattenedNotifications));
+        } catch (error) {
+            console.error("Failed to fetch notifications:", error);
+        }
+    };
+
+    const handleRefresh = () => {
+        setIsRefreshing(true);
         fetchNotifications();
-    }, []);  // Removed notifications from the dependency array
-    
+        setIsRefreshing(false);
+    };
 
     const handleMarkAsRead = async (id, type) => {
         try {
             await markNotificationAsRead(userInfo.userId, type, id);
-            setNotifications(notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)));
+            updateNotificationState(id, { read: true });
             console.log("Notification marked as read:", id, type);
         } catch (error) {
             console.error("Failed to mark notification as read:", error);
@@ -61,8 +69,7 @@ const Notifications = ({ route }) => {
     const handleDeleteNotification = async (id, type) => {
         try {
             await deleteNotification(userInfo.userId, type, id);
-            setNotifications(notifications.filter((notification) => notification.id !== id));
-
+            removeNotificationFromState(id);
         } catch (error) {
             console.error("Failed to delete notification:", error);
         }
@@ -72,6 +79,7 @@ const Notifications = ({ route }) => {
         try {
             await clearNotifications(userInfo.userId);
             setNotifications([]);
+            setCategorizedNotifications({});
         } catch (error) {
             console.error("Failed to clear notifications:", error);
         }
@@ -80,8 +88,10 @@ const Notifications = ({ route }) => {
     const handleAcceptInvite = async (shortCode, roomId) => {
         try {
             const response = await joinRoom(shortCode, userInfo.userId);
+            console.log(response);
             if (response.roomId) {
                 handleDeleteNotification(roomId, "room_invitations");
+                navigation.navigate("ViewRoom", { userInfo, roomId: response.roomId, roomShortCode: shortCode, isUserRoom: false });
             } else {
                 console.error("Failed to join room:", response.message);
             }
@@ -110,6 +120,28 @@ const Notifications = ({ route }) => {
         } catch (error) {
             console.error("Error toggling follow state:", error);
         }
+    };
+
+    const updateNotificationState = (id, updates) => {
+        setNotifications((prevNotifications) => prevNotifications.map((notification) => (notification.id === id ? { ...notification, ...updates } : notification)));
+        setCategorizedNotifications((prevCategorized) => {
+            const updated = { ...prevCategorized };
+            Object.keys(updated).forEach((category) => {
+                updated[category] = updated[category].map((notification) => (notification.id === id ? { ...notification, ...updates } : notification));
+            });
+            return updated;
+        });
+    };
+
+    const removeNotificationFromState = (id) => {
+        setNotifications((prevNotifications) => prevNotifications.filter((notification) => notification.id !== id));
+        setCategorizedNotifications((prevCategorized) => {
+            const updated = { ...prevCategorized };
+            Object.keys(updated).forEach((category) => {
+                updated[category] = updated[category].filter((notification) => notification.id !== id);
+            });
+            return updated;
+        });
     };
 
     // Function to categorize notifications by date
@@ -142,15 +174,13 @@ const Notifications = ({ route }) => {
         <View style={[styles.notificationItem, !item.read && styles.unreadBackground, !item.read && { borderLeftWidth: 5, borderLeftColor: "#4a42c0" }]}>
             {item.avatar && <Image source={{ uri: item.avatar }} style={styles.avatar} />}
             <View style={styles.notificationContent}>
-                {item.user && item.message.includes(item.user) ? (
-                    <Text style={styles.notificationText} numberOfLines={3}>
+                {item.user && item.message.includes(item.user && item.notificationType !== "room_invite") ? (
+                    <Text style={styles.notificationText} >
                         <Text style={styles.boldText}>{item.user}</Text>
                         {item.message.replace(item.user, "")}
                     </Text>
                 ) : (
-                    <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]} numberOfLines={3}>
-                        {item.message}
-                    </Text>
+                    <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]}>{item.message}</Text>
                 )}
             </View>
             <View style={styles.buttonContainer}>
@@ -161,18 +191,16 @@ const Notifications = ({ route }) => {
                                 <Text style={styles.buttonText}>Read</Text>
                             </TouchableOpacity>
                         )}
-                        <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
-                            <Text style={styles.buttonText}>{item.isFollowing ? "Following" : "Follow"}</Text>
+                        <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleDeleteNotification(item.id, item.type)}>
+                            <Text style={styles.buttonText}>Delete</Text>
                         </TouchableOpacity>
+                        {/* <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => handleFollow(item.isFollowing, item.followerId)}>
+                            <Text style={styles.buttonText}>{item.isFollowing ? "Following" : "Follow"}</Text>
+                        </TouchableOpacity> */}
                     </>
                 )}
                 {item.notificationType === "room_invite" && (
                     <>
-                        {!item.read && (
-                            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
-                                <Text style={styles.buttonText}>Read</Text>
-                            </TouchableOpacity>
-                        )}
                         <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAcceptInvite(item.shortCode, item.id)}>
                             <Text style={styles.buttonText}>Accept</Text>
                         </TouchableOpacity>
@@ -181,7 +209,7 @@ const Notifications = ({ route }) => {
                         </TouchableOpacity>
                     </>
                 )}
-                {item.notificationType !== "room_invite" && (
+                {item.notificationType !== "room_invite" && item.notificationType !== "follow" && (
                     <>
                         {!item.read && (
                             <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => handleMarkAsRead(item.id, item.type)}>
@@ -205,7 +233,7 @@ const Notifications = ({ route }) => {
         },
         listContainer: {
             flexGrow: 1,
-            marginHorizontal:12, // Optional: adjust as needed
+            marginHorizontal: 12, // Optional: adjust as needed
         },
         avatar: {
             width: 40,
@@ -224,6 +252,7 @@ const Notifications = ({ route }) => {
         },
         notificationContent: {
             flex: 1, // Take up available space
+            width: "100%",
         },
         notificationText: {
             fontSize: 16,
@@ -259,7 +288,7 @@ const Notifications = ({ route }) => {
             backgroundColor: "#dc3545",
         },
         deleteButton: {
-            backgroundColor: "#6c757d",
+            backgroundColor: "#ed4337",
         },
         buttonText: {
             color: "#fff",
@@ -280,7 +309,7 @@ const Notifications = ({ route }) => {
             fontWeight: "bold",
             marginVertical: 10,
             marginLeft: 10,
-            color: theme.textColor
+            color: theme.textColor,
         },
         clearButton: {
             backgroundColor: "#4a42c0",
@@ -301,8 +330,8 @@ const Notifications = ({ route }) => {
     });
 
     return (
-        <View style={styles.container}>
-            <View style={styles.listContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.container} >
+            <ScrollView style={styles.listContainer} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}>
                 {notifications.length === 0 ? (
                     <View style={styles.noNotificationsContainer}>
                         <Text style={styles.noNotificationsText}>You have no notifications at the moment</Text>
@@ -318,15 +347,9 @@ const Notifications = ({ route }) => {
                                     </View>
                                 )
                         )}
-                        {notifications.length > 0 && (
-                            <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
-                                <Text style={styles.buttonText}>Clear All</Text>
-                            </TouchableOpacity>
-                        )}
                     </ScrollView>
                 )}
-            </View>
-
+            </ScrollView>
             <BottomHeader userInfo={userInfo} />
         </View>
     );

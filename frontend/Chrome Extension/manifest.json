@@ -1,0 +1,32 @@
+{
+    "name": "My Watch Party Extension",
+    "version": "1.0",
+    "description": "MovieHub's Watch party chat for streaming.",
+    "manifest_version": 3,
+    "permissions": ["activeTab", "storage",
+      "tabCapture"
+      ],
+    "background": {
+      "service_worker": "js/background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://*.netflix.com/*"],
+        "js": ["js/content.js"],
+        "css": ["css/styles.css"],
+      "run_at": "document_end"
+      }
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "icons/icon.png",
+      "default_popup_size": {
+        "width": 600,
+        "height": 400
+      }
+    },
+    "icons": {
+      "128": "icons/icon.png"
+    }
+  }
+  

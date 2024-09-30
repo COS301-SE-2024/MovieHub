@@ -2,11 +2,12 @@ import React, { useState, useCallback, useMemo, useEffect, forwardRef } from "re
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Share, Alert, FlatList } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
-import { getFriends, searchUser } from "../Services/UsersApiService"; // Import the getFriends function
+import { getFriends, searchUser, getFollowing } from "../Services/UsersApiService"; // Import the getFriends function
 import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import SearchBar from '../Components/SearchBar';
 import FollowList from '../Components/FollowList';
+import InviteList from "./InviteList";
 import { inviteUserToRoom } from '../Services/RoomApiService';
 
 const InviteModal = forwardRef((props, ref) => {
@@ -103,12 +104,14 @@ const InviteModal = forwardRef((props, ref) => {
 
     const renderFollower = ({ item }) => (
         <TouchableOpacity onPress={() => handleInvite(item)}>
-        <FollowList 
-            username={item.username}
-            userHandle={item.name}
-            userAvatar={item.avatar}
-        />
-         </TouchableOpacity>
+            <InviteList 
+                route={props.route}
+                uid={item.uid}
+                username={item.username}
+                userHandle={item.name}
+                userAvatar={item.avatar}
+            />
+        </TouchableOpacity>
     );
 
     const renderContent = () => (
@@ -127,7 +130,7 @@ const InviteModal = forwardRef((props, ref) => {
             </View>
 
             <SearchBar onChangeText={handleSearch} />
-                {searchResults.length > 0 && (
+            {searchResults.length > 0 && (
                 <FlatList
                     data={searchResults}
                     keyExtractor={(item) => item.uid}
@@ -159,12 +162,14 @@ const InviteModal = forwardRef((props, ref) => {
             backgroundColor: theme.backgroundColor,
             padding: 16,
             height: "100%",
+            paddingHorizontal: 10
         },
         title: {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 16,
             color: theme.textColor,
+            paddingLeft: 8
         },
         icons: {
             flexDirection: "row",
@@ -180,7 +185,7 @@ const InviteModal = forwardRef((props, ref) => {
             paddingVertical: 8,
             marginTop: 8,
             alignItems: "center",
-            borderColor: "#ccc",
+            borderColor: theme.borderColor,
             borderWidth: 1,
             borderRadius: 20,
             marginBottom: 20,

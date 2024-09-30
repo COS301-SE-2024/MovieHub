@@ -120,7 +120,7 @@ exports.fetchRandomUsersContent = async (userId) => {
   }
   RETURN u, post
   ORDER BY rand()
-  LIMIT 10
+  LIMIT 30
 `;
 
     try {
@@ -161,7 +161,7 @@ exports.fetchLatestPosts = async () => {
       MATCH (u:User)-[:POSTED]->(post:Post)
       RETURN u, post
       ORDER BY post.createdAt DESC
-      LIMIT 10
+      LIMIT 30
     `;
 
     try {
@@ -183,7 +183,7 @@ exports.fetchTopReviews = async () => {
       MATCH (u:User)-[:REVIEWED]->(r:Review)-[:REVIEWED_ON]->(m:Movie)
       RETURN r, u, m
       ORDER BY r.rating DESC
-      LIMIT 10
+      LIMIT 30
     `;
 
     try {

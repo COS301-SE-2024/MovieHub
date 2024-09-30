@@ -146,6 +146,7 @@ const GenrePage = () => {
 
             <MovieCard
                 key={index}
+                userInfo={userInfo}
                 movieId={movie.id}
                 imageUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                 title={movie.title}

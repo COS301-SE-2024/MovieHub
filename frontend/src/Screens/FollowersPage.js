@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
-import FollowList from '../Components/FollowList';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { getFollowers, isFollowed } from '../Services/UsersApiService';
 import { useTheme } from "../styles/ThemeContext";
+import FollowList from '../Components/FollowList';
+import { useNavigation } from '@react-navigation/native';
 
 const FollowersPage = ({ route }) => {
-    const { userInfo } = route.params; 
+    const { userInfo } = route.params;
+    const navigation = useNavigation();
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true); 
     const {theme} = useTheme();
@@ -23,7 +25,6 @@ const FollowersPage = ({ route }) => {
                     isFollowing,    // Add the isFollowing property
                 };
             }));
-            
             setFollowers(followersWithStatus); // Set the updated followers list
         } catch (error) {
             console.error("Error fetching followers:", error);
@@ -37,14 +38,16 @@ const FollowersPage = ({ route }) => {
     }, []);
 
     const renderFollower = ({ item }) => (
-        <FollowList 
-            route={route}
-            uid={item.uid}
-            username={item.username}
-            userHandle={item.name}
-            userAvatar={item.avatar}
-            isFollowing={item.isFollowing}
-        />
+        <TouchableOpacity onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo: item })}>
+            <FollowList 
+                route={route}
+                uid={item.uid}
+                username={item.username}
+                userHandle={item.name}
+                userAvatar={item.avatar}
+                isFollowing={item.isFollowing}
+            />
+        </TouchableOpacity>
     );
 
     const styles = StyleSheet.create({

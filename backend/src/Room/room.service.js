@@ -1,34 +1,30 @@
-const neo4j = require('neo4j-driver');
-require('dotenv').config();
-const { v4: uuidv4 } = require('uuid');
-const base62 = require('base62/lib/ascii');
-const { getDatabase, ref, push, set, get, onValue } = require('firebase/database');
-
+const neo4j = require("neo4j-driver");
+require("dotenv").config();
+const { v4: uuidv4 } = require("uuid");
+const base62 = require("base62/lib/ascii");
+const { getDatabase, ref, push, set, get, onValue } = require("firebase/database");
 
 // Helper function
 function generateShortCode(uuid) {
-    const buffer = Buffer.from(uuid.replace(/-/g, ''), 'hex');
+    const buffer = Buffer.from(uuid.replace(/-/g, ""), "hex");
     const bigIntValue = buffer.readBigUInt64BE();
     const base62Code = base62.encode(bigIntValue.toString()); // Convert BigInt to string
     return base62Code.substring(0, 6); // Shorten to 6 characters
 }
 
 // Initialize Neo4j driver using environment variables
-const driver = neo4j.driver(
-    process.env.NEO4J_URI,
-    neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
-);
+const driver = neo4j.driver(process.env.NEO4J_URI, neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD));
 
 const session = driver.session();
 exports.createRoom = async (uid, roomData) => {
     console.log("In room.service");
 
     // Ensure all required parameters are present
-    const requiredParams = ['roomName', 'accessLevel', 'maxParticipants', 'roomDescription'];
+    const requiredParams = ["roomName", "accessLevel", "maxParticipants", "roomDescription"];
     for (const param of requiredParams) {
         if (!(param in roomData)) {
             console.error(`Missing required parameter: ${param}`);
-            throw new Error(`Expected parameter(s): ${requiredParams.join(', ')}`);
+            throw new Error(`Expected parameter(s): ${requiredParams.join(", ")}`);
         }
     }
 
@@ -90,7 +86,7 @@ exports.createRoom = async (uid, roomData) => {
                 maxParticipants,
                 roomDescription,
                 isActive,
-                uid
+                uid,
             }
         );
 
@@ -101,7 +97,7 @@ exports.createRoom = async (uid, roomData) => {
 
         // Commit the transaction
         await tx.commit();
-
+ 
         console.log("Room created successfully.");
 
         return { success: true, roomId, shortCode, ...roomData, createdBy: uid, createdAt, updatedAt, isActive };
@@ -125,13 +121,13 @@ exports.getRoomDetails = async (roomId) => {
         );
 
         if (result.records.length > 0) {
-            const room = result.records[0].get('r').properties;
+            const room = result.records[0].get("r").properties;
             return { success: true, room };
         }
 
-        return { success: false, message: 'Room not found' };
+        return { success: false, message: "Room not found" };
     } catch (error) {
-        console.error('Error retrieving room details:', error);
+        console.error("Error retrieving room details:", error);
         throw error;
     } finally {
         await session.close();
@@ -150,13 +146,13 @@ exports.getRoomParticipantCount = async (roomId) => {
         );
 
         if (result.records.length > 0) {
-            const participantCount = result.records[0].get('participantCount').toInt();
+            const participantCount = result.records[0].get("participantCount").toInt();
             return { success: true, participantCount };
         }
 
-        return { success: false, message: 'Room not found or no participants' };
+        return { success: false, message: "Room not found or no participants" };
     } catch (error) {
-        console.error('Error retrieving room participant count:', error);
+        console.error("Error retrieving room participant count:", error);
         throw error;
     } finally {
         await session.close();
@@ -176,22 +172,21 @@ exports.getRoomParticipants = async (roomId) => {
         );
 
         // Extract participants and creator from the result
-        const participants = result.records[0].get('participants').map(user => user.properties);
-        const creator = result.records[0].get('creator')[0]?.properties;
+        const participants = result.records[0].get("participants").map((user) => user.properties);
+        const creator = result.records[0].get("creator")[0]?.properties;
 
         return {
             success: true,
             participants,
-            creator
+            creator,
         };
     } catch (error) {
-        console.error('Error retrieving room participants:', error);
+        console.error("Error retrieving room participants:", error);
         throw error;
     } finally {
         await session.close();
     }
 };
-
 
 // Get all rooms a user has created
 exports.getUserCreatedRooms = async (uid) => {
@@ -204,16 +199,16 @@ exports.getUserCreatedRooms = async (uid) => {
         );
 
         if (result.records.length > 0) {
-            const createdRooms = result.records.map(record => record.get('r').properties);
+            const createdRooms = result.records.map((record) => record.get("r").properties);
             return { success: true, createdRooms };
         } else if (result.records.length === 0) {
             return { success: true, createdRooms: [] }; // Return an empty array if no rooms are found
         } else {
-            return { success: false, message: 'Unexpected result from the query' };
+            return { success: false, message: "Unexpected result from the query" };
         }
     } catch (error) {
-        console.error('Error retrieving created rooms:', error);
-        return { success: false, message: 'An error occurred while retrieving created rooms' };
+        console.error("Error retrieving created rooms:", error);
+        return { success: false, message: "An error occurred while retrieving created rooms" };
     } finally {
         await session.close();
     }
@@ -231,21 +226,20 @@ exports.getUserParticipatedRooms = async (uid) => {
         );
 
         if (result.records.length > 0) {
-            const participatedRooms = result.records.map(record => record.get('r').properties);
+            const participatedRooms = result.records.map((record) => record.get("r").properties);
             return { success: true, participatedRooms };
         } else if (result.records.length === 0) {
             return { success: true, participatedRooms: [] }; // Return an empty array if no rooms are found
         } else {
-            return { success: false, message: 'Unexpected result from the query' };
+            return { success: false, message: "Unexpected result from the query" };
         }
     } catch (error) {
-        console.error('Error retrieving participated rooms:', error);
-        return { success: false, message: 'An error occurred while retrieving participated rooms' };
+        console.error("Error retrieving participated rooms:", error);
+        return { success: false, message: "An error occurred while retrieving participated rooms" };
     } finally {
         await session.close();
     }
 };
-
 
 exports.getPublicRooms = async (uid) => {
     const session = driver.session();
@@ -260,8 +254,8 @@ exports.getPublicRooms = async (uid) => {
         );
 
         // `MATCH (r:Room)
-        // WHERE r.accessLevel = 'Everyone' 
-        // AND r.isActive = true 
+        // WHERE r.accessLevel = 'Everyone'
+        // AND r.isActive = true
         // AND NOT EXISTS((:User {uid: "IePcEUZGQlPEQsKwIfbfRR07LwM2"})-[:PARTICIPATES_IN]->(r))
         // OPTIONAL MATCH (r)<-[:PARTICIPATES_IN]-(u:User)
         // WITH r, COUNT(u) AS pCount
@@ -269,16 +263,16 @@ exports.getPublicRooms = async (uid) => {
         // RETURN r`
 
         if (result.records.length > 0) {
-            const publicRooms = result.records.map(record => record.get('r').properties);
+            const publicRooms = result.records.map((record) => record.get("r").properties);
             return { success: true, publicRooms };
         } else if (result.records.length === 0) {
             return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
         } else {
-            return { success: false, message: 'Unexpected result from the query' };
+            return { success: false, message: "Unexpected result from the query" };
         }
     } catch (error) {
-        console.error('Error retrieving public rooms:', error);
-        return { success: false, message: 'An error occurred while retrieving public rooms' };
+        console.error("Error retrieving public rooms:", error);
+        return { success: false, message: "An error occurred while retrieving public rooms" };
     } finally {
         await session.close();
     }
@@ -296,16 +290,16 @@ exports.getRecentRooms = async (uid) => {
         );
 
         if (result.records.length > 0) {
-            const recentRooms = result.records.map(record => record.get('r').properties);
+            const recentRooms = result.records.map((record) => record.get("r").properties);
             return { success: true, recentRooms };
         } else if (result.records.length === 0) {
             return { success: true, publicRooms: [] }; // Return an empty array when no rooms are found
         } else {
-            return { success: false, message: 'Unexpected result from the query' };
+            return { success: false, message: "Unexpected result from the query" };
         }
     } catch (error) {
-        console.error('Error retrieving recent rooms:', error);
-        return { success: false, message: 'An error occurred while retrieving recent rooms' };
+        console.error("Error retrieving recent rooms:", error);
+        return { success: false, message: "An error occurred while retrieving recent rooms" };
     } finally {
         await session.close();
     }
@@ -321,16 +315,16 @@ exports.getIsParticipant = async (uid, roomId) => {
         );
         console.log("Service", result);
         if (result.records.length > 0) {
-            const isParticipant = result.records[0].get('p');
-            return { success: true, isParticipant};
+            const isParticipant = result.records[0].get("p");
+            return { success: true, isParticipant };
         } else if (result.records.length === 0) {
             return { success: true, isParticipant: false };
-        }else {
-            return { success: false, message: 'Unexpected result from the query' };
+        } else {
+            return { success: false, message: "Unexpected result from the query" };
         }
     } catch (error) {
-        console.error('Error retrieving whether user is a participant:', error);
-        return { success: false, message: 'An error occurred while retrieving is participant' };
+        console.error("Error retrieving whether user is a participant:", error);
+        return { success: false, message: "An error occurred while retrieving is participant" };
     } finally {
         await session.close();
     }
@@ -348,7 +342,7 @@ exports.joinRoom = async (code, uid) => {
         );
 
         if (userInRoomResult.records.length > 0) {
-            return { success: false, message: 'User is already participating in the room' };
+            return { success: false, message: "User is already participating in the room" };
         }
 
         // Fetch room details and current participants count
@@ -360,41 +354,36 @@ exports.joinRoom = async (code, uid) => {
         );
 
         if (result.records.length > 0) {
-            const room = result.records[0].get('r').properties;
-            const currentParticipants = result.records[0].get('currentParticipants').toInt();
+            const room = result.records[0].get("r").properties;
+            const currentParticipants = result.records[0].get("currentParticipants").toInt();
 
             // Check if the user can join the room based on the access level
-            if (room.accessLevel === 'invite' || room.accessLevel === 'followers') {
+            if (room.accessLevel === "invite" || room.accessLevel === "followers") {
                 const hasAccess = await checkUserAccess(uid, room);
                 if (!hasAccess) {
-                    return { success: false, message: 'Access denied' };
+                    return { success: false, message: "Access denied" };
                 }
             }
 
             // Check if the room has reached its maximum participant limit
             if (currentParticipants >= room.maxParticipants) {
-                return { success: false, message: 'Room is full' };
+                return { success: false, message: "Room is full" };
             }
 
             // Add the user to the room
-            await session.run(
-                'MATCH (r:Room {shortCode: $code}), (u:User {uid: $uid}) MERGE (u)-[:PARTICIPATES_IN]->(r)',
-                { code, uid }
-            );
-            console.log("User has been added to room: ", room.roomName)
+            await session.run("MATCH (r:Room {shortCode: $code}), (u:User {uid: $uid}) MERGE (u)-[:PARTICIPATES_IN]->(r)", { code, uid });
+            console.log("User has been added to room: ", room.roomName);
             return { success: true, roomId: room.roomId };
         }
 
-        return { success: false, message: 'Room not found' };
+        return { success: false, message: "Room not found" };
     } catch (error) {
-        console.error('Error joining room:', error);
+        console.error("Error joining room:", error);
         throw error;
     } finally {
         await session.close();
     }
 };
-
-
 
 //function to check user access
 async function checkUserAccess(uid, room) {
@@ -402,10 +391,10 @@ async function checkUserAccess(uid, room) {
     const { roomId, accessLevel, createdBy } = room;
 
     try {
-        if (accessLevel === 'everyone') {
+        if (accessLevel === "everyone") {
             // Public room, no restrictions
             return true;
-        } else if (accessLevel === 'invite') {
+        } else if (accessLevel === "invite") {
             // Check if the user has been invited
             const inviteResult = await session.run(
                 `MATCH (u:User {uid: $uid})-[:INVITED_TO]->(r:Room {roomId: $roomId})
@@ -414,7 +403,7 @@ async function checkUserAccess(uid, room) {
             );
 
             return inviteResult.records.length > 0;
-        } else if (accessLevel === 'friends') {
+        } else if (accessLevel === "friends") {
             // Check if the user is friends with the room admin
             const friendResult = await session.run(
                 `MATCH (u:User {uid: $uid})-[:FRIENDS_WITH]-(a:User {uid: $adminId})
@@ -428,7 +417,7 @@ async function checkUserAccess(uid, room) {
         // If access level is unrecognized, deny access
         return false;
     } catch (error) {
-        console.error('Error checking user access:', error);
+        console.error("Error checking user access:", error);
         throw error;
     } finally {
         await session.close();
@@ -447,11 +436,27 @@ exports.inviteUserToRoom = async (adminId, uid, roomId) => {
         );
 
         if (roomCheck.records.length === 0) {
-            throw new Error('Room is not invite-only or admin is not authorized.');
+            throw new Error("Room is not invite-only or admin is not authorized.");
         }
 
-        const shortCode = roomCheck.records[0].get('shortCode');
-        const roomName = roomCheck.records[0].get('roomName');
+        const shortCode = roomCheck.records[0].get("shortCode");
+        const roomName = roomCheck.records[0].get("roomName");
+
+        // Fetch the avatar of the admin sending the invite
+        const adminCheck = await session.run(
+            `MATCH (u:User {uid: $adminId})
+             RETURN u.avatar AS adminAvatar, u.username AS adminUsername`,
+            { adminId }
+        );
+
+        if (adminCheck.records.length === 0) {
+            throw new Error("Admin not found.");
+        }
+
+        const adminAvatar = adminCheck.records[0].get("adminAvatar");
+        const adminUsername = adminCheck.records[0].get("adminUsername");
+
+        console.log("Inviter details:", adminId, adminAvatar, adminUsername);
 
         // Create an INVITED_TO relationship
         await session.run(
@@ -467,26 +472,26 @@ exports.inviteUserToRoom = async (adminId, uid, roomId) => {
 
         // Set the notification details, including the shortCode
         await set(newNotificationRef, {
-            message: `You have been invited to join the room: ${roomName}`,
+            message: `${adminUsername} invited you to join room ${roomName}`,
             roomId: roomId,
             shortCode: shortCode, // Include the room code
             invitedBy: adminId,
-            notificationType: 'room_invite',
+            avatar: adminAvatar,
+            user: adminUsername,
+            notificationType: "room_invite",
             timestamp: new Date().toISOString(),
-            read: false // Mark notification as unread
+            read: false, // Mark notification as unread
         });
 
         console.log(`User ${uid} invited to room ${roomId} by admin ${adminId}. Notification sent.`);
         return true;
     } catch (error) {
-        console.error('Error inviting user to room:', error);
+        console.error("Error inviting user to room:", error);
         throw error;
     } finally {
         await session.close();
     }
 };
-
-
 
 // Function to decline a room invite
 exports.declineRoomInvite = async (uid, roomId) => {
@@ -501,7 +506,7 @@ exports.declineRoomInvite = async (uid, roomId) => {
 
         console.log(`User ${uid} declined invite to room ${roomId}.`);
     } catch (error) {
-        console.error('Error declining room invite:', error);
+        console.error("Error declining room invite:", error);
         throw error;
     } finally {
         await session.close();
@@ -529,7 +534,7 @@ exports.leaveRoom = async (roomId, uid) => {
             );
 
             if (newAdminResult.records.length > 0) {
-                const newAdminId = newAdminResult.records[0].get('u').properties.uid;
+                const newAdminId = newAdminResult.records[0].get("u").properties.uid;
                 await session.run(
                     `MATCH (newAdmin:User {uid: $newAdminId}), (r:Room {roomId: $roomId})
                      MERGE (newAdmin)-[:CREATED]->(r)`,
@@ -553,7 +558,7 @@ exports.leaveRoom = async (roomId, uid) => {
         );
         return { success: true, roomId: roomId };
     } catch (error) {
-        console.error('Error leaving room:', error);
+        console.error("Error leaving room:", error);
         throw error;
     } finally {
         await session.close();
@@ -573,7 +578,7 @@ exports.kickUserFromRoom = async (roomId, adminId, uid) => {
         );
 
         if (adminCheckResult.records.length === 0) {
-            return { success: false, message: 'Admin is not authorized to kick users.' };
+            return { success: false, message: "Admin is not authorized to kick users." };
         }
 
         // Remove the user from the room
@@ -584,15 +589,14 @@ exports.kickUserFromRoom = async (roomId, adminId, uid) => {
         );
 
         console.log(`User ${uid} was kicked from the room ${roomId} by admin ${adminId}.`);
-        return { success: true, message: 'User kicked successfully.' };
+        return { success: true, message: "User kicked successfully." };
     } catch (error) {
-        console.error('Error kicking user from room:', error);
+        console.error("Error kicking user from room:", error);
         throw error;
     } finally {
         await session.close();
     }
 };
-
 
 // Add a message to the chat room
 exports.addMessageToRoom = async (roomId, uid, message) => {
@@ -608,7 +612,7 @@ exports.addMessageToRoom = async (roomId, uid, message) => {
 
         console.log(`Message added to room ${roomId} by user ${uid}.`);
     } catch (error) {
-        console.error('Error adding message to room:', error);
+        console.error("Error adding message to room:", error);
         throw error;
     }
 };
@@ -626,7 +630,7 @@ exports.getMessagesFromRoom = async (roomId) => {
             return [];
         }
     } catch (error) {
-        console.error('Error retrieving messages from room:', error);
+        console.error("Error retrieving messages from room:", error);
         throw error;
     }
 };
@@ -646,7 +650,7 @@ exports.listenForMessages = (roomId, callback) => {
 exports.sendNotificationToUsers = async (roomId, message) => {
     const db = getDatabase();
     const roomUsersRef = ref(db, `rooms/${roomId}/users`);
-    const snapshot = await roomUsersRef.once('value');
+    const snapshot = await roomUsersRef.once("value");
     const users = snapshot.val();
 
     const tokens = []; // Array to hold user tokens
@@ -661,16 +665,16 @@ exports.sendNotificationToUsers = async (roomId, message) => {
         const messaging = getMessaging();
         const payload = {
             notification: {
-                title: 'New Message',
+                title: "New Message",
                 body: message,
             },
         };
 
         try {
             await messaging.sendToDevice(tokens, payload);
-            console.log('Notification sent to users');
+            console.log("Notification sent to users");
         } catch (error) {
-            console.error('Error sending notification:2', error);
+            console.error("Error sending notification:2", error);
         }
     }
 };
@@ -684,9 +688,9 @@ exports.deleteRoom = async (roomId) => {
              RETURN COUNT(r) AS removed`,
             { roomId }
         );
-        return result.records[0].get('removed').low > 0;
+        return result.records[0].get("removed").low > 0;
     } catch (error) {
-        console.error('Error deleting room:', error);
+        console.error("Error deleting room:", error);
         throw error;
     } finally {
         await session.close();
@@ -704,16 +708,16 @@ exports.getRoomAdmins = async (roomId) => {
             { roomId }
         );
 
-        const admins = result.records[0].get('admins').map(user => user.properties);
-        const creator = result.records[0].get('creator')[0]?.properties;
+        const admins = result.records[0].get("admins").map((user) => user.properties);
+        const creator = result.records[0].get("creator")[0]?.properties;
 
         return {
             success: true,
             admins,
-            creator
+            creator,
         };
     } catch (error) {
-        console.error('Error retrieving room admins:', error);
+        console.error("Error retrieving room admins:", error);
         throw error;
     } finally {
         await session.close();
@@ -750,14 +754,40 @@ exports.toggleAdmin = async (uid, roomId) => {
             return true;
         }
     } catch (error) {
-        console.error('Error toggling admin:', error);
+        console.error("Error toggling admin:", error);
         throw error;
     } finally {
         await session.close();
     }
 };
 
+// Function to get the room code of a specific room
+exports.getRoomCode = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room)
+             WHERE r.roomId = $roomId OR r.shortCode = $roomId
+             RETURN r.shortCode AS shortCode`,
+            { roomId }
+        );
+
+        if (result.records.length > 0) {
+            const shortCode = result.records[0].get('shortCode');
+            return { success: true, shortCode };
+        }
+
+        return { success: false, message: 'Room not found' };
+    } catch (error) {
+        console.error('Error retrieving room code:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
+
 // Ensure the driver is closed on application exit
-process.on('exit', async () => {
+process.on("exit", async () => {
     await driver.close();
 });
