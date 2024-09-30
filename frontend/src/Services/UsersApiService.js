@@ -59,10 +59,12 @@ export const updateUserProfile = async (userId, updatedData) => {
     // const token = await getToken();
     const headers = await verifyToken();
 
-    if (updatedData.avatar === null) {
-        updatedData.avatar = null;
-    } else {
-        updatedData.avatar = await uploadImage(updatedData.avatar, 'profile');
+    if (updatedData.avatar) {
+        if (updatedData.avatar === null) {
+            updatedData.avatar = null;
+        } else {
+            updatedData.avatar = await uploadImage(updatedData.avatar, 'profile');
+        }
     }
 
     const response = await fetch(`${API_URL}/${userId}`, {
