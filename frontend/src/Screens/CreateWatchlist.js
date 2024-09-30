@@ -22,11 +22,11 @@ export default function CreateWatchlist({ route, navigation }) {
     const [invitedUsers, setInvitedUsers] = useState([]);
     const [showUserSearch, setShowUserSearch] = useState(false);
     const allUsers = [
-        { id: 1, name: "John Doe" },
-        { id: 2, name: "Jane Smith" },
-        { id: 3, name: "Alice Johnson" },
-        { id: 4, name: "Bob Williams" },
-        { id: 5, name: "Charlie Brown" },
+        // { id: 1, name: "John Doe" },
+        // { id: 2, name: "Jane Smith" },
+        // { id: 3, name: "Alice Johnson" },
+        // { id: 4, name: "Bob Williams" },
+        // { id: 5, name: "Charlie Brown" },
     ];
     const chooseCover = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -310,7 +310,7 @@ export default function CreateWatchlist({ route, navigation }) {
                 </View>
             </View>
             <View style={styles.line} />
-
+            
             {Object.keys(modalContent).map((field, index) => (
                 <Modal
                     key={index}
