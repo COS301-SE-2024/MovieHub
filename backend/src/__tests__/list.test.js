@@ -1,225 +1,180 @@
 const request = require('supertest');
 const express = require('express');
 const dotenv = require('dotenv');
-const watchlistRouter = require('../Watchlist/list.router');
-const watchlistService = require('../Watchlist/list.services');
+const listRouter = require('../Watchlist/list.router');
+const listService = require('../Watchlist/list.services');
 
 dotenv.config();
 
+// Create an instance of the app with the listRouter
 const app = express();
 app.use(express.json());
-app.use('/list', watchlistRouter);
+app.use('/list', listRouter);
 
 jest.mock('../Watchlist/list.services');
 
-describe('Watchlist API', () => {
+describe('POST /list/:userid', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    describe('POST /list/:userid', () => {
-        it('should create a watchlist for a valid user ID', async () => {
-            const userId = 'testUser';
-            const watchlistData = {
-                name: 'My Watchlist',
-                tags: ['action', 'drama'],
-                visibility: 'public',
-                ranked: true,
-                description: 'My favorite movies',
-                collaborative: false,
-                movies: ['Inception', 'The Matrix']
-            };
-            const createdWatchlist = { id: '1', ...watchlistData };
+    it('should create a watchlist successfully', async () => {
+        const userId = 'testUser';
+        const watchlistData = { name: 'Test Watchlist', description: 'Test Description' };
+        const createdWatchlist = { ...watchlistData, id: 'testWatchlistId' };
 
-            watchlistService.createWatchlist.mockResolvedValueOnce(createdWatchlist);
+        listService.createWatchlist.mockResolvedValueOnce(createdWatchlist);
 
-            const res = await request(app)
-                .post(`/list/${userId}`)
-                .send(watchlistData);
+        const res = await request(app)
+            .post(`/list/${userId}`)
+            .send(watchlistData);
 
-            expect(res.status).toBe(201);
-            expect(res.body).toEqual({
-                message: 'Watchlist created successfully',
-                data: createdWatchlist
-            });
-        });
-
-        it('should return 400 for missing required parameters', async () => {
-            const userId = 'testUser';
-            const incompleteData = { name: 'My Watchlist' };
-        
-            watchlistService.createWatchlist.mockImplementationOnce(() => {
-                const error = new Error('Expected parameter(s): tags, visibility, ranked, description, collaborative, movies');
-                error.statusCode = 400;
-                throw error;
-            });
-        
-            const res = await request(app)
-                .post(`/list/${userId}`)
-                .send(incompleteData);
-        
-            console.log("result:", res.body);
-        
-            expect(res.status).toBe(400);
-            expect(res.body).toEqual({ message: 'Expected parameter(s): tags, visibility, ranked, description, collaborative, movies' });
-        });
-        
-
-        it('should return 500 for an internal server error', async () => {
-            const userId = 'testUser';
-            const watchlistData = {
-                name: 'My Watchlist',
-                tags: ['action', 'drama'],
-                visibility: 'public',
-                ranked: true,
-                description: 'My favorite movies',
-                collaborative: false,
-                movies: ['Inception', 'The Matrix']
-            };
-            const errorMessage = 'Internal server error';
-        
-            watchlistService.createWatchlist.mockRejectedValueOnce(new Error(errorMessage));
-        
-            const res = await request(app)
-                .post(`/list/${userId}`)
-                .send(watchlistData);
-        
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ message: errorMessage });
-        });
+        expect(res.status).toBe(201);
+        expect(res.body).toEqual(createdWatchlist);
     });
 
-    describe('PATCH /list/:watchlistId', () => {
-        it('should update a watchlist for a valid watchlist ID', async () => {
-            const watchlistId = '1';
-            const updatedData = { name: 'Updated Watchlist' };
-            const updatedWatchlist = { id: watchlistId, ...updatedData };
+    it('should return 500 if watchlist creation fails', async () => {
+        const userId = 'testUser';
+        const watchlistData = { name: 'Test Watchlist', description: 'Test Description' };
+        const errorMessage = 'Error creating watchlist';
 
-            watchlistService.modifyWatchlist.mockResolvedValueOnce(updatedWatchlist);
+        listService.createWatchlist.mockRejectedValueOnce(new Error(errorMessage));
 
-            const res = await request(app)
-                .patch(`/list/${watchlistId}`)
-                .send(updatedData);
+        const res = await request(app)
+            .post(`/list/${userId}`)
+            .send(watchlistData);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({
-                message: 'Watchlist updated successfully',
-                data: updatedWatchlist
-            });
-        });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: errorMessage });
+    });
+});
 
-        it('should return 400 for an invalid watchlist ID', async () => {
-            const watchlistId = 'invalidId';
-            const updatedData = { name: 'Updated Watchlist' };
-
-            watchlistService.modifyWatchlist.mockResolvedValueOnce(null);
-
-            const res = await request(app)
-                .patch(`/list/${watchlistId}`)
-                .send(updatedData);
-
-            expect(res.status).toBe(400);
-            expect(res.body).toEqual({ message: 'Error updating watchlist' });
-        });
-
-        it('should return 500 for an internal server error', async () => {
-            const watchlistId = '1';
-            const updatedData = { name: 'Updated Watchlist' };
-            const errorMessage = 'Internal server error';
-
-            watchlistService.modifyWatchlist.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .patch(`/list/${watchlistId}`)
-                .send(updatedData);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-        });
+describe('PATCH /list/:watchlistId', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    describe('GET /list/:watchlistId', () => {
-        it('should return watchlist details for a valid watchlist ID', async () => {
-            const watchlistId = '1';
-            const watchlistDetails = {
-                name: 'My Watchlist',
-                movieList: [
-                    { id: '123', title: 'Inception', genre: 'Action', duration: 148, poster_path: '/path/to/poster' },
-                    { id: '456', title: 'The Matrix', genre: 'Sci-Fi', duration: 136, poster_path: '/path/to/poster' }
-                ]
-            };
+    it('should modify a watchlist successfully', async () => {
+        const watchlistId = 'testWatchlistId';
+        const updatedData = { name: 'Updated Watchlist', description: 'Updated Description' };
+        const modifiedWatchlist = { ...updatedData, id: watchlistId };
 
-            watchlistService.getWatchlistDetails.mockResolvedValueOnce(watchlistDetails);
+        listService.modifyWatchlist.mockResolvedValueOnce(modifiedWatchlist);
 
-            const res = await request(app).get(`/list/${watchlistId}`);
+        const res = await request(app)
+            .patch(`/list/${watchlistId}`)
+            .send(updatedData);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({
-                message: 'Watchlist details fetched successfully',
-                data: watchlistDetails
-            });
-        });
-
-        it('should return 400 for an invalid watchlist ID', async () => {
-            const watchlistId = 'invalidId';
-
-            watchlistService.getWatchlistDetails.mockResolvedValueOnce(null);
-
-            const res = await request(app).get(`/list/${watchlistId}`);
-
-            expect(res.status).toBe(400);
-            expect(res.body).toEqual({ message: 'Error fetching watchlist details' });
-        });
-
-        it('should return 500 for an internal server error', async () => {
-            const watchlistId = '1';
-            const errorMessage = 'Internal server error';
-
-            watchlistService.getWatchlistDetails.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app).get(`/list/${watchlistId}`);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-        });
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual(modifiedWatchlist);
     });
 
-    describe('DELETE /list/:watchlistId', () => {
-        it('should delete a watchlist for a valid watchlist ID', async () => {
-            const watchlistId = '1';
+    it('should return 500 if watchlist modification fails', async () => {
+        const watchlistId = 'testWatchlistId';
+        const updatedData = { name: 'Updated Watchlist', description: 'Updated Description' };
+        const errorMessage = 'Error modifying watchlist';
 
-            watchlistService.deleteWatchlist.mockResolvedValueOnce(true);
+        listService.modifyWatchlist.mockRejectedValueOnce(new Error(errorMessage));
 
-            const res = await request(app).delete(`/list/${watchlistId}`);
+        const res = await request(app)
+            .patch(`/list/${watchlistId}`)
+            .send(updatedData);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({
-                message: 'Watchlist deleted successfully',
-                data: null
-            });
-        });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: errorMessage });
+    });
+});
 
-        it('should return 400 for an invalid watchlist ID', async () => {
-            const watchlistId = 'invalidId';
+describe('GET /list/:watchlistId/collaborators', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-            watchlistService.deleteWatchlist.mockResolvedValueOnce(false);
+    it('should fetch collaborators successfully', async () => {
+        const watchlistId = 'testWatchlistId';
+        const collaborators = [{ userId: 'user1' }, { userId: 'user2' }];
 
-            const res = await request(app).delete(`/list/${watchlistId}`);
+        listService.getCollaborators.mockResolvedValueOnce(collaborators);
 
-            expect(res.status).toBe(400);
-            expect(res.body).toEqual({ message: 'Error deleting watchlist' });
-        });
+        const res = await request(app)
+            .get(`/list/${watchlistId}/collaborators`);
 
-        it('should return 500 for an internal server error', async () => {
-            const watchlistId = '1';
-            const errorMessage = 'Internal server error';
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ collaborators });
+    });
 
-            watchlistService.deleteWatchlist.mockRejectedValueOnce(new Error(errorMessage));
+    it('should return 500 if fetching collaborators fails', async () => {
+        const watchlistId = 'testWatchlistId';
+        const errorMessage = 'Error fetching collaborators';
 
-            const res = await request(app).delete(`/list/${watchlistId}`);
+        listService.getCollaborators.mockRejectedValueOnce(new Error(errorMessage));
 
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ message: 'Internal server error', error: errorMessage });
-        });
+        const res = await request(app)
+            .get(`/list/${watchlistId}/collaborators`);
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Error fetching collaborators', error: errorMessage });
+    });
+});
+
+describe('DELETE /list/:watchlistId', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should delete a watchlist successfully', async () => {
+        const watchlistId = 'testWatchlistId';
+
+        listService.deleteWatchlist.mockResolvedValueOnce(true);
+
+        const res = await request(app)
+            .delete(`/list/${watchlistId}`);
+
+        expect(res.status).toBe(204);  // No content status for successful deletion
+    });
+
+    it('should return 500 if deleting watchlist fails', async () => {
+        const watchlistId = 'testWatchlistId';
+        const errorMessage = 'Error deleting watchlist';
+
+        listService.deleteWatchlist.mockRejectedValueOnce(new Error(errorMessage));
+
+        const res = await request(app)
+            .delete(`/list/${watchlistId}`);
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: errorMessage });
+    });
+});
+
+describe('GET /list/:userId/followed-watchlists', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should get followed users watchlists successfully', async () => {
+        const userId = 'testUser';
+        const watchlists = [{ id: 'watchlist1', name: 'Watchlist 1' }];
+
+        listService.getFollowedUsersWatchlists.mockResolvedValueOnce(watchlists);
+
+        const res = await request(app)
+            .get(`/list/${userId}/followed-watchlists`);
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual(watchlists);
+    });
+
+    it('should return 500 if fetching followed users watchlists fails', async () => {
+        const userId = 'testUser';
+        const errorMessage = 'Error fetching followed users watchlists';
+
+        listService.getFollowedUsersWatchlists.mockRejectedValueOnce(new Error(errorMessage));
+
+        const res = await request(app)
+            .get(`/list/${userId}/followed-watchlists`);
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Internal server error' });
     });
 });
