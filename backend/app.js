@@ -114,43 +114,75 @@ function broadcast(roomId, message, sender) {
         });
     }
 }
-
-// Set up the WebSocket server to handle new connections
+// WebSocket connection handling
 wss.on('connection', (ws, req) => {
-    // Extract the roomId from the query parameter (e.g., ?roomId=xxx)
-    console.log("WebSocket connecting")
     const params = new URLSearchParams(req.url.split('?')[1]);
     const roomId = params.get('roomId');
 
     if (!roomId) {
-        ws.close();
-        return;
+        console.warn('Connection closed: roomId is missing');
+        return ws.close();
     }
 
-    // Add the WebSocket client to the room
     if (!clients[roomId]) {
         clients[roomId] = [];
     }
     clients[roomId].push(ws);
+    console.log(`Client connected to room: ${roomId}`);
 
-    // Handle incoming messages from clients
+    // Handle incoming messages
     ws.on('message', (message) => {
         const data = JSON.parse(message);
+        console.log(`Message received in room ${roomId}:`, data);
 
-        // Playback control logic (existing functionality)
-        if (data.type === 'playback') {
-            broadcast(roomId, data, ws);
+        // Handle 'join-party' message
+        if (data.type === 'join-party') {
+            const username = data.username;
+            const partyCode = data.partyCode;
+            const socketId = data.socketId;
+
+            // Broadcast to others in the room that a new user has joined
+            broadcast(roomId, {
+                type: 'user-joined',
+                username: username,
+                partyCode: partyCode,
+                socketId: socketId,
+                message: `${username} has joined the party!`
+            }, ws);
+            console.log("******",username, "has joined!");
         }
+    
 
-        // WebRTC signaling logic for audio (new functionality)
-        if (data.type === 'webrtc-offer' || data.type === 'webrtc-answer' || data.type === 'webrtc-ice-candidate') {
-            // Broadcast WebRTC signaling data to all other clients in the room
-            broadcast(roomId, data, ws);
+        // Broadcast messages based on type
+        if ('webrtc-offer'==data.type) {
+            console.log("Broadcasting??", data.type);
+            broadcast(roomId, {
+                type: 'webrtc-offer',
+                offer: offer,
+                targetroomId: roomId,
+}, ws);
+        }
+        else if ('webrtc-answer' == data.type) {
+            console.log("Broadcasting??", data.type);
+            broadcast(roomId, {
+                type: 'webrtc-offer',
+                answer: data.answer,
+                targetroomId: roomId,
+            }, ws);
+        }
+        else if ('webrtc-ice-candidate' == data.type) {
+            console.log("Broadcasting??", data.type);
+            broadcast(roomId, {
+                type: 'webrtc-offer',
+                candidate: data.candidate,
+                targetroomId: roomId,
+            }, ws);
         }
     });
 
-    // Remove the client when they disconnect
+    // Client disconnection handling
     ws.on('close', () => {
         clients[roomId] = clients[roomId].filter(client => client !== ws);
+        console.log(`Client disconnected from room: ${roomId}`);
     });
 });

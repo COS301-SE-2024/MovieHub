@@ -1,6 +1,22 @@
 
 let remoteDescriptionSet = false;
 let localStream;
+let isHost = false;
+let ws;
+let peerConnections = {};
+let isMuted = false;
+let isVideoMuted = false;
+let userCount = 0; // Initialize the user count
+const MAX_USERS = 5;
+let iceCandidateQueue = []; // Queue to store ICE candidates before WebSocket is open
+let peerConnection;
+// Queue to store ICE candidates that arrive before the remote description is set
+const iceCandidateQueues = {};
+let clientCount = 0; // Variable to keep track of connected clients
+
+// ICE servers for the peer connection
+const iceServers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
 // Function to get local media stream
 async function getLocalStream() {
   try {
@@ -15,43 +31,21 @@ async function getLocalStream() {
   }
 }
 
-// Function to dynamically retrieve username, party code, and room ID
+// Function to get user details and check if they are the host
 function getUserDetails() {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(['username', 'partyCode', 'roomId'], (data) => {
-      let { username = null, partyCode = null, roomId = null } = data;
+    chrome.storage.sync.get(['username', 'partyCode', 'roomId', 'isHost'], (data) => {
+      let { username = null, partyCode = null, roomId = null, isHost = false } = data;
 
-      // Prompt for username if missing
-      if (!username) {
-        username = prompt("Enter your username:");
-        if (username) {
-          chrome.storage.sync.set({ username });
-        }
-      }
+      // Store host status
+      isHost = data.isHost;
 
-      // Prompt for party code if missing
-      if (!partyCode || !partyCode.trim()) {
-        partyCode = prompt("Enter your valid party code:");
-        if (partyCode && partyCode.trim()) {
-          chrome.storage.sync.set({ partyCode: partyCode.trim() });
-        }
-      }
-
-      // Prompt for room ID if missing
-      if (!roomId) {
-        roomId = prompt("Enter your room ID:");
-        if (roomId) {
-          chrome.storage.sync.set({ roomId });
-        }
-      }
-
-      // Check for valid details
-      if (!username || !partyCode || !partyCode.trim() || !roomId) {
-        alert("Error: Username, valid party code, and room ID are required!");
+      if (!username || !partyCode || !roomId) {
+        alert("Error: Username, party code, and room ID are required!");
         return reject("Missing username, party code, or room ID");
       }
 
-      resolve({ username, partyCode, roomId });
+      resolve({ username, partyCode, roomId, isHost });
     });
   });
 }
@@ -62,115 +56,111 @@ async function initializeWebSocket(roomId) {
     console.log('No WebSocket connection found or not open. Initializing new connection.');
     ws = new WebSocket(`wss://moviehub-watchparty-extension.glitch.me?roomId=${roomId}`);
     const userDetails = await getUserDetails();
-    ws.onopen = () => {
-      console.log('WebSocket connection opened');
 
-      // Once WebSocket is open, create and send the offer
-      createAndSendOffer(userDetails.partyCode, userDetails.roomId);
+    // Initialize the WebSocket connection
+    ws.onopen = async () => {
+      console.log('WebSocket connection opened');
+      clientCount++;
+      console.log(`Client count updated: ${clientCount}`);
+
+      // Notify other clients about the new connection
+      sendWSMessage({
+        type: 'client-count-update',
+        count: clientCount,
+        roomId: userDetails.roomId,
+      });
     };
 
+    // Handle WebSocket closure
     ws.onclose = () => {
       console.log('WebSocket connection closed');
+      clientCount--; // Decrement the client count on disconnect
+      console.log(`Client count updated: ${clientCount}`);
       chrome.storage.sync.remove('websocket');
     };
 
+    // Handle WebSocket errors
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
 
+    // Handle WebSocket messages
     ws.onmessage = async (message) => {
       const data = JSON.parse(message.data);
-      const peerConnection = peerConnections[userDetails.roomId];
+      console.log("IN Message");
 
-      if (data.type === 'webrtc-offer') {
-        console.log('Received offer:', data.offer);
-       await handleIncomingOffer(data.offer, userDetails.partyCode, userDetails.roomId)
-      }else if (data.type === 'webrtc-answer') {
-        console.log("Answer??? => " + JSON.stringify(data));
-        console.log("peerConnection??", peerConnection);
-        if (peerConnection) {
-          peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer))
-            .then(() => {
-              // Now it's safe to send queued ICE candidates
-              iceCandidateQueue.forEach(candidate => {
-                peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-                  .catch(error => {
-                    console.error('Error adding ICE candidate:', error);
-                  });
-              });
-              iceCandidateQueue = []; // Clear the queue after sending
-              console.log('All queued ICE candidates added after setting remote description');
-            });
-          console.log('Received and set remote answer');
-        }
-      } else if (data.type === 'webrtc-ice-candidate') {
-        console.log("can DATA ??? => " + data);
-        const peerConnection = peerConnections[userDetails.roomId];
-        console.log("spmethingggg", userDetails.roomId);
-        console.log("peerConnection??", peerConnection);
-        if (peerConnection) {
-          peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate))
-            .then(() => {
-              console.log('Added remote ICE candidate');
-            })
-            .catch(error => {
-              console.error('Error adding remote ICE candidate:', error);
-            });
+      // Update client count if a client count update message is received
+      if (data.type === 'client-count-update') {
+        clientCount = data.count; // Update the client count
+        console.log(`Updated client count: ${clientCount}`);
+        if (clientCount < 1){
+          return;
         }
       }
-    };
 
-  } else {
-    console.log('Using existing WebSocket connection');
-    // Create and send the offer immediately if the WebSocket is already open
-    const userDetails = await getUserDetails();
-    //createAndSendOffer(userDetails.partyCode, userDetails.roomId);
-
-    ws.onmessage = async (message) => {
-      const data = JSON.parse(message.data);
-      const peerConnection = peerConnections[userDetails.roomId];
-
-      if (data.type === 'webrtc-offer') {
-        console.log('Received offer:', data.offer);
-      await handleIncomingOffer(data.offer, userDetails.partyCode, userDetails.roomId)
+        if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
+          if(!peerConnection){
+          console.log('Creating peer connection and sending an offer.');
+          const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
+           if (peerConnection) {
+            if (peerConnection.signalingState === 'stable') {
+            await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
+            }
+            else if (peerConnection.signalingState === 'have-local-offer') {
+              console.log('Handling incoming WebRTC answer:', data.answer);
+              await handleIncomingAnswer(data.answer, peerConnection);
+            }
+           console.log("Out of creat if");
+        }
       }
-       else if(data.type === 'webrtc-answer') {
-        console.log("Answer??? => " + JSON.stringify(data));
-        console.log("spmethingggg", userDetails.roomId);
-        console.log("peerConnection??", peerConnection);
-        if (peerConnection) {
-          peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer))
-            .then(() => {
-              // Now it's safe to send queued ICE candidates
-              iceCandidateQueue.forEach(candidate => {
-                peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-                  .catch(error => {
-                    console.error('Error adding ICE candidate:', error);
-                  });
-              });
-              iceCandidateQueue = []; // Clear the queue after sending
-              console.log('All queued ICE candidates added after setting remote description');
-            });
-          console.log('Received and set remote answer');
-        }
-      } else if (data.type === 'webrtc-ice-candidate') {
-        console.log("can DATA ??? => " + data);
+       
+      } else if ((data.type === 'webrtc-answer' )  && userDetails.isHost) {
+        console.log("Some answer??");
         const peerConnection = peerConnections[userDetails.roomId];
-        console.log("spmethingggg", userDetails.roomId);
-        console.log("peerConnection??", peerConnection);
-        if (peerConnection) {
-          peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate))
-            .then(() => {
-              console.log('Added remote ICE candidate');
-            })
-            .catch(error => {
-              console.error('Error adding remote ICE candidate:', error);
-            });
+        if (peerConnection && peerConnection.signalingState !== 'closed') {
+          console.log('Handling incoming WebRTC answer:', data.answer);
+          await handleIncomingAnswer(data.answer, peerConnection);
+        } else {
+          console.error('PeerConnection is closed or undefined.');
         }
+      }
+
+
+      // if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
+      //   console.log('Creating peer connection and sending an offer.');
+      //   const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
+      //   await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
+      // }
+      
+      if (data.type === 'webrtc-offer' && !userDetails.isHost) {
+        console.log('Received offer:', data.offer);
+        if (!peerConnection) {
+        const newPeerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
+        if(newPeerConnection){
+          await handleIncomingOffer(data.offer, newPeerConnection, userDetails.partyCode, userDetails.roomId);
+        }
+      }
+        
+      }
+      // Handle ICE candidate messages
+      else if (data.type === 'webrtc-ice-candidate') {
+        const peerConnection = peerConnections[userDetails.roomId];
+        
+        if (peerConnection) {
+          console.log("ICE peer Conn ", peerConnection);
+          if (peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
+            await handleRemoteIceCandidate(data.candidate, peerConnection);
+          } else {
+            console.warn('Remote description not set yet. Queuing ICE candidate.');
+            iceCandidateQueue.push(data.candidate);
+          }
+        }
+      
       }
     };
   }
 }
+
 
 // Get user's audio stream
 async function startAudioStream() {
@@ -241,126 +231,166 @@ function removeRemoteVideoElement(roomId) {
     userCount--;
   }
 }
-async function handleIncomingOffer(offer, partyCode, roomId) {
-  // Check if offer is valid
-  if (!offer || !offer.sdp || !offer.type) {
-    console.error('Invalid offer received:', offer);
-    return;
+
+// Function to create or retrieve a peer connection
+function getPeerConnection(roomId) {
+  if (!peerConnections[roomId]) {
+    console.log(`Creating new peer connection for room: ${roomId}`);
+    const peerConnection = new RTCPeerConnection();
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        console.log('Sending ICE candidate');
+        ws.send(JSON.stringify({
+          type: 'webrtc-ice-candidate',
+          candidate: event.candidate,
+          roomId: roomId
+        }));
+      }
+    };
+
+    peerConnections[roomId] = peerConnection;
   }
 
-  const peerConnection = createPeerConnection(partyCode, roomId);
-
-  try {
-    // Set the remote description using the valid offer
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-
-    // Create and send an answer
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-
-    ws.send(JSON.stringify({
-      type: 'webrtc-answer',
-      answer: answer,
-      targetroomId: roomId,
-      partyCode: partyCode
-    }));
-
-    console.log('Answer sent back to the server:', answer);
-
-    processIceCandidates(peerConnection); // Process queued ICE candidates if any
-
-  } catch (error) {
-    console.error('Error setting remote description or creating answer:', error);
-  }
+  return peerConnections[roomId];
 }
 
 
-// Function to process queued ICE candidates
-function processIceCandidates(peerConnection) {
-  iceCandidateQueue.forEach(candidate => {
-    peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-      .catch(error => console.error('Error adding ICE candidate:', error));
+// Handle incoming offer for guests
+async function handleIncomingOffer(offer, peerConnection, roomId, partyCode) {
+  try{
+  if (peerConnection.signalingState !== 'stable') {
+    console.warn('Received offer but peer connection is not stable. Current signaling state:', peerConnection.signalingState);
+    return; // Exit early if not in stable state
+  }
+
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+
+  sendWSMessage({
+    type: 'webrtc-answer',
+    answer,
+    roomId,
+    partyCode,
   });
-  iceCandidateQueue = []; // Clear the queue after adding candidates
+  console.log('Answer sent:', answer);
+    console.log("The peers state: ", peerConnection.signalingState);
+  } catch (error) {
+    console.error('Failed to handle incoming offer:', error);
+  }
 }
 
-// Function to initialize WebRTC peer connection
-function createPeerConnection(partyCode, targetroomId) {
-  // Check if peer connection already exists
-  if (peerConnections[targetroomId]) {
-    return peerConnections[targetroomId]; // Reuse existing connection
-  }
-  
-  const peerConnection = new RTCPeerConnection();
-  peerConnections[targetroomId] = peerConnection;
 
-console.log(`createPeerConnection: ${partyCode}`)
-  // Add local stream tracks to the peer connection
-  if (localStream) {
-    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-  } else {
-    console.error("Local stream is not available.");
-  }
-
-  // Handle ICE Candidate event
-  peerConnection.onicecandidate = function (event) {
-    if (event.candidate) {
-      // Queue ICE candidate until the WebSocket connection is open and the offer has been sent
-      iceCandidateQueue.push(event.candidate); 
-      console.log('Queued ICE candidate:', event.candidate);
+// Send WebSocket message
+function sendWSMessage(message) {
+  ws.send(JSON.stringify(message));
+}
+// Handle remote ICE candidate
+async function handleRemoteIceCandidate(candidate, peerConnection) {
+  try {
+    // Check if the peer connection is in a stable state before adding the candidate
+    if (peerConnection.signalingState === 'stable') {
+      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      console.log('Added remote ICE candidate:', candidate);
+    } else {
+      console.warn('Cannot add ICE candidate; peer connection is not stable. Current signaling state:', peerConnection.signalingState);
     }
-  };
-console.log("Done with candidate");
+  } catch (error) {
+    console.error('Error adding remote ICE candidate:', error);
+  }
+}
 
-  // peerConnection.iceconnectionstatechange = () => {
-  //   console.log('Connection state:', peerConnection.connectionState);
-  //   if (peerConnection.connectionState === 'connected') {
-  //     console.log('Connected to peer!');
-  //   } else if (peerConnection.connectionState === 'disconnected') {
-  //     console.error('Disconnected from peer.');
-  //   }
-  // };
+// Handle incoming answer for the host
+async function handleIncomingAnswer(answer, peerConnection) {
+  try {
+    // Ensure the peer connection is in a stable state
+    if (peerConnection.signalingState !== 'have-local-offer') {
+      console.warn('Received answer but peer connection is not in "have-local-offer" state. Current signaling state:', peerConnection.signalingState);
+      return; // Exit early if the signaling state is not as expected
+    }
 
-  const connectionSate = peerConnection.connectionState;
-  console.log("The peers connect state=> ", connectionSate)
+    // Set the remote description using the received answer
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    console.log('Remote description set with answer:', answer);
 
-  // peerConnection.oniceconnectionstatechange = () => {
-  //   console.log('ICE connection state:', peerConnection.iceConnectionState);
-  //   if (peerConnection.iceConnectionState === 'failed') {
-  //     console.error('ICE connection failed.');
-  //   }
-  // };
-  // Handle remote media streams
-  peerConnection.ontrack = (event) => {
-    const remoteStream = event.streams[0];
-    addRemoteVideoElement(targetroomId, remoteStream);
-    console.log('Received remote stream:', remoteStream);
-  };
-
-  setInterval(async () => {
-    if (peerConnection) {
-      const stats = await peerConnection.getStats();
-      stats.forEach(report => {
-       // console.log("Check Stats ", report); // Log all reports to inspect
-        // Check for inbound RTP reports
-        if (report.type === 'inbound-rtp' && report.kind === 'audio') {
-          console.log("Packets Recieved ", report.packetsReceived)
-          if (report.packetsReceived > 0) {
-            console.log('Audio is being transmitted.');
-            // Optionally, update UI to indicate successful transmission
-            updateAudioStatus(report.packetsReceived > 0);
-          } else {
-            console.warn('No audio packets received!');
-            // Optionally, update UI to indicate issues
-            updateAudioStatus(report.packetsReceived < 0);
-          }
+    // Now that the remote description is set, process any queued ICE candidates
+    if (iceCandidateQueue.length > 0) {
+      console.log('Processing queued ICE candidates...');
+      iceCandidateQueue.forEach(async (candidate) => {
+        try {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+          console.log('Queued ICE candidate added successfully:', candidate);
+        } catch (error) {
+          console.error('Error adding queued ICE candidate:', error);
         }
       });
+      iceCandidateQueue = []; // Clear the queue after processing
     }
-  }, 10000); // Adjust the interval as necessary
+  } catch (error) {
+    console.error('Failed to handle incoming answer:', error);
+  }
+}
 
 
-  return peerConnection;
+// Function to add queued ICE candidates after the remote description is set
+async function addQueuedIceCandidates(roomId) {
+  const peerConnection = peerConnections[roomId];
+
+  if (peerConnection && iceCandidateQueues[roomId]) {
+    for (const candidate of iceCandidateQueues[roomId]) {
+      try {
+        await peerConnection.addIceCandidate(candidate);
+        console.log('Queued ICE candidate added:', candidate);
+      } catch (error) {
+        console.error('Error adding queued ICE candidate:', error);
+      }
+    }
+    // Clear the queue after adding all candidates
+    iceCandidateQueues[roomId] = [];
+  }
+}
+
+// Function to create a new peer connection
+async function createPeerConnection(partyCode, targetroomId) {
+  // Check if a peer connection already exists for the target room
+  if (peerConnections[targetroomId]) {
+    console.log('Peer connection already exists for room:', targetroomId);
+    console.log("Check its state: ", peerConnections[targetroomId].signalingState)
+
+    
+    return peerConnections[targetroomId]; // Return the existing connection
+  }
+  // Create a new RTCPeerConnection
+  const newPeerConnection = new RTCPeerConnection(iceServers);
+  peerConnections[targetroomId] = newPeerConnection;
+
+  console.log('Peer connection created for room:', targetroomId);
+
+  // Set up ICE candidate handling
+  newPeerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      sendWSMessage({
+        type: 'webrtc-ice-candidate',
+        candidate: event.candidate,
+        roomId: targetroomId,
+        partyCode,
+      });
+    }
+  };
+
+  // Handle the remote stream
+  newPeerConnection.ontrack = (event) => {
+    console.log('Received remote track:', event.streams[0]);
+    addRemoteVideoElement(targetroomId, event.streams[0]); // Display the remote video
+  };
+
+  // Add local media tracks to the peer connection
+  localStream.getTracks().forEach((track) => newPeerConnection.addTrack(track, localStream));
+
+  console.log('Local tracks added to the new peer connection.');
+  console.log("The new connections state: ", newPeerConnection.signalingState);
+  return newPeerConnection; // Return the created peer connection
 }
 
 function updateAudioStatus(isTransmitting) {
@@ -377,90 +407,25 @@ function updateAudioStatus(isTransmitting) {
     document.body.appendChild(newAudioStatusElement); // Append to body or another container
   }}
 
-// Add this function to create and send the WebRTC offer
-async function createAndSendOffer(partyCode, targetroomId) {
-  const userDetails = await getUserDetails();
-
-  console.log("About to send offer to ", userDetails.partyCode);
-  const peerConnection = createPeerConnection(userDetails.partyCode, userDetails.targetroomId);
-  // Handle ICE candidate gathering
-  peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      console.log('Sending ICE candidate:', event.candidate);
-
-      // Queue the ICE candidate if WebSocket is not open
-      if (ws.readyState !== WebSocket.OPEN) {
-        iceCandidateQueue.push(event.candidate);
-        console.warn('WebSocket is not open. ICE candidate queued.');
-        return;
-      }
-
-      // Send ICE candidate to WebSocket server
-      ws.send(JSON.stringify({
-        type: 'webrtc-ice-candidate',
-        candidate: event.candidate,
-        targetroomId: targetroomId,
-        partyCode: partyCode
-      }));
-
-      console.log('ICE candidate sent to server:', event.candidate);
-    }
-  };
-  console.log("Innn create Offer");
+async function createOffer(peerConnection, roomId, partyCode) {
   try {
-    // Create an offer
+    // Create the offer
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
 
-    // Only attempt to send once WebSocket is open
-    if (ws.readyState === WebSocket.OPEN) {
-    // Send the offer to the server
-    ws.send(JSON.stringify({
+    // Send the offer via WebSocket or any other signaling method
+    await sendWSMessage({
       type: 'webrtc-offer',
       offer: offer,
-      targetroomId: targetroomId,
-      partyCode: partyCode
-    }));
-      console.log('Offer sent to the server:', offer);
+      roomId: roomId,
+      partyCode: partyCode,
+    });
 
-      // Send queued ICE candidates once the offer is sent
-      if (iceCandidateQueue.length > 0) {
-        iceCandidateQueue.forEach(candidate => {
-          ws.send(JSON.stringify({
-            type: 'webrtc-ice-candidate',
-            candidate: candidate,
-            targetroomId: targetroomId,
-            partyCode: partyCode
-          }));
-          console.log('Queued ICE candidate sent to server:', candidate);
-        });
-        iceCandidateQueue = []; // Clear the queue after sending
-      }
-
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-      // Send queued ICE candidates once the offer is sent
-      // Create an answer and send it back to the server
-   
-    // } else {
-    //   console.warn('WebSocket is not open. ICE candidates will not be sent.');
-    
-    }
-
-    console.log("Out of createAndSendOffer");
+    console.log('Offer created and sent:', offer);
   } catch (error) {
-    console.error('Error creating and sending offer:', error);
+    console.error('Failed to create offer:', error);
   }
 }
-
-
-let ws;
-let peerConnections = {};
-let isMuted = false;
-let isVideoMuted = false;
-let userCount = 0; // Initialize the user count
-const MAX_USERS = 5;
-let iceCandidateQueue = []; // Queue to store ICE candidates before WebSocket is open
-
 // Fetch roomId and WebSocket connection from storage
 chrome.storage.sync.get(['roomId', 'websocket'], (result) => {
   const roomId = result.roomId;
@@ -470,10 +435,6 @@ chrome.storage.sync.get(['roomId', 'websocket'], (result) => {
     console.error('No roomId found. WebSocket connection cannot be established.');
     return;
   }
-  // Start getting local stream and initialize WebSocket
-  getLocalStream().then(() => {
-    initializeWebSocket(roomId);
-  });
 });
 
 
@@ -733,15 +694,31 @@ function createSendButton(chatInput, userDetails) {
 
 
 
-// Start WebRTC audio when party starts
+// Start watch party for the host
 async function startWatchParty() {
-const userDetails = await getUserDetails();
-  await startAudioStream();
-  addLocalVideoElement(); // Add the local video element
-  console.log('Local Stream Tracks:', localStream.getTracks());
+  const userDetails = await getUserDetails();
+  await getLocalStream();
+  await initializeWebSocket(userDetails.roomId);
+  //console.log("Peer Conn", existingPeerConnection)
+  console.log('Starting watch party as host.');
+}
 
-console.log("Code??? ",userDetails.partyCode);
-  
+// Join watch party for guests
+async function joinWatchParty() {
+  const userDetails = await getUserDetails();
+  await getLocalStream();
+  await initializeWebSocket(userDetails.roomId);
+  console.log('Joining watch party as guest.');
+}
+
+// Start or join the party based on user role (host/guest)
+async function startOrJoinParty() {
+  const { isHost } = await getUserDetails();
+  if (isHost) {
+    await startWatchParty();
+  } else {
+    await joinWatchParty();
+  }
 }
 
 // Main function to initialize the chat
@@ -765,4 +742,5 @@ async function initChat() {
 
 // Start the chat interface
 initChat();
-startWatchParty();
+// Trigger the appropriate function based on user role
+startOrJoinParty();

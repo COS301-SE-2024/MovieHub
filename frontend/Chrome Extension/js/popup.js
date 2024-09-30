@@ -80,7 +80,7 @@ document.getElementById("startPartyBtn").addEventListener("click", async () => {
         alert("Watch party started!");
 
         // Store username, partyCode, and roomId in chrome.storage.sync
-        chrome.storage.sync.set({ username, partyCode, roomId: data.roomId }, () => {
+        chrome.storage.sync.set({ username, partyCode, roomId: data.roomId, isHost:true }, () => {
             console.log("Stored username, partyCode, and roomId in chrome.storage.sync:", { username, partyCode, roomId: data.roomId });
         });
 
@@ -128,7 +128,7 @@ document.getElementById("joinPartyBtn").addEventListener("click", async () => {
             alert("Joined watch party!");
 
             // Store username, partyCode, and roomId in chrome.storage.sync
-            chrome.storage.sync.set({ username, partyCode: joinCode, roomId: data.roomId }, () => {
+            chrome.storage.sync.set({ username, partyCode: joinCode, roomId: data.roomId, isHost: false }, () => {
                 console.log("Stored username, partyCode, and roomId in chrome.storage.sync:", { username, partyCode: joinCode, roomId: data.roomId });
             });
 
