@@ -414,7 +414,7 @@ async function initializeWebSocket(roomId) {
       //   await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
       // }
 
-      if (data.type === 'webrtc-offer' && !userDetails.isHost) {
+      if (data.type === 'webrtc-offer') {
         console.log('Received offer:', data.offer);
         if (!peerConnection) {
           const newPeerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
