@@ -1,5 +1,5 @@
 const neo4j = require('neo4j-driver');
-require("dotenv").config();
+// require("dotenv").config();
 
 
 const updateUserProperties = async (uid, points, level, position) => {
