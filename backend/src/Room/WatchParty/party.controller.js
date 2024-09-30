@@ -56,7 +56,10 @@ exports.getWatchPartyChatMessages = async (req, res) => {
     try {
         const { roomId } = await partyService.getWatchPartyByCode(partyCode); // Ensure this function exists in the service
         const messages = await partyService.getWatchPartyMessages(roomId);
-        res.status(200).json(messages);
+       if(messages.success){
+           res.status(200).json(messages);
+       }
+       
     } catch (error) {
         console.error('Error fetching chat messages:', error);
         res.status(500).json({ error: 'Failed to fetch chat messages' });

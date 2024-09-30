@@ -173,7 +173,7 @@ wss.on('connection', (ws, req) => {
         else if ('webrtc-ice-candidate' == data.type) {
             console.log("Broadcasting??", data.type);
             broadcast(roomId, {
-                type: 'webrtc-offer',
+                type: 'webrtc-ice-candidate',
                 candidate: data.candidate,
                 targetroomId: roomId,
             }, ws);
