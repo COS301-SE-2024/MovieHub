@@ -67,19 +67,19 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
                 query: {
                     bool: {
                         filter: [
-                                {
-                                    range: {
-                                        popularity: {
-                                            gte: 10 // Popularity must be greater than 5
-                                        }
+                            {
+                                range: {
+                                    'popularity': {
+                                        'gte': 10 // Popularity must be greater than 5
                                     }
                                 }
-                          ],
+                            }
+                        ],
                         should: [
                             { match: { overview: tmdbMovie.overview } },
                             { terms: { 'genre_ids': genreQuery } }
                         ],
-                      
+
                         must_not: [
                             { match: { id: tmdbId } }
                         ],
@@ -97,15 +97,15 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
             const additionalMovies = await client.search({
                 index: 'movies',
                 body: {
-                    query: {                                
-                                    range: {
-                                        popularity: {
-                                            gt: 10 // Popularity must be greater than 5
-                                        }
-                                    }
+                    query: {
+                        range: {
+                            popularity: {
+                                gt: 10 // Popularity must be greater than 5
+                            }
                         }
-                    },
-                    size: 100
+                    }
+                },
+                size: 100
             });
 
             allMovies = [...allMovies, ...additionalMovies.body.hits.hits.map(hit => hit._source)];
