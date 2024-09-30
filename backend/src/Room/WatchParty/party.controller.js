@@ -3,6 +3,7 @@ const partyService = require('./party.service');
 // Controller for starting a watch party
 exports.startWatchParty = async (req, res) => {
     console.log('Starting watch party -> controller');
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
     const { username,roomShortCode, partyCode } = req.body;
 
     if (!partyCode || !roomShortCode || !username) {
@@ -26,7 +27,7 @@ exports.startWatchParty = async (req, res) => {
 // Controller for joining a watch party
 exports.joinWatchParty = async (req, res) => {
     const { username, partyCode } = req.body;
-
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
     if (!username || !partyCode) {
         return res.status(400).json({ success: false, message: 'Username and Party Code are required' });
     }
@@ -51,6 +52,7 @@ exports.joinWatchParty = async (req, res) => {
 // Fetch chat messages for a watch party
 exports.getWatchPartyChatMessages = async (req, res) => {
     console.log('Get Watch Party-controller');
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
     const { partyCode } = req.params;
     console.log("Controller party Code-> ", partyCode);
     try {
@@ -68,6 +70,7 @@ exports.getWatchPartyChatMessages = async (req, res) => {
 
 // Send a chat message to a watch party
 exports.sendWatchPartyChatMessage = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
     const { partyCode } = req.params;
     const { username, text, id: messageId } = req.body; // Include messageId
 
