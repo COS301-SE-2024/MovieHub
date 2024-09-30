@@ -7,6 +7,7 @@ const supabaseKey = process.env.SUPABASE_KEY_QUOTE;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const fetchQuotesByGenre = async (genre) => {
+    console.log("genre:", genre)
     const { data, error } = await supabase
         .from('movieQuotes_duplicate') // Table name
         .select('quote, movie, genre')

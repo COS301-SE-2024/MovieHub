@@ -76,6 +76,7 @@ function createMultipleChoiceQuestion(quote, correctMovie, allMovies) {
 
 
 const getGameData = async (genre) => {
+    console.log(genre)
     const quotes = await fetchQuotesByGenre(genre); // Fetch quotes from the controller
 
     const fillInTheBlankQuestions = quotes.map(({ quote }) => createFillInTheBlank(quote));
