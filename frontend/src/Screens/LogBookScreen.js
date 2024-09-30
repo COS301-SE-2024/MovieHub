@@ -201,7 +201,7 @@ const LogBookScreen = () => {
                 <Text style={styles.dateText}>{dateWatched ? dateWatched.toDateString() : "Select Date Watched"}</Text>
             </TouchableOpacity>
 
-            <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} />
+            <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} textColor={theme.textColor}/>
 
             <Text style={styles.subtitle}>Rate the movie:</Text>
             <RatingStars rating={rating} setRating={setRating} />
