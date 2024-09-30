@@ -351,6 +351,65 @@ async function initializeWebSocket(roomId) {
         count: clientCount,
         roomId: userDetails.roomId,
       });
+      if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
+        if (!peerConnection) {
+          console.log('Creating peer connection and sending an offer.');
+          const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
+          if (peerConnection) {
+            if (peerConnection.signalingState === 'stable') {
+              await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
+            }
+            else if (peerConnection.signalingState === 'have-local-offer') {
+              console.log('Handling incoming WebRTC answer:', data.answer);
+              await handleIncomingAnswer(data.answer, peerConnection);
+            }
+            console.log("Out of creat if");
+          }
+        }
+
+      } else if ((data.type === 'webrtc-answer') && userDetails.isHost) {
+        console.log("Some answer??");
+        const peerConnection = peerConnections[userDetails.roomId];
+        if (peerConnection && peerConnection.signalingState !== 'closed') {
+          console.log('Handling incoming WebRTC answer:', data.answer);
+          await handleIncomingAnswer(data.answer, peerConnection);
+        } else {
+          console.error('PeerConnection is closed or undefined.');
+        }
+      }
+
+
+      // if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
+      //   console.log('Creating peer connection and sending an offer.');
+      //   const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
+      //   await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
+      // }
+
+      if (data.type === 'webrtc-offer' && !userDetails.isHost) {
+        console.log('Received offer:', data.offer);
+        if (!peerConnection) {
+          const newPeerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
+          if (newPeerConnection) {
+            await handleIncomingOffer(data.offer, newPeerConnection, userDetails.partyCode, userDetails.roomId);
+          }
+        }
+
+      }
+      // Handle ICE candidate messages
+      else if (data.type === 'webrtc-ice-candidate') {
+        const peerConnection = peerConnections[userDetails.roomId];
+
+        if (peerConnection) {
+          console.log("ICE peer Conn ", peerConnection);
+          if (peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
+            await handleRemoteIceCandidate(data.candidate, peerConnection);
+          } else {
+            console.warn('Remote description not set yet. Queuing ICE candidate.');
+            iceCandidateQueue.push(data.candidate);
+          }
+        }
+
+      }
     };
 
     // Handle WebSocket closure
