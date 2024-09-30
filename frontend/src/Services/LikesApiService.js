@@ -29,12 +29,10 @@ export const getUserLikedPosts = async (userId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}${userId}/likes`, {headers: headers});
     if (!response.ok) {
-        console.log(response)
         throw new Error("Failed to fetch user posts");
     } 
     
     const data = await response.json();
-    console.log("data", data);
     return data;
 };
 
@@ -42,12 +40,10 @@ export const getLikesOfMovie = async (movieId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}movie/${movieId}`, {headers: headers});
     if (!response.ok) {
-        console.log(response)
         throw new Error("Failed to fetch movie likes");
     } 
     
     const data = await response.json();
-    console.log("data", data);
     return data;
 };
 
@@ -55,12 +51,10 @@ export const getLikesOfComment = async (commentId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}comment/${commentId}`, {headers: headers});
     if (!response.ok) {
-        console.log(response)
         throw new Error("Failed to fetch comment likes");
     } 
     
     const data = await response.json();
-    console.log("data", data);
     return data;
 };
 
@@ -68,12 +62,10 @@ export const getLikesOfReview = async (reviewId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}review/${reviewId}`, {headers: headers});
     if (!response.ok) {
-        console.log(response)
         throw new Error("Failed to fetch review likes");
     } 
     
     const data = await response.json();
-    console.log("data", data);
     return data;
 };
 
@@ -81,12 +73,10 @@ export const getLikesOfPost = async (postId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}post/${postId}`, {headers: headers});
     if (!response.ok) {
-        // console.log("response", response)
         throw new Error("Failed to fetch post likes");
     } 
     
     const data = await response.json();
-    // console.log("data", data);
     return data;
 };
 
@@ -144,4 +134,31 @@ export const toggleLikePost = async (bodyData) => {
     }
     const data = await response.json();
     return data;
+};
+
+
+export const checkUserLike = async (uid, entityId, entityType) => {
+    const headers = await verifyToken(); // Ensure this function is correctly implemented
+    const url = `${API_URL}check-like/${uid}/${entityId}/${entityType}`; // Adjust URL for GET request
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                ...headers,
+                'Content-Type': 'application/json', // Optional: Depending on your backend implementation
+            },
+        });
+
+        if (!response.ok) {
+            console.error('Response Status:', response.status); // Log status code for debugging
+            throw new Error('Failed to check user like');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching like status:', error);
+        throw new Error('Failed to check user like');
+    }
 };

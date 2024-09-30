@@ -57,7 +57,7 @@ export const addPost = async (bodyData) => {
     // console.log('types:', imgType, isReviewType, movieIdType, postTitleType, ratingType, textType, uidType);
 
     const stringed = JSON.stringify(bodyData);
-    console.log('stringed:', stringed);
+    // console.log('stringed:', stringed);
 
 
     try {
@@ -65,7 +65,7 @@ export const addPost = async (bodyData) => {
             method: 'POST',
             body: JSON.stringify(bodyData),
         });
-        console.log('response', response);
+        // console.log('response', response);
         return response;
     } catch (error) {
         throw new Error('Failed to add post: ' + error.message);
@@ -272,6 +272,21 @@ export const getReviewsOfMovie = async (movieId) => {
     const data = await response.json();
     return data;
 };
+
+export const isReviewed = async (uid,movieId) => {
+    // movieId should be a string
+    try {
+        const response = await fetchWithAuth(`${API_URL}movie/${uid}/${movieId}/reviews`, {
+            method: 'GET',
+        });
+        return response;
+    } catch (error) {
+        throw new Error('Failed to fetch reviews of movie: ' + error.message);
+    }
+    const data = await response.json();
+    return data;
+};
+
 
 export const getCommentsOfPost = async (postId) => {
     // postId should be a string

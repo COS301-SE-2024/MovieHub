@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View, Image, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function ExploreHub({ userInfo, roomData }) {
@@ -13,12 +13,119 @@ export default function ExploreHub({ userInfo, roomData }) {
     ];
 
     const { movieTitle, roomName, users, live } = roomData;
-    
+    const { theme } = useTheme();
     const navigation = useNavigation();
 
     const handleNewUser = () => {
         navigation.navigate("MovieDescriptionPage", { movieId, imageUrl, title, rating, overview, date });
     };
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 10,
+            backgroundColor: "#ffffff",
+            paddingBottom: 10,
+        },
+        square: {
+            width: 250,
+            height: 180,
+            margin: 10,
+            backgroundColor: "#f0f0f0",
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: "#ccc",
+            // shadowColor: "#000",
+            // shadowOffset: { width: 0, height: 2 },
+            // shadowOpacity: 0.8,
+            // shadowRadius: 2,
+            // elevation: 4,
+        },
+        text: {
+            fontSize: 18,
+            fontWeight: "bold",
+            color: "#333",
+            padding: 10,
+        },
+        liveDot: {
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: "red",
+            marginRight: 5,
+            marginLeft: 10,
+        },
+        words: {
+            flexDirection: "row",
+            alignItems: "center",
+        },
+        roomName: {
+            fontSize: 15,
+            color: "#000",
+            fontWeight: "bold",
+            paddingLeft: 10,
+        },
+        peopleCountContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            paddingRight: 8,
+        },
+        peopleCount: {
+            fontSize: 14,
+            color: "black",
+            marginLeft: 5,
+            fontWeight: "bold",
+        },
+        bottomContent: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingTop: 100,
+        },
+        card: {
+            position: "relative",
+            width: 250,
+            height: 180,
+            backgroundColor: "#e0e0e0",
+            borderRadius: 8,
+            padding: 16,
+            marginRight: 16,
+        },
+        cardBody: {
+            display: "flex", 
+            flexDirection: "row", 
+            alignItems: "center", 
+            justifyContent: "space-between",
+            position: "absolute",
+            bottom: 12,
+            left: 16,
+            right: 16,
+        },
+        liveText: {
+            color: "red",
+            marginBottom: 8,
+        },
+        cardTitle: {
+            fontSize: 16,
+            fontWeight: "bold",
+        },
+        cardSubtitle: {
+            fontSize: 14,
+            marginBottom: 8,
+        },
+        cardFooter: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: 8,
+        },
+        userCount: {
+            marginLeft: 8,
+        },
+    });    
 
     return (
         <View style={styles.container}>
@@ -42,7 +149,7 @@ export default function ExploreHub({ userInfo, roomData }) {
             <TouchableOpacity style={styles.card}>
                 {live && (
                     <Text style={styles.liveText}>
-                        ● Live - <Text>{movieTitle}</Text>
+                        &bull; Live - <Text>{movieTitle}</Text>
                     </Text>
                 )}
                 <View style={styles.cardBody}>
@@ -56,111 +163,3 @@ export default function ExploreHub({ userInfo, roomData }) {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 10,
-        backgroundColor: "#ffffff",
-        paddingBottom: 10,
-    },
-    square: {
-        width: 250,
-        height: 180,
-        margin: 10,
-        backgroundColor: "#f0f0f0",
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        // shadowColor: "#000",
-        // shadowOffset: { width: 0, height: 2 },
-        // shadowOpacity: 0.8,
-        // shadowRadius: 2,
-        // elevation: 4,
-    },
-    text: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#333",
-        padding: 10,
-    },
-    liveDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: "red",
-        marginRight: 5,
-        marginLeft: 10,
-    },
-    words: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    roomName: {
-        fontSize: 15,
-        color: "#000",
-        fontWeight: "bold",
-        paddingLeft: 10,
-    },
-    peopleCountContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingRight: 8,
-    },
-    peopleCount: {
-        fontSize: 14,
-        color: "black",
-        marginLeft: 5,
-        fontWeight: "bold",
-    },
-    bottomContent: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingTop: 100,
-    },
-
-    card: {
-        position: "relative",
-        width: 250,
-        height: 180,
-        backgroundColor: "#e0e0e0",
-        borderRadius: 8,
-        padding: 16,
-        marginRight: 16,
-    },
-    cardBody: {
-        display: "flex", 
-        flexDirection: "row", 
-        alignItems: "center", 
-        justifyContent: "space-between",
-        position: "absolute",
-        bottom: 12,
-        left: 16,
-        right: 16,
-    },
-    liveText: {
-        color: "red",
-        marginBottom: 8,
-    },
-    cardTitle: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    cardSubtitle: {
-        fontSize: 14,
-        marginBottom: 8,
-    },
-    cardFooter: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 8,
-    },
-    userCount: {
-        marginLeft: 8,
-    },
-});

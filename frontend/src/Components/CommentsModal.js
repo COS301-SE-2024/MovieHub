@@ -1,12 +1,17 @@
 import React, { useCallback, useMemo, forwardRef, useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableHighlight, Alert } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-
+import { useTheme } from "../styles/ThemeContext";
 import { addCommentToPost, addCommentToReview, removeComment, addCommentToComment, getCommentsOfComment } from "../Services/PostsApiServices";
+import { useUser } from "../Services/UseridContext";
 
 const CommentsModal = forwardRef((props, ref) => {
     const { isPost, postId, userId, username, currentUserAvatar, comments, onFetchComments } = props;
+    const { theme, isDarkMode } = useTheme();
+    const { userInfo } = useUser();
+    const navigation = useNavigation();
     // console.log(isPost);
     const [message, setMessage] = useState("");
     const [replyTo, setReplyTo] = useState(null);
@@ -81,6 +86,10 @@ const CommentsModal = forwardRef((props, ref) => {
     };
 
     const toggleDeleteModal = (index) => {
+        // check if it's my own comment]
+        if (comments[index].uid !== userId) {
+            return;
+        }
         setDeleteModalState((prev) => {
             const newState = [...prev];
             newState[index] = !newState[index]; // Toggle delete modal state for the comment at index
@@ -144,22 +153,181 @@ const CommentsModal = forwardRef((props, ref) => {
         });
     }, [comments]);
 
+    const goToProfile = (comment) => {
+        navigation.navigate("Profile", { userInfo, otherUserInfo: comment });
+    }
+
+    const styles = StyleSheet.create({
+        bottomSheetContainer: {
+            flex: 1,
+            paddingBottom: 90,
+            backgroundColor: theme.backgroundColor,
+        },
+        bottomSheetHeader: {
+            fontSize: 20,
+            fontWeight: "bold",
+            padding: 16,
+            color: theme.textColor,
+        },
+        noCommentsContainer: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingTop: 60,
+        },
+        commentsSection: {
+            marginBottom: 16,
+        },
+        commentContainer: {
+            flexDirection: "row",
+            padding: 16,
+        },
+        avatar: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            marginRight: 10,
+        },
+        replyAvatar: {
+            width: 35,
+            height: 35,
+            borderRadius: 20,
+            marginRight: 10,
+        },
+        commentContent: {
+            flex: 1,
+        },
+        commentHeader: {
+            flexDirection: "row",
+            alignContent: "center",
+            justifyContent: "space-between",
+        },
+        username: {
+            fontWeight: "bold",
+            fontSize: 16,
+            color: theme.textColor
+        },
+        date: {
+            fontSize: 12,
+            paddingLeft: 8,
+            color: theme.gray,
+            textAlignVertical: "center",
+        },
+        commentText: {
+            fontSize: 16,
+            marginTop: 4,
+            color: theme.textColor
+        },
+        replyText: {
+            color: theme.gray,
+            fontSize: 12,
+            marginTop: 4,
+        },
+        viewRepliesText: {
+            color: "#4A42C0",
+            marginLeft: 67,
+            marginBottom: 8,
+            fontSize: 12,
+        },
+        replyContainer: {
+            flexDirection: "row",
+            marginBottom: 16,
+            marginLeft: 52,
+        },
+        chatInput: {
+            flexDirection: "col",
+            alignItems: "center",
+            padding: 16,
+            borderTopWidth: 1,
+            borderTopColor: isDarkMode? theme.borderColor : "#f1f1f1",
+            alignSelf: "flex-end", // Align chat input to the bottom
+            backgroundColor: theme.backgroundColor,
+        },
+        inputContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            flex: 1,
+            backgroundColor: theme.inputBackground,
+            borderRadius: 20,
+            paddingHorizontal: 12,
+        },
+        input: {
+            flex: 1,
+            height: 40,
+        },
+        sendButton: {
+            backgroundColor: "#4a42c0",
+            borderRadius: 20,
+            padding: 7,
+            marginLeft: 8,
+        },
+        deleteModalContainer: {
+            position: "absolute",
+            left: 30, // Adjust this as per your design
+            top: 90, // Adjust this as per your design
+            backgroundColor: theme.backgroundColor,
+            padding: 10,
+            shadowColor: "#000",
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+            zIndex: 100,
+        },
+        deleteButton: {
+            padding: 8,
+            alignItems: "center",
+            paddingLeft: 15,
+            paddingRight: 40,
+        },
+        cancelButton: {
+            padding: 8,
+            alignItems: "center",
+            marginTop: 8,
+            paddingLeft: 15,
+            paddingRight: 40,
+        },
+        replyToContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            backgroundColor: isDarkMode ? theme.borderColor : "#f1f1f1",
+            borderRadius: 20,
+            marginBottom: 12,
+            alignSelf: "flex-start",
+        },
+        replyToText: {
+            fontWeight: "bold",
+            marginRight: 8,
+            color: theme.textColor,
+        },
+        replyContainer: {
+            flexDirection: "row",
+            padding: 16,
+            paddingLeft: 40, // Indent replies
+        },
+    });
+
     return (
         <BottomSheetModalProvider>
-            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop} onChange={handleModalChange}>
-                <BottomSheetScrollView>
+            <BottomSheetModal ref={ref} index={2} snapPoints={snapPoints} enablePanDownToClose={true} backgroundStyle={{ backgroundColor: theme.backgroundColor }} handleIndicatorStyle={{ backgroundColor: "#4A42C0" }} backdropComponent={renderBackdrop} onChange={handleModalChange}>
+                <BottomSheetScrollView style={{ backgroundColor: theme.backgroundColor }}>
                     <View style={styles.bottomSheetContainer}>
                         <Text style={styles.bottomSheetHeader}>Comments</Text>
                         {comments.length === 0 ? (
                             <View style={styles.noCommentsContainer}>
-                                <Text style={{ fontWeight: "bold", fontSize: 18 }}>No comments yet</Text>
-                                <Text style={{ color: "#7b7b7b", fontSize: 14, marginTop: 8 }}>Be the first to comment</Text>
+                                <Text style={{ fontWeight: "bold", fontSize: 18, color: theme.textColor }}>No comments yet</Text>
+                                <Text style={{ color: theme.gray, fontSize: 14, marginTop: 8 }}>Be the first to comment</Text>
                             </View>
                         ) : (
                             <View style={styles.commentsSection}>
                                 {comments.map((comment, index) => (
                                     <View key={index}>
-                                        <TouchableHighlight onLongPress={() => toggleDeleteModal(index)} underlayColor={"#f5f5f5"}>
+                                        <TouchableHighlight onLongPress={() => toggleDeleteModal(index)} onPress={() => goToProfile(comment)} underlayColor={theme.borderColor}>
                                             <View style={styles.commentContainer}>
                                                 <Image source={{ uri: comment.avatar }} style={styles.avatar} />
                                                 <View style={styles.commentContent}>
@@ -168,7 +336,7 @@ const CommentsModal = forwardRef((props, ref) => {
                                                             <Text style={styles.username}>{comment.username}</Text>
                                                             <Text style={styles.date}>{formatTimeAgoFromDB(comment.createdAt)}</Text>
                                                         </View>
-                                                        <Ionicons name="heart-outline" size={18} color="black" />
+                                                        <Ionicons name="heart-outline" size={18} color={theme.iconColor} />
                                                     </View>
                                                     <Text style={styles.commentText}>{comment.text}</Text>
                                                     <Text style={styles.replyText} onPress={() => setReplyTo(comment)}>
@@ -201,7 +369,7 @@ const CommentsModal = forwardRef((props, ref) => {
                                                                         <Text style={styles.username}>{reply.username}</Text>
                                                                         <Text style={styles.date}>{formatTimeAgoFromDB(reply.createdAt)}</Text>
                                                                     </View>
-                                                                    <Ionicons name="heart-outline" size={18} color="black" />
+                                                                    <Ionicons name="heart-outline" size={18} color={theme.iconColor} />
                                                                 </View>
                                                                 <Text style={styles.commentText}>{reply.text}</Text>
                                                                 <Text style={styles.replyText} onPress={() => setReplyTo(reply)}>
@@ -220,7 +388,7 @@ const CommentsModal = forwardRef((props, ref) => {
                                                     <Text style={{ color: "red" }}>Delete</Text>
                                                 </TouchableOpacity>
                                                 <TouchableOpacity style={styles.cancelButton} onPress={() => toggleDeleteModal(index)}>
-                                                    <Text>Cancel</Text>
+                                                    <Text style={{ color: theme.textColor }}>Cancel</Text>
                                                 </TouchableOpacity>
                                             </View>
                                         )}
@@ -236,16 +404,16 @@ const CommentsModal = forwardRef((props, ref) => {
                         <View style={styles.replyToContainer}>
                             <Text style={styles.replyToText}>Replying to {replyTo.username}</Text>
                             <TouchableOpacity onPress={() => setReplyTo(null)}>
-                                <Ionicons name="close-circle" size={20} color="gray" />
+                                <Ionicons name="close-circle" size={20} color={theme.gray} />
                             </TouchableOpacity>
                         </View>
                     )}
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                         <View style={styles.inputContainer}>
-                            <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} />
-                            <TouchableOpacity>
+                            <TextInput style={styles.input} placeholder="Type a message..." value={message} onChangeText={setMessage} placeholderTextColor={theme.gray} color={theme.textColor} />
+                            {/* <TouchableOpacity>
                                 <Ionicons name="happy" size={24} color="black" />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
                         <TouchableOpacity style={styles.sendButton} onPress={handleSendComment}>
                             <Ionicons name="send" size={24} color="white" />
@@ -259,151 +427,4 @@ const CommentsModal = forwardRef((props, ref) => {
 
 export default CommentsModal;
 
-const styles = StyleSheet.create({
-    bottomSheetContainer: {
-        flex: 1,
-        paddingBottom: 90,
-    },
-    bottomSheetHeader: {
-        fontSize: 20,
-        fontWeight: "bold",
-        padding: 16,
-    },
-    noCommentsContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingTop: 60,
-    },
-    commentsSection: {
-        marginBottom: 16,
-    },
-    commentContainer: {
-        flexDirection: "row",
-        padding: 16,
-    },
-    avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        marginRight: 10,
-    },
-    replyAvatar: {
-        width: 35,
-        height: 35,
-        borderRadius: 20,
-        marginRight: 10,
-    },
-    commentContent: {
-        flex: 1,
-    },
-    commentHeader: {
-        flexDirection: "row",
-        alignContent: "center",
-        justifyContent: "space-between",
-    },
-    username: {
-        fontWeight: "bold",
-        fontSize: 16,
-    },
-    date: {
-        fontSize: 12,
-        paddingLeft: 8,
-        color: "gray",
-        textAlignVertical: "center",
-    },
-    commentText: {
-        fontSize: 16,
-        marginTop: 4,
-    },
-    replyText: {
-        color: "grey",
-        fontSize: 12,
-        marginTop: 4,
-    },
-    viewRepliesText: {
-        color: "#4A42C0",
-        marginLeft: 67,
-        marginBottom: 8,
-        fontSize: 12,
-    },
-    replyContainer: {
-        flexDirection: "row",
-        marginBottom: 16,
-        marginLeft: 52,
-    },
-    chatInput: {
-        flexDirection: "col",
-        alignItems: "center",
-        padding: 16,
-        borderTopWidth: 1,
-        borderTopColor: "#f1f1f1",
-        alignSelf: "flex-end", // Align chat input to the bottom
-    },
-    inputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        flex: 1,
-        backgroundColor: "#f1f1f1",
-        borderRadius: 20,
-        paddingHorizontal: 12,
-    },
-    input: {
-        flex: 1,
-        height: 40,
-    },
-    sendButton: {
-        backgroundColor: "#4a42c0",
-        borderRadius: 20,
-        padding: 7,
-        marginLeft: 8,
-    },
-    deleteModalContainer: {
-        position: "absolute",
-        left: 30, // Adjust this as per your design
-        top: 90, // Adjust this as per your design
-        backgroundColor: "white",
-        padding: 10,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        zIndex: 100,
-    },
-    deleteButton: {
-        padding: 8,
-        alignItems: "center",
-        paddingLeft: 15,
-        paddingRight: 40,
-    },
-    cancelButton: {
-        padding: 8,
-        alignItems: "center",
-        marginTop: 8,
-        paddingLeft: 15,
-        paddingRight: 40,
-    },
-    replyToContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        backgroundColor: "#f1f1f1",
-        borderRadius: 20,
-        marginBottom: 12,
-        alignSelf: "flex-start",
-    },
-    replyToText: {
-        fontWeight: "bold",
-        marginRight: 8,
-    },
-    replyContainer: {
-        flexDirection: "row",
-        padding: 16,
-        paddingLeft: 40, // Indent replies
-    },
-});
+

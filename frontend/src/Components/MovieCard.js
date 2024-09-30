@@ -1,32 +1,31 @@
-import React , {useState} from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, View, Image, TouchableOpacity, Text, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from '@expo/vector-icons';
-import { Octicons } from '@expo/vector-icons';
-import image1 from "../../../assets/Assassin_movie.jpg";
-import image2 from "../../../assets/oppenheimer_movie.jpg";
-import image3 from "../../../assets/moonlight.jpg";
-
-export default function MovieCard({movieId, imageUrl, title, rating, overview, date}) {
-
-    const navigation = useNavigation();
-
-    const handleNewUser = () => {
-        navigation.navigate("MovieDescriptionPage", {movieId : movieId,imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date});
-    };
-
-
+import { useTheme } from "../styles/ThemeContext";
+import { Dimensions } from 'react-native';
+import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import { colors, themeStyles } from "../styles/theme";
+export default function MovieCard({ movieId, imageUrl, title, rating, overview, date, userInfo }) {
+    const { theme } = useTheme();
     const [liked, setLiked] = useState(false);
-
-    const handleLikePress = () => {
-        setLiked(!liked);
+    const navigation = useNavigation();
+    const [loading, setLoading] = useState(true);
+    const handleNewUser = () => {
+        navigation.navigate("MovieDescriptionPage", { movieId: movieId, imageUrl: imageUrl, title: title, rating: rating, overview: overview, date: date, userInfo: userInfo });
     };
 
     return (
         <View style={styles.container}>
             
         <TouchableOpacity onPress={handleNewUser} activeOpacity={1} style={styles.card}>
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+        {loading && (
+                <ActivityIndicator
+                    size="small"
+                    color={colors.primary}
+                    style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }} // Adjust position if necessary
+                />
+            )}
+            <Image source={{ uri: imageUrl }} style={styles.image} onLoadEnd={() => setLoading(false)} />
             
             {/* <Text style={styles.title}>{title}</Text> */}
                 
@@ -34,17 +33,17 @@ export default function MovieCard({movieId, imageUrl, title, rating, overview, d
     </View>
     );
 }
+
+const screenWidth = Dimensions.get('window').width;
  
 const styles = StyleSheet.create({
 
     container:{
         flex: 1,
-        justifyContent: 'center',
+        position: 'center',
         alignItems: 'center',
-        width: 400,
-        height: 500,
-        paddingRight: 15,
-        paddingLeft: 15,
+        width: 330,
+        height: 420,
         shadowOffset: {
             width: 0,
             height: 3,
@@ -53,15 +52,19 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 3.84,
         elevation: 5,
+        paddingTop: 10,
+        paddingBottom: 120,
 
 
     },
     card: {
-        position: 'relative',
-        width: '79%',
+        position: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '86%',
         backgroundColor: 'transparent',
         borderRadius: 10,
-        padding: 10,
+        // padding: 10,
         shadowColor: '#000',
         height: 400,
         shadowOffset: {
@@ -78,38 +81,9 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 10,
         marginBottom: 10,
-    },
-    title: {
-        paddingTop: 19,
-        fontSize: 18,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.87)',
-        borderRadius: 10,
-        justifyContent: 'center',
+        position: 'center',
         alignItems: 'center',
-        flexDirection: 'column', 
-      },
-      icon: {
-        marginLeft: 5,
-        fontSize: 20,
-        paddingTop: 20,
-        
     },
-    text: {
-        fontSize: 16,
-        color: 'white', 
-        paddingTop: 5,
-    },
-    iconFirst: {
-        marginLeft: 12,
-        fontSize: 20,
-        paddingTop: 20,
-        
-    },
-    
 
-});
+
+}) 

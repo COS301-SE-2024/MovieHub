@@ -1,20 +1,22 @@
-import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert } from "react-native";
+import React, { useRef, useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet, Pressable, Share, Alert, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
-
+import { useUser } from "../Services/UseridContext";
 import { removeReview } from "../Services/PostsApiServices";
-import { toggleLikeReview } from "../Services/LikesApiService";
+import { toggleLikeReview, checkUserLike } from "../Services/LikesApiService";
 import { colors } from "../styles/theme";
 
-export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete }) {
+export default function Review({ reviewId, uid, username, userHandle, userAvatar, likes, comments, image, saves, reviewTitle, preview, dateReviewed, isUserReview, handleCommentPress, movieName, rating, onDelete, Otheruid }) {
     const { theme } = useTheme();
+    const [hasLiked, setHasLiked] = useState(false);
     const [liked, setLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(likes);
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
+    const { userInfo, setUserInfo } = useUser();
 
     const toggleModal = () => {
         setModalVisible(!modalVisible);
@@ -28,6 +30,8 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
 
         try {
             await toggleLikeReview(body);
+            setHasLiked(!hasLiked);
+            setLikeCount((prevCount) => (hasLiked ? prevCount - 1 : prevCount + 1));
             console.log("Toggle like successful");
         } catch (error) {
             console.error("Error toggling like:", error);
@@ -35,6 +39,19 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
 
         setLiked(!liked);
     };
+
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const data = await checkUserLike(userInfo.userId, reviewId, "Review");
+                setHasLiked(data.hasLiked); // Adjust based on your backend response
+            } catch (error) {
+                console.error("Error fetching like status:", error);
+            }
+        };
+
+        fetchLikeStatus();
+    }, [userInfo.userId, reviewId]);
 
     const handleShare = async () => {
         try {
@@ -56,39 +73,25 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             Alert.alert(error.message);
         }
     };
-    // Function to remove reviews
 
+    // Function to remove reviews
     const handleRemoveReview = async (uid, reviewId) => {
         onDelete(reviewId);
         toggleModal();
     };
-
-    // TODO: Increment or decrement number of likes
 
     const styles = StyleSheet.create({
         container: {
             backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
-            // shadowColor: "#000",
-            // shadowOffset: {
-            //     width: 0,
-            //     height: 2,
-            // },
-            // shadowOpacity: 0.45,
-            // shadowRadius: 3.84,
-            // elevation: 5,
-            borderBottomWidth: 0.8,
-            borderTopWidth: 0.5,
+            borderBottomWidth: 0.3,
             borderBottomColor: theme.borderColor,
         },
         avatar: {
             width: 40,
             height: 40,
             borderRadius: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             marginRight: 10,
         },
         username: {
@@ -103,28 +106,30 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             backgroundColor: colors.primary,
             padding: 8,
             borderRadius: 55,
-            marginTop: 10,
             width: 90,
-            display: "flex",
             justifyContent: "center",
             alignItems: "center",
         },
         reviewButtonText: {
             color: "white",
             fontWeight: "bold",
-            // fontSize: 16,
         },
         profileInfo: {
-            alignItems: "center",
-            display: "flex",
             flexDirection: "row",
+            alignItems: "center",
+            //   justifyContent: "space-between", // This ensures space between elements
+        },
+        movieName: {
+            fontWeight: "600",
+            fontSize: 20,
+            marginTop: 10,
+            color: theme.textColor,
         },
         reviewImage: {
             width: "100%",
             height: 300,
             marginTop: 10,
             borderRadius: 10,
-            objectFit: "cover",
         },
         reviewTitle: {
             fontWeight: "600",
@@ -135,7 +140,6 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         reviewPreview: {
             color: theme.gray,
             marginVertical: 10,
-            marginTop: 5,
         },
         icon: {
             marginRight: 5,
@@ -163,7 +167,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -181,13 +185,10 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         star: {
-            // shadowOpacity: 2,
-            // textShadowRadius: 6,
-            // textShadowOffset: { width: 1, height: 1 },
             marginRight: 5,
         },
     });
@@ -196,78 +197,81 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
+                <View style={{ flex: 1 }}>
                     <Text style={styles.username}>{username}</Text>
                     <Text style={styles.userHandle}>
                         {userHandle} &bull; {dateReviewed}
                     </Text>
                 </View>
+                <TouchableOpacity style={styles.reviewButton}>
+                    <Text style={styles.reviewButtonText}>Review</Text>
+                </TouchableOpacity>
                 <Pressable onPress={toggleModal} style={{ marginLeft: "auto" }}>
-                    <Icon name="more-vert" size={20} />
+                    <Icon name="more-vert" size={20} color={theme.iconColor} />
                 </Pressable>
-            </View>
-            <View style={styles.reviewButton}>
-                <Text style={styles.reviewButtonText}>Review</Text>
             </View>
 
             {image ? <Image source={{ uri: image }} style={styles.reviewImage} /> : null}
 
-            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                <Text style={{ fontWeight: "bold", fontSize: 20, marginTop: 10, color: theme.textColor }}>{movieName}</Text>
-                <View style={{ display: "flex", flexDirection: "row", alignItems: "center", marginLeft: "auto" }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={styles.movieName}>{movieName}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", marginLeft: "auto", marginTop: 10 }}>
                     <Text style={styles.star}>
                         <Icon name="star" size={22} color={"gold"} />
                     </Text>
-                    <Text>{rating}</Text>
+                    <Text style={{ color: theme.textColor }}>{rating}</Text>
                 </View>
             </View>
 
             <Text style={styles.reviewTitle}>{reviewTitle}</Text>
             <Text style={styles.reviewPreview}>{preview}</Text>
+
             <View style={styles.statsContainer}>
                 <TouchableOpacity style={styles.stats} onPress={toggleLike}>
-                    <Icon name={liked ? "favorite" : "favorite-border"} size={20} color={liked ? "red" : "black"} style={{ marginRight: 5 }} />
-                    <Text style={styles.statsNumber}>{likes}</Text>
+                    <Icon name={hasLiked ? "favorite" : "favorite-border"} size={20} color={hasLiked ? "red" : theme.iconColor} style={{ marginRight: 5 }} />
+                    <Text style={styles.statsNumber}>{likeCount}</Text>
                 </TouchableOpacity>
                 <View style={styles.stats}>
                     <Pressable
                         onPress={() => {
                             handleCommentPress(reviewId, true);
                         }}>
-                        <CommIcon name="comment-outline" size={20} style={styles.icon} />
+                        <CommIcon name="comment-outline" size={20} style={styles.icon} color={theme.iconColor} />
                     </Pressable>
                     <Text style={styles.statsNumber}>{comments}</Text>
                 </View>
                 <View style={{ flex: 1 }}></View>
                 <Pressable onPress={handleShare}>
-                    <CommIcon name="share-outline" size={20} style={styles.icon} />
+                    <CommIcon name="share-outline" size={20} color={theme.iconColor} style={styles.icon} />
                 </Pressable>
             </View>
+
             {modalVisible && (
                 <View style={styles.modalContainer}>
-                    {isUserReview ? ( // Check if the review belongs to the user
+                    {isUserReview ? (
                         <>
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    navigation.navigate("EditReview", { username, uid, titleParam: reviewTitle, thoughtsParam: preview, imageUriParam: image, reviewId, ratingParam: rating, movieName });
+                                    navigation.navigate("EditReview", {
+                                        username,
+                                        uid,
+                                        titleParam: reviewTitle,
+                                        thoughtsParam: preview,
+                                        imageUriParam: image,
+                                        reviewId,
+                                        ratingParam: rating,
+                                        movieName,
+                                    });
                                 }}>
                                 <Text style={styles.modalText}>Edit</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.modalOption}
-                                onPress={() => {
-                                    handleRemoveReview(uid, reviewId);
-                                }}>
+                            <TouchableOpacity style={styles.modalOption} onPress={() => handleRemoveReview(Otheruid, reviewId)}>
                                 <Text style={styles.modalText}>Delete</Text>
                             </TouchableOpacity>
                         </>
                     ) : (
-                        <TouchableOpacity
-                            style={styles.modalOption}
-                            onPress={() => {
-                                /* Report logic */
-                            }}>
+                        <TouchableOpacity style={styles.modalOption} onPress={() => handleRemoveReview(Otheruid, reviewId)}>
                             <Text style={styles.modalText}>Report</Text>
                         </TouchableOpacity>
                     )}

@@ -1,21 +1,36 @@
-import React, { useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Pressable, Share, Alert} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useTheme } from "../styles/ThemeContext";
-import { useNavigation } from "@react-navigation/native";
+import { followUser, unfollowUser } from "../Services/UsersApiService";
 
-import { removePost } from "../Services/PostsApiServices";
-import { toggleLikePost } from "../Services/LikesApiService";
-
-const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) => {
-
+const FollowList = ({ route, uid, username, userHandle, userAvatar, isFollowing: initialFollowState }) => {
     const { theme } = useTheme();
+    const { userInfo } = route.params;
+    const [isFollowing, setIsFollowing] = useState(initialFollowState);
+
+    const toggleFollow = async () => {
+        try {
+            const postBody = {
+                followerId: userInfo.userId,
+                followeeId: uid,
+            };
+
+            if (isFollowing) {
+                await unfollowUser(postBody);
+            } else {
+                await followUser(postBody);
+            }
+
+            // triggers a re-render
+            setIsFollowing((prev) => !prev);
+        } catch (error) {
+            console.error("Error toggling follow state:", error);
+        }
+    };
 
     const styles = StyleSheet.create({
         container: {
-            backgroundColor: '#ffffff',
+            backgroundColor: theme.backgroundColor,
             paddingHorizontal: 25,
             paddingVertical: 15,
             shadowColor: "#000",
@@ -23,38 +38,38 @@ const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, imag
                 width: 0,
                 height: 2,
             },
-            // shadowOpacity: 0.17,
-            // shadowRadius: 3.84,
-            borderColor: '#000000',
-            // elevation: 5,
-            borderTopWidth: 0, 
-            borderBottomWidth: 0.3, 
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
         },
         avatar: {
             width: 50,
             height: 50,
             borderRadius: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             marginRight: 10,
-            backgroundColor: 'black',
-            paddingLeft: 10,
+            backgroundColor: "black",
         },
         username: {
             fontSize: 18,
             fontWeight: "bold",
             color: theme.textColor,
-            paddingLeft: 15,
         },
         userHandle: {
             color: theme.gray,
-            paddingLeft: 15,
         },
         profileInfo: {
-            alignItems: "center",
-            display: "flex",
             flexDirection: "row",
+            alignItems: "center",
+        },
+        followButton: {
+            backgroundColor: theme.primaryColor,
+            padding: 8,
+            borderRadius: 50,
+            paddingHorizontal: 16,
+        },
+        followingButton: {
+            backgroundColor: theme.gray,
         },
     });
 
@@ -62,20 +77,16 @@ const FollowList = ({ route,username, userHandle, userAvatar, likes, saves, imag
         <View style={styles.container}>
             <View style={styles.profileInfo}>
                 <Image source={{ uri: userAvatar }} style={styles.avatar} />
-                <View style={{ alignItems: "left" }}>
-                    <Text style={styles.username}>Itumeleng</Text>
-                    <Text style={styles.userHandle}>@ElectricTance</Text>
+                <View>
+                    <Text style={styles.username}>{username}</Text>
+                    <Text style={styles.userHandle}>{userHandle}</Text>
                 </View>
             </View>
-            {image && <Image source={{ uri: image }} style={styles.postImage} />}
-            <View style={styles.statsContainer}>
-    
-            </View>
-            
-                </View>
+            <TouchableOpacity onPress={toggleFollow} style={[styles.followButton, isFollowing && styles.followingButton]}>
+                <Text style={{ color: "white" }}>{isFollowing ? "Following" : "Follow"}</Text>
+            </TouchableOpacity>
+        </View>
     );
 };
-
-
 
 export default FollowList;

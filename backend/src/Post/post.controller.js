@@ -183,6 +183,19 @@ exports.getReviewsOfMovie = async (req, res) => {
     }
 };
 
+exports.isReviewed = async (req, res) => {
+    try {
+        const movieId = req.params.movieId;
+        const uid = req.params.uid;
+        const isReview = await postService.isReviewed(uid,movieId);
+       
+            responseHandler(res, 200, 'Reviews fetched successfully', isReview);
+
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
 exports.getCommentsOfPost = async (req, res) => {
     try {
         console.log('Getting comments');

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch } from "react-native";
+import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Switch, FlatList } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "../styles/theme";
+import { useTheme } from "../styles/ThemeContext";
 
 export default function CreateWatchlist({ route, navigation }) {
     //Use userInfo to personlise a users homepage
     const { userInfo } = route.params;
+    const { theme } = useTheme();
 
     const [modalContent, setModalContent] = useState({
         name: { isVisible: false, newValue: "", tempValue: "" },
@@ -13,10 +15,19 @@ export default function CreateWatchlist({ route, navigation }) {
         tags: { isVisible: false, newValue: "", tempValue: "" },
     });
     const [cover, setCover] = useState(null);
-    const [visibility, setVisibility] = useState(true);
+    const [visibility, setVisibility] = useState(false);
     const [collaborative, setCollaborative] = useState(false);
     const [ranked, setRanked] = useState(false);
-
+    const [searchQuery, setSearchQuery] = useState("");
+    const [invitedUsers, setInvitedUsers] = useState([]);
+    const [showUserSearch, setShowUserSearch] = useState(false);
+    const allUsers = [
+        { id: 1, name: "John Doe" },
+        { id: 2, name: "Jane Smith" },
+        { id: 3, name: "Alice Johnson" },
+        { id: 4, name: "Bob Williams" },
+        { id: 5, name: "Charlie Brown" },
+    ];
     const chooseCover = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (permissionResult.granted === false) {
@@ -64,19 +75,49 @@ export default function CreateWatchlist({ route, navigation }) {
             name: modalContent.name.newValue,
             description: modalContent.description.newValue,
             tags: modalContent.tags.newValue,
+            img: cover,
             visibility,
             collaborative,
             ranked,
+            // invitedUsers: collaborative ? invitedUsers : [],
             // cover,
         };
 
         navigation.navigate("AddMovies", { watchlistData, userInfo });
     };
 
+    const handleCollaborativeToggle = (value) => {
+        setCollaborative(value);
+        if (value) {
+            setShowUserSearch(true);
+        } else {
+            setShowUserSearch(false);
+            setInvitedUsers([]);
+        }
+    };
+
+    const handleUserSearch = (text) => {
+        setSearchQuery(text);
+    };
+
+    const inviteUser = (user) => {
+        if (!invitedUsers.some((invited) => invited.id === user.id)) {
+            setInvitedUsers([...invitedUsers, user]);
+        }
+    };
+
+    const removeInvitedUser = (userId) => {
+        setInvitedUsers(invitedUsers.filter((user) => user.id !== userId));
+    };
+
+    const filteredUsers = allUsers.filter((user) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: "#fff",
+            backgroundColor: theme.backgroundColor,
             paddingHorizontal: 30,
         },
         coverContainer: {
@@ -101,15 +142,16 @@ export default function CreateWatchlist({ route, navigation }) {
         sectionTitle: {
             fontSize: 18,
             fontWeight: "bold",
+            color: theme.textColor,
         },
         sectionValue: {
             fontSize: 16,
             marginTop: 5,
-            color: "#7b7b7b",
+            color: theme.gray,
         },
         line: {
             height: 1,
-            backgroundColor: "lightgray",
+            backgroundColor: theme.borderColor,
             width: "100%",
             marginBottom: 20,
         },
@@ -120,7 +162,7 @@ export default function CreateWatchlist({ route, navigation }) {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
         },
         modalContent: {
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             padding: 20,
             borderRadius: 10,
             width: "80%",
@@ -129,11 +171,12 @@ export default function CreateWatchlist({ route, navigation }) {
             fontSize: 18,
             fontWeight: "bold",
             marginBottom: 20,
+            color: theme.textColor,
         },
         input: {
             marginBottom: 20,
             borderBottomWidth: 1,
-            borderBottomColor: "#7b7b7b",
+            borderBottomColor: theme.borderColor,
             outlineStyle: "none",
         },
         buttonContainer: {
@@ -142,7 +185,7 @@ export default function CreateWatchlist({ route, navigation }) {
             paddingTop: 10,
         },
         buttonText: {
-            color: "#0f5bd1",
+            color: theme.primaryColor,
             textAlign: "center",
         },
         switchContainer: {
@@ -151,7 +194,7 @@ export default function CreateWatchlist({ route, navigation }) {
             alignItems: "center",
         },
         nextButton: {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.primaryColor,
             padding: 16,
             borderRadius: 4,
             alignItems: "center",
@@ -161,8 +204,31 @@ export default function CreateWatchlist({ route, navigation }) {
             fontSize: 16,
             fontWeight: "bold",
         },
+        searchBar: {
+            backgroundColor: theme.inputBackground,
+            padding: 10,
+            borderRadius: 5,
+            marginBottom: 10,
+            color: theme.textColor,
+        },
+        userItem: {
+            padding: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+        },
+        invitedUserItem: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 10,
+            backgroundColor: theme.secondaryBackground,
+            borderRadius: 5,
+            marginBottom: 5,
+        },
+        removeButton: {
+            color: theme.dangerColor,
+        },
     });
-    
 
     return (
         <ScrollView style={styles.container}>
@@ -185,7 +251,7 @@ export default function CreateWatchlist({ route, navigation }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Visibility</Text>
                 <View style={styles.switchContainer}>
-                    <Text style={styles.sectionValue}>{visibility ? "Private" : "Public"}</Text>
+                    <Text style={styles.sectionValue}>{visibility ? "Public" : "Private"}</Text>
                     <Switch value={visibility} onValueChange={setVisibility} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={visibility ? "#4A42C0" : "#fff"} />
                 </View>
             </View>
@@ -194,11 +260,47 @@ export default function CreateWatchlist({ route, navigation }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Collaborative</Text>
                 <View style={styles.switchContainer}>
-                    <Text style={styles.sectionValue}>{collaborative ? "Yes" : "No"}</Text>
-                    <Switch value={collaborative} onValueChange={setCollaborative} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={collaborative ? "#4A42C0" : "#fff"} />
+                    <Text style={styles.sectionValue}> {collaborative ? "Yes" : "No"} </Text>
+                    <Switch value={collaborative} onValueChange={handleCollaborativeToggle} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={collaborative ? "#4A42C0" : "#fff"} />
                 </View>
             </View>
             <View style={styles.line} />
+
+            {showUserSearch && (
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Invite Users</Text>
+                    <TextInput
+                        style={styles.searchBar}
+                        placeholder="Search users..."
+                        placeholderTextColor={theme.placeholderColor}
+                        value={searchQuery}
+                        onChangeText={handleUserSearch}
+                    />
+                    <FlatList
+                        data={filteredUsers}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={styles.userItem}
+                                onPress={() => inviteUser(item)}
+                            >
+                                <Text style={{ color: theme.textColor }}>{item.name}</Text>
+                            </TouchableOpacity>
+                        )}
+                    />
+                    <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
+                        Invited Users
+                    </Text>
+                    {invitedUsers.map((user) => (
+                        <View key={user.id} style={styles.invitedUserItem}>
+                            <Text style={{ color: theme.textColor }}>{user.name}</Text>
+                            <TouchableOpacity onPress={() => removeInvitedUser(user.id)}>
+                                <Text style={styles.removeButton}>Remove</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </View>
+            )}
 
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Ranked</Text>
@@ -224,7 +326,7 @@ export default function CreateWatchlist({ route, navigation }) {
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Add {field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} />
+                            <TextInput style={styles.input} autoFocus={true} placeholder={modalContent[field].newValue} value={modalContent[field].tempValue} onChangeText={(text) => handleInputChange(field, text)} selectionColor={theme.textColor} color={theme.textColor} />
                             <View style={styles.buttonContainer}>
                                 <Text style={styles.buttonText} onPress={handleCancelChanges}>
                                     Cancel
@@ -246,4 +348,3 @@ export default function CreateWatchlist({ route, navigation }) {
         </ScrollView>
     );
 }
-

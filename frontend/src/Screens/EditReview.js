@@ -5,10 +5,11 @@ import CommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "../styles/theme";
 import { useNavigation } from "@react-navigation/native";
-
+import { useTheme } from "../styles/ThemeContext";
 import { editReview } from "../Services/PostsApiServices";
 
 export default function EditReview({ route }) {
+    const { theme } = useTheme();
     const { username, uid, titleParam, thoughtsParam, imageUriParam, reviewId, ratingParam, movieName } = route.params;
     const userInfo = { username, userId: uid };
     const [isMovieReview, setIsMovieReview] = useState(true);
@@ -16,7 +17,7 @@ export default function EditReview({ route }) {
     const [thoughts, setThoughts] = useState(thoughtsParam);
     const [movieSearch, setMovieSearch] = useState(movieName);
     const [allowComments, setAllowComments] = useState(true);
-    const [imageUri, setImageUri] = useState(imageUriParam);
+    const [imageUri, setImageUri] = useState(imageUriParam ? imageUriParam : null);
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(ratingParam); // Add state for rating
     const [feedbackVisible, setFeedbackVisible] = useState(false);
@@ -141,6 +142,151 @@ export default function EditReview({ route }) {
         return ratingOptions;
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 10,
+            backgroundColor: theme.backgroundColor,
+            paddingHorizontal: 25,
+        },
+        toggleContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        label: {
+            fontSize: 16,
+            fontWeight: "600",
+            paddingBottom: 10,
+            color: theme.textColor,
+        },
+        input: {
+            height: 45,
+            borderRadius: 10,
+            backgroundColor: theme.inputBackground,
+            paddingHorizontal: 10,
+            marginBottom: 20,
+        },
+        textArea: {
+            height: 100,
+            textAlignVertical: "top",
+            paddingTop: 8,
+        },
+        movieResult: {
+            padding: 10,
+            backgroundColor: "#f0f0f0",
+            borderBottomWidth: 1,
+            borderBottomColor: theme.borderColor,
+        },
+        actionsContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+        },
+        iconsContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "30%",
+        },
+        allowCommentsContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+        },
+        allowComments: {
+            marginTop: 4,
+        },
+        footer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingBottom: 45,
+        },
+        saveDrafts: {
+            color: "#0f5bd1",
+            fontWeight: "600",
+        },
+        reviewButton: {
+            backgroundColor: theme.primaryColor,
+            paddingVertical: 10,
+            paddingHorizontal: 35,
+            borderRadius: 10,
+            opacity: 1,
+        },
+        reviewButtonDisabled: {
+            opacity: 0.7,
+        },
+        reviewButtonText: {
+            color: "#fff",
+            fontWeight: "bold",
+        },
+        imagePreviewContainer: {
+            position: "relative",
+            marginBottom: 20,
+        },
+        imagePreview: {
+            width: "100%",
+            height: 400,
+            borderRadius: 10,
+            marginBottom: 10,
+            objectFit: "contain",
+        },
+        removeImageButton: {
+            position: "absolute",
+            top: 10,
+            right: 25,
+            backgroundColor: theme.primaryColor,
+            borderRadius: 50,
+        },
+        replaceImageButton: {
+            position: "absolute",
+            top: 10,
+            right: 60,
+            backgroundColor: theme.primaryColor,
+            borderRadius: 50,
+        },
+        ratingContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 20,
+        },
+        ratingOption: {
+            padding: 8,
+            borderWidth: 1,
+            borderColor: theme.primaryColor,
+            borderRadius: 5,
+        },
+        ratingOptionSelected: {
+            backgroundColor: "#827DC3",
+            borderColor: theme.primaryColor,
+        },
+        ratingText: {
+            fontSize: 16,
+            color: theme.textColor,
+        },
+        feedbackContainer: {
+            flexShrink: 1,
+            flexWrap: "wrap",
+            alignSelf: "center",
+            display: "flex",
+            alignItems: "center",
+            padding: 15,
+            borderRadius: 10,
+        },
+        feedback: {
+            color: "#fff",
+        },
+        success: {
+            backgroundColor: "#31B978",
+        },
+        error: {
+            backgroundColor: "#FF4C4C",
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             {imageUri && (
@@ -156,11 +302,11 @@ export default function EditReview({ route }) {
             )}
 
             <Text style={styles.label}>Title</Text>
-            <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
+            <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor}  />
 
             <View>
                 <Text style={styles.label}>Movie</Text>
-                <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
+                <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor}  />
                 {movieResults.length > 0 && 
                     <FlatList 
                         data={movieResults} 
@@ -175,33 +321,17 @@ export default function EditReview({ route }) {
             </View>
 
             <Text style={styles.label}>Thoughts</Text>
-            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor="#000" />
+            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
 
             <View style={styles.actionsContainer}>
                 <View style={styles.iconsContainer}>
-                    <TouchableOpacity onPress={handleAddLink}>
-                        <CommIcon style={styles.icon} name="link-variant" size={23} />
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={handleAddImage}>
-                        <CommIcon style={styles.icon} name="image-size-select-actual" size={23} />
+                        <CommIcon style={styles.icon} name="image-size-select-actual" size={23} color={theme.iconColor} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleAddEmoji}>
-                        <CommIcon style={styles.icon} name="emoticon-happy-outline" size={23} />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.allowCommentsContainer}>
-                    <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
-                    <Switch 
-                        value={allowComments} 
-                        onValueChange={setAllowComments} 
-                        trackColor={{ false: "#767577", true: "#827DC3" }} 
-                        thumbColor={allowComments ? "#4A42C0" : "#fff"} 
-                    />
                 </View>
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.saveDrafts}>Save to drafts</Text>
                 <TouchableOpacity style={[styles.reviewButton, isReviewButtonDisabled && styles.reviewButtonDisabled]} disabled={isReviewButtonDisabled} onPress={handleEditReview}>
                     <Text style={styles.reviewButtonText}>Save</Text>
                 </TouchableOpacity>
@@ -215,147 +345,3 @@ export default function EditReview({ route }) {
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 10,
-        backgroundColor: "#fff",
-        paddingHorizontal: 25,
-    },
-    toggleContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: "600",
-        paddingBottom: 10,
-    },
-    input: {
-        height: 45,
-        borderRadius: 10,
-        backgroundColor: "#D9D9D9",
-        paddingHorizontal: 10,
-        marginBottom: 20,
-    },
-    textArea: {
-        height: 100,
-        textAlignVertical: "top",
-        paddingTop: 8,
-    },
-    movieResult: {
-        padding: 10,
-        backgroundColor: "#f0f0f0",
-        borderBottomWidth: 1,
-        borderBottomColor: "#ccc",
-    },
-    actionsContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    iconsContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "30%",
-    },
-    allowCommentsContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    allowComments: {
-        marginTop: 4,
-    },
-    footer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingBottom: 45,
-    },
-    saveDrafts: {
-        color: "#0f5bd1",
-        fontWeight: "600",
-    },
-    reviewButton: {
-        backgroundColor: colors.primary,
-        paddingVertical: 10,
-        paddingHorizontal: 35,
-        borderRadius: 10,
-        opacity: 1,
-    },
-    reviewButtonDisabled: {
-        opacity: 0.7,
-    },
-    reviewButtonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-    imagePreviewContainer: {
-        position: "relative",
-        marginBottom: 20,
-    },
-    imagePreview: {
-        width: "100%",
-        height: 400,
-        borderRadius: 10,
-        marginBottom: 10,
-        objectFit: "contain",
-    },
-    removeImageButton: {
-        position: "absolute",
-        top: 10,
-        right: 25,
-        backgroundColor: colors.primary,
-
-        borderRadius: 50,
-    },
-    replaceImageButton: {
-        position: "absolute",
-        top: 10,
-        right: 60,
-        backgroundColor: colors.primary,
-        borderRadius: 50,
-    },
-    ratingContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 20,
-    },
-    ratingOption: {
-        padding: 8,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 5,
-    },
-    ratingOptionSelected: {
-        backgroundColor: "#827DC3",
-        borderColor: "#4A42C0",
-    },
-    ratingText: {
-        fontSize: 16,
-    },
-    feedbackContainer: {
-        flexShrink: 1,
-        flexWrap: "wrap",
-        alignSelf: "center",
-        display: "flex",
-        alignItems: "center",
-        padding: 15,
-        borderRadius: 10,
-    },
-    feedback: {
-        color: "#fff",
-    },
-    success: {
-        backgroundColor: "#31B978",
-    },
-    error: {
-        backgroundColor: "#FF4C4C",
-    },
-});

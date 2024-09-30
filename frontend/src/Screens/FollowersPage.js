@@ -1,32 +1,94 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { getFollowers, isFollowed } from '../Services/UsersApiService';
+import { useTheme } from "../styles/ThemeContext";
 import FollowList from '../Components/FollowList';
+import { useNavigation } from '@react-navigation/native';
 
-const FollowersPage = ({ route,username, userHandle, userAvatar, likes, saves, image, postTitle, preview, datePosted }) => {
+const FollowersPage = ({ route }) => {
+    const { userInfo } = route.params;
+    const navigation = useNavigation();
+    const [followers, setFollowers] = useState([]);
+    const [loading, setLoading] = useState(true); 
+    const {theme} = useTheme();
+
+    // Fetch followers list
+    const fetchFollowers = async () => {
+        try {
+            const response = await getFollowers(userInfo.userId); // Fetch followers using userId
+            
+            // Map through each follower and check if they are followed
+            const followersWithStatus = await Promise.all(response.map(async (follower) => {
+                const isFollowing = await isFollowed(userInfo.userId, follower.uid);
+                return {
+                    ...follower,    // Spread the follower object
+                    isFollowing,    // Add the isFollowing property
+                };
+            }));
+            setFollowers(followersWithStatus); // Set the updated followers list
+        } catch (error) {
+            console.error("Error fetching followers:", error);
+        } finally {
+            setLoading(false); 
+        }
+    };    
+
+    useEffect(() => {
+        fetchFollowers();
+    }, []);
+
+    const renderFollower = ({ item }) => (
+        <TouchableOpacity onPress={() => navigation.navigate('Profile', { userInfo, otherUserInfo: item })}>
+            <FollowList 
+                route={route}
+                uid={item.uid}
+                username={item.username}
+                userHandle={item.name}
+                userAvatar={item.avatar}
+                isFollowing={item.isFollowing}
+            />
+        </TouchableOpacity>
+    );
+
+    const styles = StyleSheet.create({
+        container: {
+            paddingTop: 10,
+            flex: 1,
+            backgroundColor: theme.backgroundColor, 
+        },
+        loader: {
+            marginTop: 20,
+        },
+        noFollowersText: {
+            textAlign: 'center',
+            marginTop: 20,
+            fontSize: 16,
+            color: '#999',
+        },
+        separator: {
+            borderColor: 'transparent',
+            borderBottomWidth: 1,
+        },
+    });
+
     return (
-
-        <ScrollView style={styles.container}>
-        <View >
-            <FollowList/>
-            <FollowList/>
-            <FollowList/>
-            <FollowList/>
-
+        <View style={styles.container}>
+            {loading ? ( 
+                <ActivityIndicator size="large" color="#4a42c0" style={styles.loader} />
+            ) : followers.length > 0 ? ( 
+                <FlatList 
+                    data={followers}
+                    renderItem={renderFollower}
+                    keyExtractor={(item, index) => index.toString()} // Ensure unique key for each item
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
+                />
+            ) : (
+                <Text style={styles.noFollowersText}>No followers found</Text>
+            )}
         </View>
-        </ScrollView>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        paddingTop: 10,
-        flex: 1,
-        backgroundColor:'#ffffff', // Set the background color to black
-    },
-    text: {
-        color: '#fff', // Set the text color to white
-        fontSize: 18,
-    },
-});
+
 
 export default FollowersPage;

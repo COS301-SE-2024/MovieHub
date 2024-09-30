@@ -1,3 +1,4 @@
+import { get, getDatabase, push, ref, set } from "firebase/database";
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
 
@@ -26,7 +27,7 @@ exports.getLikesOfUser = async (uid) => {
 
 exports.getLikesOfReview = async (reviewId) => {
     const session = driver.session();
-    console.log("getLikesOfReview", reviewId);
+    // console.log("getLikesOfReview", reviewId);
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(r:Review)
@@ -35,7 +36,7 @@ exports.getLikesOfReview = async (reviewId) => {
             { reviewId }
         );
 
-        console.log(result);
+        // console.log(result);
         const likeCount = result.records[0].get('likeCount').toInt();
         return likeCount;
     } finally {
@@ -45,11 +46,11 @@ exports.getLikesOfReview = async (reviewId) => {
 
 exports.getLikesOfComment = async(commentId) => {
     const session = driver.session();
-    console.log("getLikesOfComment", commentId);
+    // console.log("getLikesOfComment", commentId);
     try {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(c:Comment)
-            WHERE c.commentId = $commentId
+            WHERE c.comId = $commentId
             RETURN count(u) AS likeCount`,
             { commentId }
         );
@@ -78,7 +79,7 @@ exports.getLikesOfMovie = async (movieId) => {
             { movieId }
         );
 
-        console.log(result);
+        // console.log(result);
         const likeCount = result.records[0].get('likeCount').toInt();
         return likeCount;
     } finally {
@@ -105,7 +106,7 @@ exports.getLikesOfPost = async (postId) => {
         }
 
         const likeCount = result.records[0].get('likeCount').toInt();
-        console.log("Check the like count: ", likeCount);
+        // console.log("Check the like count: ", likeCount);
         return likeCount;
     } catch (error) {
         console.error("Error getting likes of post:", error);
@@ -134,6 +135,46 @@ exports.toggleLikeReview = async (uid, reviewId) => {
                 DETACH DELETE like`,
                 { uid, reviewId }
             );
+
+            // Fetch the review owner UID and details
+            const ownerResult = await session.run(
+                `MATCH (r:Review {reviewId: $reviewId})<-[:REVIEWED]-(owner:User)
+                 RETURN owner.uid AS ownerUid, owner.username AS ownerUsername, r.reviewTitle AS reviewTitle, r.avatar AS avatar`,
+                { reviewId }
+            );
+
+            if (ownerResult.records.length === 0) {
+                throw new Error('Review owner not found');
+            }
+
+            // console.log("Owner result: ", ownerResult.records);
+
+            const ownerUid = ownerResult.records[0].get('ownerUid');
+            const ownerUsername = ownerResult.records[0].get('ownerUsername');
+            const reviewTitle = ownerResult.records[0].get('reviewTitle');
+            const ownerAvatar = ownerResult.records[0].get('avatar');
+
+            // Send a notification to the review owner
+            const db = getDatabase();
+            const notificationsRef = ref(db, `notifications/${ownerUid}/likes`);
+            const newNotificationRef = push(notificationsRef);
+
+            // Set the notification details
+            await set(newNotificationRef, {
+                message: `${ownerUsername} liked your review.`,
+                reviewId: reviewId,
+                poster: ownerResult.records[0],
+                likedBy: uid,
+                avatar: ownerAvatar,
+                reviewTitle: reviewTitle,
+                username: ownerUsername,
+                notificationType: 'review_like',
+                timestamp: new Date().toISOString(),
+                read: false // Mark notification as unread
+            });
+
+            console.log(`Notification sent to ${ownerUid}`);
+
             return false; // Like removed
         } else {
             await session.run(
@@ -142,6 +183,7 @@ exports.toggleLikeReview = async (uid, reviewId) => {
                 MERGE (u)-[:LIKES]->(r)`,
                 { uid, reviewId }
             );
+
             return true; // Entity liked
         }
     } catch (error) {
@@ -157,7 +199,7 @@ exports.toggleLikeComment = async(uid, commentId) => { //Doesnt work
     try {
         const result = await session.run(
             `MATCH (u:User), (c:Comment)
-            WHERE u.uid = $uid AND c.commentId = $commentId
+            WHERE u.uid = $uid AND c.comId = $commentId
             MATCH (u)-[like:LIKES]->(c)
             RETURN like`,
             { uid, commentId }
@@ -166,7 +208,7 @@ exports.toggleLikeComment = async(uid, commentId) => { //Doesnt work
         if (result.records.length > 0) {
             await session.run(
                 `MATCH (u:User), (c:Comment)
-                WHERE u.uid = $uid AND c.commentId = $commentId
+                WHERE u.uid = $uid AND c.comId = $commentId
                 MATCH (u)-[like:LIKES]->(c)
                 DETACH DELETE like`,
                 { uid, commentId }
@@ -175,7 +217,7 @@ exports.toggleLikeComment = async(uid, commentId) => { //Doesnt work
         } else {
             await session.run(
                 `MATCH (u:User), (c:Comment)
-                WHERE u.uid = $uid AND c.commentId = $commentId
+                WHERE u.uid = $uid AND c.comId = $commentId
                 MERGE (u)-[:LIKES]->(c)`,
                 { uid, commentId }
             );
@@ -253,6 +295,44 @@ exports.toggleLikePost = async (uid, postId) => {
                 MERGE (u)-[:LIKES]->(p)`,
                 { uid, postId }
             );
+            
+            // Fetch the post owner UID and details
+            const ownerResult = await session.run(
+                `MATCH (p:Post {postId: $postId})<-[:POSTED]-(owner:User)
+                 RETURN owner.uid AS ownerUid, owner.username AS ownerUsername, p.postTitle AS postTitle, p.avatar AS postAvatar`,
+                { postId }
+            );
+
+            if (ownerResult.records.length === 0) {
+                throw new Error('Failed to fetch post owner details');
+            }
+
+            const ownerUid = ownerResult.records[0].get('ownerUid');
+            const ownerUsername = ownerResult.records[0].get('ownerUsername');
+            const postTitle = ownerResult.records[0].get('postTitle');
+            const postAvatar = ownerResult.records[0].get('postAvatar');
+
+            // Send a notification to the post owner
+            const db = getDatabase();
+            const notificationsRef = ref(db, `notifications/${ownerUid}/likes`);
+            const newNotificationRef = push(notificationsRef);
+
+            // Set the notification details
+            await set(newNotificationRef, {
+                message: `${ownerUsername} liked your post.`,
+                postId: postId,
+                poster: ownerResult.records[0],
+                likedBy: uid,
+                postTitle: postTitle,
+                avatar: postAvatar,
+                username: ownerUsername,
+                notificationType: 'post_like',
+                timestamp: new Date().toISOString(),
+                read: false // Mark notification as unread
+            });
+
+            console.log(`Notification sent to ${ownerUid}`);
+
             return true; // Entity liked
         }
     } catch (error) {
@@ -267,8 +347,8 @@ const processGets= async(datas) =>{
     console.log('Enter processGets with ',datas);
   return datas.map(data => {
     // Access the ID
-    console.log(data);
-    console.log(data.id);
+    // console.log(data);
+    // console.log(data.id);
     const id = data.id.toNumber(); // Convert neo4j.Integer to JavaScript number
     console.log(id);
     // Access the node properties

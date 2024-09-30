@@ -18,7 +18,8 @@ const containsUnwantedWords = (text) => {
     || lowerCaseText.includes('titty') || lowerCaseText.includes('orgy')
     || lowerCaseText.includes('masterbation') || lowerCaseText.includes('penis')
     || lowerCaseText.includes('cum') || lowerCaseText.includes('sex')
-    || lowerCaseText.includes('fuck') || lowerCaseText.includes('Wicked Pictures');
+    || lowerCaseText.includes('fuck') || lowerCaseText.includes('Wicked Pictures')
+    || lowerCaseText.includes('intercourse')|| lowerCaseText.includes('gloryhole');
 };
 
 // Process the CSV file
@@ -55,6 +56,7 @@ fs.createReadStream(inputCSVFile)
         releaseDate: row['release_date'],
         popularity: row['popularity'],
         spokenLanguages: row['spoken_languages'],
+        poster_path:row['poster_path'],
         genres: row['genres']
       };
 

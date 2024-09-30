@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 //const API_URL =  'http://10.0.28.189:3000/users';// enter what url your expo is running on + our port 3000
 // const API_URL = 'http://localhost:3000/users';
 import { getLocalIP } from './getLocalIP';
+import { uploadImage } from './imageUtils';
 
 const localIP = getLocalIP();
 const API_URL = `http://${localIP}:3000/users`;
@@ -45,9 +46,9 @@ export const getUserProfile = async (userId) => {
     }
 
     const textData = await response.text();
-        // console.log('Response text:', textData);
-        const data = JSON.parse(textData);
-        // console.log('Parsed data:', data);
+    // console.log('Response text:', textData);
+    const data = JSON.parse(textData);
+    // console.log('Parsed data:', data);
 
 
     return data;
@@ -55,8 +56,15 @@ export const getUserProfile = async (userId) => {
 
 
 export const updateUserProfile = async (userId, updatedData) => {
-   // const token = await getToken();
+    // const token = await getToken();
     const headers = await verifyToken();
+
+    if (updatedData.avatar === null) {
+        updatedData.avatar = null;
+    } else {
+        updatedData.avatar = await uploadImage(updatedData.avatar, 'profile');
+    }
+
     const response = await fetch(`${API_URL}/${userId}`, {
 
         method: 'PATCH',
@@ -87,7 +95,7 @@ export const deleteUserProfile = async (userId) => {
                 // 'Content-Type': 'application/json'
                 ...headers,
             }
-            
+
         });
         if (!response.ok) {
             throw new Error('Failed to delete user profile');
@@ -97,6 +105,53 @@ export const deleteUserProfile = async (userId) => {
     } catch (error) {
         return { success: false, message: error.message };
     }
+};
+
+// API service to change mode
+export const changeMode = async (userId, mode) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+        body: JSON.stringify({ mode }),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to change mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
+export const toggleMode = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode/toggle`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+    });
+    if (!response.ok) {
+        throw new Error('Failed to toggle mode');
+    }
+    const data = await response.json();
+    return data;
+};
+
+// API service to get the current mode
+export const getMode = async (userId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/mode`, {
+        headers,
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch mode');
+    }
+    const data = await response.json();
+    return data;
 };
 
 // export const deleteUserProfile = async (userId) => {
@@ -128,7 +183,24 @@ export const deleteUserProfile = async (userId) => {
 // get a user's watchlists
 export const getUserWatchlists = async (userId) => {
     const token = await getToken();
-    const response = await fetch(`${API_URL}/${userId}/watchlists`,{
+    const response = await fetch(`${API_URL}/${userId}/watchlists`, {
+
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch user watchlists');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export const getUserPublicWatchlists = async (userId) => {
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/${userId}/watchlists/public`, {
 
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -155,10 +227,10 @@ export const getUserPosts = async (userId) => {
     if (!response.ok) {
         console.log(response)
         throw new Error("Failed to fetch user posts");
-    } 
-    
+    }
+
     const data = await response.json();
-    console.log("data", data);
+    // console.log("data", data);
     return data;
 };
 
@@ -169,7 +241,7 @@ export const getUserPosts = async (userId) => {
 //         console.log(response)
 //         throw new Error("Failed to fetch user posts");
 //     } 
-    
+
 //     const data = await response.json();
 //     console.log("data", data);
 //     return data;
@@ -182,9 +254,9 @@ export const getCommentsOfUser = async (userId) => {
     }
 
     const textData = await response.text();
-        console.log('Response text:', textData);
-        const data = JSON.parse(textData);
-        console.log('Parsed data:', data);
+    console.log('Response text:', textData);
+    const data = JSON.parse(textData);
+    console.log('Parsed data:', data);
     return data;
 };
 
@@ -195,14 +267,15 @@ export const getReviewsOfUser = async (userId) => {
     }
 
     const textData = await response.text();
-        console.log('Response text:', textData);
-        const data = JSON.parse(textData);
-        console.log('Parsed data:', data);
+    console.log('Response text:', textData);
+    const data = JSON.parse(textData);
+    console.log('Parsed data:', data);
     return data;
 };
 
 //User Peer Interaction:
-export const followUser = async (userId, targetUserId) => {
+export const followUser = async (req) => {
+    const { followerId, followeeId } = req;
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/follow`, {
         method: 'POST',
@@ -211,30 +284,30 @@ export const followUser = async (userId, targetUserId) => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            followerId: userId,
-            followeeId: targetUserId,
+            followerId,
+            followeeId,
         }),
     });
 
-    if (!response.ok) {
-        throw new Error('Failed to follow user');
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+        throw new Error('Failed to follow user', data.message);
+    }
     return data;
 };
 
-export const unfollowUser = async (userId, targetUserId) => {
+export const unfollowUser = async (req) => {
+    const { followerId, followeeId } = req;
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/unfollow`, {
-        method: 'DELETE',
+        method: 'POST',
         headers: {
             ...headers,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            followerId: userId,
-            followeeId: targetUserId,
+            followerId,
+            followeeId,
         }),
     });
 
@@ -248,7 +321,7 @@ export const unfollowUser = async (userId, targetUserId) => {
 // Function to get friends
 export const getFriends = async (userId) => {
     const headers = await verifyToken();
-    const response = await fetch(`${API_URL}/${userId}/friends`, {
+    const response = await fetch(`${API_URL}/friends/${userId}`, {
         headers,
     });
 
@@ -282,6 +355,22 @@ export const getFollowing = async (userId) => {
 
     if (!response.ok) {
         throw new Error('Failed to get following');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+// return whether user is followed by targetUserId
+export const isFollowed = async (userId, targetUserId) => {
+    const headers = await verifyToken();
+    const response = await fetch(`${API_URL}/${userId}/follows/${targetUserId}`, {
+        headers,
+        method: 'GET',
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to check if user is followed');
     }
 
     const data = await response.json();
@@ -338,13 +427,31 @@ export const getUserNotifications = async (userId) => {
     const headers = await verifyToken();
     const response = await fetch(`${API_URL}/${userId}/notifications`, {
         headers,
-    }); 
- 
+    });
+
     if (!response.ok) {
         throw new Error('Failed to fetch user notifications');
     }
 
     const data = await response.json();
-    console.log("Inside UsersApiService, check data: " + JSON.stringify(data));
     return data;
+};
+
+export const getUnreadNotifications = async (userId) => {
+    try {
+        const headers = await verifyToken();
+        const response = await fetch(`${API_URL}/${userId}/notifications/unread`, {
+            headers,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch unread notifications');
+        }
+
+        const data = await response.json();
+        return data; // Assumes response has a property 'unreadCount'
+    } catch (error) {
+        console.error("Failed to fetch unread notifications:", error);
+        throw error; // Ensure errors are handled by the calling code
+    }
 };

@@ -1,7 +1,54 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { useTheme } from "../styles/ThemeContext";
 
 const SocialFeatures = () => {
+    const { theme } = useTheme();
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: 16,
+            backgroundColor: theme.backgroundColor,
+        },
+        heading: {
+            fontSize: 24,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 20,
+            color: theme.textColor,
+        },
+        sectionHeading: {
+            fontSize: 20,
+            fontWeight: "bold",
+            marginBottom: 10,
+            marginTop: 20,
+            color: "#3A97CB"
+        },
+        subHeading: {
+            fontSize: 16,
+            fontWeight: "bold",
+            marginTop: 10,
+            marginBottom: 8,
+            color: theme.textColor,
+        },
+        text: {
+            fontSize: 16,
+            marginBottom: 10,
+            lineHeight: 22,
+            color: theme.textColor,
+        },
+        boldText: {
+            fontWeight: "bold",
+        },
+        footer: {
+            marginTop: 20,
+            fontSize: 16,
+            marginBottom: 40,
+            color: theme.textColor
+        },
+    });
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.sectionHeading}>Following Other Users</Text>
@@ -66,45 +113,6 @@ const SocialFeatures = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: "#fff",
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: 20,
-    },
-    sectionHeading: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginBottom: 10,
-        marginTop: 20,
-        color: "#3A97CB"
-    },
-    subHeading: {
-        fontSize: 16,
-        fontWeight: "bold",
-        marginTop: 10,
-        marginBottom: 8,
-    },
-    text: {
-        fontSize: 16,
-        marginBottom: 10,
-        lineHeight: 22,
-    },
-    boldText: {
-        fontWeight: "bold",
-    },
-    footer: {
-        marginTop: 20,
-        fontSize: 16,
-        marginBottom: 40
 
-    },
-});
 
 export default SocialFeatures;

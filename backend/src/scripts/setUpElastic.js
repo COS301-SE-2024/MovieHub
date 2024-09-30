@@ -5,7 +5,7 @@ require('dotenv').config();
 const client = new Client({ node: 'http://localhost:9200' });
 
 const setupIndex = async () => {
-    const indexName = 'test-movies';
+    const indexName = 'index-movies';
 
     // Check if the index already exists
     const { body: exists } = await client.indices.exists({ index: indexName });

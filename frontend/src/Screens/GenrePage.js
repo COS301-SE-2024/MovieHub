@@ -6,12 +6,60 @@ import { getLocalIP } from '../Services/getLocalIP';
 import MovieCard from '../Components/MovieCard';
 import TrendingMovie from "../Components/TrendingMovies";
 import axios from "axios";
+import { useTheme } from '../styles/ThemeContext';
 
 const GenrePage = () => {
     const route = useRoute();
     const localIP = getLocalIP();
     const { genreName, genreData } = route.params;
-
+    const {theme} = useTheme();
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            paddingHorizontal: 0,
+            backgroundColor: theme.backgroundColor,
+        },
+        title: {
+            fontSize: 30,
+            fontWeight: 'bold',
+            marginTop: 0,
+            marginBottom: -30,
+            textAlign: 'left',
+            paddingLeft: 10,
+            paddingTop: 100,
+            color: theme.textColor,
+            paddingBottom: 40,
+        },
+        subtitle: {
+            fontSize: 22,
+            fontWeight: 'bold',
+            marginBottom: 0,
+            textAlign: 'left',
+            paddingLeft: 10,
+            color: theme.textColor,
+        },
+        scrollView: {
+            paddingVertical: 10,
+        },
+        movieContainer: {
+            marginRight: 10,
+            // backgroundColor: 'transparent',
+            width: 150,
+            height: 250,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        movieImage: {
+            width: '100%',
+            height: '100%',
+            resizeMode: 'cover',
+        },
+        activityIndicator: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
+    });
     if (!genreData || typeof genreData !== 'object') {
         return (
             <SafeAreaView style={styles.container}>
@@ -98,6 +146,7 @@ const GenrePage = () => {
 
             <MovieCard
                 key={index}
+                userInfo={userInfo}
                 movieId={movie.id}
                 imageUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                 title={movie.title}
@@ -108,6 +157,8 @@ const GenrePage = () => {
             ))}
         </View>
     );
+
+    
 
     return (
     <View style={styles.container}>
@@ -142,53 +193,6 @@ const GenrePage = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingHorizontal: 0,
-        
-        // backgroundColor: '#fff',
-    },
-    title: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        marginTop: 0,
-        marginBottom: -30,
-        textAlign: 'left',
-        paddingLeft: 10,
-        paddingTop: 100,
-        color: "white",
-        paddingBottom: 40,
-    },
-    subtitle: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 0,
-        textAlign: 'left',
-        paddingLeft: 10,
-        color: "white",
-    },
-    scrollView: {
-        paddingVertical: 10,
-    },
-    movieContainer: {
-        marginRight: 10,
-        // backgroundColor: 'transparent',
-        width: 150,
-        height: 250,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    movieImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
-    },
-    activityIndicator: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-});
+
 
 export default GenrePage;

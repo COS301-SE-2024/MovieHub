@@ -4,15 +4,27 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
+import { toggleMode } from "../Services/UsersApiService";
+import { useUser } from "../Services/UseridContext";
 
 function CustomDrawer({ route }) {
-    const { isDarkMode, toggleTheme, theme } = useTheme();
+    // const { userInfo } = route.params;
+    const { userInfo } = useUser();
+    const { isDarkMode, setMode, theme } = useTheme();
     const navigation = useNavigation();
-    const handleToggleSwitch = () => {
-        toggleTheme();
+    const handleToggleSwitch = async () => {
+        try {
+            const res = await toggleMode(userInfo.userId);
+            console.log("Theme toggled", res.mode);
+            setMode(res.mode);
+            console.log(isDarkMode);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
+        <View style={{flex: 1}}>
         <ScrollView style={[styles.drawer, { backgroundColor: theme.backgroundColor }]}>
             <Text style={[styles.label, { color: theme.gray }]}>Your Account</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("AccountSettings")}>
@@ -23,13 +35,7 @@ function CustomDrawer({ route }) {
             </TouchableOpacity>
             <View style={styles.line} />
 
-            <Text style={[styles.label, { color: theme.gray }]}>Activity</Text>
-            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
-                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                    <Icon name="bookmark" style={[styles.icon, { color: theme.iconColor }]} size={24} />
-                    <Text style={[styles.drawerItem, { color: theme.textColor }]}>Saved</Text>
-                </View>
-            </TouchableOpacity>
+            {/* <Text style={[styles.label, { color: theme.gray }]}>Activity</Text>
             <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.navigate("")}>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <IonIcon name="stats-chart-sharp" style={[styles.icon, { color: theme.iconColor }]} size={24} />
@@ -41,7 +47,7 @@ function CustomDrawer({ route }) {
                     <Icon name="settings" style={[styles.icon, { color: theme.iconColor }]} size={24} />
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Content Preferences</Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <View style={styles.line} />
 
@@ -52,8 +58,8 @@ function CustomDrawer({ route }) {
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Enable Dark Mode</Text>
                     <Switch
                         style={{ marginLeft: "auto", marginRight: 10 }}
-                        trackColor={{ false: "#ccc", true: "#808080" }}
-                        thumbColor={isDarkMode ? "#fff" : "#fff"}
+                        trackColor={{ false: "#767577", true: "#827DC3" }} 
+                        thumbColor={isDarkMode ? "#4a42c0" : "#fff"}
                         ios_backgroundColor="#3e3e3e"
                         onValueChange={handleToggleSwitch}
                         value={isDarkMode}
@@ -109,16 +115,17 @@ function CustomDrawer({ route }) {
                     <Text style={[styles.drawerItem, { color: theme.textColor }]}>Log Out</Text>
                 </View>
             </TouchableOpacity>
-
         </ScrollView>
+            </View>
     );
 }
 
 const styles = StyleSheet.create({
     drawer: {
         flex: 1,
-        paddingTop: 70,
-        paddingBottom: 15,
+        paddingTop: 100,
+        // paddingBottom: 15,
+        position: 'relative'
     },
     label: {
         fontSize: 14,
