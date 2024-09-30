@@ -41,24 +41,24 @@ const LogBookScreen = () => {
         setDatePickerVisibility(false);
     };
 
-    // const loadLogEntries = async () => {
-    //     try {
-    //         const entries = await AsyncStorage.getItem("logEntries");
-    //         if (entries) {
-    //             setLogEntries(JSON.parse(entries));
-    //         }
-    //     } catch (error) {
-    //         console.error("Failed to load log entries", error);
-    //     }
-    // };
+    const loadLogEntries = async () => {
+        try {
+            const entries = await AsyncStorage.getItem("logEntries");
+            if (entries) {
+                setLogEntries(JSON.parse(entries));
+            }
+        } catch (error) {
+            console.error("Failed to load log entries", error);
+        }
+    };
 
-    // const saveLogEntries = async (entries) => {
-    //     try {
-    //         await AsyncStorage.setItem("logEntries", JSON.stringify(entries));
-    //     } catch (error) {
-    //         console.error("Failed to save log entries", error);
-    //     }
-    // };
+    const saveLogEntries = async (entries) => {
+        try {
+            await AsyncStorage.setItem("logEntries", JSON.stringify(entries));
+        } catch (error) {
+            console.error("Failed to save log entries", error);
+        }
+    };
 
     const handleConfirm = (date) => {
         setDateWatched(date);
@@ -83,29 +83,6 @@ const LogBookScreen = () => {
     const viewLogEntries = () => {
         navigation.navigate("LogEntriesScreen", { logEntries });
     };
-
-    const { userId } = route.params; // Assuming userId is passed as a parameter
-
-// Modify the loadLogEntries function to include the userId in the key
-const loadLogEntries = async () => {
-    try {
-        const entries = await AsyncStorage.getItem(`logEntries_${userId}`);
-        if (entries) {
-            setLogEntries(JSON.parse(entries));
-        }
-    } catch (error) {
-        console.error("Failed to load log entries", error);
-    }
-};
-
-// Modify the saveLogEntries function to include the userId in the key
-const saveLogEntries = async (entries) => {
-    try {
-        await AsyncStorage.setItem(`logEntries_${userId}`, JSON.stringify(entries));
-    } catch (error) {
-        console.error("Failed to save log entries", error);
-    }
-};
 
     const styles = StyleSheet.create({
         container: {
@@ -223,7 +200,7 @@ const saveLogEntries = async (entries) => {
                 <Text style={styles.dateText}>{dateWatched ? dateWatched.toDateString() : "Select Date Watched"}</Text>
             </TouchableOpacity>
 
-            <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} textColor={theme.textColor}/>
+            <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} textColor='black' />
 
             <Text style={styles.subtitle}>Rate the movie:</Text>
             <RatingStars rating={rating} setRating={setRating} />
