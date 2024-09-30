@@ -19,7 +19,7 @@ const commonWords = new Set([
     "same", "she", "should", "so", "some", "such", "t", "than", "that", "the", "their",
     "them", "then", "there", "these", "they", "this", "those", "through", "to", "too",
     "under", "until", "up", "us", "very", "was", "we", "were", "what", "when", "where",
-    "which", "while", "who", "whom", "why", "will", "with", "would", "you", "your"
+    "which", "while", "who", "whom", "why", "will", "with", "would", "you", "your" ,"i am", "it's"
 ]);
 
 // Function to create fill-in-the-blank questions
@@ -86,6 +86,7 @@ const getGameData = async (genre) => {
         multipleChoice: multipleChoiceQuestions,
     };
 };
+
 
 module.exports = {
     getGameData,
