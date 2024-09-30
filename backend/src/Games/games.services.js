@@ -22,7 +22,7 @@ const commonWords = new Set([
     "which", "while", "who", "whom", "why", "will", "with", "would", "you", "your" ,"i am", "it's"
 ]);
 
-// Function to create fill-in-the-blank questions
+// Function to create fill-in-the-blank questions with a hint
 function createFillInTheBlank(quote) {
     const words = quote.split(" ");
     const filteredWords = words.filter(word => !commonWords.has(word.toLowerCase()));
@@ -36,10 +36,13 @@ function createFillInTheBlank(quote) {
     const modifiedQuote = quote.replace(wordToRemove, "______");
 
     return {
+        type: "fill-in-blank",
         question: modifiedQuote,
         answer: wordToRemove,
+        hint: "", // Placeholder for hint
     };
 }
+
 
 // Function to create multiple-choice questions
 function createMultipleChoiceQuestion(quote, correctMovie, allMovies) {
@@ -76,15 +79,28 @@ function createMultipleChoiceQuestion(quote, correctMovie, allMovies) {
 
 
 const getGameData = async (genre) => {
-    console.log(genre)
+    console.log(genre);
     const quotes = await fetchQuotesByGenre(genre); // Fetch quotes from the controller
 
-    const fillInTheBlankQuestions = quotes.map(({ quote }) => createFillInTheBlank(quote));
-    const multipleChoiceQuestions = quotes.map(({ quote, movie }) => createMultipleChoiceQuestion(quote, movie, quotes.map(q => q.movie)));
+    // Create fill-in-the-blank questions
+    const fillInTheBlankQuestions = quotes.map(({ quote }) => createFillInTheBlank(quote)).slice(0, 5); // Take first 5
 
+    // Create multiple-choice questions
+    const multipleChoiceQuestions = quotes.map(({ quote, movie }) => 
+        createMultipleChoiceQuestion(quote, movie, quotes.map(q => q.movie))
+    ).slice(0, 5); // Take first 5
+
+    // Return data in the format required for quizData
     return {
-        fillInTheBlank: fillInTheBlankQuestions,
-        multipleChoice: multipleChoiceQuestions,
+        [genre]: [
+            ...fillInTheBlankQuestions,
+            ...multipleChoiceQuestions.map(mc => ({
+                type: "multiple-choice",
+                question: mc.question,
+                options: mc.options,
+                correct: mc.options.indexOf(mc.answer), // Index of the correct answer
+            })),
+        ],
     };
 };
 
