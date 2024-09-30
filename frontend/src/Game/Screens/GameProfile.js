@@ -4,9 +4,9 @@ import GameBottomHeader from "../Components/GameBottomHeader";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../../Services/UseridContext";
 import { useTheme } from "../../styles/ThemeContext";
-import { getUserProfile } from "../../Services/UsersApiService";
+import { getUserProfile, updateUserProfile } from "../../Services/UsersApiService";
 import { quizData, fetchQuizData } from "../Components/quizData";
-import { getUserGameProfile } from "../../../../backend/src/GameUser/gameuser.services";
+// import {  } from "../../../../backend/src/GameUser/gameuser.services";
 import trophyIcon from "../../../../assets/trophy_icon.png";
 import trophyStar from "../../../../assets/trophy_icon.png";
 import medal_of_honor from "../../../../assets/medal_of_honor.png";
@@ -19,6 +19,9 @@ const GameProfile = ({ route }) => {
     const [avatar, setAvatar] = useState(null);
     const [username, setUsername] = useState("");
     const [refreshing, setRefreshing] = useState(false);
+    const [rank, setRank] = useState("Novice")
+    const [level, setLevel] = useState(1);
+    const [points, setPoints] = useState(0);
 
     const [quizData, setQuizData] = useState({}); // Initialize quizData with an empty object
 
@@ -59,18 +62,8 @@ const GameProfile = ({ route }) => {
         }
     };
     
-    const fetchGamerProfile = () => {
-        try {
-            const res = getUserGameProfile(userInfo.userInfo);
-            console.log(res)
-        } catch (error) {
-            console.log("Error fetching user profile", error)
-        }
-    }
-    
     useEffect(() => {
         fetchData();
-        // fetchGamerProfile();
     }, []);
 
     const onRefresh = () => {
@@ -139,12 +132,12 @@ const GameProfile = ({ route }) => {
                 <View style={styles.stats}>
                     <View style={styles.statBox}>
                         <Image source={trophyIcon} style={styles.trophyIcon} />
-                        <Text style={styles.statValue}>2300</Text>
+                        <Text style={styles.statValue}>{points}</Text>
                         <Text style={styles.statLabel}>Exp. Points</Text>
                     </View>
                     <View style={styles.statBox}>
                         <Image source={trophyStar} style={styles.trophyIcon} />
-                        <Text style={styles.statValue}>32</Text>
+                        <Text style={styles.statValue}>{level}</Text>
                         <Text style={styles.statLabel}>Ranking</Text>
                     </View>
                 </View>

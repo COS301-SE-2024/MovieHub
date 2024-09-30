@@ -4,6 +4,7 @@ import { uploadImage } from "./imageUtils";
 const localIP = getLocalIP();
 const API_URL = `http://${localIP}:3000/games/`;
 
+
 export const getGameData = async (genre) => {
     try {
         const response = await fetch(`${API_URL}${genre}`);
@@ -18,3 +19,4 @@ export const getGameData = async (genre) => {
         throw error;
     }
 }
+

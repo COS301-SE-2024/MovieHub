@@ -99,14 +99,14 @@ export default function GameBottomHeader({  }) {
                     <Icon name="home" size={30} style={[styles.icon, isActive("GameProfile") && styles.activeIcon]} />
                     {isActive("GameProfile") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("Quiz", { userInfo })} style={styles.iconContainer}>
+                {/* <TouchableOpacity onPress={() => navigation.navigate("Quiz", { userInfo })} style={styles.iconContainer}>
                     <IonIcon name="game-controller" size={32} style={[styles.icon, isActive("Quiz") && styles.activeIcon]} />
                     {isActive("Quiz") && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Leaderboard", { userInfo })} style={styles.iconContainer}>
                     <Icon name="leaderboard" size={32} style={[styles.icon, isActive("Leaderboard") && styles.activeIcon]} />
                     {isActive("Leaderboard") && <View style={styles.activeIndicator} />}
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
         </View>
     );
