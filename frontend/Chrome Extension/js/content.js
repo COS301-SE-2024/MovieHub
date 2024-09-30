@@ -380,7 +380,7 @@ async function initializeWebSocket(roomId) {
         }
       }
 
-      if (clientCount > 1) { // Only send offer if there's at least one other client
+      if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
         if (!peerConnection) {
           console.log('Creating peer connection and sending an offer.');
           const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
@@ -396,7 +396,7 @@ async function initializeWebSocket(roomId) {
           }
         }
 
-      } else if ((data.type === 'webrtc-answer')) {
+      } else if ((data.type === 'webrtc-answer') && userDetails.isHost) {
         console.log("Some answer??");
         const peerConnection = peerConnections[userDetails.roomId];
         if (peerConnection && peerConnection.signalingState !== 'closed') {
@@ -408,13 +408,13 @@ async function initializeWebSocket(roomId) {
       }
 
 
-      // if (clientCount > 1 ) { // Only send offer if there's at least one other client
+      // if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
       //   console.log('Creating peer connection and sending an offer.');
       //   const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
       //   await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
       // }
 
-      if (data.type === 'webrtc-offer') {
+      if (data.type === 'webrtc-offer' && !userDetails.isHost) {
         console.log('Received offer:', data.offer);
         if (!peerConnection) {
           const newPeerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
