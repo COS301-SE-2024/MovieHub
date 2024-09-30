@@ -3,343 +3,185 @@ const express = require('express');
 const dotenv = require('dotenv');
 const roomRouter = require('../Room/room.router');
 const roomService = require('../Room/room.service');
-const { error } = require('neo4j-driver');
 
 dotenv.config();
 
+// Create an instance of the app with the roomRouter
 const app = express();
 app.use(express.json());
-app.use('/rooms', roomRouter);
+app.use('/room', roomRouter);
 
 jest.mock('../Room/room.service');
 
-describe('Room API', () => {
+describe('POST /room/create/:uid', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    describe('POST /rooms/create/:userId', () => {
-        it('should create a room and return the room details', async () => {
-            const userId = 'validUserId';
-            const roomData = { name: 'New Room' };
-            const createdRoom = { id: 'roomId', ...roomData };
+    it('should create a room successfully', async () => {
+        const uid = 'testUser';
+        const roomData = { name: 'Test Room' };
+        const createdRoom = { roomId: 'testRoomId', name: 'Test Room', creator: uid };
 
-            roomService.createRoom.mockResolvedValueOnce(createdRoom);
+        roomService.createRoom.mockResolvedValueOnce(createdRoom);
 
-            const res = await request(app)
-                .post(`/rooms/create/${userId}`)
-                .send(roomData);
+        const res = await request(app)
+            .post(`/room/create/${uid}`)
+            .send(roomData);
 
-            expect(res.status).toBe(201);
-            expect(res.body).toEqual(createdRoom);
-        });
-
-        it('should return 500 if room creation fails', async () => {
-            const userId = 'validUserId';
-            const roomData = { name: 'New Room' };
-            const errorMessage = 'Internal Server Error';
-
-            roomService.createRoom.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .post(`/rooms/create/${userId}`)
-                .send(roomData);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+        expect(res.status).toBe(201);
+        expect(res.body).toEqual(createdRoom);
     });
 
-    describe('POST /rooms/join', () => {
-        it('should join a room and return the room ID', async () => {
-            const requestBody = { code: 'roomCode', userId: 'validUserId' };
-            const result = { success: true, roomId: 'roomId' };
+    it('should return 500 if room creation fails', async () => {
+        const uid = 'testUser';
+        const roomData = { name: 'Test Room' };
+        const errorMessage = 'Internal server error';
 
-            roomService.joinRoom.mockResolvedValueOnce(result);
+        roomService.createRoom.mockRejectedValueOnce(new Error(errorMessage));
 
-            const res = await request(app)
-                .post('/rooms/join')
-                .send(requestBody);
+        const res = await request(app)
+            .post(`/room/create/${uid}`)
+            .send(roomData);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({ roomId: result.roomId });
-        });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: errorMessage });
+    });
+});
 
-        it('should return 400 if joining the room fails', async () => {
-            const requestBody = { code: 'roomCode', userId: 'validUserId' };
-            const result = { success: false, message: 'Join room failed' };
-
-            roomService.joinRoom.mockResolvedValueOnce(result);
-
-            const res = await request(app)
-                .post('/rooms/join')
-                .send(requestBody);
-
-            expect(res.status).toBe(400);
-            expect(res.body).toEqual({ error: result.message });
-        });
-
-        it('should return 500 for an internal server error', async () => {
-            const requestBody = { code: 'roomCode', userId: 'validUserId' };
-            const errorMessage = 'Internal Server Error';
-
-            roomService.joinRoom.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .post('/rooms/join')
-                .send(requestBody);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+describe('GET /room/:roomId', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    describe('POST /rooms/invite', () => {
-        it('should invite a user to a room', async () => {
-            const requestBody = { adminId: 'adminId', userId: 'validUserId', roomId: 'roomId' };
+    it('should get room details successfully', async () => {
+        const roomId = 'testRoomId';
+        const roomDetails = { roomId: 'testRoomId', name: 'Test Room' };
 
-            roomService.inviteUserToRoom.mockResolvedValueOnce();
+        roomService.getRoomDetails.mockResolvedValueOnce({ success: true, ...roomDetails });
 
-            const res = await request(app)
-                .post('/rooms/invite')
-                .send(requestBody);
+        const res = await request(app)
+            .get(`/room/${roomId}`);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({ message: `User ${requestBody.userId} invited to room ${requestBody.roomId}` });
-        });
-
-        it('should return 500 if inviting a user fails', async () => {
-            const requestBody = { adminId: 'adminId', userId: 'validUserId', roomId: 'roomId' };
-            const errorMessage = 'Internal Server Error';
-
-            roomService.inviteUserToRoom.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .post('/rooms/invite')
-                .send(requestBody);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ success: true, ...roomDetails });
     });
 
-    describe('POST /rooms/decline', () => {
-        it('should decline a room invite', async () => {
-            const requestBody = { userId: 'validUserId', roomId: 'roomId' };
+    it('should return 404 if room is not found', async () => {
+        const roomId = 'nonExistentRoomId';
 
-            roomService.declineRoomInvite.mockResolvedValueOnce();
+        roomService.getRoomDetails.mockResolvedValueOnce({ success: false, message: 'Room not found' });
 
-            const res = await request(app)
-                .post('/rooms/decline')
-                .send(requestBody);
+        const res = await request(app)
+            .get(`/room/${roomId}`);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({ message: `User ${requestBody.userId} declined invite to room ${requestBody.roomId}` });
-        });
-
-        it('should return 500 if declining an invite fails', async () => {
-            const requestBody = { userId: 'validUserId', roomId: 'roomId' };
-            const errorMessage = 'Internal Server Error';
-
-            roomService.declineRoomInvite.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .post('/rooms/decline')
-                .send(requestBody);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+        expect(res.status).toBe(404);
+        expect(res.body).toEqual({ success: false, message: 'Room not found' });
     });
 
-    describe('POST /rooms/leave', () => {
-        it('should allow a user to leave a room', async () => {
-            const requestBody = { roomId: 'roomId', userId: 'validUserId' };
+    it('should return 500 for an internal server error', async () => {
+        const roomId = 'testRoomId';
+        const errorMessage = 'Internal server error';
 
-            roomService.leaveRoom.mockResolvedValueOnce();
+        roomService.getRoomDetails.mockRejectedValueOnce(new Error(errorMessage));
 
-            const res = await request(app)
-                .post('/rooms/leave')
-                .send(requestBody);
+        const res = await request(app)
+            .get(`/room/${roomId}`);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({ message: `User ${requestBody.userId} left the room ${requestBody.roomId}.` });
-        });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ success: false, message: 'Internal server error' });
+    });
+});
 
-        it('should return 500 if leaving the room fails', async () => {
-            const requestBody = { roomId: 'roomId', userId: 'validUserId' };
-            const errorMessage = 'Internal Server Error';
-
-            roomService.leaveRoom.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .post('/rooms/leave')
-                .send(requestBody);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+describe('GET /room/:roomId/participants', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    describe('POST /rooms/kick', () => {
-        it('should kick a user from a room', async () => {
-            const requestBody = { roomId: 'roomId', adminId: 'adminId', userId: 'validUserId' };
-            const result = { success: true, message: 'User kicked successfully' };
+    it('should get room participants successfully', async () => {
+        const roomId = 'testRoomId';
+        const participants = ['user1', 'user2'];
+        const creator = 'testCreator';
 
-            roomService.kickUserFromRoom.mockResolvedValueOnce(result);
+        roomService.getRoomParticipants.mockResolvedValueOnce({ success: true, participants, creator });
 
-            const res = await request(app)
-                .post('/rooms/kick')
-                .send(requestBody);
+        const res = await request(app)
+            .get(`/room/${roomId}/participants`);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({ message: result.message });
-        });
-
-        it('should return 403 if kicking the user fails due to insufficient permissions', async () => {
-            const requestBody = { roomId: 'roomId', adminId: 'adminId', userId: 'validUserId' };
-            const result = { success: false, message: 'Insufficient permissions' };
-
-            roomService.kickUserFromRoom.mockResolvedValueOnce(result);
-
-            const res = await request(app)
-                .post('/rooms/kick')
-                .send(requestBody);
-
-            expect(res.status).toBe(403);
-            expect(res.body).toEqual({ error: result.message });
-        });
-
-        it('should return 500 for an internal server error', async () => {
-            const requestBody = { roomId: 'roomId', adminId: 'adminId', userId: 'validUserId' };
-            const errorMessage = 'Internal Server Error';
-
-            roomService.kickUserFromRoom.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .post('/rooms/kick')
-                .send(requestBody);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ success: true, participants, creator });
     });
 
-    describe('POST /rooms/message', () => {
-        it('should add a message to a room', async () => {
-            const requestBody = { roomId: 'roomId', userId: 'validUserId', message: 'Hello, world!' };
+    it('should return 404 if room participants are not found', async () => {
+        const roomId = 'nonExistentRoomId';
 
-            roomService.addMessageToRoom.mockResolvedValueOnce();
+        roomService.getRoomParticipants.mockResolvedValueOnce({ success: false, message: 'Participants not found' });
 
-            const res = await request(app)
-                .post('/rooms/message')
-                .send(requestBody);
+        const res = await request(app)
+            .get(`/room/${roomId}/participants`);
 
-            expect(res.status).toBe(201);
-            expect(res.body).toEqual({ message: 'Message sent' });
-        });
-
-        it('should return 500 if adding a message fails', async () => {
-            const requestBody = { roomId: 'roomId', userId: 'validUserId', message: 'Hello, world!' };
-            const errorMessage = 'Internal Server Error';
-
-            roomService.addMessageToRoom.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .post('/rooms/message')
-                .send(requestBody);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+        expect(res.status).toBe(404);
+        expect(res.body).toEqual({ success: false, message: 'Participants not found' });
     });
 
-    describe('GET /rooms/messages/:roomId', () => {
-        it('should retrieve messages from a room', async () => {
-            const roomId = 'roomId';
-            const messages = [{ userId: 'user1', message: 'Hello' }];
+    it('should return 500 for an internal server error', async () => {
+        const roomId = 'testRoomId';
+        const errorMessage = 'Internal server error';
 
-            roomService.getMessagesFromRoom.mockResolvedValueOnce(messages);
+        roomService.getRoomParticipants.mockRejectedValueOnce(new Error(errorMessage));
 
-            const res = await request(app)
-                .get(`/rooms/messages/${roomId}`);
+        const res = await request(app)
+            .get(`/room/${roomId}/participants`);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual(messages);
-        });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ success: false, message: 'An error occurred while retrieving room participants.' });
+    });
+});
 
-        it('should return 500 if retrieving messages fails', async () => {
-            const roomId = 'roomId';
-            const errorMessage = 'Internal Server Error';
-
-            roomService.getMessagesFromRoom.mockRejectedValueOnce(new Error(errorMessage));
-
-            const res = await request(app)
-                .get(`/rooms/messages/${roomId}`);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+describe('POST /room/join', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    describe('GET /rooms/listen/:roomId', () => {
-        it('should listen for messages in a room', async () => {
-            const roomId = 'roomId';
-            const messages = [{ userId: 'user1', message: 'Hello' }];
+    it('should join a room successfully', async () => {
+        const roomData = { code: 'testRoomCode', uid: 'testUser' };
+        const result = { success: true, roomId: 'testRoomId' };
 
-            roomService.listenForMessages.mockImplementationOnce((roomId, callback) => {
-                callback(messages);
-            });
+        roomService.joinRoom.mockResolvedValueOnce(result);
 
-            const res = await request(app)
-                .get(`/rooms/listen/${roomId}`);
+        const res = await request(app)
+            .post('/room/join')
+            .send(roomData);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual(messages);
-        });
-
-        it('should return 500 if listening for messages fails', async () => {
-            const roomId = 'roomId';
-            const errorMessage = 'Internal Server Error';
-
-            roomService.listenForMessages.mockImplementationOnce(() => {
-                throw new Error(errorMessage);
-            });
-
-            const res = await request(app)
-                .get(`/rooms/listen/${roomId}`);
-
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ roomId: 'testRoomId' });
     });
 
-    describe('POST /rooms/notify', () => {
-        it('should send a notification to users in a room', async () => {
-            const requestBody = { roomId: 'roomId', message: 'Notification message' };
+    it('should return 400 if joining room fails', async () => {
+        const roomData = { code: 'testRoomCode', uid: 'testUser' };
+        const result = { success: false, message: 'Invalid code' };
 
-            roomService.sendNotificationToUsers.mockResolvedValueOnce();
+        roomService.joinRoom.mockResolvedValueOnce(result);
 
-            const res = await request(app)
-                .post('/rooms/notify')
-                .send(requestBody);
+        const res = await request(app)
+            .post('/room/join')
+            .send(roomData);
 
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual({ message: 'Notification sent successfully' });
-        });
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: 'Invalid code' });
+    });
 
-        it('should return 500 if sending a notification fails', async () => {
-            const requestBody = { roomId: 'roomId', message: 'Notification message' };
-            const errorMessage = 'Internal Server Error';
+    it('should return 500 for an internal server error', async () => {
+        const roomData = { code: 'testRoomCode', uid: 'testUser' };
+        const errorMessage = 'Internal server error';
 
-            roomService.sendNotificationToUsers.mockRejectedValueOnce(new Error(errorMessage));
+        roomService.joinRoom.mockRejectedValueOnce(new Error(errorMessage));
 
-            const res = await request(app)
-                .post('/rooms/notify')
-                .send(requestBody);
+        const res = await request(app)
+            .post('/room/join')
+            .send(roomData);
 
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: errorMessage });
-        });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ error: 'Internal Server Error' });
     });
 });
