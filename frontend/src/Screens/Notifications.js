@@ -347,11 +347,6 @@ const Notifications = ({ route }) => {
                                     </View>
                                 )
                         )}
-                        {notifications.length > 0 && (
-                            <TouchableOpacity style={styles.clearButton} onPress={handleClearNotifications}>
-                                <Text style={styles.buttonText}>Clear All</Text>
-                            </TouchableOpacity>
-                        )}
                     </ScrollView>
                 )}
             </ScrollView>

@@ -172,31 +172,7 @@ exports.getSuggestedMoviesForUser = async (uid) => {
 };
 
 
-exports.getMovieByActor = async (actorName) => {
-    const session = driver.session();
-    console.log("getMovieByActor", actorName);
 
-
-
-};
-
-exports.getMoviesByGenre = async (genre) => {
-    const session = driver.session();
-    console.log("getMoviesByGenre", genre);
-
-};
-
-exports.getSimilarMovies = async (movieId) => {
-
-};
-
-exports.addRating = async (userId, movieId, rating) => {
-
-};
-
-exports.getRatings = async (userId) => {
-
-};
 
 
 

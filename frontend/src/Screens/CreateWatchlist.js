@@ -22,11 +22,11 @@ export default function CreateWatchlist({ route, navigation }) {
     const [invitedUsers, setInvitedUsers] = useState([]);
     const [showUserSearch, setShowUserSearch] = useState(false);
     const allUsers = [
-        { id: 1, name: "John Doe" },
-        { id: 2, name: "Jane Smith" },
-        { id: 3, name: "Alice Johnson" },
-        { id: 4, name: "Bob Williams" },
-        { id: 5, name: "Charlie Brown" },
+        // { id: 1, name: "John Doe" },
+        // { id: 2, name: "Jane Smith" },
+        // { id: 3, name: "Alice Johnson" },
+        // { id: 4, name: "Bob Williams" },
+        // { id: 5, name: "Charlie Brown" },
     ];
     const chooseCover = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -251,7 +251,7 @@ export default function CreateWatchlist({ route, navigation }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Visibility</Text>
                 <View style={styles.switchContainer}>
-                    <Text style={styles.sectionValue}>{visibility ? "Private" : "Public"}</Text>
+                    <Text style={styles.sectionValue}>{visibility ? "Public" : "Private"}</Text>
                     <Switch value={visibility} onValueChange={setVisibility} trackColor={{ false: "#767577", true: "#827DC3" }} thumbColor={visibility ? "#4A42C0" : "#fff"} />
                 </View>
             </View>
@@ -310,7 +310,7 @@ export default function CreateWatchlist({ route, navigation }) {
                 </View>
             </View>
             <View style={styles.line} />
-
+            
             {Object.keys(modalContent).map((field, index) => (
                 <Modal
                     key={index}

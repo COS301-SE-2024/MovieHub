@@ -47,7 +47,8 @@ const RoomModal = forwardRef((props, ref) => {
     };
 
     const handleStartWatchParty = () => {
-        navigation.navigate("CreateWatchParty", { route: props.route, roomId: props.roomId, roomShortCode: props.roomShortCode });
+        navigation.navigate("CreateWatchParty", { userInfo:userInfo, route: props.route, roomId: props.roomId });
+
         console.log("Start Watch Party");
     };
 

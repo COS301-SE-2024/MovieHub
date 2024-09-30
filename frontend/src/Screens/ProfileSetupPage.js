@@ -8,7 +8,7 @@ import { updateUserProfile } from "../Services/UsersApiService";
 
 const pronounsOptions = ["He/Him", "She/Her", "They/Them", "Prefer not to say"];
 const genreOptions = ["Action", "Adventure", "Animation", "Comedy", "Drama", "Documentary", "Fantasy", "History", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "War"];
-const defaultAvatar = "https://via.placeholder.com/150"; // Placeholder image URL
+const defaultAvatar = "https://img.icons8.com/?size=100&id=ckaioC1qqwCu&format=png&color=7950F2"; // Placeholder image URL
 
 const ProfileSetupPage = ({ route }) => {
     const { userInfo } = route.params || "";

@@ -401,7 +401,7 @@ const Home = ({ route }) => {
                     style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }} // Adjust position if necessary
                 />
                         )}
-                        <Image source={{ uri: watchlist.img }} style={styles.watchlistImage} onLoadEnd={() => setLoading(false)}/>
+                        <Image source={{ uri: watchlist.img ? watchlist.img : 'https://picsum.photos/seed/picsum/20/300' }} style={styles.watchlistImage} onLoadEnd={() => setLoading(false)}/>
                         <View style={styles.watchlistInfo}>
                             <Text style={{
                 fontSize: 12,

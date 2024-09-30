@@ -4,6 +4,7 @@ import { useTheme } from "../styles/ThemeContext";
 
 const CreateWatchParty = ({ route }) => {
     const { theme } = useTheme();
+
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [partyTitle, setPartyTitle] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
@@ -100,5 +101,4 @@ const CreateWatchParty = ({ route }) => {
         </ScrollView>
     );
 };
-
 export default CreateWatchParty;

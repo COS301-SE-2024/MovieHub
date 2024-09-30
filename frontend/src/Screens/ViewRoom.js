@@ -319,6 +319,7 @@ const ViewRoom = ({ route }) => {
                     </View>
                 </View>
             </ScrollView>
+
             <RoomModal ref={bottomSheetRef} title="More options" roomId={route.params.roomId} roomShortCode={roomShortCode} route={route} isRoomCreator={isRoomCreator} userInfo={userInfo} />
         </View>
     );

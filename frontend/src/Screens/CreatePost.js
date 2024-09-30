@@ -12,7 +12,7 @@ import { searchMovies } from "../Services/TMDBApiService";
 
 export default function CreatePost({ route }) {
     const { theme } = useTheme();
-    const { userInfo } = route.params;
+    const { userInfo, isReview, movieTitle, imageUrl, rating: movieRating, date, overview } = route.params;
     const [isMovieReview, setIsMovieReview] = useState(false);
     const [title, setTitle] = useState("");
     const [movieId, setMovieId] = useState("");
@@ -45,6 +45,14 @@ export default function CreatePost({ route }) {
             setMovieResults([]);
         }
     }, [movieSearch]);
+
+    useEffect(() => {
+        if (isReview) {
+            setIsMovieReview(true);
+            setMovieId(movieId);
+            setMovieSearch(movieTitle);
+        }
+    }, [isReview, movieId, movieTitle]);
 
     const handleAddImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -172,19 +180,18 @@ export default function CreatePost({ route }) {
 
     const handleAddReview = async () => {
         const reviewData = {
-            uid: userInfo.userId, //LEAVE THIS AS 0 FOR THE USER. DO NOT CHANGE TO THE USERID. THIS WILL WORK THE OTHER ONE NOT.
+            uid: userInfo.userId,
             movieId: movieId,
             reviewTitle: title,
             text: thoughts,
             img: imageUri,
             isReview: isMovieReview,
-            rating: isMovieReview ? rating : 0,
+            rating: rating,
             movieTitle: movieSearch,
         };
 
         try {
             const review = await addReview(reviewData);
-            // Alert user that the review was added successfully
             Alert.alert(
                 "Success",
                 "Review added successfully",
@@ -192,13 +199,16 @@ export default function CreatePost({ route }) {
                     {
                         text: "OK",
                         onPress: () => {
-                            // clear all inputs
-                            setTitle("");
-                            setThoughts("");
-                            setRating(0);
-                            setMovieSearch("");
-
-                            navigation.navigate("Home", { userInfo });
+                            // Navigate back to the MovieDescriptionPage
+                            navigation.navigate("MovieDescriptionPage", {
+                                movieId,
+                                imageUrl,
+                                title: movieTitle,
+                                rating: movieRating,
+                                overview,
+                                date,
+                                userInfo
+                            });
                         },
                     },
                 ],

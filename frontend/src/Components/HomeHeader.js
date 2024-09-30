@@ -34,14 +34,19 @@ export default function HomeHeader({ userInfo }) {
             try {
                 const data = await getUnreadNotifications(userInfo.userId);
                 setUnreadNotifications(data.unreadCount.unreadCount);
-                console.log("Unread notifications:", data.unreadCount.unreadCount);
             } catch (error) {
                 console.error("Failed to fetch unread notifications", error);
             }
         };
-
-        fetchUnreadNotifications();
-    }, []);
+    
+        // Poll for unread notifications every 10 seconds (10000 milliseconds)
+        fetchUnreadNotifications(); // initial fetch
+    
+        const intervalId = setInterval(fetchUnreadNotifications, 10000);
+    
+        // Clear the interval when the component unmounts
+        return () => clearInterval(intervalId);
+    }, [userInfo.userId]);
 
     return (
         <View style={styles.header}>

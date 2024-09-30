@@ -55,4 +55,7 @@ router.get('/:roomId', roomController.getRoomDetails); /////////////////////////
 
 router.delete('/:roomId', roomController.deleteRoom); ////////////////////////////////
 
+// Route to get the room code
+router.get('/:roomId/code', roomController.getRoomCode);
+
 module.exports = router;

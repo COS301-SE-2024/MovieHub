@@ -167,7 +167,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             position: "absolute",
             top: 50,
             right: 30,
-            backgroundColor: "white",
+            backgroundColor: theme.backgroundColor,
             borderRadius: 5,
             shadowColor: "#000",
             shadowOffset: {
@@ -185,7 +185,7 @@ export default function Review({ reviewId, uid, username, userHandle, userAvatar
             paddingHorizontal: 20,
         },
         modalText: {
-            color: "black",
+            color: theme.textColor,
             fontSize: 16,
         },
         star: {

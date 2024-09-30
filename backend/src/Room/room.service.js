@@ -97,7 +97,7 @@ exports.createRoom = async (uid, roomData) => {
 
         // Commit the transaction
         await tx.commit();
-
+ 
         console.log("Room created successfully.");
 
         return { success: true, roomId, shortCode, ...roomData, createdBy: uid, createdAt, updatedAt, isActive };
@@ -760,6 +760,32 @@ exports.toggleAdmin = async (uid, roomId) => {
         await session.close();
     }
 };
+
+// Function to get the room code of a specific room
+exports.getRoomCode = async (roomId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            `MATCH (r:Room)
+             WHERE r.roomId = $roomId OR r.shortCode = $roomId
+             RETURN r.shortCode AS shortCode`,
+            { roomId }
+        );
+
+        if (result.records.length > 0) {
+            const shortCode = result.records[0].get('shortCode');
+            return { success: true, shortCode };
+        }
+
+        return { success: false, message: 'Room not found' };
+    } catch (error) {
+        console.error('Error retrieving room code:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Ensure the driver is closed on application exit
 process.on("exit", async () => {

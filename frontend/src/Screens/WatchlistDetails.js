@@ -77,8 +77,25 @@ const WatchlistDetails = ({ route }) => {
     };
 
     const handleAddMovies = async () => {
-        navigation.navigate('AddMovies', { userInfo, watchlist, addedMovies: watchlistMovies});
+        navigation.navigate('AddMovies', { 
+            userInfo, 
+            watchlistId: extractWatchlistId(watchlist),
+            addedMovies: watchlistMovies,
+            onUpdateWatchlist: handleUpdateWatchlist
+        });
     }
+
+    const handleUpdateWatchlist = async (updatedMovies) => {
+        try {
+            const watchlistId = extractWatchlistId(watchlist);
+            await updateWatchlist(watchlistId, { movieList: updatedMovies });
+            setWatchlistMovies(updatedMovies);
+            setWatchlist({ ...iniWatchlist, movieList: updatedMovies });
+        } catch (error) {
+            console.error('Error updating watchlist:', error);
+            setError(error.message);
+        }
+    };
 
     const getMovieYear = (release_date) => {
         if (release_date) {
@@ -200,13 +217,13 @@ const WatchlistDetails = ({ route }) => {
     
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
+            {/* <View style={styles.header}>
                 <TouchableOpacity style={styles.createButton} onPress={handleAddMovies}>
                     <Text style={styles.createButtonText}>Add Movies</Text>
                     <View style={{ flex: 1 }} />
                     <Icon name="add" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
-            </View>
+            </View> */}
             <ScrollView showsVerticalScrollIndicator={false}>
                 {iniWatchlist.movieList && iniWatchlist.movieList.map((movie) => (
                     <TouchableOpacity key={movie.id} onPress={() => handleMoviePress(movie)}>

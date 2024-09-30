@@ -17,7 +17,7 @@ export default function EditReview({ route }) {
     const [thoughts, setThoughts] = useState(thoughtsParam);
     const [movieSearch, setMovieSearch] = useState(movieName);
     const [allowComments, setAllowComments] = useState(true);
-    const [imageUri, setImageUri] = useState(imageUriParam);
+    const [imageUri, setImageUri] = useState(imageUriParam ? imageUriParam : null);
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(ratingParam); // Add state for rating
     const [feedbackVisible, setFeedbackVisible] = useState(false);
@@ -265,6 +265,7 @@ export default function EditReview({ route }) {
         },
         ratingText: {
             fontSize: 16,
+            color: theme.textColor,
         },
         feedbackContainer: {
             flexShrink: 1,
@@ -301,11 +302,11 @@ export default function EditReview({ route }) {
             )}
 
             <Text style={styles.label}>Title</Text>
-            <TextInput style={styles.input} value={title} onChangeText={setTitle} selectionColor="#000" />
+            <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor}  />
 
             <View>
                 <Text style={styles.label}>Movie</Text>
-                <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} selectionColor="#000" />
+                <TextInput style={styles.input} placeholder="Search for a movie" value={movieSearch} onChangeText={setMovieSearch} placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor}  />
                 {movieResults.length > 0 && 
                     <FlatList 
                         data={movieResults} 
@@ -320,33 +321,17 @@ export default function EditReview({ route }) {
             </View>
 
             <Text style={styles.label}>Thoughts</Text>
-            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline selectionColor="#000" />
+            <TextInput style={[styles.input, styles.textArea]} value={thoughts} onChangeText={setThoughts} multiline placeholderTextColor={theme.gray} selectionColor={theme.textColor} color={theme.textColor} />
 
             <View style={styles.actionsContainer}>
                 <View style={styles.iconsContainer}>
-                    <TouchableOpacity onPress={handleAddLink}>
-                        <CommIcon style={styles.icon} name="link-variant" size={23} />
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={handleAddImage}>
-                        <CommIcon style={styles.icon} name="image-size-select-actual" size={23} />
+                        <CommIcon style={styles.icon} name="image-size-select-actual" size={23} color={theme.iconColor} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleAddEmoji}>
-                        <CommIcon style={styles.icon} name="emoticon-happy-outline" size={23} />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.allowCommentsContainer}>
-                    <Text style={[styles.label, styles.allowComments]}>Allow comments</Text>
-                    <Switch 
-                        value={allowComments} 
-                        onValueChange={setAllowComments} 
-                        trackColor={{ false: "#767577", true: "#827DC3" }} 
-                        thumbColor={allowComments ? "#4A42C0" : "#fff"} 
-                    />
                 </View>
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.saveDrafts}>Save to drafts</Text>
                 <TouchableOpacity style={[styles.reviewButton, isReviewButtonDisabled && styles.reviewButtonDisabled]} disabled={isReviewButtonDisabled} onPress={handleEditReview}>
                     <Text style={styles.reviewButtonText}>Save</Text>
                 </TouchableOpacity>
