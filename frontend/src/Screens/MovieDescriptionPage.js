@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, ScrollView, Image, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Modal, Button, FlatList, Pressable } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { getMovieCredits, getMovieRuntime, getMovieDetails } from "../Services/TMDBApiService";
+import { getMovieCredits, getMovieRuntime, getMovieDetails,getMovieDetailsByName } from "../Services/TMDBApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../styles/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -11,6 +11,7 @@ import { getRecommendedMovies } from "../Services/RecApiService"; // Importing t
 import { getUserWatchlists } from "../Services/UsersApiService";
 import { getReviewsOfMovie } from "../Services/PostsApiServices";
 import { getWatchlistDetails } from "../Services/ListApiService";
+
 import Cast from "../Components/Cast";
 import moment from "moment";
 import axios from "axios";
@@ -227,11 +228,10 @@ export default function MovieDescriptionPage({ route }) {
         );
     };
 
-    const director = credits.crew.find((person) => person.job === "Director");
-    const cast = credits.cast
-        .slice(0, 5)
-        .map((person) => person.name)
-        .join(", ");
+    const director = credits?.crew?.find((person) => person.job === "Director") || "Unknown Director";
+    const cast = credits?.cast
+  ? credits?.cast?.slice(0, 5).map((person) => person.name).join(", ")
+  : "Cast information not available";
 
     const styles = StyleSheet.create({
         container: {
@@ -555,19 +555,25 @@ export default function MovieDescriptionPage({ route }) {
                             <Text style={styles.moviebiotext}>{overview}</Text>
                         </View>
                         <View>
-                            <Text style={styles.moviebio}>
-                                <Text style={styles.bold}>Starring:</Text> {cast}
-                            </Text>
+                        {cast ? (
+                                <Text style={styles.moviebio}>
+                                    <Text style={styles.bold}>Starring:</Text> {cast}
+                                </Text>
+                                ) : null}
                             <Text style={styles.moviebio}>
                                 <Text style={styles.bold}>Directed by:</Text> {director ? director.name : "N/A"}
                             </Text>
                         </View>
-                        <Text style={styles.moviecast}> Cast</Text>
-                        <ScrollView horizontal contentContainerStyle={styles.castContainer} showsHorizontalScrollIndicator={false}>
-                            {credits.cast.slice(0, 5).map((member, index) => (
-                                <Cast key={index} imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`} name={member.name} />
-                            ))}
-                        </ScrollView>
+                        {credits?.cast?.length > 0 && (
+                            <>
+                                <Text style={styles.moviecast}>Cast</Text>
+                                <ScrollView horizontal contentContainerStyle={styles.castContainer} showsHorizontalScrollIndicator={false}>
+                                {credits.cast.slice(0, 5).map((member, index) => (
+                                    <Cast key={index} imageUrl={`https://image.tmdb.org/t/p/w500${member.profile_path}`} name={member.name} />
+                                ))}
+                                </ScrollView>
+                            </>
+                            )}
                         {/* Recommended Movies Section */}
                         {recommendedMovies.length > 0 && (
                             <>

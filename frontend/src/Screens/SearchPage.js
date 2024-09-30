@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPopularMovies, getMoviesByGenre, getMovieDetails, getNewMovies, getTopPicksForToday, fetchClassicMovies } from "../Services/TMDBApiService";
 import { searchMoviesFuzzy, getMovieByQuote } from "../Services/esSearchApiServices";
 import { useTheme } from "../styles/ThemeContext";
+import { getMovieDetailsByName } from "../Services/TMDBApiService";
 
 const genreMap = {
     12: "Adventure",
@@ -183,6 +184,31 @@ const SearchPage = ({ route }) => {
 
     const handleGenrePress = (genre) => {
         navigation.navigate("GenrePage", { genreName: genre, genreData: genreData[genre] });
+    };
+
+    const handleMoviePress = async (movie) => {
+        try {
+            console.log("who",movie);
+            const movieDetails = await getMovieDetails(movie._id);
+                console.log("hmmm",movieDetails);
+            if (movieDetails) {
+                navigation.navigate("MovieDescriptionPage", {
+                    movieId: movieDetails.id, 
+                    genre: movieDetails.genre_ids, 
+                    imageUrl: `https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`, 
+                    title: movieDetails.title, 
+                    overview: movieDetails.overview, 
+                    rating: movieDetails.vote_average.toFixed(1),
+                    date: new Date(movieDetails.release_date).getFullYear(),
+                    userInfo: userInfo
+
+                });
+            } else {
+                console.error("Movie not found");
+            }
+        } catch (error) {
+            console.error("Error fetching movie details:", error);
+        }
     };
 
     const renderMovieItem = ({ item }) => (
