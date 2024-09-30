@@ -1,3 +1,16 @@
+import { getGameDataByGenre } from "../../Services/GameApiService";
+
+const getMovies = async () => {
+    try {
+        const res = await getGameDataByGenre("Animation");
+        console.log(res);
+    } catch (error) {
+        console.error("Error fetching game data:", error);
+    }
+}
+
+getMovies();
+
 export const quizData = {
     Animation: [
         {
