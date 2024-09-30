@@ -585,7 +585,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="LogBookScreen"
             component={LogBookScreen}
             options={({ navigation }) => ({
-                title: "",
+                title: "Log your Movie",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: theme.textColor,

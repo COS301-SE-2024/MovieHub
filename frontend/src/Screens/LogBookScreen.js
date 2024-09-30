@@ -192,7 +192,6 @@ const LogBookScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.heading}>Log Your Movie</Text>
 
             <Text style={styles.movieTitle}>{title}</Text>
 
