@@ -19,4 +19,5 @@ export const quizData = {
             correct: 0, // Index of the correct answer
         },
     ],
+    
 };

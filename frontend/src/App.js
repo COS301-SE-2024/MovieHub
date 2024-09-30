@@ -713,7 +713,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
                             name="close"
                             size={24}
                             color={theme.textColor}
-                            onPress={() => navigation.goBack()}
+                            onPress={() => navigation.navigate("GameProfile")}
                         />
                     </TouchableOpacity>
                 )

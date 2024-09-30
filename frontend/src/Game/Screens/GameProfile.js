@@ -6,8 +6,9 @@ import { useUser } from "../../Services/UseridContext";
 import { useTheme } from "../../styles/ThemeContext";
 import { getUserProfile } from "../../Services/UsersApiService";
 import { quizData } from "../Components/quizData";
-import trophyIcon from "../../../../assets/trophy_icon.png"
-import trophyStar from "../../../../assets/trophy_icon.png"
+import trophyIcon from "../../../../assets/trophy_icon.png";
+import trophyStar from "../../../../assets/trophy_icon.png";
+import medal_of_honor from "../../../../assets/medal_of_honor.png";
 
 const GameProfile = ({ route }) => {
     const theme = useTheme();
@@ -43,7 +44,7 @@ const GameProfile = ({ route }) => {
     const startQuiz = (className) => {
         // Check if quiz data for the selected className exists
         if (quizData[className]) {
-            navigation.navigate('Quiz', { className, questions: quizData[className] });
+            navigation.navigate("Quiz", { className, questions: quizData[className] });
         } else {
             console.error(`No quiz data found for class: ${className}`);
         }
@@ -66,11 +67,7 @@ const GameProfile = ({ route }) => {
                         <Text style={styles.greeting}>👋 Hi {username}</Text>
                         <Text style={styles.subGreeting}>Great to see you again!</Text>
                     </View>
-                    {avatar ? (
-                        <Image source={{ uri: avatar }} style={styles.avatar} />
-                    ) : (
-                        <View style={styles.placeholderAvatar} />
-                    )}
+                    {avatar ? <Image source={{ uri: avatar }} style={styles.avatar} /> : <View style={styles.placeholderAvatar} />}
                 </View>
 
                 {/* Stats */}
@@ -83,28 +80,29 @@ const GameProfile = ({ route }) => {
                     <View style={styles.statBox}>
                         <Image source={trophyStar} style={styles.trophyIcon} />
                         <Text style={styles.statValue}>32</Text>
-                        <Text style={styles.statLabel}>Ranking</Text>  
+                        <Text style={styles.statLabel}>Ranking</Text>
                     </View>
                 </View>
 
                 {/* Daily Quiz */}
                 <TouchableOpacity style={styles.dailyQuiz}>
-                    <Text style={styles.quizTitle}>Daily Quiz</Text>
-                    <Text style={styles.quizSubtitle}>20 mixed questions</Text>
-                    <Text style={styles.participants}>12 participated</Text>
+                    <Image source={medal_of_honor} style={[styles.trophyIcon, { marginRight: 20 }]} />
+                    <View>
+                        <Text style={styles.quizTitle}>Daily Quiz</Text>
+                        <Text style={styles.quizSubtitle}>20 mixed questions</Text>
+                        <Text style={styles.participants}>12 participated</Text>
+                    </View>
                 </TouchableOpacity>
 
                 {/* Continue Studying */}
                 <View style={styles.studyingSection}>
                     <Text style={styles.sectionTitle}>Quizzes For You</Text>
-                    {
-                        genres.map((genre) => (
-                            <TouchableOpacity key={genre} style={styles.classCard} onPress={() => startQuiz(genre)}>
-                                <Text style={styles.className}>{genre}</Text>
-                                <Text style={styles.classDetails}>{quizData[genre] ? quizData[genre].length + " questions" : "No questions available"}</Text>
-                            </TouchableOpacity>
-                        ))
-                    }
+                    {genres.map((genre) => (
+                        <TouchableOpacity key={genre} style={styles.classCard} onPress={() => startQuiz(genre)}>
+                            <Text style={styles.className}>{genre}</Text>
+                            <Text style={styles.classDetails}>{quizData[genre] ? quizData[genre].length + " questions" : "No questions available"}</Text>
+                        </TouchableOpacity>
+                    ))}
                 </View>
             </View>
             <GameBottomHeader />
@@ -179,6 +177,9 @@ const styles = StyleSheet.create({
         padding: 5,
     },
     dailyQuiz: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
         backgroundColor: "#FF8C66",
         padding: 20,
         borderRadius: 10,
