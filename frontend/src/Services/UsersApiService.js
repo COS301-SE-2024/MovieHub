@@ -59,10 +59,16 @@ export const updateUserProfile = async (userId, updatedData) => {
     // const token = await getToken();
     const headers = await verifyToken();
 
-    if (updatedData.avatar === null) {
-        updatedData.avatar = null;
-    } else {
-        updatedData.avatar = await uploadImage(updatedData.avatar, 'profile');
+    if (updatedData.avatar) {
+        if (updatedData.avatar === null) {
+            updatedData.avatar = null;
+        } else {
+            try {
+                updatedData.avatar = await uploadImage(updatedData.avatar, 'profile');
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        }
     }
 
     const response = await fetch(`${API_URL}/${userId}`, {
@@ -75,6 +81,7 @@ export const updateUserProfile = async (userId, updatedData) => {
         },
         body: JSON.stringify(updatedData),
     });
+    console.log("Here is the API res  ", response);
     if (!response.ok) {
         throw new Error('Failed to update user profile');
     }

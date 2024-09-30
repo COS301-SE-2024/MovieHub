@@ -3,6 +3,7 @@ import { View, Text, Modal, TextInput, StyleSheet, Image, TouchableOpacity, Scro
 import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../styles/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
+import { modifyWatchlist, updateWatchlist } from "../Services/ListApiService";
 
 export default function EditWatchlist({ route }) {
     const { theme } = useTheme();
@@ -36,7 +37,8 @@ export default function EditWatchlist({ route }) {
         setCover(pickerResult.assets[0].uri);
     };
 
-    const applyChanges = (field) => {
+    const applyChanges = async (field) => {
+        console.log(modalContent[field].tempValue);
         setModalContent({
             ...modalContent,
             [field]: {
@@ -45,7 +47,18 @@ export default function EditWatchlist({ route }) {
                 newValue: modalContent[field].tempValue,
             },
         });
-    };
+
+        try {
+            const updatedData = {
+                [field]: modalContent[field].tempValue,
+            };
+            
+            const updatedWatchlist = await modifyWatchlist(watchlist.id, updatedData);
+            console.log("Updated watchlist:", updatedWatchlist);
+        } catch (error) {
+            console.error('Error updating watchlist:', error);
+        }
+    }; 
 
     const handleCancelChanges = () => {
         const updatedContent = {};
