@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image } from "react-native";
 import * as Progress from 'react-native-progress';
+import light_bulb from '../../../../assets/light_bulb.png';
 
 const Quiz = ({ route, navigation }) => {
     const { className = "Quiz", questions = [] } = route.params || {};
@@ -77,9 +78,13 @@ const Quiz = ({ route, navigation }) => {
                     />
                     {/* Show hint button */}
                     {!showHint && (
-                        <TouchableOpacity style={styles.hintButton} onPress={handleShowHint}>
-                            <Text style={styles.hintButtonText}>Show Hint (-5 points)</Text>
-                        </TouchableOpacity>
+                        <View style={{ alignItems: "center" }}>
+                            <TouchableOpacity style={styles.hintButton} onPress={handleShowHint}>
+                                <Text style={[styles.hintButtonText, { fontWeight: 600 }]}>Hint</Text>
+                                <Image source={light_bulb} style={styles.light_bulb} />
+                                <Text style={styles.hintButtonText}>-5 points</Text>
+                            </TouchableOpacity>
+                        </View>
                     )}
                     {/* Display the hint if requested */}
                     {showHint && <Text style={styles.hintText}>{currentQuestion.hint}</Text>}
@@ -171,12 +176,17 @@ const styles = StyleSheet.create({
     },
     hintButton: {
         marginTop: 10,
-        padding: 10,
-        backgroundColor: "#FFD700",
-        borderRadius: 8,
+        padding: 5,
+        width: 120,
+        height: 120,
+        backgroundColor: "#FF4747",
+        borderRadius: 999,
+        flexDirection: "col",
+        alignItems: "center",
+        justifyContent: "center",
     },
     hintButtonText: {
-        color: "#FF6B47",
+        color: "#fff",
         fontSize: 16,
         textAlign: "center",
     },
@@ -186,6 +196,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontStyle: "italic",
     },
+    light_bulb: {
+        width: 40,
+        height: 40,
+    },  
 });
 
 export default Quiz;
