@@ -9,6 +9,9 @@ const Quiz = ({ route, navigation }) => {
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [userAnswer, setUserAnswer] = useState("");
     const [userAnswers, setUserAnswers] = useState([]); // Store user's answers
+    const [score, setScore] = useState(10); // Start with 10 points
+    const [showHint, setShowHint] = useState(false); // Track if the hint is shown
+    const [hintUsed, setHintUsed] = useState(false); // Track if the hint was used
 
     if (!questions.length) {
         return (
@@ -27,17 +30,31 @@ const Quiz = ({ route, navigation }) => {
             setUserAnswers((prev) => [...prev, currentQuestion.options[selectedAnswer]]);
         }
 
+        // Deduct points if the hint was used
+        if (hintUsed) {
+            setScore((prevScore) => Math.max(0, prevScore - 5)); // Ensure no negative score
+        }
+
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
             setSelectedAnswer(null);
             setUserAnswer("");
+            setShowHint(false); // Reset hint for the next question
+            setHintUsed(false);  // Reset hint usage for the next question
         } else {
             // Navigate to results page with the user's answers
             navigation.navigate('Result', {
                 userAnswers,
                 questions,
+                finalScore: score,
             });
         }
+    };
+
+    const handleShowHint = () => {
+        setShowHint(true);
+        setHintUsed(true);
+        setScore((prevScore) => Math.max(0, prevScore - 5)); // Deduct 5 points when the hint is revealed
     };
 
     const progress = (currentQuestionIndex + 1) / questions.length;
@@ -47,6 +64,8 @@ const Quiz = ({ route, navigation }) => {
             <Text style={styles.title}>{className} Quiz</Text>
             <Progress.Bar progress={progress} width={null} color="#FF8C66" style={styles.progressBar} />
             <Text style={styles.question}>{currentQuestion.question}</Text>
+
+            {/* If the current question is fill-in-the-blank */}
             {currentQuestion.type === "fill-in-blank" ? (
                 <>
                     <TextInput
@@ -56,6 +75,14 @@ const Quiz = ({ route, navigation }) => {
                         placeholder="Type your answer here"
                         placeholderTextColor="#fff"
                     />
+                    {/* Show hint button */}
+                    {!showHint && (
+                        <TouchableOpacity style={styles.hintButton} onPress={handleShowHint}>
+                            <Text style={styles.hintButtonText}>Show Hint (-5 points)</Text>
+                        </TouchableOpacity>
+                    )}
+                    {/* Display the hint if requested */}
+                    {showHint && <Text style={styles.hintText}>{currentQuestion.hint}</Text>}
                 </>
             ) : (
                 currentQuestion.options.map((option, index) => (
@@ -68,6 +95,8 @@ const Quiz = ({ route, navigation }) => {
                     </TouchableOpacity>
                 ))
             )}
+
+            {/* Show next button */}
             <TouchableOpacity style={styles.nextButton} onPress={handleNextQuestion}>
                 <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
@@ -139,6 +168,23 @@ const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: "center",
         marginTop: 20,
+    },
+    hintButton: {
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: "#FFD700",
+        borderRadius: 8,
+    },
+    hintButtonText: {
+        color: "#FF6B47",
+        fontSize: 16,
+        textAlign: "center",
+    },
+    hintText: {
+        marginTop: 10,
+        color: "#fff",
+        fontSize: 18,
+        fontStyle: "italic",
     },
 });
 

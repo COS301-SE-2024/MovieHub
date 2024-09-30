@@ -38,9 +38,6 @@ const Result = ({ route, navigation }) => {
                     {correctAnswersCount} of {questions.length}
                 </Text>
             </View>
-            <TouchableOpacity style={styles.retryButton} onPress={() => navigation.goBack()}>
-                <Text style={styles.retryButtonText}>Retry Quiz</Text>
-            </TouchableOpacity>
             {/** Give feedback messages based on results */}
             <Text style={styles.feedbackText}>
                 <Text style={styles.boldText}>{bold}</Text>
