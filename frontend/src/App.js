@@ -598,7 +598,7 @@ const ThemedStackNavigator = withTheme(({ theme }) => (
             name="LogEntriesScreen"
             component={LogEntriesScreen}
             options={({ navigation }) => ({
-                title: "",
+                title: "My Entries",
                 headerShadowVisible: false,
                 headerBackTitleVisible: false,
                 headerTintColor: theme.textColor,

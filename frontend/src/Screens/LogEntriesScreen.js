@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
 import { useTheme } from '../styles/ThemeContext';
 import RatingStars from '../Components/RatingStars';
+import { colors } from "../styles/theme";
 
 const LogEntriesScreen = ({ route }) => {
     const { theme, isDarkMode } = useTheme();
@@ -23,7 +25,7 @@ const LogEntriesScreen = ({ route }) => {
         logEntry: {
             marginVertical: 10,
             padding: 15,
-            backgroundColor: isDarkMode? theme.backgroundColor :'#f9f9f9',
+            backgroundColor:  theme.backgroundColor ,
             borderRadius: 10,
         },
         logText: {
@@ -31,28 +33,54 @@ const LogEntriesScreen = ({ route }) => {
             marginVertical: 5,
             color: theme.textColor,
         },
+        emptyContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: theme.backgroundColor, // Light red background
+            padding: 20,
+            borderRadius: 10,
+            marginTop: 50,
+        },
+        emptyMessage: {
+            fontSize: 18,
+            color: theme.textColor,
+            marginTop: 20,
+            textAlign: 'center',
+        },
+        iconStyle: {
+            fontSize: 60,
+            color: colors.primary, // Tomato color
+        },
     });
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>My Entries</Text>
-            <FlatList
-                scrollbarThumbColor="rgba(0, 0, 0, 0)" 
-                showsVerticalScrollIndicator={false}
-                data={logEntries}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.logEntry}>
-                        <Text style={styles.logText}>Movie Title: {item.movieTitle}</Text>
-                        <View style={styles.logText}>
-                            <Text style={styles.logText}>Rating: </Text>
-                            <RatingStars rating={item.movieRating} />
+            {logEntries.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                    <Ionicons name="film-outline" style={styles.iconStyle} />
+                    <Text style={styles.emptyMessage}>
+                        You currently have no movies logged, please log a movie
+                    </Text>
+                </View>
+            ) : (
+                <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={logEntries}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                        <View style={styles.logEntry}>
+                            <Text style={styles.logText}>Movie Title: {item.movieTitle}</Text>
+                            <View style={styles.logText}>
+                                <Text style={styles.logText}>Rating: </Text>
+                                <RatingStars rating={item.movieRating} />
+                            </View>
+                            <Text style={styles.logText}>Review: {item.review}</Text>
+                            <Text style={styles.logText}>Date Watched: {item.dateWatched}</Text>
                         </View>
-                        <Text style={styles.logText}>Review: {item.review}</Text>
-                        <Text style={styles.logText}>Date Watched: {item.dateWatched}</Text>
-                    </View>
-                )}
-            />
+                    )}
+                />
+            )}
         </View>
     );
 };
