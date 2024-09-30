@@ -1,0 +1,93 @@
+/* General reset to make the injected UI consistent */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Chat Window Container */
+#watch-party-chat {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    z-index: 9999;
+    /* To ensure it's above other page elements */
+}
+
+/* Header for the Chat Window */
+#watch-party-chat h2 {
+    background-color: #1a1a1a;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    font-size: 16px;
+    border-bottom: 1px solid #444;
+}
+
+/* Chat Box (messages will go here) */
+#chat-box {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #555 #222;
+}
+
+/* Styling for individual chat messages */
+.message {
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #333;
+    border-radius: 5px;
+    word-wrap: break-word;
+}
+
+/* Styling for your own messages */
+.message.self {
+    background-color: #1a8cff;
+    align-self: flex-end;
+    color: #fff;
+}
+
+/* Chat Input Box */
+#chat-input {
+    border: none;
+    padding: 10px;
+    border-radius: 0 0 10px 10px;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+    background-color: #1a1a1a;
+    color: white;
+    border-top: 1px solid #444;
+}
+
+/* For the Extension Popup UI */
+.popup-container {
+    padding: 20px;
+    text-align: center;
+}
+
+button {
+    background-color: #1a8cff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #006bb3;
+}
