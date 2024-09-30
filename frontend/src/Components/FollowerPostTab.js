@@ -159,6 +159,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
                             key={index} // for uniqueness
                             postId={item.postId}
                             uid={item.uid}
+                            userInfo={userInfo}
                             username={item.name}
                             userHandle={item.username}
                             userAvatar={item.avatar}
@@ -179,6 +180,7 @@ export default function FollowerPostsTab({ userInfo, userProfile, otherinfo, han
                             key={index} // for uniqueness
                             reviewId={item.reviewId}
                             uid={item.uid}
+                            userInfo={userInfo}
                             username={item.name}
                             userHandle={item.username}
                             userAvatar={item.avatar}

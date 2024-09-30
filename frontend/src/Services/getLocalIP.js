@@ -10,7 +10,6 @@ export const getLocalIP = () => {
 //     if (urlMatch && urlMatch[1]) {
 //         return urlMatch[1];
 //     }
-    
 
 // return 'localhost'; // Fallback value
 return '13.244.236.79'; // Fallback value

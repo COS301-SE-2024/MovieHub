@@ -180,9 +180,7 @@ const Notifications = ({ route }) => {
                         {item.message.replace(item.user, "")}
                     </Text>
                 ) : (
-                    <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]} >
-                        {item.message}
-                    </Text>
+                    <Text style={[styles.notificationText, item.read ? styles.readText : styles.unreadText]}>{item.message}</Text>
                 )}
             </View>
             <View style={styles.buttonContainer}>

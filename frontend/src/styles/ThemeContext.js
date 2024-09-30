@@ -13,6 +13,7 @@ const lightTheme = {
     primaryColor: '#4A42C0',
     borderColor: '#cccccc',
     iconColor: '#000000',
+    gameOrange: "#FF6B47",
 };
 
 const darkTheme = {
@@ -24,6 +25,7 @@ const darkTheme = {
     primaryColor: '#4A42C0',
     borderColor: '#555555',
     iconColor: '#ffffff',
+    gameOrange: "#FF6B47",
 };
 
 // Theme Provider Component

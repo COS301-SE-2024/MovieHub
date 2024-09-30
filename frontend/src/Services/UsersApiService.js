@@ -63,7 +63,11 @@ export const updateUserProfile = async (userId, updatedData) => {
         if (updatedData.avatar === null) {
             updatedData.avatar = null;
         } else {
-            updatedData.avatar = await uploadImage(updatedData.avatar, 'profile');
+            try {
+                updatedData.avatar = await uploadImage(updatedData.avatar, 'profile');
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
         }
     }
 
@@ -77,6 +81,7 @@ export const updateUserProfile = async (userId, updatedData) => {
         },
         body: JSON.stringify(updatedData),
     });
+    console.log("Here is the API res  ", response);
     if (!response.ok) {
         throw new Error('Failed to update user profile');
     }
