@@ -269,13 +269,13 @@ function createChatBox() {
   });
 
   // Add click event to send button
-  sendButton.addEventListener("click", () => {
-    const messageText = chatInput.value.trim();
-    if (messageText) {
-      addChatMessage("User", messageText, true); // Pass true to indicate it's the user's message
-      chatInput.value = ""; // Clear input after sending
-    }
-  });
+  // sendButton.addEventListener("click", () => {
+  //   const messageText = chatInput.value.trim();
+  //   if (messageText) {
+  //     addChatMessage("User", messageText, true); // Pass true to indicate it's the user's message
+  //     chatInput.value = ""; // Clear input after sending
+  //   }
+  // });
 }
 
 
@@ -294,6 +294,7 @@ let peerConnection;
 // Queue to store ICE candidates that arrive before the remote description is set
 const iceCandidateQueues = {};
 let clientCount = 0; // Variable to keep track of connected clients
+let lastMessageId = null; // Track the last message ID to detect new messages
 
 // ICE servers for the peer connection
 const iceServers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
@@ -480,7 +481,6 @@ async function startAudioStream() {
   }
 }
 
-
 function addRemoteVideoElement(roomId, stream) {
   const remoteVideo = document.createElement('video');
   remoteVideo.id = `remoteVideo_${roomId}`;
@@ -488,17 +488,37 @@ function addRemoteVideoElement(roomId, stream) {
   remoteVideo.autoplay = true;
   remoteVideo.playsInline = true;
 
-  // Style the remote video element
-  Object.assign(remoteVideo.style, {
-    position: 'fixed',
-    top: '10px',
-    right: `${userCount * 210}px`, // Space them out horizontally
-    width: '200px',
-    height: '150px',
-    borderRadius: '8px',
-    border: '2px solid #7e57c2',
-    zIndex: '999',
-  });
+  // Get the local video element
+  const localVideo = document.getElementById('localVideo');
+
+  if (localVideo) {
+    // Get the position of the local video
+    const localVideoRect = localVideo.getBoundingClientRect();
+
+    // Style the remote video element to be positioned next to the local video
+    Object.assign(remoteVideo.style, {
+      position: 'fixed',
+      top: `${localVideoRect.top}px`, // Align the top with the local video
+      left: `${localVideoRect.right + 10}px`, // Position 10px to the right of the local video
+      width: '200px',
+      height: '150px',
+      borderRadius: '8px',
+      border: '2px solid #7e57c2',
+      zIndex: '999',
+    });
+  } else {
+    // If local video doesn't exist, fall back to a default position
+    Object.assign(remoteVideo.style, {
+      position: 'fixed',
+      top: '10px',
+      right: `${userCount * 210}px`, // Space them out horizontally if needed
+      width: '200px',
+      height: '150px',
+      borderRadius: '8px',
+      border: '2px solid #7e57c2',
+      zIndex: '999',
+    });
+  }
 
   document.body.appendChild(remoteVideo);
   userCount++;
@@ -830,7 +850,14 @@ async function fetchChatMessages(username, partyCode) {
     }
 
     if (response.ok) {
-      updateChatMessages(data.messages);
+      if (data.messages && data.messages.length > 0) {
+        const latestMessage = data.messages[data.messages.length - 1];
+
+        if (latestMessage.id !== lastMessageId) { // Only update if new message
+          lastMessageId = latestMessage.id;
+          updateChatMessages(data.messages, username);
+        }
+      }
     } 
     // else if (data.message == "No messages available in the chat room.") {
     //   addChatMessage("System", "An error occurred while fetching chat messages.");
@@ -856,45 +883,46 @@ async function fetchChatMessages(username, partyCode) {
     addChatMessage("System", "An error occurred while fetching chat messages.", true);
   }
 }
-// Function to periodically fetch chat messages every X seconds
-function startFetchingMessages(username, partyCode, interval = 5000) { // interval is set to 5 seconds
-  // Immediately fetch chat messages once
-  fetchChatMessages(username, partyCode);
 
-  // Start periodic fetching using setInterval
-  const messageFetchInterval = setInterval(() => {
-    fetchChatMessages(username, partyCode);
-  }, interval);
-
-  // Return a function to stop fetching messages
-  return () => clearInterval(messageFetchInterval);
-}
 
 // Function to update chat messages in the chat box
-function updateChatMessages(messages) {
+function updateChatMessages(messages, currentUsername) {
   const messagesContainer = chatBox.querySelector("#messages");
   console.log("Any messages? ", messages);
- // messagesContainer.innerHTML = ''; // Clear previous messages
+  messagesContainer.innerHTML = ''; // Clear previous messages
 
   if (messages && messages.length > 0) {
     console.log("There should be a message");
-    messages.forEach(msg => addChatMessage(msg.username, msg.text));
-  } else if (messages.length == 0) {
-    addChatMessage("System", "No Messages Yet", true); // Centered messag
+    messages.forEach(msg => {
+      const isUser = msg.username === currentUsername; // Check if the message is from the current user
+      addChatMessage(msg.username, msg.text, isUser, msg.timestamp); // Pass isUser to addChatMessage for styling
+    });
+  } else {
+    addChatMessage("System", "No Messages Yet", true); // Centered message
   }
-console.log("Any messages? ", messages);
+
+  console.log("Any messages? ", messages);
   console.log("End of Update");
+}
+
+// Function to generate a unique message ID
+function generateMessageId() {
+  const timestamp = new Date().getTime();
+  const randomNum = Math.floor(Math.random() * 100000); // Generate a random number
+  return `${timestamp}-${randomNum}`;
 }
 
 // Function to send chat message
 async function sendMessage(partyCode, username, text) {
+  const messageId = generateMessageId(); // Generate unique message ID
+  isUser = true;
   try {
     const response = await fetch(`http://localhost:3000/party/${partyCode}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, text }),
+      body: JSON.stringify({ id: messageId, username, text }), // Include messageId in the request
     });
     if (!response.ok) {
       console.error('Failed to send message:', response.statusText);
@@ -904,12 +932,14 @@ async function sendMessage(partyCode, username, text) {
   }
 }
 
-// Function to render a new chat message
+
 // Function to add chat message to the chat box
-function addChatMessage(username, text, isUser = false) {
+function addChatMessage(username, text, isUser, timestamp) {
   const chatMessage = document.createElement("p");
-  const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); // Format the time as HH:MM
-  chatMessage.textContent = `[${username}] ${text} - ${timestamp}`; // Append the timestamp to the message
+
+  // Format the timestamp
+  const formattedTime = new Date(timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  chatMessage.textContent = `[${username}] ${text} - ${formattedTime}`; // Append the timestamp to the message
   chatMessage.className = "chat-message"; // Assign the base chat-message class
 
   // Add user-specific class for different styling
@@ -920,11 +950,11 @@ function addChatMessage(username, text, isUser = false) {
   }
 
   const messagesContainer = document.getElementById("messages");
-  if(messagesContainer){
+  if (messagesContainer) {
     messagesContainer.appendChild(chatMessage);
   }
-
 }
+
 
 
 // Start watch party for the host
@@ -969,11 +999,22 @@ async function initChat() {
   //  createChatInputContainer(userDetails);
     console.log("Before Int");
     chatBox.style.display = 'block';
-    // // Set an interval to fetch chat messages every 5 seconds
-    // setInterval(() => {
-    //   fetchChatMessages(userDetails.username, userDetails.partyCode);
-    //   //createChatInputContainer(userDetails);
-    // }, 5000); // Adjust interval as necessary (5000ms = 5 seconds)
+    const chatInput = chatBox.querySelector(".chat-input");
+    const sendButton = chatBox.querySelector(".send-button");
+    // Add click event to send button
+    sendButton.addEventListener("click", async () => {
+      const messageText = chatInput.value.trim();
+      if (messageText) {
+        await sendMessage(userDetails.partyCode, userDetails.username, messageText); // Call sendMessage to send the message to the server
+        addChatMessage(userDetails.username, messageText, true); // Display the user's message in the chat
+        chatInput.value = ""; // Clear input after sending
+      }
+    });
+    // Set an interval to fetch chat messages every 5 seconds
+    setInterval(() => {
+      fetchChatMessages(userDetails.username, userDetails.partyCode);
+      //createChatInputContainer(userDetails);
+    }, 5000); // Adjust interval as necessary (5000ms = 5 seconds)
   } catch (error) {
     console.error('Initialization error:', error);
   }

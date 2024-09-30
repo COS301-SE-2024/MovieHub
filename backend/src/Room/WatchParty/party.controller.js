@@ -69,11 +69,11 @@ exports.getWatchPartyChatMessages = async (req, res) => {
 // Send a chat message to a watch party
 exports.sendWatchPartyChatMessage = async (req, res) => {
     const { partyCode } = req.params;
-    const { username, text } = req.body;
+    const { username, text, id: messageId } = req.body; // Include messageId
 
     try {
         const { roomId } = await partyService.getWatchPartyByCode(partyCode);
-        const result = await partyService.sendWatchPartyChatMessage(roomId, username, text);
+        const result = await partyService.sendWatchPartyChatMessage(roomId, username, text, messageId); // Pass messageId
         if (result.success) {
             res.status(200).json({ message: 'Message sent successfully' });
         } else {
@@ -84,7 +84,6 @@ exports.sendWatchPartyChatMessage = async (req, res) => {
         res.status(500).json({ error: 'Failed to send chat message' });
     }
 };
-
 // Controller to delete a watch party
 exports.deleteWatchParty = async (req, res) => {
     const { username, partyCode } = req.body;

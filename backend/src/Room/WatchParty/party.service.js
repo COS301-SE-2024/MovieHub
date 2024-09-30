@@ -301,13 +301,14 @@ exports.getWatchPartyByCode = async (partyCode) => {
 };
 
 
-// Function to send a new chat message
-exports.sendWatchPartyChatMessage = async (roomId, username, text) => {
+/// Function to send a new chat message
+exports.sendWatchPartyChatMessage = async (roomId, username, text, messageId) => {
     const db = getDatabase();
     const newMessageRef = push(ref(db, `rooms/${roomId}/WatchParty/chat`));
 
     try {
         await set(newMessageRef, {
+            id: messageId, // Store the messageId
             username: username,
             text: text,
             timestamp: Date.now(),
@@ -318,6 +319,7 @@ exports.sendWatchPartyChatMessage = async (roomId, username, text) => {
         return { success: false, error: 'Failed to send chat message' };
     }
 };
+
 
 // Function to schedule a watch party (Needs to be revisited)
 exports.scheduleWatchParty = async (userId, partyData) => {
