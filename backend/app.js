@@ -37,7 +37,7 @@ const WebSocket = require('ws');
 
 app.use(
     cors({
-        origin: ["http://localhost:8081", "exp://192.168.225.19:8081", 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp', "https://www.netflix.com"],
+        origin: ["http://localhost:8081", "exp://192.168.225.19:8081", 'chrome-extension://gghoblbehihhmceogmigccldhmnnfeoc', "https://*.netflix.com/*"],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })
@@ -145,18 +145,18 @@ wss.on('connection', (ws, req) => {
                 socketId: socketId,
                 message: `${username} has joined the party!`
             }, ws);
-            console.log("******",username, "has joined!");
+            console.log("******", username, "has joined!");
         }
-    
+
 
         // Broadcast messages based on type
-        if ('webrtc-offer'==data.type) {
+        if ('webrtc-offer' == data.type) {
             console.log("Broadcasting??", data.type);
             broadcast(roomId, {
                 type: 'webrtc-offer',
                 offer: offer,
                 targetroomId: roomId,
-}, ws);
+            }, ws);
         }
         else if ('webrtc-answer' == data.type) {
             console.log("Broadcasting??", data.type);

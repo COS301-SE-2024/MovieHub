@@ -3,8 +3,8 @@ const partyService = require('./party.service');
 // Controller for starting a watch party
 exports.startWatchParty = async (req, res) => {
     console.log('Starting watch party -> controller');
-    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
-    const { username,roomShortCode, partyCode } = req.body;
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://gghoblbehihhmceogmigccldhmnnfeoc');
+    const { username, roomShortCode, partyCode } = req.body;
 
     if (!partyCode || !roomShortCode || !username) {
         return res.status(400).json({ success: false, message: 'Party code and Room code are required' });
@@ -27,13 +27,15 @@ exports.startWatchParty = async (req, res) => {
 // Controller for joining a watch party
 exports.joinWatchParty = async (req, res) => {
     const { username, partyCode } = req.body;
-    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://gghoblbehihhmceogmigccldhmnnfeoc');
     if (!username || !partyCode) {
         return res.status(400).json({ success: false, message: 'Username and Party Code are required' });
     }
 
     try {
+
         const result = await partyService.joinWatchParty(username, partyCode);
+        console.log("Result => ", result);
         if (result.success) {
             return res.status(200).json({
                 success: true,
@@ -52,16 +54,16 @@ exports.joinWatchParty = async (req, res) => {
 // Fetch chat messages for a watch party
 exports.getWatchPartyChatMessages = async (req, res) => {
     console.log('Get Watch Party-controller');
-    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://gghoblbehihhmceogmigccldhmnnfeoc');
     const { partyCode } = req.params;
     console.log("Controller party Code-> ", partyCode);
     try {
         const { roomId } = await partyService.getWatchPartyByCode(partyCode); // Ensure this function exists in the service
         const messages = await partyService.getWatchPartyMessages(roomId);
-       if(messages.success){
-           res.status(200).json(messages);
-       }
-       
+        if (messages.success) {
+            res.status(200).json(messages);
+        }
+
     } catch (error) {
         console.error('Error fetching chat messages:', error);
         res.status(500).json({ error: 'Failed to fetch chat messages' });
@@ -70,7 +72,7 @@ exports.getWatchPartyChatMessages = async (req, res) => {
 
 // Send a chat message to a watch party
 exports.sendWatchPartyChatMessage = async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://fcjkfolbijgpimiblbheehmbikepaknp');
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://gghoblbehihhmceogmigccldhmnnfeoc');
     const { partyCode } = req.params;
     const { username, text, id: messageId } = req.body; // Include messageId
 
@@ -127,9 +129,9 @@ exports.createWatchParty = async (req, res) => {
     const partyData = req.body;
 
     try {
-        const watchParty = await partyService.createWatchParty(userId,roomId, partyData);
+        const watchParty = await partyService.createWatchParty(userId, roomId, partyData);
         // Sync with extension
-      //  await partyService.syncWithExtension(watchParty.partyId, partyData);
+        //  await partyService.syncWithExtension(watchParty.partyId, partyData);
         res.status(201).json(watchParty);
     } catch (error) {
         console.error('Error creating watch party:', error);

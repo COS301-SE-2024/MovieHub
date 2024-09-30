@@ -131,51 +131,52 @@ exports.startWatchParty = async (username, partyCode, roomShortCode) => {
     }
 };
 
-    // Function to handle joining a watch party
-exports.joinWatchParty = async ( username, partyCode) => {
-        const session = driver.session();
+// Function to handle joining a watch party
+exports.joinWatchParty = async (username, partyCode) => {
+    const session = driver.session();
 
-        try {
-            // Retrieve the watch party details from Neo4j
-            const result = await session.run(
-                `MATCH (p:WatchParty {partyCode: $partyCode}) 
+    try {
+        // Retrieve the watch party details from Neo4j
+        const result = await session.run(
+            `MATCH (p:WatchParty {partyCode: $partyCode}) 
                  RETURN p.roomId AS roomId, p.createdBy AS createdBy, p.createdAt AS createdAt`,
-                { partyCode }
-            );
+            { partyCode }
+        );
 
-            const record = result.records[0];
-            if (!record) {
-                return { success: false, error: 'Invalid party code' };
-            }
-
-            const roomId = record.get('roomId');
-            const createdBy = record.get('createdBy');
-            const createdAt = record.get('createdAt');
-
-            // Send a message to the room about the new user joining
-            const joinMessageRef = ref(db, `rooms/${roomId}/WatchParty`);
-            await set(push(joinMessageRef), {
-                message: `User ${username} has joined the watch party!`,
-                username,
-                createdAt: Date.now()
-            });
-
-            console.log("Return join party->service");
-            return {
-                success: true,
-                roomId,
-                partyDetails: {
-                    createdBy,
-                    createdAt
-                }
-            };
-        } catch (error) {
-            console.error('Error joining watch party:', error);
-            return { success: false, error: 'Failed to join watch party' };
-        } finally {
-            await session.close();
+        const record = result.records[0];
+        if (!record) {
+            return { success: false, error: 'Invalid party code' };
         }
-    };
+
+        const roomId = record.get('roomId');
+        const createdBy = record.get('createdBy');
+        const createdAt = record.get('createdAt');
+
+        // Send a message to the room about the new user joining
+        const joinMessageRef = ref(db, `rooms/${roomId}/WatchParty`);
+        await set(push(joinMessageRef), {
+            message: `User ${username} has joined the watch party!`,
+            username,
+            createdAt: Date.now()
+        });
+
+        console.log("Return join party->service");
+        const re = {
+            success: true,
+            roomId,
+            partyDetails: {
+                createdBy,
+                createdAt
+            }
+        };
+        return re;
+    } catch (error) {
+        console.error('Error joining watch party:', error);
+        return { success: false, error: 'Failed to join watch party' };
+    } finally {
+        await session.close();
+    }
+};
 
 // Sync playback controls from extension to mobile chat room
 exports.syncPlaybackControls = async (roomId, controls) => {
@@ -368,9 +369,9 @@ exports.scheduleWatchParty = async (userId, partyData) => {
 };
 
 // Function to create a watch party
-exports.createWatchParty = async (userId,roomId, partyData) => {
+exports.createWatchParty = async (userId, roomId, partyData) => {
     const session = driver.session();
-    const partyId = uuidv4(); 
+    const partyId = uuidv4();
     const createdAt = new Date().toISOString();
     const { partyName, startTime, streamingPlatform } = partyData;
 
@@ -418,7 +419,7 @@ exports.createWatchParty = async (userId,roomId, partyData) => {
         await tx.commit();
 
         // Sync watch party data with the extension
-      //  await syncWithExtension(partyId, { partyName, startTime, createdAt, hyperbeamSession });
+        //  await syncWithExtension(partyId, { partyName, startTime, createdAt, hyperbeamSession });
 
         // Send the iframe embed URL dynamically to the room
         await sendWatchPartyUrlToRoom(roomId, hyperbeamSession.embed_url);

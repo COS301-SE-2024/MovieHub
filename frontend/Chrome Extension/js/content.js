@@ -375,28 +375,28 @@ async function initializeWebSocket(roomId) {
       if (data.type === 'client-count-update') {
         clientCount = data.count; // Update the client count
         console.log(`Updated client count: ${clientCount}`);
-        if (clientCount < 1){
+        if (clientCount < 1) {
           return;
         }
       }
 
-        if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
-          if(!peerConnection){
+      if (clientCount > 1) { // Only send offer if there's at least one other client
+        if (!peerConnection) {
           console.log('Creating peer connection and sending an offer.');
           const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
-           if (peerConnection) {
+          if (peerConnection) {
             if (peerConnection.signalingState === 'stable') {
-            await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
+              await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
             }
             else if (peerConnection.signalingState === 'have-local-offer') {
               console.log('Handling incoming WebRTC answer:', data.answer);
               await handleIncomingAnswer(data.answer, peerConnection);
             }
-           console.log("Out of creat if");
+            console.log("Out of creat if");
+          }
         }
-      }
-       
-      } else if ((data.type === 'webrtc-answer' )  && userDetails.isHost) {
+
+      } else if ((data.type === 'webrtc-answer')) {
         console.log("Some answer??");
         const peerConnection = peerConnections[userDetails.roomId];
         if (peerConnection && peerConnection.signalingState !== 'closed') {
@@ -408,26 +408,26 @@ async function initializeWebSocket(roomId) {
       }
 
 
-      // if (clientCount > 1 && userDetails.isHost) { // Only send offer if there's at least one other client
+      // if (clientCount > 1 ) { // Only send offer if there's at least one other client
       //   console.log('Creating peer connection and sending an offer.');
       //   const peerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
       //   await createOffer(peerConnection, userDetails.partyCode, userDetails.roomId);
       // }
-      
+
       if (data.type === 'webrtc-offer' && !userDetails.isHost) {
         console.log('Received offer:', data.offer);
         if (!peerConnection) {
-        const newPeerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
-        if(newPeerConnection){
-          await handleIncomingOffer(data.offer, newPeerConnection, userDetails.partyCode, userDetails.roomId);
+          const newPeerConnection = await createPeerConnection(userDetails.partyCode, userDetails.roomId);
+          if (newPeerConnection) {
+            await handleIncomingOffer(data.offer, newPeerConnection, userDetails.partyCode, userDetails.roomId);
+          }
         }
-      }
-        
+
       }
       // Handle ICE candidate messages
       else if (data.type === 'webrtc-ice-candidate') {
         const peerConnection = peerConnections[userDetails.roomId];
-        
+
         if (peerConnection) {
           console.log("ICE peer Conn ", peerConnection);
           if (peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
@@ -437,7 +437,7 @@ async function initializeWebSocket(roomId) {
             iceCandidateQueue.push(data.candidate);
           }
         }
-      
+
       }
     };
   }
@@ -559,23 +559,23 @@ function getPeerConnection(roomId) {
 
 // Handle incoming offer for guests
 async function handleIncomingOffer(offer, peerConnection, roomId, partyCode) {
-  try{
-  if (peerConnection.signalingState !== 'stable') {
-    console.warn('Received offer but peer connection is not stable. Current signaling state:', peerConnection.signalingState);
-    return; // Exit early if not in stable state
-  }
+  try {
+    if (peerConnection.signalingState !== 'stable') {
+      console.warn('Received offer but peer connection is not stable. Current signaling state:', peerConnection.signalingState);
+      return; // Exit early if not in stable state
+    }
 
-  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-  const answer = await peerConnection.createAnswer();
-  await peerConnection.setLocalDescription(answer);
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
 
-  sendWSMessage({
-    type: 'webrtc-answer',
-    answer,
-    roomId,
-    partyCode,
-  });
-  console.log('Answer sent:', answer);
+    sendWSMessage({
+      type: 'webrtc-answer',
+      answer,
+      roomId,
+      partyCode,
+    });
+    console.log('Answer sent:', answer);
     console.log("The peers state: ", peerConnection.signalingState);
   } catch (error) {
     console.error('Failed to handle incoming offer:', error);
@@ -659,7 +659,7 @@ async function createPeerConnection(partyCode, targetroomId) {
     console.log('Peer connection already exists for room:', targetroomId);
     console.log("Check its state: ", peerConnections[targetroomId].signalingState)
 
-    
+
     return peerConnections[targetroomId]; // Return the existing connection
   }
   // Create a new RTCPeerConnection
@@ -706,7 +706,8 @@ function updateAudioStatus(isTransmitting) {
     newAudioStatusElement.id = 'audio-status';
     newAudioStatusElement.textContent = isTransmitting ? 'Audio is being transmitted.' : 'No audio packets received.';
     document.body.appendChild(newAudioStatusElement); // Append to body or another container
-  }}
+  }
+}
 
 async function createOffer(peerConnection, roomId, partyCode) {
   try {
@@ -858,7 +859,7 @@ async function fetchChatMessages(username, partyCode) {
           updateChatMessages(data.messages, username);
         }
       }
-    } 
+    }
     // else if (data.message == "No messages available in the chat room.") {
     //   addChatMessage("System", "An error occurred while fetching chat messages.");
     // }
@@ -869,9 +870,9 @@ async function fetchChatMessages(username, partyCode) {
       if (inputContainer) {
         inputContainer.style.display = "none";
       }
-      
+
     }
-   
+
     // createChatInputContainer({ username, partyCode });
   } catch (error) {
     console.log("Error fetching chat messages:", error);
@@ -996,7 +997,7 @@ async function initChat() {
     fetchChatMessages(userDetails.username, userDetails.partyCode); // Fetch initial chat messages
     console.log("create chat box");
     createChatBox();
-  //  createChatInputContainer(userDetails);
+    //  createChatInputContainer(userDetails);
     console.log("Before Int");
     chatBox.style.display = 'block';
     const chatInput = chatBox.querySelector(".chat-input");
