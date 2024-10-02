@@ -12,7 +12,7 @@ const Quiz = ({ route, navigation }) => {
     const [quizFinished, setQuizFinished] = useState(false);
 
     const handleAnswer = () => {
-        if (userAnswer.toLowerCase() === questions[currentQuestionIndex].answer.toLowerCase()) {
+        if (userAnswer?.toLowerCase() === questions[currentQuestionIndex].answer?.toLowerCase()) {
             setScore(score + 1);
         }
 
