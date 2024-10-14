@@ -67,7 +67,8 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-web": "~0.19.10",
-    "regenerator-runtime": "^0.14.1"
+    "regenerator-runtime": "^0.14.1",
+    "expo-updates": "~0.25.27"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
