@@ -42,10 +42,10 @@ export default function HomeHeader({ userInfo }) {
         // Poll for unread notifications every 10 seconds (10000 milliseconds)
         fetchUnreadNotifications(); // initial fetch
     
-        const intervalId = setInterval(fetchUnreadNotifications, 10000);
+        // const intervalId = setInterval(fetchUnreadNotifications, 10000);
     
         // Clear the interval when the component unmounts
-        return () => clearInterval(intervalId);
+        // return () => clearInterval();
     }, [userInfo.userId]);
 
     return (
