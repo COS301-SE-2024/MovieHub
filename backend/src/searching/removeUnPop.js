@@ -15,8 +15,8 @@ fs.readFile('filtered_merged_output2.json', 'utf8', (err, data) => {
 
   // Function to check if any field contains the word "spanking"
   const containsSpanking = (movieData) => {
-    const fieldsToCheck = ['title', 'keywords', 'overview', 'tagline'];
-    return fieldsToCheck.some(field => movieData[field] && movieData[field].toLowerCase().includes('Seduction'));
+    const fieldsToCheck = ['title', 'keywords', 'overview', 'tagline', 'spokenLanguages'];
+    return fieldsToCheck.some(field => movieData[field] && movieData[field].toLowerCase().includes('incest'));
   };
 
   for (let i = 0; i < lines.length; i += 2) {
@@ -37,7 +37,7 @@ fs.readFile('filtered_merged_output2.json', 'utf8', (err, data) => {
   }
 
   // Write the filtered data back to a new file
-  fs.writeFile('filtered_merged_output2.json', filteredData.join('\n'), 'utf8', (err) => {
+  fs.writeFile('3filtered_merged_output.json', filteredData.join('\n'), 'utf8', (err) => {
     if (err) {
       console.error('Error writing file:', err);
       return;
