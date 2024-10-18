@@ -39,6 +39,19 @@ exports.modifyWatchlist = async (req, res) => {
     }
 };
 
+exports.addMovieToWatchlist = async (req, res) => {
+    const watchlistId = req.params.watchlistId;
+    const { movieTitle } = req.body;
+
+    try {
+        const result = await WatchlistService.addMovieToWatchlist(watchlistId, movieTitle);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
 exports.getWatchlistDetails = async (req, res) => {
     const { watchlistId } = req.params;
     console.log('Inside getWatchlistDeatils list controller');

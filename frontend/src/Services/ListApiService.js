@@ -59,6 +59,28 @@ export const modifyWatchlist = async (watchlistId, updatedData) => {
     }
 };
 
+export const addMovieToWatchlist = async (watchlistId, movieTitle) => {
+    try {
+        const response = await fetch(`${API_URL}${watchlistId}/add-movie`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ movieTitle }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add movie to watchlist.");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error adding movie to watchlist:", error);
+        throw new Error("Failed to add movie to watchlist.");
+    }
+};
+
+
 export const getWatchlistDetails = async (watchlistId) => {
     try {
         const response = await fetch(`${API_URL}${watchlistId}`, {

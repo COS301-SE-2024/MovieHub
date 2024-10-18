@@ -28,6 +28,7 @@ exports.fetchFriendsContent = async (userId) => {
   WHERE u.uid = $userId AND friend.uid <> $userId
   OPTIONAL MATCH (friend)-[:POSTED]->(post:Post)
   RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, post
+  LIMIT 15
 `;
 
     // Query for friends and their reviews including friends' information
@@ -36,6 +37,7 @@ exports.fetchFriendsContent = async (userId) => {
   WHERE u.uid = $userId AND friend.uid <> $userId
   OPTIONAL MATCH (friend)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
   RETURN friend.uid AS friendId, friend.username AS friendUsername, friend.avatar AS friendAvatar, review, movie
+  LIMIT 15
 `;
 
     try {
@@ -90,6 +92,7 @@ exports.fetchFriendsOfFriendsContent = async (userId) => {
   OPTIONAL MATCH (fof)-[:REVIEWED]->(review:Review)-[:REVIEWED_ON]->(movie:Movie)
   OPTIONAL MATCH (fof)-[:POSTED]->(post:Post)
   RETURN fof, post, review, movie
+  LIMIT 20
 `;
 
     try {
@@ -120,7 +123,7 @@ exports.fetchRandomUsersContent = async (userId) => {
   }
   RETURN u, post
   ORDER BY rand()
-  LIMIT 30
+  LIMIT 20
 `;
 
     try {
@@ -161,7 +164,7 @@ exports.fetchLatestPosts = async () => {
       MATCH (u:User)-[:POSTED]->(post:Post)
       RETURN u, post
       ORDER BY post.createdAt DESC
-      LIMIT 30
+      LIMIT 20
     `;
 
     try {
@@ -183,7 +186,7 @@ exports.fetchTopReviews = async () => {
       MATCH (u:User)-[:REVIEWED]->(r:Review)-[:REVIEWED_ON]->(m:Movie)
       RETURN r, u, m
       ORDER BY r.rating DESC
-      LIMIT 30
+      LIMIT 20
     `;
 
     try {
