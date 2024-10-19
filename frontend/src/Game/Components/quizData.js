@@ -55,11 +55,9 @@ import { getGameData } from "../../Services/GameApiService";
 // };
 
 export const fetchQuizData = async (genre) => {
-    console.log("Passed genre", genre)
     const cleanGenre = genre.trim();
     const quizData = {}; // Initialize the quizData object
     const gameData = await getGameData(cleanGenre); // Await the result of getGameData
-    // console.log(gameData)
     // Merge the new game data into the quizData object
     Object.assign(quizData, gameData);
 

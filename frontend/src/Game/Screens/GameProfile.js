@@ -57,7 +57,6 @@ const GameProfile = ({ route }) => {
     
                 setQuizData(combinedQuizData || {}); // Ensure quizData is an object
 
-                console.log(combinedQuizData);
               
             } else {
                 console.error("User profile is empty or undefined");

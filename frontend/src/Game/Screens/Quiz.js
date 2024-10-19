@@ -14,14 +14,10 @@ const Quiz = ({ route, navigation }) => {
 
     const currentQuestion = questions[currentQuestionIndex];
 
-    console.log("current Question", currentQuestion);
-
     const handleAnswer = () => {
         
         setUserAnswers([...userAnswers, selectedOption]);
 
-        console.log("my answer",selectedOption);
-        console.log("correct Answer", currentQuestion.correct+1);
 
 
         if (selectedOption === currentQuestion.correct+1) {
