@@ -17,9 +17,26 @@ const fetchQuotesByGenre = async (genre) => {
         throw new Error('Error fetching quotes: ' + error.message);
     }
 
-    console.log("db data:", data)
     return data;
     
 };
 
-module.exports = { fetchQuotesByGenre };
+const fetchAllMovies = async () => {
+    const { data, error } = await supabase
+        .from('movieQuotes_duplicate') 
+        .select('movie')
+        .limit(20); 
+
+    if (error) {
+        throw new Error('Error fetching all movies: ' + error.message);
+    }
+
+
+   
+    return data; 
+};
+
+module.exports = {
+    fetchQuotesByGenre,
+    fetchAllMovies
+};
