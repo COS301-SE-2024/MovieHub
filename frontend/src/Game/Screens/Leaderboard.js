@@ -17,7 +17,7 @@ const Leaderboard = ({ route }) => {
         try {
             const userId = userInfo.userId;
             const response = await getUserProfile(userId);
-            console.log(response);
+            
             setAvatar(response.avatar);
             setUsername(response.username);
         } catch (error) {

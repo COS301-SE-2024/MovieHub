@@ -147,6 +147,59 @@ exports.modifyWatchlist = async (watchlistId, updatedData) => {
     }
 };
 
+exports.addMovieToWatchlist = async (watchlistId, movieTitle) => {
+    const session = driver.session();
+
+    try {
+        // Fetch movie details from TMDB
+        const movieDetails = await TmdbService.fetchMovieDetails(movieTitle);
+        if (!movieDetails) {
+            throw new Error(`Movie not found: ${movieTitle}`);
+        }
+
+        // Start a transaction
+        const tx = session.beginTransaction();
+
+        // Create or find the movie node
+        await tx.run(
+            `MERGE (m:Movie {movieId: $id})
+             ON CREATE SET m.title = $title, m.releaseDate = $releaseDate, m.overview = $overview, m.posterPath = $posterPath
+             RETURN m`,
+            {
+                id: movieDetails.id,
+                title: movieDetails.title,
+                releaseDate: movieDetails.release_date,
+                overview: movieDetails.overview,
+                posterPath: movieDetails.poster_path,
+            }
+        );
+
+        // Associate the movie with the specified watchlist
+        const result = await tx.run(
+            `MATCH (w:Watchlist {id: $watchlistId}), (m:Movie {movieId: $movieId})
+             MERGE (w)-[:INCLUDES]->(m)
+             RETURN w, m`,
+            { watchlistId, movieId: movieDetails.id }
+        );
+
+        if (result.records.length === 0) {
+            throw new Error('Failed to add movie to watchlist.');
+        }
+
+        // Commit the transaction
+        await tx.commit();
+        console.log(`Movie "${movieTitle}" added to watchlist "${watchlistId}".`);
+
+        return { message: `Movie "${movieTitle}" added to watchlist.` };
+    } catch (error) {
+        console.error("Error adding movie to watchlist:", error);
+        if (tx) await tx.rollback();
+        throw error;
+    } finally {
+        await session.close();
+    }
+};
+
 
 // Get a particular watchlist's details
 exports.getWatchlistDetails = async (watchlistId) => {

@@ -6,6 +6,7 @@ const supabaseUrl = "https://smpxgyiogmxexcsfkkuz.supabase.co";
 const supabaseKey = process.env.SUPABASE_KEY_QUOTE; // Set this in your .env
 const supabase = createClient(supabaseUrl, supabaseKey);
 const { fetchQuotesByGenre } = require('./games.controller');
+const { fetchAllMovies } = require('./games.controller');
 
 
 // Common words to exclude from fill-in-the-blank questions
@@ -23,25 +24,25 @@ const commonWords = new Set([
 ]);
 
 // Function to create fill-in-the-blank questions with a hint
-function createFillInTheBlank(quote) {
-    const words = quote.split(" ");
-    const filteredWords = words.filter(word => !commonWords.has(word.toLowerCase()));
+// function createFillInTheBlank(quote) {
+//     const words = quote.split(" ");
+//     const filteredWords = words.filter(word => !commonWords.has(word.toLowerCase()));
 
-    if (filteredWords.length === 0) {
-        throw new Error("No suitable words to remove.");
-    }
+//     if (filteredWords.length === 0) {
+//         throw new Error("No suitable words to remove.");
+//     }
 
-    const randomIndex = Math.floor(Math.random() * filteredWords.length);
-    const wordToRemove = filteredWords[randomIndex];
-    const modifiedQuote = quote.replace(wordToRemove, "______");
+//     const randomIndex = Math.floor(Math.random() * filteredWords.length);
+//     const wordToRemove = filteredWords[randomIndex];
+//     const modifiedQuote = quote.replace(wordToRemove, "______");
 
-    return {
-        type: "fill-in-blank",
-        question: modifiedQuote,
-        answer: wordToRemove,
-        hint: "", // Placeholder for hint
-    };
-}
+//     return {
+//         type: "fill-in-blank",
+//         question: modifiedQuote,
+//         answer: wordToRemove,
+//         hint: "", // Placeholder for hint
+//     };
+// }
 
 
 // Function to create multiple-choice questions
@@ -70,6 +71,7 @@ function createMultipleChoiceQuestion(quote, correctMovie, allMovies) {
 
     const options = shuffleArray([correctMovie, ...selectedIncorrectMovies]);
 
+    
     return {
         question: `What movie is this quote from: "${quote}"?`,
         options: options,
@@ -80,20 +82,25 @@ function createMultipleChoiceQuestion(quote, correctMovie, allMovies) {
 
 const getGameData = async (genre) => {
     console.log(genre);
-    const quotes = await fetchQuotesByGenre(genre); // Fetch quotes from the controller
+    const quotes = await fetchQuotesByGenre(genre); 
+    const allMoviesData = await fetchAllMovies();
+
+    const allMovies = allMoviesData.map(movieObj => movieObj.movie);
 
     // Create fill-in-the-blank questions
-    const fillInTheBlankQuestions = quotes.map(({ quote }) => createFillInTheBlank(quote)).slice(0, 5); // Take first 5
+    // const fillInTheBlankQuestions = quotes.map(({ quote }) => createFillInTheBlank(quote)).slice(0, 5); // Take first 5
 
     // Create multiple-choice questions
     const multipleChoiceQuestions = quotes.map(({ quote, movie }) => 
-        createMultipleChoiceQuestion(quote, movie, quotes.map(q => q.movie))
+        createMultipleChoiceQuestion(quote, movie, allMovies)
     ).slice(0, 5); // Take first 5
+
+console.log("mult stuff",multipleChoiceQuestions );
 
     // Return data in the format required for quizData
     return {
         [genre]: [
-            ...fillInTheBlankQuestions,
+            // ...fillInTheBlankQuestions,
             ...multipleChoiceQuestions.map(mc => ({
                 type: "multiple-choice",
                 question: mc.question,

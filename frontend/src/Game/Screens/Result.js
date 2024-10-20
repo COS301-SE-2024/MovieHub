@@ -2,28 +2,24 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 
 const Result = ({ route, navigation }) => {
-    const { userAnswers, questions } = route.params;
+    const { userAnswers, questions,score } = route.params;
 
     const correctAnswersCount = questions.filter((question, index) => {
-        if (question.type === "fill-in-blank") {
-            return userAnswers[index] === question.answer.toLowerCase();
-        } else {
-            return userAnswers[index] === question.options[question.correct];
-        }
+        return userAnswers[index] === question.options[question.correct];
     }).length;
 
-    const percentage = (correctAnswersCount / questions.length) * 100;
+    const percentage = (score / 5) * 100;
 
     // Function to determine feedback message based on percentage
     const getFeedbackMessage = (percentage) => {
         if (percentage === 100) {
-            return { bold: "You're a movie genius!\n ", regular: "Congratulations for getting all the questions right!" };
+            return { bold: "You're an absolute legend!\n", regular: "You got every question right! Are you sure you're not a movie critic on TikTok?" };
         } else if (percentage >= 80) {
-            return { bold: "Great job!\n", regular: "Even the best directors had to learn their craft!" };
+            return { bold: "Slayyyy! 👏\n", regular: "You’re killing it! You definitely know your movies better than I know my Netflix password!" };
         } else if (percentage >= 50) {
-            return { bold: "Not bad!\n", regular: "You're halfway to being a cinematic wizard!" };
+            return { bold: "Not too shabby!\n", regular: "You’re halfway there! Keep at it, and soon you'll be quoting movies like a pro!" };
         } else {
-            return { bold: "Keep trying!\n", regular: "Even the best directors had to learn their craft!" };
+            return { bold: "It's okay, we all have our moments! 😂\n", regular: "Don't worry, even the biggest stars have off days! Grab some popcorn and try again!" };
         }
     };
 
@@ -35,7 +31,7 @@ const Result = ({ route, navigation }) => {
             <View style={styles.resultContainer}>
                 <Text style={styles.percentageText}>{percentage.toFixed(0)}%</Text>
                 <Text style={styles.correctAnswersText}>
-                    {correctAnswersCount} of {questions.length}
+                    {score} of {questions.length}
                 </Text>
             </View>
             {/** Give feedback messages based on results */}
@@ -53,6 +49,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#FF6B47",
+        paddingBottom: 100,
     },
     confettiImage: {
         position: "absolute",
@@ -68,7 +65,7 @@ const styles = StyleSheet.create({
         height: 270,
         width: 270,
         alignItems: "center",
-        borderColor: "#8a84e0",
+        borderColor: "#7855b4",
         borderWidth: 20,
         justifyContent: "center",
         paddingHorizontal: 20,

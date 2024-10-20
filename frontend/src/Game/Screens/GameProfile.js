@@ -4,6 +4,7 @@ import GameBottomHeader from "../Components/GameBottomHeader";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../../Services/UseridContext";
 import { useTheme } from "../../styles/ThemeContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUserProfile, updateUserProfile } from "../../Services/UsersApiService";
 import { quizData, fetchQuizData } from "../Components/quizData";
 // import {  } from "../../../../backend/src/GameUser/gameuser.services";
@@ -22,6 +23,8 @@ const GameProfile = ({ route }) => {
     const [rank, setRank] = useState("Novice")
     const [level, setLevel] = useState(1);
     const [points, setPoints] = useState(0);
+    const [lastQuizAttempt, setLastQuizAttempt] = useState({});
+    const [quizAvailability, setQuizAvailability] = useState({});
 
     const [quizData, setQuizData] = useState({}); // Initialize quizData with an empty object
 
@@ -45,6 +48,7 @@ const GameProfile = ({ route }) => {
     
                 // Wait for all quiz data to be fetched
                 const quizResponses = await Promise.all(quizPromises);
+
     
                 // Combine all quiz data into a single object
                 const combinedQuizData = quizResponses.reduce((acc, quizData) => {
@@ -52,6 +56,8 @@ const GameProfile = ({ route }) => {
                 }, {});
     
                 setQuizData(combinedQuizData || {}); // Ensure quizData is an object
+
+              
             } else {
                 console.error("User profile is empty or undefined");
             }
@@ -59,6 +65,30 @@ const GameProfile = ({ route }) => {
             console.error("Error fetching user data:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadQuizAvailability = async () => {
+        try {
+            const storedAvailability = await AsyncStorage.getItem('quizAvailability');
+            if (storedAvailability) {
+                setQuizAvailability(JSON.parse(storedAvailability));
+            }
+        } catch (error) {
+            console.error("Error loading quiz availability:", error);
+        }
+    };
+
+    const storeQuizAvailability = async (className, timestamp) => {
+        try {
+            const updatedAvailability = {
+                ...quizAvailability,
+                [className]: timestamp
+            };
+            setQuizAvailability(updatedAvailability);
+            await AsyncStorage.setItem('quizAvailability', JSON.stringify(updatedAvailability)); // Store updated availability
+        } catch (error) {
+            console.error("Error storing quiz availability:", error);
         }
     };
     
@@ -73,9 +103,33 @@ const GameProfile = ({ route }) => {
     const startQuiz = (className) => {
         if (quizData[className]) {
             navigation.navigate("Quiz", { className, questions: quizData[className] });
+            const now = Date.now();
+            setQuizAvailability((prev) => ({
+                ...prev,
+                [className]: now
+            }));
         } else {
             console.error(`No quiz data found for class: ${className}`);
         }
+    };
+
+    const isQuizAvailable = (className) => {
+        const lastTaken = quizAvailability[className] || 0; // Default to 0 if never taken
+        const timeElapsed = Date.now() - lastTaken;
+        const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        return timeElapsed >= twentyFourHours; // Return true if available
+    };
+
+    // Function to get time remaining until the quiz is available
+    const getTimeRemaining = (className) => {
+        const lastTaken = quizAvailability[className] || 0; // Default to 0 if never taken
+        const timeElapsed = Date.now() - lastTaken;
+        const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        const timeRemaining = twentyFourHours - timeElapsed;
+
+        const hoursRemaining = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
+        const minutesRemaining = Math.floor((timeRemaining / (1000 * 60)) % 60);
+        return `${hoursRemaining}h ${minutesRemaining}m`;
     };
 
     if (loading) {
@@ -92,16 +146,26 @@ const GameProfile = ({ route }) => {
             <View style={styles.studyingSection}>
                 <Text style={styles.sectionTitle}>Quizzes For You</Text>
                 {Object.keys(quizData).length > 0 ? (
-                    Object.keys(quizData).map((className) => (
-                        <TouchableOpacity 
-                            key={className} 
-                            style={styles.classCard} 
-                            onPress={() => startQuiz(className)}
-                        >
-                            <Text style={styles.className}>{className} Quiz</Text>
-                            <Text style={styles.classDetails}>{quizData[className]?.length} questions</Text>
-                        </TouchableOpacity>
-                    ))
+                    Object.keys(quizData).map((className) => {
+                        const available = isQuizAvailable(className);
+                        return (
+                            <TouchableOpacity
+                                key={className}
+                                style={[styles.classCard, !available && styles.disabledCard]}
+                                onPress={() => available && startQuiz(className)}
+                                disabled={!available} // Disable button if quiz is not available
+                            >
+                                <Text style={styles.className}>{className} Quiz</Text>
+                                {available ? (
+                                <Text style={styles.classDetails}>{quizData[className]?.length} questions</Text>
+                            ) : (
+                                <Text style={styles.timeRemaining}>
+                                    Available in: {getTimeRemaining(className)}
+                                </Text>
+                            )}
+                            </TouchableOpacity>
+                        );
+                    })
                 ) : (
                     <Text style={styles.noQuizzes}>No quizzes available.</Text>
                 )}

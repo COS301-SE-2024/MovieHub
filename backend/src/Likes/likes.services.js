@@ -11,7 +11,8 @@ exports.getLikesOfUser = async (uid) => {
         const result = await session.run(
             `MATCH (u:User)-[:LIKES]->(p)
             WHERE u.uid = $uid AND (p:Post OR p:Review)
-            RETURN p`,
+            RETURN p
+            LIMIT 15`,
             { uid }
         );
         console.log(result);
