@@ -19,11 +19,10 @@ const getUserFavoriteGenres = async (userId) => {
     const session = driver.session();
     try {
         const result = await session.run(
-            'MATCH (u:User {id: $userId}) RETURN u.favorite_genres AS favoriteGenres',
+            'MATCH (u:User {uid: $userId}) RETURN u.favouriteGenres AS favoriteGenres',
             { userId }
         );
 
-        // Assuming favorite_genres is stored as a list in Neo4j
         if (result.records.length > 0) {
             const favoriteGenres = result.records[0].get('favoriteGenres');
             return favoriteGenres; // This should return an array of genre IDs
@@ -38,26 +37,71 @@ const getUserFavoriteGenres = async (userId) => {
     }
 };
 
-// Don't forget to close the driver when your application is shutting down
+// New function to get user interaction data (watched movies, liked movies, etc.)
+const getUserInteractionData = async (userId) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(
+            'MATCH (u:User {uid: $userId})-[:REVIEW]->(m:Movie) RETURN m.movieId AS movieId, m.rating AS rating',
+            { userId }
+        );
+
+        return result.records.map(record => ({
+            movieId: record.get('movieId'),
+            rating: record.get('rating') || null
+        }));
+    } catch (error) {
+        console.error('Error fetching user interaction data:', error);
+        throw new Error('Failed to retrieve user interactions');
+    } finally {
+        await session.close();
+    }
+};
+
 const closeNeo4jConnection = async () => {
     await driver.close();
 };
 
 const checkAndSetupIndex = async () => {
-    //await setupIndex();
-    //await indexMovies(); // Ensure movies are indexed after setup
+    // await setupIndex();
+    // await indexMovies(); // Ensure movies are indexed after setup
+};
+const genresMap = {
+    28: 'Action',
+    12: 'Adventure',
+    16: 'Animation',
+    35: 'Comedy',
+    80: 'Crime',
+    99: 'Documentary',
+    18: 'Drama',
+    10751: 'Family',
+    14: 'Fantasy',
+    36: 'History',
+    27: 'Horror',
+    10402: 'Music',
+    9648: 'Mystery',
+    10749: 'Romance',
+    878: 'Science Fiction',
+    10770: 'TV Movie',
+    53: 'Thriller',
+    10752: 'War',
+    37: 'Western'
 };
 
-
+// Modified recommendation function to leverage collaborative filtering with similarity scaling
 const recommendMoviesByTMDBId = async (tmdbId, userId) => {
     try {
         await checkAndSetupIndex();
 
         const tmdbMovie = await getMovieDetails(tmdbId);
         const userFavoriteGenres = await getUserFavoriteGenres(userId);
+        const userInteractions = await getUserInteractionData(userId); // Get watched/liked movies
 
         // Collect genre IDs for querying
-        const genreQuery = [...tmdbMovie.genres.map(genre => genre.id), ...userFavoriteGenres];
+        const genreQuery = [
+            ...tmdbMovie.genres.map(genre => genresMap[genre.id]), // Convert TMDB movie genres to names
+            ...userFavoriteGenres.map(genreId => genresMap[genreId]) // Convert favorite genre IDs to names
+        ].filter(Boolean); // Ensure no undefined values if an ID doesn't exist in the map
 
         console.log("Searching movies in Elasticsearch with genre query:", genreQuery);
 
@@ -66,27 +110,17 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
             body: {
                 query: {
                     bool: {
-                        filter: [
-                            {
-                                range: {
-                                    'popularity': {
-                                        'gte': 10 // Popularity must be greater than 5
-                                    }
-                                }
-                            }
-                        ],
                         should: [
                             { match: { overview: tmdbMovie.overview } },
-                            { terms: { 'genre_ids': genreQuery } }
+                            { terms: { 'genre_names': genreQuery } }
                         ],
-
                         must_not: [
                             { match: { id: tmdbId } }
                         ],
                         minimum_should_match: 1
                     }
                 },
-                size: 100
+                size: 400
             },
         });
 
@@ -98,11 +132,7 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
                 index: 'movies',
                 body: {
                     query: {
-                        range: {
-                            popularity: {
-                                gt: 10 // Popularity must be greater than 5
-                            }
-                        }
+                        match_all: {} // Remove popularity condition and fetch all movies
                     }
                 },
                 size: 100
@@ -118,8 +148,6 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
         const allMoviesFeatures = allMovies.map(combineFeatures);
         const combinedFeatures = [tmdbMovieFeatures, ...allMoviesFeatures];
 
-        console.log("Combined features for all movies: ", combinedFeatures);
-
         // Vectorize the movie features
         const movieVectors = vectorizeMovies(combinedFeatures);
         const [tmdbMovieVector, ...allMoviesVectors] = movieVectors;
@@ -134,17 +162,35 @@ const recommendMoviesByTMDBId = async (tmdbId, userId) => {
             };
         });
 
+        // Collaborative filtering: Give a boost to movies that the user has liked or watched
+        const enhancedSimilarities = cosineSimilarities.map(rec => {
+            const userInteraction = userInteractions.find(interaction => interaction.movieId === rec.movie.id);
+            if (userInteraction) {
+                rec.similarity += 0.1 * (userInteraction.rating || 1); // Boost based on rating
+            }
+            return rec;
+        });
+
+        // Normalize the similarity scores based on the number of movies to recommend
+        const numRecommendations = 15;
+        const maxSimilarity = Math.max(...enhancedSimilarities.map(rec => rec.similarity)); // Get max similarity for scaling
+
+        const scaledSimilarities = enhancedSimilarities.map(rec => {
+            rec.similarity = (rec.similarity / maxSimilarity) * (1 / numRecommendations); // Scale similarity
+            return rec;
+        });
+
         // Sort the movies by similarity in descending order
-        cosineSimilarities.sort((a, b) => b.similarity - a.similarity);
+        scaledSimilarities.sort((a, b) => b.similarity - a.similarity);
 
         // Return the top 15 highest similarity movies
-        const topRecommendations = cosineSimilarities
-            .slice(0, 15)
+        const topRecommendations = scaledSimilarities
+            .slice(0, numRecommendations)
             .map(rec => ({
                 id: rec.movie.id,
                 title: rec.movie.title,
                 posterUrl: `https://image.tmdb.org/t/p/w500${rec.movie.poster_path}`,
-                similarity: (rec.similarity * 100).toFixed(2)
+                similarity: (((rec.similarity * 100).toFixed(2)*10).toFixed(2)) // Adjust similarity scaling for display
             }));
 
         console.log("Top recommendations: ", topRecommendations);
@@ -161,11 +207,10 @@ const combineFeatures = (movie) => {
     const overview = movie.overview || '';
     const title = movie.title || '';
     const director = movie.director || '';
-    const cast = Array.isArray(movie.cast) ? movie.cast.join(' ') : '';
-    const music = movie.music || '';
+    // const cast = Array.isArray(movie.cast) ? movie.cast.join(' ') : '';
+    // const music = movie.music || '';
 
-    // Combine all available features into a single string
-    return `${overview} ${genres} ${title} ${director} ${cast} ${music}`.trim();
+    return `${overview} ${genres} ${title} ${director}`.trim();
 };
 
 module.exports = { recommendMoviesByTMDBId };

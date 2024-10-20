@@ -37,7 +37,7 @@ const WebSocket = require('ws');
 
 app.use(
     cors({
-        origin: ["http://localhost:8081", "exp://192.168.225.19:8081", 'chrome-extension://gghoblbehihhmceogmigccldhmnnfeoc', "https://*.netflix.com/*"],
+        origin: ["http://localhost:8081", "exp://192.168.225.19:8081", 'chrome-extension://mbmbholeiljjaabgbpajlfalcbnciona', "https://www.netflix.com/*"],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })

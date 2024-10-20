@@ -997,8 +997,16 @@ async function sendMessage(partyCode, username, text) {
 function addChatMessage(username, text, isUser, timestamp) {
   const chatMessage = document.createElement("p");
 
-  // Format the timestamp
-  const formattedTime = new Date(timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  // Check if the timestamp is valid
+  const messageTimestamp = new Date(timestamp);
+  const isValidDate = !isNaN(messageTimestamp.getTime()); // Checks if the timestamp is valid
+
+  // If the timestamp is not valid, use the current time
+  const finalTimestamp = isValidDate ? messageTimestamp : new Date();
+
+  // Format the timestamp as HH:MM
+  const formattedTime = finalTimestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
   chatMessage.textContent = `[${username}] ${text} - ${formattedTime}`; // Append the timestamp to the message
   chatMessage.className = "chat-message"; // Assign the base chat-message class
 
@@ -1071,10 +1079,10 @@ async function initChat() {
       }
     });
     // Set an interval to fetch chat messages every 5 seconds
-    setInterval(() => {
-      fetchChatMessages(userDetails.username, userDetails.partyCode);
-      //createChatInputContainer(userDetails);
-    }, 5000); // Adjust interval as necessary (5000ms = 5 seconds)
+    // setInterval(() => {
+    //   fetchChatMessages(userDetails.username, userDetails.partyCode);
+    //   //createChatInputContainer(userDetails);
+    // }, 5000); // Adjust interval as necessary (5000ms = 5 seconds)
   } catch (error) {
     console.error('Initialization error:', error);
   }

@@ -12,22 +12,22 @@ function enhancedTokenize(text, n = 1) {
     return n === 1 ? filteredTokens : natural.NGrams.ngrams(filteredTokens, n).map(ngram => ngram.join(' '));
 }
 
-function vectorizeMovies(combinedFeatures) {
+function vectorizeMovies(combinedFeatures, n = 1) {
     const tfidf = new TfIdf();
     const termSet = new Set();
 
     // First pass: Add each movie's combined features to the TfIdf instance
     combinedFeatures.forEach(features => {
         if (features.trim().length > 0) { // Check for non-empty features
-            const tokens = enhancedTokenize(features, 1); // Use unigrams
+            const tokens = enhancedTokenize(features, n); // Use n-grams (can be unigrams, bigrams, etc.)
             tfidf.addDocument(tokens.join(' ')); // Rejoin tokens for TfIdf
             tokens.forEach(term => {
-                termSet.add(term);
+                termSet.add(term); // Collect terms for vocabulary
             });
         }
     });
 
-    const vocabulary = Array.from(termSet);
+    const vocabulary = Array.from(termSet); // Create the final vocabulary array
     const movieVectors = combinedFeatures.map((features, index) => {
         const vector = new Array(vocabulary.length).fill(0);
         const terms = tfidf.listTerms(index);
