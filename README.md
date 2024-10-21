@@ -39,7 +39,8 @@
 [Girls Gone Code - Demo 4](https://drive.google.com/file/d/1VjrOnbRlDuTT-A_u-tHjwoHEO4eU9D0d/view?usp=sharing)
 
 # Project Management #
-[Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
+[GitHub Project Board](https://github.com/orgs/COS301-SE-2024/projects/72)
+[Moday.com](https://tuks436590.monday.com/boards/1567981048)
 
 # Documentation #
 [User Manual](https://drive.google.com/file/d/1zHcj1dh3f75ZELGJ9-xZ-W_L2_VKtpY2/view?usp=sharing)
@@ -96,8 +97,8 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td> Tlhalefo Dikolomela </td>
   <td> Project Manager, Database Administrator </td>
   <td> I am a final year Computer Science student,
-    who enjoys learning and challenging myself.
-    I have good planning, management and leadership skills.
+    who enjoys learning and challenging herself.
+    I have good planning, management, leadership and problem-solving skills.
     I am most proficient in Java, C++, JavaScript and Python. 
     Email: tlhalefodikolomela@gmail.com
   <td>
