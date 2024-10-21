@@ -11,6 +11,13 @@
 </h3>
 <div align="center">
 
+## MovieHub
+
+<a href="https://drive.google.com/uc?export=view&id=https://drive.google.com/uc?export=view&id=13kK37SN787ktlEyfU3tkW5IjkQ2XZhV1">
+    <img src="https://drive.google.com/uc?export=view&id=140shnORx2qn_IVvNhR0jwgOvVMW3ooyG" alt="Watch the GIF" width="800" height="400" />
+ <br/> Watch Full Video
+</a>
+
 
   # Badges #
 ![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2024/MovieHub)
@@ -101,7 +108,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
     who enjoys learning and challenging herself.
     I have good planning, management, leadership and problem-solving skills.
     I am most proficient in Java, C++, JavaScript and Python. 
-    Email: tlhalefodikolomela@gmail.com
+    <br>Email: tlhalefodikolomela@gmail.com
   <td>
         <a href="https://github.com/tlh26">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
@@ -120,7 +127,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td> UI/UX Designer, Frontend Developer </td>
   <td>
     I am a computer science student from the University of Pretoria. I excel in building modern web applications that deliver seamless user experience. I'm always looking for opportunities to expand my knowledge in full stack development. Fun fact: I nearly traded in my keyboard for a paintbrush and pursued a degree in fine arts. Glad I stuck with coding – less mess, more debugging!
-    Email: asasiphumat@gmail.com
+    <br>Email: asasiphumat@gmail.com
   </td>
   <td>
         <a href="https://github.com/asa-siphuma">
@@ -139,7 +146,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td> Jayson </td>
   <td> Back-end developer</td>
   <td>I am a 3rd year Information and Knowledge Systems student at the University of Pretoria, specializing in Genetics. I have experience working with Java, C++, HTML, Javascript and I am eager to learn more. I am always up for a challenge and like to solve problems.
-    Email: jayson.du.toit@gmail.com
+    <br>Email: jayson.du.toit@gmail.com
   </td>
   <td>
         <a href="https://github.com/Jayson22571532">
@@ -161,7 +168,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td> Quality Assurance Engineer, Frontend Developer</td>
   <td>
     I am a final-year computer science student with a solid foundation in programming and a knack for building robust, user-friendly applications. My web development experience ensures interactive, visually appealing interfaces, and my UI/UX background helps me design intuitive and beautiful user experiences. I thrive on challenges and constantly seek to enhance my problem-solving skills.
-  EMail: zandile.modise02@gmail.com
+  <br>Email: zandile.modise02@gmail.com
   </td>
   <td>
         <a href="https://github.com/ZandileModise">
@@ -181,7 +188,7 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
   <td> Charlize Hanekom </td>
   <td> DevOps Engineer, Backend Developer</td>
   <td>I am a BSc Information and Knowledge Systems student. In my studies I have gained experience in  Java, C++, HTML, PHP, JavaScript, CSS, SQL and Python. I have worked on both frontend and backend and thereby become comfortable working on most aspects of a program.
-  Email: charlize.hanekom@gmail.com
+  <br>Email: charlize.hanekom@gmail.com
   </td>
   <td>
         <a href="https://github.com/CharlizeHanekom">
@@ -199,8 +206,8 @@ Professional profiles of team members, including links to LinkedIn and GitHub pr
 </td>
   <td> Itumeleng Moshokoa </td>
   <td> Frontend Developer</td>
-  <td>I'm a curious and driven individual with a passion for data science and computer science. I embrace challenges as opportunities for growth and learning, and I'm always seeking to expand my knowledge and skills. I believe that technology can be a powerful force for good, and I'm eager to contribute to innovative solutions that make a difference. I'm a lifelong learner, always looking for new experiences and perspectives to broaden my understanding of the world and how computer science can help shape a better future .</td>
-  Emial: u21785742@tuks.co.za
+  <td>I'm a curious and driven individual with a passion for data science and computer science. I embrace challenges as opportunities for growth and learning, and I'm always seeking to expand my knowledge and skills. I believe that technology can be a powerful force for good, and I'm eager to contribute to innovative solutions that make a difference. I'm a lifelong learner, always looking for new experiences and perspectives to broaden my understanding of the world and how computer science can help shape a better future.<br>Email: u21785742@tuks.co.za</td>
+  
   <td>
         <a href="https://github.com/melengmoshokoa">
           <img src="https://img.shields.io/badge/GitHub-Profile-blue?style=flat-square&logo=github" alt="GitHub">
