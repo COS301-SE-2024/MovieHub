@@ -13,7 +13,7 @@
 
 ## MovieHub
 
-<a href="https://drive.google.com/uc?export=view&id=https://drive.google.com/uc?export=view&id=13kK37SN787ktlEyfU3tkW5IjkQ2XZhV1">
+<a href="https://drive.google.com/file/d/13kK37SN787ktlEyfU3tkW5IjkQ2XZhV1/view?usp=drivesdk">
     <img src="https://drive.google.com/uc?export=view&id=13nHUqWe7DXqaMsqDM4glpXHOysxinmt1" alt="Watch the GIF" width="800" height="400" />
  <br/> Watch Full Video
 </a>
